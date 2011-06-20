@@ -1,0 +1,22 @@
+package org.rubato.rubettes.bigbang.view.controller.score.actions;
+
+import java.awt.event.ActionEvent;
+
+import javax.swing.AbstractAction;
+
+import org.rubato.rubettes.bigbang.view.controller.ViewController;
+import org.rubato.rubettes.bigbang.view.controller.mode.temp.BuildSatellitesMode;
+
+public class BuildSatellitesAction extends AbstractAction {
+	
+	private ViewController controller;
+	
+	public BuildSatellitesAction(ViewController controller) {
+		this.controller = controller;
+	}
+	
+	public void actionPerformed(ActionEvent event) {
+		this.controller.changeDisplayMode(new BuildSatellitesMode(this.controller));
+	}
+	
+}

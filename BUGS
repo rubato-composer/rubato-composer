@@ -1,0 +1,11 @@
+List of known bugs
+==================
+
+Rubato Composer GUI
+-------------------
+
+- Sometimes dialog windows may become unresponsive to keyboard input.
+  A slight resize of the window will normally make it responsive again.
+  This seems happen on JDK 1.6.0.
+- ScorePlayRubette: There is a delay between the current position indicator
+  and the playing.

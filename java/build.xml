@@ -1,0 +1,71 @@
+<project name="Rubato" default="compile" basedir=".">
+
+  <path id="project.jars">
+    <pathelement path="${classpath}"/>
+    <fileset dir="jar">
+      <include name="**/*.jar"/>
+     </fileset>
+  </path>
+
+  <property name="src" value="src"/>
+  <property name="build" value="${src}"/>
+  <property name="dist" value="dist"/>
+  <property name="doc" value="../javadoc"/>
+
+  <target name="init">
+    <tstamp/>
+  </target>
+
+  <target name="compile" depends="init">
+    <javac srcdir="${src}" source="1.5" target="1.5" debug="on">
+       <classpath refid="project.jars"/>
+    </javac>
+  </target>
+
+  <target name="dist" depends="compile">
+    <mkdir dir="${dist}"/>
+    <jar destfile="${dist}/rubato.jar" index="yes">
+      <fileset dir="${build}">
+        <exclude name="**/test/*"/>
+        <exclude name="**/*Test.class"/>
+        <exclude name="**/*.java"/>
+      </fileset>
+      <zipfileset src="jar/xercesImpl.jar"/>
+      <zipfileset src="jar/jsyn_beta_160.jar"/>
+      <zipfileset src="jar/mt4j.jar"/>
+      <zipfileset src="jar/core.jar"/>
+      <manifest>
+        <attribute name="Built-By" value="Gérard Milmeister"/>
+        <attribute name="Main-Class" value="org.rubato.composer.Composer"/>
+      </manifest>
+    </jar>
+  </target>
+
+  <target name="doc">
+    <mkdir dir="${doc}"/>
+    <javadoc sourcepath="${src}" 
+	     destdir="${doc}" 
+             access="public"
+             author="true"
+             doctitle="Rubato"
+             source="1.5"
+	     additionalparam="-charset UTF-8">
+      <classpath refid="project.jars"/>
+      <package name="org.rubato.*"/>
+      <excludepackage name="org.**.test"/>
+      <!-- <link href="file:/opt/jdk1.6.0/docs/api/"/> -->
+    </javadoc>
+  </target>
+
+  <target name="update">
+    <cvs dest="${src}" command="update -A -d"/>
+  </target>
+
+  <target name="clean">
+    <delete dir="${dist}"/>
+    <delete dir="${doc}"/>
+    <delete>
+      <fileset dir="${build}" includes="**/*.class"/>
+    </delete>
+  </target>
+</project>

@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path="java/src"/>
+	<classpathentry kind="lib" path="java/jar/xercesImpl.jar"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/4"/>
+	<classpathentry kind="lib" path="/Users/flo/Projects/rubatoc/java/jar/jsyn_beta_160.jar"/>
+	<classpathentry kind="lib" path="/Users/flo/Projects/rubatoc/java/jar/GlulogicMT.jar"/>
+	<classpathentry kind="lib" path="/Users/flo/Downloads/MT4j/mt4jLibs/core.jar"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/MT4j">
+		<attributes>
+			<attribute name="org.eclipse.jdt.launching.CLASSPATH_ATTR_LIBRARY_PATH_ENTRY" value="MT4j/bin"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="/Users/flo/Downloads/MT4j/mt4jLibs/mt4j.jar"/>
+	<classpathentry kind="output" path="bin"/>
+</classpath>

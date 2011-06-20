@@ -1,0 +1,35 @@
+<html>
+  <head>
+    Reformer
+  </head>
+
+  <body>
+    <p>
+      A reformer allows the conversion of a denotator of one given form
+      to a denotator of another given form, provided that both forms
+      are compatible.
+    </p>
+    <p>
+      To create a reformer from a form <code>from</code> to a
+      form <code>to</code>, use the static <code>make</code> method
+      of the class <code>Reformer</code>:
+    </p>
+    <pre>
+      Reformer reformer = Reformer.make(from, to);
+    </pre>
+    <p>
+      If the reformer can not be created, <code>make</code> returns
+      <code>null</code>.
+    </p>
+    <p>
+      Then, to reform the denotator <code>d</code> of form <code>from</code>:      
+    </p>
+    <pre>
+      Denotator res = reformer.reform(d);
+    </pre>
+    <p>
+      The <code>reform</code> throws a <code>RubatoException</code>, if
+      <code>d</code> does not have the required form.
+    </p>
+  </body>
+</html>
