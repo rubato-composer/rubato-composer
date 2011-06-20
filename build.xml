@@ -1,0 +1,101 @@
+<project name="Rubato" default="dist-all" basedir=".">
+
+  <target name="init">
+    <tstamp/>
+  </target>
+
+  <target name="compile" depends="init"
+          description="Compile Java sources">
+    <ant antfile="build.xml" dir="java" target="dist"/>
+  </target>
+
+  <target name="clean" depends="doc-clean,javadoc-clean"
+          description="Remove all generated files">
+    <ant antfile="build.xml" dir="java" target="clean"/>
+    <delete dir="export"/>
+    <delete>
+      <fileset dir="." includes="*.tar.gz"/>
+    </delete>
+  </target>
+
+  <target name="doc-clean"
+          description="Remove generated documentation">
+    <exec dir="docs" executable="make">
+      <arg value="clean"/>
+    </exec>    
+  </target>
+
+  <target name="doc"
+          description="Generate documentation">
+    <exec dir="docs" executable="make">
+      <arg value="manual.pdf"/>
+    </exec>
+  </target>
+
+  <target name="javadoc-clean"
+          description="Remove generated javadoc">
+    <delete dir="javadoc"/>
+  </target>
+
+  <target name="javadoc"
+          description="Generate API documentation">
+    <ant antfile="build.xml" dir="java" target="doc"/>
+  </target>
+
+  <target name="dist-src" depends="init"
+          description="Create source distribution">
+    <delete dir="export"/>
+    <cvs cvsRoot=":ext:thalmann@math.ifi.unizh.ch:/opt/cvs"
+         command="export -D now rubato"
+         dest="export"/>
+    <tar destfile="rubato-src-${DSTAMP}.tar">         
+      <tarfileset dir="export/rubato"
+                  prefix="rubato-src-${DSTAMP}"/>
+    </tar>
+    <delete dir="export"/>
+    <gzip zipfile="rubato-src-${DSTAMP}.tar.gz"
+          src="rubato-src-${DSTAMP}.tar"/>
+    <delete file="rubato-src-${DSTAMP}.tar"/>
+  </target>
+
+  <target name="dist-api" depends="init"
+          description="Create API distribution">
+    <delete dir="javadoc"/>
+    <antcall target="javadoc"/>
+    <tar destfile="rubato-api-${DSTAMP}.tar">         
+      <tarfileset dir="javadoc"
+                  prefix="rubato-api-${DSTAMP}"/>
+    </tar>    
+    <gzip zipfile="rubato-api-${DSTAMP}.tar.gz"
+          src="rubato-api-${DSTAMP}.tar"/>
+    <delete file="rubato-api-${DSTAMP}.tar"/>      
+  </target>
+
+  <target name="dist-bin" depends="compile,doc"
+          description="Create binary distribution">
+    <tar destfile="rubato-bin-${DSTAMP}.tar">
+      <tarfileset dir="java/dist"
+                  prefix="rubato-bin-${DSTAMP}">
+        <include name="rubato.jar"/>
+      </tarfileset>
+      <tarfileset dir="."
+                  prefix="rubato-bin-${DSTAMP}">
+        <include name="COPYING"/>
+        <include name="AUTHORS"/>
+        <include name="README"/>
+        <include name="BUGS"/>
+      </tarfileset>
+      <tarfileset dir="docs"
+                  prefix="rubato-bin-${DSTAMP}/doc">
+        <include name="manual.pdf"/>
+      </tarfileset>
+    </tar>
+    <gzip zipfile="rubato-bin-${DSTAMP}.tar.gz"
+          src="rubato-bin-${DSTAMP}.tar"/>
+    <delete file="rubato-bin-${DSTAMP}.tar"/>      
+  </target>
+
+  <target name="dist-all" depends="dist-src,dist-api,dist-bin"
+          description="Create all distributions"/>
+        
+</project>

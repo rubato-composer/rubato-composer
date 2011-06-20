@@ -1,0 +1,185 @@
+\usepackage[latin1]{inputenc}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{listings}
+%\usepackage[pdftex]{graphicx}
+\usepackage{graphicx}
+\usepackage{fancybox}
+\usepackage{marvosym}
+\usepackage{pict2e}
+\usepackage{booktabs}
+\usepackage{mdwlist}
+\usepackage{lmodern}
+\usepackage{soul}
+\usepackage{color}
+\definecolor{titlecolor}{cmyk}{0,0.89,0.94,0.28}
+\definecolor{linkcolor}{cmyk}{0.79,0.88,0,0}
+\usepackage[dvips,colorlinks,linkcolor=linkcolor]{hyperref}
+
+\usepackage[T1]{fontenc}
+\renewcommand{\rmdefault}{btv}
+\renewcommand{\sfdefault}{bop}
+\renewcommand{\ttdefault}{blg}
+
+%\newcommand{\codefamily}{\fontfamily{bfr}\selectfont}
+%\newcommand{\codefamily}{\fontfamily{bgs}\selectfont}
+\newcommand{\codefamily}{\fontfamily{blg}\selectfont}
+%\newcommand{\codefamily}{\fontfamily{bmp}\selectfont}
+%\newcommand{\codefamily}{\fontfamily{brw}\selectfont}
+\newcommand{\textscreen}[1]{{\normalfont\fontfamily{blg}\selectfont{#1}}}
+\usepackage{textcomp}
+\usepackage{pifont}
+\usepackage{mathfont}
+
+\frenchspacing
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{3pt}
+
+\newcommand{\arrow}{{\,\ding{222}\,}}
+\newcommand{\rightbox}[1]{\makebox[0pt][r]{#1}}
+\renewcommand{\contentsname}{\scshape{Contents}}
+
+\makeatletter
+\def\@seccntformat#1{\protect\makebox[0pt][r]{\csname the#1\endcsname\hspace{0.5em}}}
+\makeatother
+
+\usepackage[pagestyles]{titlesec}
+\titleformat{\section}[block]%
+  {\Large\color{titlecolor}\sffamily\mdseries\filcenter}%
+  {\thesection}%
+  {0.7em}%
+  {\scshape}%
+\titleformat{\subsection}[block]%
+  {\large\color{titlecolor}\sffamily\mdseries\filcenter}%
+  {\thesubsection}%
+  {0.7em}%
+  {}
+\newcommand{\sectionbreak}{\clearpage}
+\titlespacing*{\section}{0pt}{*6}{*5}
+
+\newpagestyle{main}[\small\sffamily\scshape\mdseries]{%
+  \sethead{}{\sectiontitle}{}%
+  \setfoot{}{\normalfont\thepage}{}}
+\pagestyle{main}
+
+\usepackage{titletoc}
+\contentsmargin{2.55em}
+\dottedcontents{section}[1em]{\vspace*{1.5ex}\sffamily\scshape\mdseries}{1.5em}{1pc}
+\dottedcontents{subsection}[3em]{\sffamily\mdseries}{2em}{1pc}
+
+
+\heavyrulewidth=.1em
+
+\newenvironment{code}{%
+  \codefamily%
+  \renewcommand{\v}[1]{\textit{##1}}%
+  \renewcommand{\k}[1]{\textbf{##1}}%
+  \begin{quote}
+  \begin{tabbing}%
+  \hspace{2em}\=\hspace{2em}\=\hspace{2em}\=\hspace{2em}\=\kill}
+  {\end{tabbing}\end{quote}}
+\newcommand{\incode}[1]{{%
+  \normalfont%
+  \codefamily%
+  \renewcommand{\v}[1]{\textit{##1}}%
+  \renewcommand{\k}[1]{\textbf{##1}}%
+  #1}}
+\newcommand{\textcode}[1]{{%
+  \codefamily%
+  \renewcommand{\v}[1]{\textit{##1}}%
+  \renewcommand{\k}[1]{\textbf{##1}}%
+  #1}}
+\newcommand{\textkey}[1]{{\codefamily\textsc{#1}}}
+
+\makeatletter
+\newenvironment{rubette}[1]
+  {\par%
+    \vspace*{14pt}\textit{\textbf{#1}}%
+    \vspace*{4pt}%
+    \makeatletter%
+    \@beginparpenalty\@M%
+    \begin{basedescript}{%
+        \labelsep=0em%
+        \itemsep=0pt%
+        \topsep=0pt%
+        \desclabelwidth{6em}%
+        \desclabelstyle{\nextlinelabel}%
+        \renewcommand{\makelabel}[1]{{\itshape ##1}:}%
+        \def\name{\item[\textbf{Name}]}%
+        \def\group{\item[Group]}%
+        \def\summary{\item[Summary]}%
+        \def\inputs{\item[Inputs]}%
+        \def\outputs{\item[Outputs]}%
+        \def\description{\item[Description]}%
+        \def\view{\item[View]}%
+        \def\properties{\item[Properties]}%
+      }}
+  {\end{basedescript}}
+\makeatother
+
+\makeatletter
+\newenvironment{listfigure}
+  {\long\def\@makecaption##1##2{%
+      \vskip\abovecaptionskip
+      \sbox\@tempboxa{##1: ##2}%
+      \ifdim \wd\@tempboxa >0.9\linewidth
+      ##1: ##2\par
+      \else
+      \begin{center}##1: ##2\par\end{center}
+      \fi
+      \vskip\belowcaptionskip}
+    \begin{figure}[htb]
+    \list{}{\leftmargin72pt}%
+  \item\relax}%
+  {\endlist\end{figure}}
+\makeatother  
+
+%\renewcommand{\thelstnumber}{\the\value{lstnumber}} 
+\lstnewenvironment{java}
+  {\codefamily%
+   \fontsize{11pt}{11pt}\selectfont%
+   \lstset{columns=flexible}%
+   \lstset{language=Java}%
+   \lstset{mathescape=true}}
+  {}
+\lstnewenvironment{njava}
+  {\codefamily%
+   \fontsize{11pt}{12pt}\selectfont%
+   \lstset{columns=flexible}%
+   \lstset{language=Java}%
+   \lstset{numbers=left}%
+   \lstset{numberstyle=\tiny}%
+   \lstset{mathescape=true}}
+  {}
+\lstnewenvironment{ant}
+  {\codefamily%
+   \fontsize{11pt}{11pt}\selectfont%
+   \lstset{columns=flexible}%
+   \lstset{language=Ant}}%
+  {}
+
+
+\newcommand{\composer}{\textsc{Rubato Composer}}
+\newcommand{\rubato}{\textsc{Rubato}}
+
+\ifx\pdfoutput\@undefined\else
+\ifx\pdfoutput\relax\else
+\ifcase\pdfoutput\else
+\DeclareGraphicsExtensions{.pdf}
+\fi\fi\fi
+
+\renewcommand\figureautorefname{figure}
+\newcommand{\Autoref}[1]{%
+  \begingroup%
+  \renewcommand\figureautorefname{Figure}%
+  \renewcommand\sectionautorefname{Section}%
+  \autoref{#1}%
+  \endgroup}
+
+\newcommand{\manualclearpage}{\cleardoublepage}
+
+\newcommand{\Colimit}{\ensuremath{\textbf{Colimit}}}
+\newcommand{\Simple}{\ensuremath{\textbf{Simple}}}
+\newcommand{\Limit}{\ensuremath{\textbf{Limit}}}
+\newcommand{\Power}{\ensuremath{\textbf{Power}}}
+\newcommand{\List}{\ensuremath{\textbf{List}}}

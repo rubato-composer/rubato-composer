@@ -1,0 +1,155 @@
+// SCORE-FORM
+// based on mariana montiel hernandez' pianoscore-form
+// revised by mazzola & milmeister & mueller, 2003-03-04
+//
+// generally, all unused structures are allowed to remain empty
+
+&begin(form);
+
+//---- the score as a whole
+
+Score:.limit[
+		BibInfo,
+		Signatures,
+		Tempi,
+		Lines,
+		GeneralNotes,
+		GroupArticulations,
+		Dynamics
+];
+
+//---- bibliographic information
+
+BibInfo:.limit[
+		Composer,
+		Title,
+		Date,
+		Instruments,
+		Edition
+];
+
+Composer:.simple(ZString);
+Title:.simple(ZString);
+Date:.simple(ZString);
+Instruments:.simple(ZString);
+Edition:.simple(ZString);
+
+
+
+//---- signatures
+// a note on key signatures: they are purely informational.
+// if a key signature is defined, this does not mean that
+// the notes (defined below) have to be adopted to the 
+// corresponding key (also see the comment on accidentials below).
+
+Signatures:.limit[KeySignatures, TimeSignatures, Clefs];
+
+KeySignatures:.power{KeySignature};
+KeySignature:.limit[Voice, Onset, KeySymbol];
+KeySymbol:.simple(Z _3 ^12);
+
+TimeSignatures:.power{TimeSignature};
+TimeSignature:.limit[Voice, Onset, TimeSymbol];
+TimeSymbol:.simple(Z ^2);
+
+Clefs:.power{Clef};
+Clef:.limit[Voice, Onset, ClefSymbol];
+ClefSymbol:.simple(ZString);
+
+
+//---- tempi
+
+Tempi:.power{Tempo};
+Tempo:.colimit<AbsoluteTempo, RelativeTempo>;
+AbsoluteTempo:.limit[Voice, Onset, AbsoluteTempoSymbol];
+RelativeTempo:.limit[Voice, Onset, Duration, RelativeTempoSymbol];
+AbsoluteTempoSymbol:.simple(ZString);
+RelativeTempoSymbol:.simple(ZString);
+
+
+//---- lines
+
+Lines:.limit[BarLines, Repetitions];
+BarLines:.power{BarLine};
+BarLine:.limit[Voice, Onset];
+Repetitions:.power{Repetition};
+Repetition:.limit[BarLine, Duration];
+
+
+//---- general notes
+// the general note is a recursive construct. it incorporates
+// simple notes (eg events defined by midi), simple rests, lyrics,
+// and (complex) notes and rests, which go back to general note. 
+// that way, you can define trills and other hierarchical constructs.
+//
+// observe that the effective pitch is always pitch + accidential.
+// further, accidentials are not retained until the bar end, as it is
+// done in standard score layout, and key signatures have no effect
+// on pitch. this simplifies data handling considerably, since a
+// note definition remains stateless (i.e. not depending on previous
+// notes). of course, a layout program can easily transform between
+// the two mechanisms.
+
+GeneralNotes:.power{GeneralNote};
+GeneralNote:.colimit<SimpleNote, Note, SimpleRest, Rest, Lyric>;
+
+SimpleNote:.limit[
+	Voice, 
+	Onset, 
+	Pitch, 
+	Loudness, 
+	Duration, 
+	Accidential, 
+	Articulation,
+	Fingering
+];
+
+Note:.limit[SimpleNote, SatelliteSymbol, GeneralNotes];
+SimpleRest:.limit[Voice, Onset,	Duration];
+Rest:.limit[SimpleRest, SatelliteSymbol, GeneralNotes];
+Lyric:.limit[Voice, Onset, Duration, Text];
+
+
+Accidential:.simple(Q);
+Articulation:.simple(ZString);
+Fingering:.simple(ZString);
+
+SatelliteSymbol:.simple(ZString);
+
+
+//---- group articulations
+
+GroupArticulations:.power{GroupArticulation};
+GroupArticulation:.colimit<Slur, Pedal>;
+Slur:.limit[GeneralNotes];
+Pedal:.limit[Voice, Onset, Duration, PedalSymbol];
+PedalSymbol:.simple(ZString);
+
+
+//---- dynamics
+
+Dynamics:.power{Dynamic};
+Dynamic:.colimit<AbsoluteDynamic, RelativeDynamic>;
+AbsoluteDynamic:.limit[Voice, Onset, AbsoluteDynamicSymbol];
+RelativeDynamic:.limit[Voice, Onset, Duration, RelativeDynamicSymbol];
+AbsoluteDynamicSymbol:.simple(ZString);
+RelativeDynamicSymbol:.simple(ZString);
+
+
+//---- general stuff
+// voice: can be an arbitrary definition of a voice (e.g. "violin 1")
+// onset: counted in terms of quarter notes. for example, for a 4/4
+//        time signature, bar 2 starts at onset 1.0
+// pitch: is given in terms of midi pitch (C4=60.0, C#4=61.0, etc).
+//        smaller pitch resolutions are possible since pitch is in Q
+// loudness: you can define midi velocity by writing 120.0*"MIDI", or
+//        for example absolute decibel by 85.0*"DB".
+
+Voice:.simple(ZString);
+Onset:.simple(R);
+Pitch:.simple(Q);
+Loudness:.simple(RString);
+Duration:.simple(R);
+Text:.simple(ZString);
+
+&end(FORM);
