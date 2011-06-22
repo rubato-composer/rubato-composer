@@ -14,6 +14,7 @@ public class BigBangController extends Controller {
 	public static final String UNDO = "undo";
 	public static final String REDO = "redo";
 	public static final String POST_EDIT = "postEdit";
+	public static final String GRAPH = "graph";
 	public static final String PLAY_MODE = "togglePlayMode";
 	public static final String TEMPO = "setTempo";
 	public static final String FM_MODEL = "FMModel";

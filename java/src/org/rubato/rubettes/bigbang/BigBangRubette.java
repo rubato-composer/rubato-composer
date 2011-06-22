@@ -31,8 +31,8 @@ public class BigBangRubette extends AbstractRubette {
         this.setInCount(1);
         this.setOutCount(1);
         this.controller = new BigBangController();
-        //this.view = new BigBangView(this.controller);
-        this.view = new MTBigBangView(this.controller);
+        this.view = new BigBangView(this.controller);
+        //this.view = new MTBigBangView(this.controller);
         this.model = new BigBangModel(this.controller);
         this.model.setMultiTouch(false);
 	}

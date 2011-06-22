@@ -40,6 +40,7 @@ public class ViewController extends Controller {
 	//general functionality
 	public static final String UNDO = "undo";
 	public static final String REDO = "redo";
+	public static final String TRANSFORMATIONS = "transformations";
 	public static final String INPUT_ACTIVE = "InputActive";
 	
 	//score manipulation - display
@@ -169,15 +170,15 @@ public class ViewController extends Controller {
 		this.callModelMethod(ViewController.ROTATE_NOTES, center, angle, copyAndTranslate, previewMode);
 	}
 	
-	public void scaleSelectedNotes(Point center, double[] scaleFactors, boolean copyAndTranslate, boolean previewMode) {
+	public void scaleSelectedNotes(Point2D.Double center, double[] scaleFactors, boolean copyAndTranslate, boolean previewMode) {
 		this.callModelMethod(ViewController.SCALE_NOTES, center, scaleFactors, copyAndTranslate, previewMode);
 	}
 	
-	public void reflectSelectedNotes(Point center, double[] reflectionVector, boolean copyAndTranslate, boolean previewMode) {
+	public void reflectSelectedNotes(Point2D.Double center, double[] reflectionVector, boolean copyAndTranslate, boolean previewMode) {
 		this.callModelMethod(ViewController.REFLECT_NOTES, center, reflectionVector, copyAndTranslate, previewMode);
 	}
 	
-	public void shearSelectedNotes(Point center, double[] shearingFactors, boolean copyAndTranslate, boolean previewMode) {
+	public void shearSelectedNotes(Point2D.Double center, double[] shearingFactors, boolean copyAndTranslate, boolean previewMode) {
 		this.callModelMethod(ViewController.SHEAR_NOTES, center, shearingFactors, copyAndTranslate, previewMode);
 	}
 	
@@ -189,7 +190,7 @@ public class ViewController extends Controller {
 		this.callModelMethod(ViewController.AFFINE_TRANSFORM_NOTES, center, shift, angle, scaleFactors, copyAndTransform, previewMode);
 	}
 	
-	public void addNote(Point location) {
+	public void addNote(Point2D.Double location) {
 		this.callModelMethod(ViewController.ADD_NOTE, location);
 	}
 	

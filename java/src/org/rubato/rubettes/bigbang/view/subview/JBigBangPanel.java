@@ -18,6 +18,7 @@ import org.rubato.rubettes.bigbang.view.controller.ToggleViewParametersAction;
 import org.rubato.rubettes.bigbang.view.controller.ViewController;
 import org.rubato.rubettes.bigbang.view.subview.toolbars.JLayersToolBar;
 import org.rubato.rubettes.bigbang.view.subview.toolbars.JMainToolBar;
+import org.rubato.rubettes.bigbang.view.subview.toolbars.JGraphToolBar;
 
 public class JBigBangPanel extends JPanel {
 	
@@ -38,9 +39,10 @@ public class JBigBangPanel extends JPanel {
 	
 	private JPanel createToolBarsPanel(ViewController controller, BigBangController bbController) {
 		JPanel toolBarsPanel = new JPanel();
-		toolBarsPanel.setLayout(new GridLayout(2, 1));
+		toolBarsPanel.setLayout(new GridLayout(3, 1));
 		toolBarsPanel.add(new JMainToolBar(controller, bbController));
 		toolBarsPanel.add(new JLayersToolBar(controller, bbController));
+		toolBarsPanel.add(new JGraphToolBar(controller, bbController));
 		return toolBarsPanel;
 	}
 	

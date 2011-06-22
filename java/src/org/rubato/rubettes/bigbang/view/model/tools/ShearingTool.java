@@ -1,19 +1,19 @@
 package org.rubato.rubettes.bigbang.view.model.tools;
 
 import java.awt.Dimension;
-import java.awt.Point;
 import java.awt.geom.Path2D;
+import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 
 import org.rubato.rubettes.bigbang.view.subview.AbstractPainter;
 
 public class ShearingTool extends DisplayTool {
 	
-	private Point center;
+	private Point2D.Double center;
 	private Rectangle2D.Double reference;
 	private double[] shearingFactors;
 	
-	public ShearingTool(Point center, Dimension reference) {
+	public ShearingTool(Point2D.Double center, Dimension reference) {
 		this.center = center;
 		int width = (int)reference.getWidth();
 		int height = (int)reference.getHeight();

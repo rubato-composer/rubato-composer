@@ -3,6 +3,7 @@ package org.rubato.rubettes.bigbang.view.controller.score;
 import java.awt.Dimension;
 import java.awt.Point;
 import java.awt.event.MouseEvent;
+import java.awt.geom.Point2D;
 
 import javax.swing.event.MouseInputAdapter;
 
@@ -13,7 +14,7 @@ public class NoteScalingAdapter extends MouseInputAdapter {
 	
 	private final Dimension REFERENCE = new Dimension(100, 100);
 	private ViewController controller;
-	private Point center;
+	private Point2D.Double center;
 	private ScalingTool scalingTool;
 	
 	public NoteScalingAdapter(ViewController controller) {
@@ -22,7 +23,7 @@ public class NoteScalingAdapter extends MouseInputAdapter {
 	
 	public void mousePressed(MouseEvent event) {
 		if (event.getButton() == MouseEvent.BUTTON1) {
-			this.center = event.getPoint();
+			this.center = new Point2D.Double(event.getPoint().x, event.getPoint().y);
 			this.scalingTool = new ScalingTool(this.center, this.REFERENCE);
 			this.controller.changeDisplayTool(this.scalingTool);
 		}
