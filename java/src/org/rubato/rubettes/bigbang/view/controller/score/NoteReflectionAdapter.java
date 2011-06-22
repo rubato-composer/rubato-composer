@@ -2,6 +2,7 @@ package org.rubato.rubettes.bigbang.view.controller.score;
 
 import java.awt.Point;
 import java.awt.event.MouseEvent;
+import java.awt.geom.Point2D;
 
 import javax.swing.event.MouseInputAdapter;
 
@@ -11,7 +12,7 @@ import org.rubato.rubettes.bigbang.view.model.tools.ReflectionTool;
 public class NoteReflectionAdapter extends MouseInputAdapter {
 	
 	private ViewController controller;
-	private Point startPoint;
+	private Point2D.Double startPoint;
 	private ReflectionTool reflectionTool;
 	
 	public NoteReflectionAdapter(ViewController controller) {
@@ -20,7 +21,7 @@ public class NoteReflectionAdapter extends MouseInputAdapter {
 	
 	public void mousePressed(MouseEvent event) {
 		if (event.getButton() == MouseEvent.BUTTON1) {
-			this.startPoint = event.getPoint();
+			this.startPoint = new Point2D.Double(event.getPoint().x, event.getPoint().y);
 			this.reflectionTool = new ReflectionTool(this.startPoint);
 			this.controller.changeDisplayTool(this.reflectionTool);
 		}
@@ -36,7 +37,8 @@ public class NoteReflectionAdapter extends MouseInputAdapter {
 	
 	private void changeReflectionToolPosition(MouseEvent event) {
 		if (this.reflectionTool != null) {
-			this.reflectionTool.setEndPoint(event.getPoint());
+			Point2D.Double endPoint = new Point2D.Double(event.getPoint().x, event.getPoint().y);
+			this.reflectionTool.setEndPoint(endPoint);
 			this.controller.changeDisplayTool(this.reflectionTool);
 			this.reflect(event, true);
 		}

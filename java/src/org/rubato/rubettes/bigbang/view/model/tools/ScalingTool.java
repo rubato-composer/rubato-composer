@@ -1,17 +1,17 @@
 package org.rubato.rubettes.bigbang.view.model.tools;
 
 import java.awt.Dimension;
-import java.awt.Point;
+import java.awt.geom.Point2D;
 
 import org.rubato.rubettes.bigbang.view.subview.AbstractPainter;
 
 public class ScalingTool extends DisplayTool {
 	
-	private Point center;
+	private Point2D.Double center;
 	private Dimension reference;
 	private double[] scaleFactors;
 	
-	public ScalingTool(Point center, Dimension reference) {
+	public ScalingTool(Point2D.Double center, Dimension reference) {
 		this.center = center;
 		this.reference = reference;
 	}

@@ -3,6 +3,7 @@ package org.rubato.rubettes.bigbang.view.controller.score;
 import java.awt.Dimension;
 import java.awt.Point;
 import java.awt.event.MouseEvent;
+import java.awt.geom.Point2D;
 
 import javax.swing.event.MouseInputAdapter;
 
@@ -13,7 +14,7 @@ public class NoteShearingAdapter extends MouseInputAdapter {
 	
 	private final Dimension REFERENCE = new Dimension(100, 100);
 	private ViewController controller;
-	private Point center;
+	private Point2D.Double center;
 	private ShearingTool shearingTool;
 	
 	public NoteShearingAdapter(ViewController controller) {
@@ -22,7 +23,7 @@ public class NoteShearingAdapter extends MouseInputAdapter {
 	
 	public void mousePressed(MouseEvent event) {
 		if (event.getButton() == MouseEvent.BUTTON1) {
-			this.center = event.getPoint();
+			this.center = new Point2D.Double(event.getPoint().x, event.getPoint().y);
 			this.shearingTool = new ShearingTool(this.center, this.REFERENCE);
 			this.controller.changeDisplayTool(this.shearingTool);
 		}
@@ -60,19 +61,17 @@ public class NoteShearingAdapter extends MouseInputAdapter {
 	
 	private double[] calculateShearingFactors(MouseEvent event) {
 		Point endPoint = event.getPoint();
-		int xDifference = endPoint.x-this.center.x;
-		int yDifference = endPoint.y-this.center.y;
+		double xDifference = endPoint.x-this.center.x;
+		double yDifference = endPoint.y-this.center.y;
 		double xFactor = 2*xDifference/this.REFERENCE.getWidth();
 		double yFactor = -2*yDifference/this.REFERENCE.getHeight();
 		if (event.isShiftDown()) {
 			if (Math.abs(xDifference) >= Math.abs(yDifference)) {
 				return new double[]{xFactor, 0};
-			} else {
-				return new double[]{0, yFactor};
 			}
-		} else {
-			return new double[]{xFactor, yFactor};
+			return new double[]{0, yFactor};
 		}
+		return new double[]{xFactor, yFactor};
 	}
 
 }
