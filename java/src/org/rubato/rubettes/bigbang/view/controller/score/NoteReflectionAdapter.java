@@ -53,8 +53,10 @@ public class NoteReflectionAdapter extends MouseInputAdapter {
 	}
 	
 	private void reflect(MouseEvent event, boolean inPreviewMode) {
-		double[] reflectionVector = this.calculateReflectionVector(event.getPoint());
-		this.controller.reflectSelectedNotes(this.startPoint, reflectionVector, event.isAltDown(), inPreviewMode);
+		Point currentPoint = event.getPoint();
+		double[] reflectionVector = this.calculateReflectionVector(currentPoint);
+		Point2D.Double currentEndPoint = new Point2D.Double(currentPoint.x, currentPoint.y);
+		this.controller.reflectSelectedNotes(this.startPoint, currentEndPoint, reflectionVector, event.isAltDown(), inPreviewMode);
 	}
 	
 	private double[] calculateReflectionVector(Point endPoint) {

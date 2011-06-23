@@ -17,15 +17,43 @@ public class NoteRotationAdapter extends MouseInputAdapter {
 	private Point2D.Double startPoint;
 	private double startAngle;
 	private RotationTool rotationTool;
+	private boolean dragging;
 	
 	public NoteRotationAdapter(ViewController controller) {
+		this.init(controller);
+	}
+	
+	public NoteRotationAdapter(ViewController controller, double[] center, double[] distance, double angle) {
+		this.init(controller);
+		this.updateCenter(center[0], center[1]);
+		Point2D.Double endPoint = new Point2D.Double(center[0]-distance[0], center[1]-distance[1]);
+		this.updateStartAngle(endPoint, angle);
+		this.updateEndPointAndAngle(endPoint, angle);
+	}
+	
+	private void init(ViewController controller) {
 		this.controller = controller;
+		this.dragging = false;
 	}
 	
 	public void mouseClicked(MouseEvent event) {
 		Point clickedPoint = event.getPoint();
-		this.center = new Point2D.Double(clickedPoint.x, clickedPoint.y);
+		this.updateCenter(clickedPoint.x, clickedPoint.y);
+	}
+	
+	private void updateCenter(double x, double y) {
+		this.center = new Point2D.Double(x, y);
 		this.rotationTool = new RotationTool(this.center);
+		this.controller.changeDisplayTool(this.rotationTool);
+	}
+	
+	private void updateStartAngle(Point2D.Double endPoint, double arcAngle) {
+		this.startAngle = this.calculateStartAngle(endPoint, arcAngle);
+		this.rotationTool.setStartAngle(Math.toDegrees(this.startAngle));
+	}
+	
+	private void updateEndPointAndAngle(Point2D.Double endPoint, double arcAngle) {
+		this.rotationTool.setEnd(endPoint, Math.toDegrees(arcAngle));
 		this.controller.changeDisplayTool(this.rotationTool);
 	}
 	
@@ -40,20 +68,21 @@ public class NoteRotationAdapter extends MouseInputAdapter {
 
 	public void mouseDragged(MouseEvent event) {
 		this.changeRotationToolPosition(event);
+		this.dragging = true;
 	}
 
 	public void mouseReleased(MouseEvent event) {
-		this.rotateSelectedNotes(event);
+		if (this.dragging) {
+			this.rotateSelectedNotes(event);
+			this.dragging = false;
+		}
 	}
 	
 	private void changeRotationToolPosition(MouseEvent event) {
 		if (this.startPoint != null) {
-			Point currentPoint = event.getPoint();
-			Point2D.Double currentEndPoint = new Point2D.Double(currentPoint.x, currentPoint.y);
+			Point2D.Double currentPoint = new Point2D.Double(event.getPoint().x, event.getPoint().y);
 			double arcAngle = this.rotate(event, true);
-			this.rotationTool.setEnd(currentEndPoint, Math.toDegrees(arcAngle));
-			this.controller.changeDisplayTool(this.rotationTool);
-			
+			this.updateEndPointAndAngle(currentPoint, arcAngle);
 		}
 	}
 	
@@ -69,10 +98,13 @@ public class NoteRotationAdapter extends MouseInputAdapter {
 		Point currentPoint = event.getPoint();
 		Point2D.Double currentEndPoint = new Point2D.Double(currentPoint.x, currentPoint.y);
 		double arcAngle = GeometryTools.calculateArcAngle(this.center, this.startAngle, currentEndPoint);
-		this.controller.rotateSelectedNotes(this.center, arcAngle, event.isAltDown(), inPreviewMode);
+		this.controller.rotateSelectedNotes(this.center, currentEndPoint, arcAngle, event.isAltDown(), inPreviewMode);
 		return arcAngle;
 	}
 	
-	
+	private double calculateStartAngle(Point2D.Double endPoint, double arcAngle) {
+		double endAngle = GeometryTools.calculateAngle(this.center, endPoint);
+		return endAngle-arcAngle;
+	}
 
 }

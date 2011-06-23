@@ -14,48 +14,54 @@ import org.rubato.rubettes.bigbang.model.edits.AbstractTransformationEdit;
 public class UndoRedoModel extends Model {
 	
 	private UndoManager undoManager;
-	private List<String> transformationNames;
 	private UndoableEditSupport undoSupport;
+	private List<AbstractTransformationEdit> transformations;
+	private int selectedTransformationIndex;
 	
 	public UndoRedoModel(Controller controller) {
 		controller.addModel(this);
 		this.undoManager = new UndoManager();
-		this.transformationNames = new ArrayList<String>();
 		this.undoSupport = new UndoableEditSupport();
 		this.undoSupport.addUndoableEditListener(new UndoAdaptor(this.undoManager));
+		this.reset();
 		this.firePropertyChange(BigBangController.UNDO, null, this.undoManager);
-		this.firePropertyChange(BigBangController.GRAPH, null, this.transformationNames);
+		this.firePropertyChange(BigBangController.GRAPH, null, this.transformations);
 	}
 	
 	public void undo() {
 		try {
 			this.undoManager.undo();
-			this.transformationNames.remove(this.transformationNames.size()-1);
+			this.transformations.remove(this.transformations.size()-1);
 		} catch (Exception e) { e.printStackTrace(); }
 		this.firePropertyChange(BigBangController.UNDO, null, this.undoManager);
-		this.firePropertyChange(BigBangController.GRAPH, null, this.transformationNames);
+		this.firePropertyChange(BigBangController.GRAPH, null, this.transformations);
 	}
 	
 	public void redo() {
 		this.undoManager.redo();
-		//TODO: check if transformation!!!!
-		this.transformationNames.add(this.undoManager.getUndoPresentationName().substring(5));
+		//TODO: add to transformations if transformation!!!!
 		this.firePropertyChange(BigBangController.REDO, null, this.undoManager);
-		this.firePropertyChange(BigBangController.GRAPH, null, this.transformationNames);
+		this.firePropertyChange(BigBangController.GRAPH, null, this.transformations);
 	}
 	
 	public void postEdit(AbstractUndoableEdit edit) {
 		this.undoSupport.postEdit(edit);
 		if (edit instanceof AbstractTransformationEdit) {
-			this.transformationNames.add(edit.getPresentationName());
+			this.transformations.add((AbstractTransformationEdit)edit);
 		}
 		this.firePropertyChange(BigBangController.UNDO, null, this.undoManager);
-		this.firePropertyChange(BigBangController.GRAPH, null, this.transformationNames);
+		this.firePropertyChange(BigBangController.GRAPH, null, this.transformations);
+	}
+	
+	public void selectTransformation(AbstractTransformationEdit transformation) {
+		this.selectedTransformationIndex = this.transformations.indexOf(transformation);
+		this.firePropertyChange(BigBangController.SELECT_TRANSFORMATION, null, transformation);
 	}
 	
 	public void reset() {
 		this.undoManager.discardAllEdits();
-		this.transformationNames = new ArrayList<String>();
+		this.transformations = new ArrayList<AbstractTransformationEdit>();
+		this.selectedTransformationIndex = -1;
 	}
 
 }

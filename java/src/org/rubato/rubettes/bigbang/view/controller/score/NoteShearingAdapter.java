@@ -55,7 +55,8 @@ public class NoteShearingAdapter extends MouseInputAdapter {
 	
 	private double[] shear(MouseEvent event, boolean inPreviewMode) {
 		double[] shearingFactors = this.calculateShearingFactors(event);
-		this.controller.shearSelectedNotes(this.center, shearingFactors, event.isAltDown(), inPreviewMode);
+		Point2D.Double currentEndPoint = new Point2D.Double(event.getPoint().x, event.getPoint().y);
+		this.controller.shearSelectedNotes(this.center, currentEndPoint, shearingFactors, event.isAltDown(), inPreviewMode);
 		return shearingFactors;
 	}
 	

@@ -55,7 +55,8 @@ public class NoteScalingAdapter extends MouseInputAdapter {
 	
 	private double[] scale(MouseEvent event, boolean inPreviewMode) {
 		double[] scaleFactors = this.calculateScaleFactors(event);
-		this.controller.scaleSelectedNotes(this.center, scaleFactors, event.isAltDown(), inPreviewMode);
+		Point2D.Double currentEndPoint = new Point2D.Double(event.getPoint().x, event.getPoint().y);
+		this.controller.scaleSelectedNotes(this.center, currentEndPoint, scaleFactors, event.isAltDown(), inPreviewMode);
 		return scaleFactors;
 	}
 	

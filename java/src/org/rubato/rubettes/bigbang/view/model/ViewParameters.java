@@ -49,6 +49,13 @@ public class ViewParameters extends Model {
 		return this.parameters.get(index);
 	}
 	
+	public void setSelectedXYViewParameters(int[] newSelections) {
+		this.selectedViewParameters[0] = newSelections[0];
+		this.selectedViewParameters[1] = newSelections[1];
+		this.updateMinAndMaxValues();
+		this.firePropertyChange(ViewController.SELECTED_VIEW_PARAMETERS, null, this.selectedViewParameters);
+	}
+	
 	public void setSelectedViewParameters(int[] newSelections) {
 		this.selectedViewParameters = newSelections;
 		this.updateMinAndMaxValues();

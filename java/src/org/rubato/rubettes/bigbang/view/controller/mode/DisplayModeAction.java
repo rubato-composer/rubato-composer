@@ -17,7 +17,6 @@ public class DisplayModeAction extends AbstractAction {
 	}
 
 	public void actionPerformed(ActionEvent e) {
-		System.out.println("change");
 		this.controller.changeDisplayMode(this.adapter);
 	}
 

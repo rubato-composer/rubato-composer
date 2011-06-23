@@ -9,6 +9,7 @@ import javax.swing.JToolBar;
 import org.rubato.rubettes.bigbang.controller.BigBangController;
 import org.rubato.rubettes.bigbang.view.View;
 import org.rubato.rubettes.bigbang.view.controller.ViewController;
+import org.rubato.rubettes.bigbang.view.controller.score.GraphListener;
 
 public class JGraphToolBar extends JToolBar implements View {
 	
@@ -20,19 +21,20 @@ public class JGraphToolBar extends JToolBar implements View {
 		controller.addView(this);
 		bbController.addView(this);
 		this.transformations = new JList();
+		this.transformations.addListSelectionListener(new GraphListener(bbController));
 		this.add(this.transformations);
 	}
 
 	public void modelPropertyChange(PropertyChangeEvent event) {
 		String propertyName = event.getPropertyName();
 		if (propertyName.equals(BigBangController.GRAPH)) {
-			Object[] transformationNames = ((List<?>)event.getNewValue()).toArray();
-			this.updateTransformationNames(transformationNames);
+			Object[] transformations = ((List<?>)event.getNewValue()).toArray();
+			this.updateTransformations(transformations);
 		}
 	}
 	
-	private void updateTransformationNames(Object[] transformationNames) {
-		this.transformations.setListData(transformationNames);
+	private void updateTransformations(Object[] transformations) {
+		this.transformations.setListData(transformations);
 	}
 
 }
