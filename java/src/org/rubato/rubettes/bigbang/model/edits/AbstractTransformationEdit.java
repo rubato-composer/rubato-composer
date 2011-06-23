@@ -81,5 +81,13 @@ public abstract class AbstractTransformationEdit extends AbstractUndoableEdit {
 			this.properties.setNodePaths(resultPaths);
 		}
 	}
+	
+	public int[][] getElementPaths() {
+		return this.properties.getElementPaths();
+	}
+	
+	public String toString() {
+		return this.getPresentationName();
+	}
 
 }

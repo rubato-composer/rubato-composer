@@ -9,13 +9,16 @@ import org.rubato.rubettes.bigbang.model.TransformationProperties;
 
 public abstract class AbstractLocalTransformationEdit extends AbstractTransformationEdit {
 	
+	private double[] center;
+	private double[] distance;
 	private double[] shift1, shift2;
 	
 	public AbstractLocalTransformationEdit(BigBangScoreManager scoreLayers, TransformationProperties properties) {
 		super(scoreLayers, properties);
-		double[] center = properties.getCenter();
-		this.shift1 = new double[]{-1*center[0],-1*center[1]};
-		this.shift2 = new double[]{center[0],center[1]};
+		this.center = properties.getCenter();
+		this.distance = properties.getDistance();
+		this.shift1 = new double[]{-1*this.center[0],-1*this.center[1]};
+		this.shift2 = new double[]{this.center[0],this.center[1]};
 	}
 	
 	public void execute() {
@@ -42,11 +45,17 @@ public abstract class AbstractLocalTransformationEdit extends AbstractTransforma
 	
 	protected abstract RMatrix getMatrix();
 	
+	public double[] getCenter() {
+		return this.center;
+	}
+	
+	public double[] getDistance() {
+		return this.distance;
+	}
+	
 	protected double[] getShift() {
 		return new double[2];
 	}
-	
-	public abstract String getPresentationName();
 	
 	private double[] getInverse(double[] shift) {
 		return new double[]{-1*shift[0], -1*shift[1]};

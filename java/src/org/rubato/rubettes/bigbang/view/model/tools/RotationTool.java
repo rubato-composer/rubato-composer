@@ -20,8 +20,8 @@ public class RotationTool extends DisplayTool {
 	}
 	
 	public void setEnd(Point2D.Double endPoint, double arcAngle) {
-		this.endPoint = endPoint;
 		this.arcAngle = arcAngle;
+		this.endPoint = endPoint;
 	}
 	
 	public void resetRotation() {
@@ -39,7 +39,7 @@ public class RotationTool extends DisplayTool {
 	public void paint(AbstractPainter painter) {
 		painter.setColor(this.DARK);
 		painter.fillOval(this.center.x-2, this.center.y-2, 4, 4);
-		if (this.startAngle != 0 && this.endPoint != null) {
+		if (this.endPoint != null) {
 			double radius = this.endPoint.distance(this.center);
 			double x = this.center.x-radius;
 			double y = this.center.y-radius;

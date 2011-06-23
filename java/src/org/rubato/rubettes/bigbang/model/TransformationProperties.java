@@ -11,6 +11,7 @@ public class TransformationProperties {
 	private int[][] elementPaths;
 	private boolean copyAndTransform;
 	private double[] center;
+	private double[] distance;
 	private boolean inPreviewMode;
 	private boolean inWallpaperMode;
 	
@@ -44,6 +45,17 @@ public class TransformationProperties {
 	
 	public double[] getCenter() {
 		return this.center;
+	}
+	
+	/*
+	 * set the distance traveled by the mouse when the transformation was defined
+	 */
+	public void setDistance(double[] distance) {
+		this.distance = distance;
+	}
+	
+	public double[] getDistance() {
+		return this.distance;
 	}
 	
 	public void setAnchorNodePath(NotePath anchorNodePath) {

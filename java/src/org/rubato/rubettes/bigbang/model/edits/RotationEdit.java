@@ -24,5 +24,9 @@ public class RotationEdit extends AbstractLocalTransformationEdit {
 	public String getPresentationName() {
 		return "Rotation";
 	}
+	
+	public double getAngle() {
+		return this.angle;
+	}
 
 }

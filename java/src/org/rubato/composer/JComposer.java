@@ -52,7 +52,6 @@ import org.rubato.composer.preferences.UserPreferences;
 import org.rubato.composer.rubette.JRubette;
 import org.rubato.composer.rubette.RubetteModel;
 import org.rubato.rubettes.builtin.MacroRubette;
-import org.rubato.rubettes.util.PerformanceCheck;
 import org.rubato.util.TextUtils;
 import org.rubato.xml.XMLReader;
 import org.rubato.xml.XMLWriter;
@@ -871,7 +870,6 @@ public class JComposer extends JFrame implements Observer {
            userPrefs.setGeometry(r.x, r.y, r.width, r.height);
         }
         logger.info("Stopping Rubato Composer"); //$NON-NLS-1$
-        PerformanceCheck.print();
         System.exit(0);
     }
 

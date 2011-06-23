@@ -18,9 +18,17 @@ import org.rubato.rubettes.bigbang.controller.BigBangController;
 import org.rubato.rubettes.bigbang.controller.ScoreChangedNotification;
 import org.rubato.rubettes.bigbang.model.Model;
 import org.rubato.rubettes.bigbang.model.TransformationProperties;
+import org.rubato.rubettes.bigbang.model.edits.AbstractLocalTransformationEdit;
+import org.rubato.rubettes.bigbang.model.edits.AbstractTransformationEdit;
+import org.rubato.rubettes.bigbang.model.edits.RotationEdit;
+import org.rubato.rubettes.bigbang.model.edits.ScalingEdit;
+import org.rubato.rubettes.bigbang.model.edits.TranslationEdit;
 import org.rubato.rubettes.bigbang.view.View;
 import org.rubato.rubettes.bigbang.view.controller.ViewController;
 import org.rubato.rubettes.bigbang.view.controller.mode.DisplayModeAdapter;
+import org.rubato.rubettes.bigbang.view.controller.mode.RotationModeAdapter;
+import org.rubato.rubettes.bigbang.view.controller.mode.ScalingModeAdapter;
+import org.rubato.rubettes.bigbang.view.controller.mode.TranslationModeAdapter;
 import org.rubato.rubettes.bigbang.view.controller.mode.temp.TemporaryDisplayMode;
 import org.rubato.rubettes.bigbang.view.model.tools.DisplayTool;
 import org.rubato.rubettes.bigbang.view.model.tools.SelectionTool;
@@ -126,7 +134,7 @@ public class BigBangView extends Model implements View {
 		}
 		this.displayMode = newMode;
 		this.firePropertyChange(ViewController.DISPLAY_MODE, null, newMode);
-		this.clearDisplayTool();
+		//this.clearDisplayTool();
 	}
 	
 	public void toggleMainOptionsVisible() {
@@ -242,6 +250,8 @@ public class BigBangView extends Model implements View {
 			this.firePropertyChange(ViewController.REDO, null, event.getNewValue());
 		} else if (propertyName.equals(BigBangController.INPUT_ACTIVE)) {
 			this.firePropertyChange(ViewController.INPUT_ACTIVE, null, event.getNewValue());
+		} else if (propertyName.equals(BigBangController.SELECT_TRANSFORMATION)) {
+			this.selectTransformation((AbstractTransformationEdit)event.getNewValue());
 		}
 	}
 	
@@ -269,6 +279,27 @@ public class BigBangView extends Model implements View {
 		this.firePropertyChange(ViewController.DISPLAY_NOTES, null, this.displayNotes);
 	}
 	
+	private void selectTransformation(AbstractTransformationEdit edit) {
+		//select perspective first
+		this.viewParameters.setSelectedXYViewParameters(this.getXYViewParameters(edit.getElementPaths()));
+		//TODO: center view?????
+		
+		//TODO: then select notes!!!
+		
+		//then select displaymode and convert values!!
+		AbstractLocalTransformationEdit localEdit = (AbstractLocalTransformationEdit)edit;
+		double[] center = this.getXYDisplayValues(localEdit.getCenter());
+		double[] distance = this.getXYDisplayValues(localEdit.getDistance());
+		if (edit instanceof TranslationEdit) {
+			this.setDisplayMode(new TranslationModeAdapter(this.viewController));
+		} else if (edit instanceof RotationEdit) {
+			double angle = ((RotationEdit)edit).getAngle();
+			this.setDisplayMode(new RotationModeAdapter(this.viewController, center, distance, angle));
+		} else if (edit instanceof ScalingEdit) {
+			this.setDisplayMode(new ScalingModeAdapter(this.viewController));
+		}
+	}
+	
 	public void translateSelectedNotes(Dimension difference, Boolean copyAndTransform, Boolean previewMode) {
 		TransformationProperties properties = this.getTransformationProperties(copyAndTransform, previewMode);
 		double x = difference.getWidth()/this.xZoomFactor;
@@ -276,28 +307,28 @@ public class BigBangView extends Model implements View {
 		this.controller.translateNotes(properties, new double[]{x, y});
 	}
 	
-	public void rotateSelectedNotes(Point2D.Double center, Double angle, Boolean copyAndTransform, Boolean previewMode) {
-		TransformationProperties properties = this.getLocalTransformationProperties(center, copyAndTransform, previewMode);
+	public void rotateSelectedNotes(Point2D.Double center, Point2D.Double endPoint, Double angle, Boolean copyAndTransform, Boolean previewMode) {
+		TransformationProperties properties = this.getLocalTransformationProperties(center, endPoint, copyAndTransform, previewMode);
 		this.controller.rotateNotes(properties, angle);
 	}
 	
-	public void scaleSelectedNotes(Point2D.Double center, double[] scaleFactors, Boolean copyAndTransform, Boolean previewMode) {
-		TransformationProperties properties = this.getLocalTransformationProperties(center, copyAndTransform, previewMode);
+	public void scaleSelectedNotes(Point2D.Double center, Point2D.Double endPoint, double[] scaleFactors, Boolean copyAndTransform, Boolean previewMode) {
+		TransformationProperties properties = this.getLocalTransformationProperties(center, endPoint, copyAndTransform, previewMode);
 		this.controller.scaleNotes(properties, scaleFactors);
 	}
 	
-	public void reflectSelectedNotes(Point2D.Double center, double[] reflectionVector, Boolean copyAndTransform, Boolean previewMode) {
-		TransformationProperties properties = this.getLocalTransformationProperties(center, copyAndTransform, previewMode);
+	public void reflectSelectedNotes(Point2D.Double center, Point2D.Double endPoint, double[] reflectionVector, Boolean copyAndTransform, Boolean previewMode) {
+		TransformationProperties properties = this.getLocalTransformationProperties(center, endPoint, copyAndTransform, previewMode);
 		this.controller.reflectNotes(properties, reflectionVector);
 	}
 	
-	public void shearSelectedNotes(Point2D.Double center, double[] shearingFactors, Boolean copyAndTransform, Boolean previewMode) {
-		TransformationProperties properties = this.getLocalTransformationProperties(center, copyAndTransform, previewMode);
+	public void shearSelectedNotes(Point2D.Double center, Point2D.Double endPoint, double[] shearingFactors, Boolean copyAndTransform, Boolean previewMode) {
+		TransformationProperties properties = this.getLocalTransformationProperties(center, endPoint, copyAndTransform, previewMode);
 		this.controller.shearNotes(properties, shearingFactors);
 	}
 	
-	public void affineTransformSelectedNotes(Point2D.Double center, double[] shift, Double angle, double[] scaleFactors, Boolean copyAndTransform, Boolean previewMode) {
-		TransformationProperties properties = this.getLocalTransformationProperties(center, copyAndTransform, previewMode);
+	public void affineTransformSelectedNotes(Point2D.Double center, Point2D.Double endPoint, double[] shift, Double angle, double[] scaleFactors, Boolean copyAndTransform, Boolean previewMode) {
+		TransformationProperties properties = this.getLocalTransformationProperties(center, endPoint, copyAndTransform, previewMode);
 		this.controller.affineTransformNotes(properties, shift, angle, scaleFactors);
 	}
 	
@@ -360,9 +391,23 @@ public class BigBangView extends Model implements View {
 		return denotatorPaths;
 	}
 	
-	private TransformationProperties getLocalTransformationProperties(Point2D.Double center, boolean copyAndTransform, boolean previewMode) {
+	private int[] getXYViewParameters(int[][] denotatorPaths) {
+		int[] viewParameters = new int[2];
+		for (int i = 0; i <= 1; i++) {
+			for (int j = 0; j < DenotatorValueExtractor.DENOTATOR_PATHS.length; j++) {
+				if (denotatorPaths[i] == DenotatorValueExtractor.DENOTATOR_PATHS[j]) {
+					viewParameters[i] = j;
+				}
+			}
+		}
+		return viewParameters;
+	}
+	
+	private TransformationProperties getLocalTransformationProperties(Point2D.Double center, Point2D.Double endPoint, boolean copyAndTransform, boolean previewMode) {
+		//the end point is merely recorded for the display tool to be the same size....
 		TransformationProperties properties = this.getTransformationProperties(copyAndTransform, previewMode);
 		double[] denotatorCenter = this.getXYDenotatorValues(center);
+		double[] denotatorDistance = this.getXYDenotatorValues(new Point2D.Double(center.x-endPoint.x, center.y-endPoint.y));
 		NotePath anchorNodePath = this.displayNotes.getSelectedAnchorNodePath();
 		if (anchorNodePath != null) {
 			if (this.selectedNotes != null) {
@@ -374,6 +419,7 @@ public class BigBangView extends Model implements View {
 			denotatorCenter[1] -= anchorValues[1];
 		}
 		properties.setCenter(denotatorCenter);
+		properties.setDistance(denotatorDistance);
 		return properties;
 	}
 	
@@ -462,7 +508,13 @@ public class BigBangView extends Model implements View {
 		return translatedValues;
 	}
 	
-	protected double[] getXYDenotatorValues(Point2D.Double location) {
+	private double[] getXYDisplayValues(double[] denotatorValues) {
+		double xValue = this.getDisplayValue(denotatorValues[0], 0, this.displayPosition.x, this.xZoomFactor);
+		double yValue = this.getDisplayValue(denotatorValues[1], 1, this.displayPosition.y, this.yZoomFactor);
+		return new double[] {xValue, yValue};
+	}
+	
+	private double[] getXYDenotatorValues(Point2D.Double location) {
 		double xValue = this.getDenotatorValue(location.x, 0, this.displayPosition.x, this.xZoomFactor);
 		double yValue = this.getDenotatorValue(location.y, 1, this.displayPosition.y, this.yZoomFactor);
 		return new double[] {xValue, yValue};
@@ -484,6 +536,11 @@ public class BigBangView extends Model implements View {
 	protected double getDenotatorValue(double displayValue, int parameterIndex, int position, double zoomFactor) {
 		double value = (displayValue-position)/zoomFactor;
 		return this.viewParameters.get(parameterIndex).translateDisplayValue(value);
+	}
+	
+	protected double getDisplayValue(double denotatorValue, int parameterIndex, int position, double zoomFactor) {
+		double displayValue = this.viewParameters.get(parameterIndex).translateDenotatorValue(denotatorValue);
+		return (displayValue*zoomFactor)+position;
 	}
 	
 	public void undo() {

@@ -166,28 +166,28 @@ public class ViewController extends Controller {
 		this.callModelMethod(ViewController.TRANSLATE_NOTES, difference, copyAndTranslate, previewMode);
 	}
 	
-	public void rotateSelectedNotes(Point2D.Double center, double angle, boolean copyAndTranslate, boolean previewMode) {
-		this.callModelMethod(ViewController.ROTATE_NOTES, center, angle, copyAndTranslate, previewMode);
+	public void rotateSelectedNotes(Point2D.Double center, Point2D.Double endPoint, double angle, boolean copyAndTranslate, boolean previewMode) {
+		this.callModelMethod(ViewController.ROTATE_NOTES, center, endPoint, angle, copyAndTranslate, previewMode);
 	}
 	
-	public void scaleSelectedNotes(Point2D.Double center, double[] scaleFactors, boolean copyAndTranslate, boolean previewMode) {
-		this.callModelMethod(ViewController.SCALE_NOTES, center, scaleFactors, copyAndTranslate, previewMode);
+	public void scaleSelectedNotes(Point2D.Double center, Point2D.Double endPoint, double[] scaleFactors, boolean copyAndTranslate, boolean previewMode) {
+		this.callModelMethod(ViewController.SCALE_NOTES, center, endPoint, scaleFactors, copyAndTranslate, previewMode);
 	}
 	
-	public void reflectSelectedNotes(Point2D.Double center, double[] reflectionVector, boolean copyAndTranslate, boolean previewMode) {
-		this.callModelMethod(ViewController.REFLECT_NOTES, center, reflectionVector, copyAndTranslate, previewMode);
+	public void reflectSelectedNotes(Point2D.Double center, Point2D.Double endPoint, double[] reflectionVector, boolean copyAndTranslate, boolean previewMode) {
+		this.callModelMethod(ViewController.REFLECT_NOTES, center, endPoint, reflectionVector, copyAndTranslate, previewMode);
 	}
 	
-	public void shearSelectedNotes(Point2D.Double center, double[] shearingFactors, boolean copyAndTranslate, boolean previewMode) {
-		this.callModelMethod(ViewController.SHEAR_NOTES, center, shearingFactors, copyAndTranslate, previewMode);
+	public void shearSelectedNotes(Point2D.Double center, Point2D.Double endPoint, double[] shearingFactors, boolean copyAndTranslate, boolean previewMode) {
+		this.callModelMethod(ViewController.SHEAR_NOTES, center, endPoint, shearingFactors, copyAndTranslate, previewMode);
+	}
+	
+	public void affineTransformSelectedNotes(Point2D.Double center, Point2D.Double endPoint, double[] shift, double angle, double[] scaleFactors, boolean copyAndTransform, boolean previewMode) {
+		this.callModelMethod(ViewController.AFFINE_TRANSFORM_NOTES, center, endPoint, shift, angle, scaleFactors, copyAndTransform, previewMode);
 	}
 	
 	public void shapeSelectedNotes(TreeMap<Integer,Integer> location, boolean copyAndTransform, boolean previewMode) {
 		this.callModelMethod(ViewController.SHAPE_NOTES, location, copyAndTransform, previewMode);
-	}
-	
-	public void affineTransformSelectedNotes(Point2D.Double center, double[] shift, double angle, double[] scaleFactors, boolean copyAndTransform, boolean previewMode) {
-		this.callModelMethod(ViewController.AFFINE_TRANSFORM_NOTES, center, shift, angle, scaleFactors, copyAndTransform, previewMode);
 	}
 	
 	public void addNote(Point2D.Double location) {
