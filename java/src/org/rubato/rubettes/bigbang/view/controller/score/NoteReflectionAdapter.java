@@ -12,19 +12,35 @@ import org.rubato.rubettes.bigbang.view.model.tools.ReflectionTool;
 public class NoteReflectionAdapter extends MouseInputAdapter {
 	
 	private ViewController controller;
-	private Point2D.Double startPoint;
+	private Point2D.Double startingPoint;
 	private ReflectionTool reflectionTool;
 	
 	public NoteReflectionAdapter(ViewController controller) {
 		this.controller = controller;
 	}
 	
+	public NoteReflectionAdapter(ViewController controller, double[] startingPoint, double[] distance) {
+		this.controller = controller;
+		this.updateStartingPoint(startingPoint[0], startingPoint[1]);
+		Point2D.Double endPoint = new Point2D.Double(startingPoint[0]-distance[0], startingPoint[1]-distance[1]);
+		this.updateToolEndingPoint(endPoint);
+	}
+	
 	public void mousePressed(MouseEvent event) {
 		if (event.getButton() == MouseEvent.BUTTON1) {
-			this.startPoint = new Point2D.Double(event.getPoint().x, event.getPoint().y);
-			this.reflectionTool = new ReflectionTool(this.startPoint);
-			this.controller.changeDisplayTool(this.reflectionTool);
+			this.updateStartingPoint(event.getPoint().x, event.getPoint().y);
 		}
+	}
+	
+	private void updateStartingPoint(double x, double y) {
+		this.startingPoint = new Point2D.Double(x, y);
+		this.reflectionTool = new ReflectionTool(this.startingPoint);
+		this.controller.changeDisplayTool(this.reflectionTool);
+	}
+	
+	private void updateToolEndingPoint(Point2D.Double endPoint) {
+		this.reflectionTool.setEndPoint(endPoint);
+		this.controller.changeDisplayTool(this.reflectionTool);
 	}
 
 	public void mouseDragged(MouseEvent event) {
@@ -38,8 +54,7 @@ public class NoteReflectionAdapter extends MouseInputAdapter {
 	private void changeReflectionToolPosition(MouseEvent event) {
 		if (this.reflectionTool != null) {
 			Point2D.Double endPoint = new Point2D.Double(event.getPoint().x, event.getPoint().y);
-			this.reflectionTool.setEndPoint(endPoint);
-			this.controller.changeDisplayTool(this.reflectionTool);
+			this.updateToolEndingPoint(endPoint);
 			this.reflect(event, true);
 		}
 	}
@@ -56,12 +71,12 @@ public class NoteReflectionAdapter extends MouseInputAdapter {
 		Point currentPoint = event.getPoint();
 		double[] reflectionVector = this.calculateReflectionVector(currentPoint);
 		Point2D.Double currentEndPoint = new Point2D.Double(currentPoint.x, currentPoint.y);
-		this.controller.reflectSelectedNotes(this.startPoint, currentEndPoint, reflectionVector, event.isAltDown(), inPreviewMode);
+		this.controller.reflectSelectedNotes(this.startingPoint, currentEndPoint, reflectionVector, event.isAltDown(), inPreviewMode);
 	}
 	
 	private double[] calculateReflectionVector(Point endPoint) {
-		double x = endPoint.x-this.startPoint.x;
-		double y = -1*(endPoint.y-this.startPoint.y);
+		double x = endPoint.x-this.startingPoint.x;
+		double y = -1*(endPoint.y-this.startingPoint.y);
 		return new double[]{x, y};
 	}
 

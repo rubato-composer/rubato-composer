@@ -9,4 +9,10 @@ public class ReflectionModeAdapter extends DisplayModeAdapter {
 		super(controller);
 		this.mouseInputListeners.add(new NoteReflectionAdapter(controller));
 	}
+	
+	public ReflectionModeAdapter(ViewController controller, double[] center, double[] reflectionVector) {
+		super(controller);
+		this.mouseInputListeners.add(new NoteReflectionAdapter(controller, center, reflectionVector));
+	}
+	
 }

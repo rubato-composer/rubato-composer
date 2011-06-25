@@ -10,4 +10,9 @@ public class ShearingModeAdapter extends DisplayModeAdapter {
 		this.mouseInputListeners.add(new NoteShearingAdapter(controller));
 	}
 	
+	public ShearingModeAdapter(ViewController controller, double[] center, double[] shearFactors) {
+		super(controller);
+		this.mouseInputListeners.add(new NoteShearingAdapter(controller, center, shearFactors));
+	}
+	
 }

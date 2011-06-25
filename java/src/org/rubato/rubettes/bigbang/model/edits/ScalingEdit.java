@@ -24,5 +24,9 @@ public class ScalingEdit extends AbstractLocalTransformationEdit {
 		double sy = this.scaleFactors[1];
 		return new RMatrix(new double[][]{{sx,0},{0,sy}});
 	}
+	
+	public double[] getScaleFactors() {
+		return this.scaleFactors;
+	}
 
 }

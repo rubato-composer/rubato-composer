@@ -21,12 +21,27 @@ public class NoteScalingAdapter extends MouseInputAdapter {
 		this.controller = controller;
 	}
 	
+	public NoteScalingAdapter(ViewController controller, double[] center, double[] scaleFactors) {
+		this.controller = controller;
+		this.updateCenter(center[0], center[1]);
+		this.updateToolScaleFactors(scaleFactors);
+	}
+	
 	public void mousePressed(MouseEvent event) {
 		if (event.getButton() == MouseEvent.BUTTON1) {
-			this.center = new Point2D.Double(event.getPoint().x, event.getPoint().y);
-			this.scalingTool = new ScalingTool(this.center, this.REFERENCE);
-			this.controller.changeDisplayTool(this.scalingTool);
+			this.updateCenter(event.getPoint().x, event.getPoint().y);
 		}
+	}
+	
+	private void updateCenter(double x, double y) {
+		this.center = new Point2D.Double(x, y);
+		this.scalingTool = new ScalingTool(this.center, this.REFERENCE);
+		this.controller.changeDisplayTool(this.scalingTool);
+	}
+	
+	private void updateToolScaleFactors(double[] scaleFactors) {
+		this.scalingTool.setScaleFactors(scaleFactors);
+		this.controller.changeDisplayTool(this.scalingTool);
 	}
 
 	public void mouseDragged(MouseEvent event) {
@@ -40,8 +55,7 @@ public class NoteScalingAdapter extends MouseInputAdapter {
 	private void updateScalingTool(MouseEvent event) {
 		if (this.scalingTool != null) {
 			double[] scaleFactors = this.scale(event, true);
-			this.scalingTool.setScaleFactors(scaleFactors);
-			this.controller.changeDisplayTool(this.scalingTool);
+			this.updateToolScaleFactors(scaleFactors);
 		}
 	}
 	

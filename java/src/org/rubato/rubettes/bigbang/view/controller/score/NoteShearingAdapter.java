@@ -21,11 +21,26 @@ public class NoteShearingAdapter extends MouseInputAdapter {
 		this.controller = controller;
 	}
 	
+	public NoteShearingAdapter(ViewController controller, double[] center, double[] shearFactors) {
+		this.controller = controller;
+		this.updateCenter(center[0], center[1]);
+		this.updateToolShearFactors(shearFactors);
+	}
+	
+	private void updateCenter(double x, double y) {
+		this.center = new Point2D.Double(x, y);
+		this.shearingTool = new ShearingTool(this.center, this.REFERENCE);
+		this.controller.changeDisplayTool(this.shearingTool);
+	}
+	
+	private void updateToolShearFactors(double[] shearFactors) {
+		this.shearingTool.setShearingFactors(shearFactors);
+		this.controller.changeDisplayTool(this.shearingTool);
+	}
+	
 	public void mousePressed(MouseEvent event) {
 		if (event.getButton() == MouseEvent.BUTTON1) {
-			this.center = new Point2D.Double(event.getPoint().x, event.getPoint().y);
-			this.shearingTool = new ShearingTool(this.center, this.REFERENCE);
-			this.controller.changeDisplayTool(this.shearingTool);
+			this.updateCenter(event.getPoint().x, event.getPoint().y);
 		}
 	}
 
@@ -39,9 +54,8 @@ public class NoteShearingAdapter extends MouseInputAdapter {
 	
 	private void updateShearingTool(MouseEvent event) {
 		if (this.shearingTool != null) {
-			double[] shearingFactors = this.shear(event, true);
-			this.shearingTool.setShearingFactors(shearingFactors);
-			this.controller.changeDisplayTool(this.shearingTool);
+			double[] shearFactors = this.shear(event, true);
+			this.updateToolShearFactors(shearFactors);
 		}
 	}
 	
