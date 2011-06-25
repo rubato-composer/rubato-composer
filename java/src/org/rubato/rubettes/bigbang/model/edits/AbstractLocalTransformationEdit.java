@@ -10,13 +10,13 @@ import org.rubato.rubettes.bigbang.model.TransformationProperties;
 public abstract class AbstractLocalTransformationEdit extends AbstractTransformationEdit {
 	
 	private double[] center;
-	private double[] distance;
+	private double[] endPoint;
 	private double[] shift1, shift2;
 	
 	public AbstractLocalTransformationEdit(BigBangScoreManager scoreLayers, TransformationProperties properties) {
 		super(scoreLayers, properties);
 		this.center = properties.getCenter();
-		this.distance = properties.getDistance();
+		this.endPoint = properties.getEndPoint();
 		this.shift1 = new double[]{-1*this.center[0],-1*this.center[1]};
 		this.shift2 = new double[]{this.center[0],this.center[1]};
 	}
@@ -49,8 +49,8 @@ public abstract class AbstractLocalTransformationEdit extends AbstractTransforma
 		return this.center;
 	}
 	
-	public double[] getDistance() {
-		return this.distance;
+	public double[] getEndPoint() {
+		return this.endPoint;
 	}
 	
 	protected double[] getShift() {

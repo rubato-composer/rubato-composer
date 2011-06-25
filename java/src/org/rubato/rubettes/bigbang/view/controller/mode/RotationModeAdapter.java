@@ -10,9 +10,9 @@ public class RotationModeAdapter extends DisplayModeAdapter {
 		this.mouseInputListeners.add(new NoteRotationAdapter(controller));
 	}
 	
-	public RotationModeAdapter(ViewController controller, double[] center, double[] distance, double angle) {
+	public RotationModeAdapter(ViewController controller, double[] center, double[] endPoint, double angle) {
 		super(controller);
-		this.mouseInputListeners.add(new NoteRotationAdapter(controller, center, distance, angle));
+		this.mouseInputListeners.add(new NoteRotationAdapter(controller, center, endPoint, angle));
 	}
 
 }

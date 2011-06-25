@@ -23,12 +23,12 @@ public class NoteRotationAdapter extends MouseInputAdapter {
 		this.init(controller);
 	}
 	
-	public NoteRotationAdapter(ViewController controller, double[] center, double[] distance, double angle) {
+	public NoteRotationAdapter(ViewController controller, double[] center, double[] endPoint, double angle) {
 		this.init(controller);
 		this.updateCenter(center[0], center[1]);
-		Point2D.Double endPoint = new Point2D.Double(center[0]-distance[0], center[1]-distance[1]);
-		this.updateStartAngle(endPoint, angle);
-		this.updateEndPointAndAngle(endPoint, angle);
+		Point2D.Double endPoint2D = new Point2D.Double(endPoint[0], endPoint[1]);
+		this.updateStartAngle(endPoint2D, angle);
+		this.updateEndPointAndAngle(endPoint2D, angle);
 	}
 	
 	private void init(ViewController controller) {

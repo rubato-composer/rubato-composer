@@ -6,11 +6,15 @@ import org.rubato.rubettes.bigbang.model.TransformationProperties;
 
 public class TranslationEdit extends AbstractTransformationEdit {
 	
+	private double[] startingPoint;
+	private double[] endPoint;
 	private double[] shift;
 	
-	public TranslationEdit(BigBangScoreManager scoreLayers, TransformationProperties properties, double[] shift) {
+	public TranslationEdit(BigBangScoreManager scoreLayers, TransformationProperties properties) {
 		super(scoreLayers, properties);
-		this.shift = shift;
+		this.startingPoint = properties.getCenter();
+		this.endPoint = properties.getEndPoint();
+		this.shift = new double[]{this.endPoint[0]-this.startingPoint[0], this.endPoint[1]-this.startingPoint[1]};
 		this.execute();
 	}
 	
@@ -31,6 +35,14 @@ public class TranslationEdit extends AbstractTransformationEdit {
 	
 	public String getPresentationName() {
 		return "Translation";
+	}
+	
+	public double[] getStartingPoint() {
+		return this.startingPoint;
+	}
+	
+	public double[] getEndPoint() {
+		return this.endPoint;
 	}
 
 }

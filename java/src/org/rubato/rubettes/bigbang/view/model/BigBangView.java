@@ -291,31 +291,33 @@ public class BigBangView extends Model implements View {
 		//TODO: then select notes!!!
 		
 		//then select displaymode and convert values!!
-		AbstractLocalTransformationEdit localEdit = (AbstractLocalTransformationEdit)edit;
-		double[] center = this.getXYDisplayValues(localEdit.getCenter());
-		double[] distance = this.getXYDisplayValues(localEdit.getDistance());
 		if (edit instanceof TranslationEdit) {
-			this.setDisplayMode(new TranslationModeAdapter(this.viewController));
-		} else if (edit instanceof RotationEdit) {
-			double angle = ((RotationEdit)edit).getAngle();
-			this.setDisplayMode(new RotationModeAdapter(this.viewController, center, distance, angle));
-		} else if (edit instanceof ScalingEdit) {
-			double[] scaleFactors = ((ScalingEdit)edit).getScaleFactors();
-			this.setDisplayMode(new ScalingModeAdapter(this.viewController, center, scaleFactors));
-		} else if (edit instanceof ShearingEdit) {
-			double[] shearFactors = ((ShearingEdit)edit).getShearingFactors();
-			this.setDisplayMode(new ShearingModeAdapter(this.viewController, center, shearFactors));
-		} else if (edit instanceof ReflectionEdit) {
-			double[] reflectionVector = ((ReflectionEdit)edit).getReflectionVector();
-			this.setDisplayMode(new ReflectionModeAdapter(this.viewController, center, reflectionVector));
+			double[] startingPoint = this.getXYDisplayValues(((TranslationEdit)edit).getStartingPoint());
+			double[] endPoint = this.getXYDisplayValues(((TranslationEdit)edit).getEndPoint());
+			this.setDisplayMode(new TranslationModeAdapter(this.viewController, startingPoint, endPoint));
+		} else {
+			AbstractLocalTransformationEdit localEdit = (AbstractLocalTransformationEdit)edit;
+			double[] center = this.getXYDisplayValues(localEdit.getCenter());
+			double[] endPoint = this.getXYDisplayValues(localEdit.getEndPoint());
+			if (edit instanceof RotationEdit) {
+				double angle = ((RotationEdit)edit).getAngle();
+				this.setDisplayMode(new RotationModeAdapter(this.viewController, center, endPoint, angle));
+			} else if (edit instanceof ScalingEdit) {
+				double[] scaleFactors = ((ScalingEdit)edit).getScaleFactors();
+				this.setDisplayMode(new ScalingModeAdapter(this.viewController, center, scaleFactors));
+			} else if (edit instanceof ShearingEdit) {
+				double[] shearFactors = ((ShearingEdit)edit).getShearingFactors();
+				this.setDisplayMode(new ShearingModeAdapter(this.viewController, center, shearFactors));
+			} else if (edit instanceof ReflectionEdit) {
+				double[] reflectionVector = ((ReflectionEdit)edit).getReflectionVector();
+				this.setDisplayMode(new ReflectionModeAdapter(this.viewController, center, reflectionVector));
+			}
 		}
 	}
 	
-	public void translateSelectedNotes(Dimension difference, Boolean copyAndTransform, Boolean previewMode) {
-		TransformationProperties properties = this.getTransformationProperties(copyAndTransform, previewMode);
-		double x = difference.getWidth()/this.xZoomFactor;
-		double y = -1*(difference.getHeight()/this.yZoomFactor);
-		this.controller.translateNotes(properties, new double[]{x, y});
+	public void translateSelectedNotes(Point2D.Double center, Point2D.Double endPoint, Boolean copyAndTransform, Boolean previewMode) {
+		TransformationProperties properties = this.getLocalTransformationProperties(center, endPoint, copyAndTransform, previewMode);
+		this.controller.translateNotes(properties);
 	}
 	
 	public void rotateSelectedNotes(Point2D.Double center, Point2D.Double endPoint, Double angle, Boolean copyAndTransform, Boolean previewMode) {
@@ -418,7 +420,7 @@ public class BigBangView extends Model implements View {
 		//the end point is merely recorded for the display tool to be the same size....
 		TransformationProperties properties = this.getTransformationProperties(copyAndTransform, previewMode);
 		double[] denotatorCenter = this.getXYDenotatorValues(center);
-		double[] denotatorDistance = this.getXYDenotatorValues(new Point2D.Double(center.x-endPoint.x, center.y-endPoint.y));
+		double[] denotatorEndPoint = this.getXYDenotatorValues(endPoint);
 		NotePath anchorNodePath = this.displayNotes.getSelectedAnchorNodePath();
 		if (anchorNodePath != null) {
 			if (this.selectedNotes != null) {
@@ -430,7 +432,7 @@ public class BigBangView extends Model implements View {
 			denotatorCenter[1] -= anchorValues[1];
 		}
 		properties.setCenter(denotatorCenter);
-		properties.setDistance(denotatorDistance);
+		properties.setEndPoint(denotatorEndPoint);
 		return properties;
 	}
 	

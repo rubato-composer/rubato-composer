@@ -11,7 +11,7 @@ public class TransformationProperties {
 	private int[][] elementPaths;
 	private boolean copyAndTransform;
 	private double[] center;
-	private double[] distance;
+	private double[] endPoint;
 	private boolean inPreviewMode;
 	private boolean inWallpaperMode;
 	
@@ -48,14 +48,14 @@ public class TransformationProperties {
 	}
 	
 	/*
-	 * set the distance traveled by the mouse when the transformation was defined
+	 * set the end point reached by the mouse movement with which the transformation was defined
 	 */
-	public void setDistance(double[] distance) {
-		this.distance = distance;
+	public void setEndPoint(double[] endPoint) {
+		this.endPoint = endPoint;
 	}
 	
-	public double[] getDistance() {
-		return this.distance;
+	public double[] getEndPoint() {
+		return this.endPoint;
 	}
 	
 	public void setAnchorNodePath(NotePath anchorNodePath) {
