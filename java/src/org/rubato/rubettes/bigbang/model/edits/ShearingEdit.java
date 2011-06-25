@@ -25,4 +25,8 @@ public class ShearingEdit extends AbstractLocalTransformationEdit {
 		return new RMatrix(new double[][]{{1,sx},{sy,1}});
 	}
 	
+	public double[] getShearingFactors() {
+		return this.shearingFactors;
+	}
+	
 }

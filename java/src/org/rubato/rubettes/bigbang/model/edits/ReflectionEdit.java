@@ -30,5 +30,9 @@ public class ReflectionEdit extends AbstractLocalTransformationEdit {
 		double m22 = (y2 - x2)/q;
 		return new RMatrix(new double[][]{{m11, m12}, {m12, m22}});
 	}
+	
+	public double[] getReflectionVector() {
+		return this.reflectionVector;
+	}
 
 }

@@ -20,14 +20,18 @@ import org.rubato.rubettes.bigbang.model.Model;
 import org.rubato.rubettes.bigbang.model.TransformationProperties;
 import org.rubato.rubettes.bigbang.model.edits.AbstractLocalTransformationEdit;
 import org.rubato.rubettes.bigbang.model.edits.AbstractTransformationEdit;
+import org.rubato.rubettes.bigbang.model.edits.ReflectionEdit;
 import org.rubato.rubettes.bigbang.model.edits.RotationEdit;
 import org.rubato.rubettes.bigbang.model.edits.ScalingEdit;
+import org.rubato.rubettes.bigbang.model.edits.ShearingEdit;
 import org.rubato.rubettes.bigbang.model.edits.TranslationEdit;
 import org.rubato.rubettes.bigbang.view.View;
 import org.rubato.rubettes.bigbang.view.controller.ViewController;
 import org.rubato.rubettes.bigbang.view.controller.mode.DisplayModeAdapter;
+import org.rubato.rubettes.bigbang.view.controller.mode.ReflectionModeAdapter;
 import org.rubato.rubettes.bigbang.view.controller.mode.RotationModeAdapter;
 import org.rubato.rubettes.bigbang.view.controller.mode.ScalingModeAdapter;
+import org.rubato.rubettes.bigbang.view.controller.mode.ShearingModeAdapter;
 import org.rubato.rubettes.bigbang.view.controller.mode.TranslationModeAdapter;
 import org.rubato.rubettes.bigbang.view.controller.mode.temp.TemporaryDisplayMode;
 import org.rubato.rubettes.bigbang.view.model.tools.DisplayTool;
@@ -296,7 +300,14 @@ public class BigBangView extends Model implements View {
 			double angle = ((RotationEdit)edit).getAngle();
 			this.setDisplayMode(new RotationModeAdapter(this.viewController, center, distance, angle));
 		} else if (edit instanceof ScalingEdit) {
-			this.setDisplayMode(new ScalingModeAdapter(this.viewController));
+			double[] scaleFactors = ((ScalingEdit)edit).getScaleFactors();
+			this.setDisplayMode(new ScalingModeAdapter(this.viewController, center, scaleFactors));
+		} else if (edit instanceof ShearingEdit) {
+			double[] shearFactors = ((ShearingEdit)edit).getShearingFactors();
+			this.setDisplayMode(new ShearingModeAdapter(this.viewController, center, shearFactors));
+		} else if (edit instanceof ReflectionEdit) {
+			double[] reflectionVector = ((ReflectionEdit)edit).getReflectionVector();
+			this.setDisplayMode(new ReflectionModeAdapter(this.viewController, center, reflectionVector));
 		}
 	}
 	

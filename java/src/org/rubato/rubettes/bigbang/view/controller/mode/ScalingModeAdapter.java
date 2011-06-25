@@ -9,5 +9,10 @@ public class ScalingModeAdapter extends DisplayModeAdapter {
 		super(controller);
 		this.mouseInputListeners.add(new NoteScalingAdapter(controller));
 	}
+	
+	public ScalingModeAdapter(ViewController controller, double[] center, double[] scaleFactors) {
+		super(controller);
+		this.mouseInputListeners.add(new NoteScalingAdapter(controller, center, scaleFactors));
+	}
 
 }
