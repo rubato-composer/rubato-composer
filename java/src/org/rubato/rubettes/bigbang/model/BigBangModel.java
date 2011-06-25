@@ -79,8 +79,8 @@ public class BigBangModel extends Model {
 		this.undoRedoModel.postEdit(new MoveNotesEdit(this.score, nodePaths, layerIndex));
 	}
 	
-	public void translateNotes(TransformationProperties properties, double[] difference) {
-		this.doTransformation(properties, new TranslationEdit(this.score, properties, difference));
+	public void translateNotes(TransformationProperties properties) {
+		this.doTransformation(properties, new TranslationEdit(this.score, properties));
 	}
 	
 	public void rotateNotes(TransformationProperties properties, Double angle) {

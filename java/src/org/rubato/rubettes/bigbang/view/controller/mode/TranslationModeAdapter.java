@@ -10,4 +10,9 @@ public class TranslationModeAdapter extends DisplayModeAdapter {
 		this.mouseInputListeners.add(new NoteTranslationAdapter(controller));
 	}
 	
+	public TranslationModeAdapter(ViewController controller, double[] startPoint, double[] endPoint) {
+		super(controller);
+		this.mouseInputListeners.add(new NoteTranslationAdapter(controller, startPoint, endPoint));
+	}
+	
 }

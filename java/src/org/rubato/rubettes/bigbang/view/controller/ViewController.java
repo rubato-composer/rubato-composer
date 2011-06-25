@@ -162,8 +162,8 @@ public class ViewController extends Controller {
 		this.callModelMethod(ViewController.CLEAR_DISPLAY_TOOL);
 	}
 	
-	public void translateSelectedNotes(Dimension difference, boolean copyAndTranslate, boolean previewMode) {
-		this.callModelMethod(ViewController.TRANSLATE_NOTES, difference, copyAndTranslate, previewMode);
+	public void translateSelectedNotes(Point2D.Double center, Point2D.Double endPoint, boolean copyAndTranslate, boolean previewMode) {
+		this.callModelMethod(ViewController.TRANSLATE_NOTES, center, endPoint, copyAndTranslate, previewMode);
 	}
 	
 	public void rotateSelectedNotes(Point2D.Double center, Point2D.Double endPoint, double angle, boolean copyAndTranslate, boolean previewMode) {

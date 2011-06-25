@@ -112,8 +112,8 @@ public class BigBangController extends Controller {
 		this.callModelMethod(BigBangController.MOVE_NOTES, nodePaths, layerIndex);
 	}
 	
-	public void translateNotes(TransformationProperties properties, double[] difference) {
-		this.callModelMethod(BigBangController.TRANSLATE_NOTES, properties, difference);
+	public void translateNotes(TransformationProperties properties) {
+		this.callModelMethod(BigBangController.TRANSLATE_NOTES, properties);
 	}
 	
 	public void rotateNotes(TransformationProperties properties, double angle) {
