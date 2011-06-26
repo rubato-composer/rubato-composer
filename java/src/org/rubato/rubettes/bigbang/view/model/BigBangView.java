@@ -284,34 +284,37 @@ public class BigBangView extends Model implements View {
 	}
 	
 	private void selectTransformation(AbstractTransformationEdit edit) {
-		//select perspective first
-		this.viewParameters.setSelectedXYViewParameters(this.getXYViewParameters(edit.getElementPaths()));
-		//TODO: center view?????
-		
-		//TODO: then select notes!!!
-		
-		//then select displaymode and convert values!!
-		if (edit instanceof TranslationEdit) {
-			double[] startingPoint = this.getXYDisplayValues(((TranslationEdit)edit).getStartingPoint());
-			double[] endPoint = this.getXYDisplayValues(((TranslationEdit)edit).getEndPoint());
-			this.setDisplayMode(new TranslationModeAdapter(this.viewController, startingPoint, endPoint));
-		} else {
-			AbstractLocalTransformationEdit localEdit = (AbstractLocalTransformationEdit)edit;
-			double[] center = this.getXYDisplayValues(localEdit.getCenter());
-			double[] endPoint = this.getXYDisplayValues(localEdit.getEndPoint());
-			if (edit instanceof RotationEdit) {
-				double angle = ((RotationEdit)edit).getAngle();
-				this.setDisplayMode(new RotationModeAdapter(this.viewController, center, endPoint, angle));
-			} else if (edit instanceof ScalingEdit) {
-				double[] scaleFactors = ((ScalingEdit)edit).getScaleFactors();
-				this.setDisplayMode(new ScalingModeAdapter(this.viewController, center, scaleFactors));
-			} else if (edit instanceof ShearingEdit) {
-				double[] shearFactors = ((ShearingEdit)edit).getShearingFactors();
-				this.setDisplayMode(new ShearingModeAdapter(this.viewController, center, shearFactors));
-			} else if (edit instanceof ReflectionEdit) {
-				double[] reflectionVector = ((ReflectionEdit)edit).getReflectionVector();
-				this.setDisplayMode(new ReflectionModeAdapter(this.viewController, center, reflectionVector));
+		if (edit != null) {
+			//select perspective first
+			this.viewParameters.setSelectedXYViewParameters(this.getXYViewParameters(edit.getElementPaths()));
+			//TODO: center view?????
+			
+			//TODO: then select notes!!!
+			
+			//then select displaymode and convert values!!
+			if (edit instanceof TranslationEdit) {
+				double[] startingPoint = this.getXYDisplayValues(((TranslationEdit)edit).getStartingPoint());
+				double[] endPoint = this.getXYDisplayValues(((TranslationEdit)edit).getEndPoint());
+				this.setDisplayMode(new TranslationModeAdapter(this.viewController, startingPoint, endPoint));
+			} else {
+				AbstractLocalTransformationEdit localEdit = (AbstractLocalTransformationEdit)edit;
+				double[] center = this.getXYDisplayValues(localEdit.getCenter());
+				double[] endPoint = this.getXYDisplayValues(localEdit.getEndPoint());
+				if (edit instanceof RotationEdit) {
+					double angle = ((RotationEdit)edit).getAngle();
+					this.setDisplayMode(new RotationModeAdapter(this.viewController, center, endPoint, angle));
+				} else if (edit instanceof ScalingEdit) {
+					double[] scaleFactors = ((ScalingEdit)edit).getScaleFactors();
+					this.setDisplayMode(new ScalingModeAdapter(this.viewController, center, scaleFactors));
+				} else if (edit instanceof ShearingEdit) {
+					double[] shearFactors = ((ShearingEdit)edit).getShearingFactors();
+					this.setDisplayMode(new ShearingModeAdapter(this.viewController, center, shearFactors));
+				} else if (edit instanceof ReflectionEdit) {
+					this.setDisplayMode(new ReflectionModeAdapter(this.viewController, center, endPoint));
+				}
 			}
+		} else {
+			this.clearDisplayTool();
 		}
 	}
 	
