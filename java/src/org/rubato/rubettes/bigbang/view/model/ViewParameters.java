@@ -37,7 +37,6 @@ public class ViewParameters extends Model {
 		this.parameters.add(new ViewParameter("width", false, 1, false)); //width
 		this.parameters.add(new ViewParameter("color", false, 0.0833, 0.0833, 1.0833, true)); //hue
 		this.parameters.add(new ViewParameter("height", false, 1, 1, 10, false)); //height
-		System.out.println("fire");
 		this.firePropertyChange(ViewController.VIEW_PARAMETERS, null, this);
 	}
 	

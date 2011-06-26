@@ -6,24 +6,19 @@ import org.rubato.rubettes.bigbang.view.subview.AbstractPainter;
 
 public class TranslationTool extends DisplayTool {
 
+	public TranslationTool(Point2D.Double startingPoint) {
+		super(startingPoint);
+	}
+
 	private final int SIZE = 20;
-	private Point2D.Double startPoint, endPoint;
-	
-	public TranslationTool(Point2D.Double startPoint) {
-		this.startPoint = startPoint;
-	}
-	
-	public void setEndPoint(Point2D.Double endPoint) {
-		this.endPoint = endPoint;
-	}
 
 	@Override
 	public void paint(AbstractPainter painter) {
 		painter.setColor(this.BRIGHT);
-		painter.fillOval(this.startPoint.x-this.SIZE/2, this.startPoint.y-this.SIZE/2, this.SIZE, this.SIZE);
-		if (this.endPoint != null) {
+		painter.fillOval(this.startingPoint.x-this.SIZE/2, this.startingPoint.y-this.SIZE/2, this.SIZE, this.SIZE);
+		if (this.endingPoint != null) {
 			painter.setColor(this.DARK);
-			painter.drawOval(this.endPoint.x-this.SIZE/2, this.endPoint.y-this.SIZE/2, this.SIZE, this.SIZE);
+			painter.drawOval(this.endingPoint.x-this.SIZE/2, this.endingPoint.y-this.SIZE/2, this.SIZE, this.SIZE);
 		}
 	}
 

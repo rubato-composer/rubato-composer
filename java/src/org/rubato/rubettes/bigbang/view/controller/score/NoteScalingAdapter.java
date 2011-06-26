@@ -1,6 +1,5 @@
 package org.rubato.rubettes.bigbang.view.controller.score;
 
-import java.awt.Dimension;
 import java.awt.Point;
 import java.awt.event.MouseEvent;
 import java.awt.geom.Point2D;
@@ -12,7 +11,6 @@ import org.rubato.rubettes.bigbang.view.model.tools.ScalingTool;
 
 public class NoteScalingAdapter extends MouseInputAdapter {
 	
-	private final Dimension REFERENCE = new Dimension(100, 100);
 	private ViewController controller;
 	private Point2D.Double center;
 	private ScalingTool scalingTool;
@@ -35,7 +33,7 @@ public class NoteScalingAdapter extends MouseInputAdapter {
 	
 	private void updateCenter(double x, double y) {
 		this.center = new Point2D.Double(x, y);
-		this.scalingTool = new ScalingTool(this.center, this.REFERENCE);
+		this.scalingTool = new ScalingTool(this.center);
 		this.controller.changeDisplayTool(this.scalingTool);
 	}
 	
@@ -76,11 +74,11 @@ public class NoteScalingAdapter extends MouseInputAdapter {
 	
 	private double[] calculateScaleFactors(MouseEvent event) {
 		Point endPoint = event.getPoint();
-		double xFactor = Math.abs(endPoint.x-this.center.x)*2/this.REFERENCE.getWidth();
+		double xFactor = Math.abs(endPoint.x-this.center.x)*2/this.scalingTool.REFERENCE.getWidth();
 		if (event.isShiftDown()) {
 			return new double[]{xFactor, xFactor};
 		}
-		double yFactor = Math.abs(endPoint.y-this.center.y)*2/this.REFERENCE.getHeight();
+		double yFactor = Math.abs(endPoint.y-this.center.y)*2/this.scalingTool.REFERENCE.getHeight();
 		return new double[]{xFactor, yFactor};
 	}
 
