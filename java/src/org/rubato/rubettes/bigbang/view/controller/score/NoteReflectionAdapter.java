@@ -19,11 +19,11 @@ public class NoteReflectionAdapter extends MouseInputAdapter {
 		this.controller = controller;
 	}
 	
-	public NoteReflectionAdapter(ViewController controller, double[] startingPoint, double[] distance) {
+	public NoteReflectionAdapter(ViewController controller, double[] startingPoint, double[] endPoint) {
 		this.controller = controller;
 		this.updateStartingPoint(startingPoint[0], startingPoint[1]);
-		Point2D.Double endPoint = new Point2D.Double(startingPoint[0]-distance[0], startingPoint[1]-distance[1]);
-		this.updateToolEndingPoint(endPoint);
+		Point2D.Double endPoint2D = new Point2D.Double(endPoint[0], endPoint[1]);
+		this.updateToolEndingPoint(endPoint2D);
 	}
 	
 	public void mousePressed(MouseEvent event) {

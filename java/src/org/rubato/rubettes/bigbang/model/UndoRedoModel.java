@@ -58,10 +58,15 @@ public class UndoRedoModel extends Model {
 		this.firePropertyChange(BigBangController.SELECT_TRANSFORMATION, null, transformation);
 	}
 	
+	public void deselectTransformations() {
+		this.selectedTransformationIndex = -1;
+		this.firePropertyChange(BigBangController.SELECT_TRANSFORMATION, null, null);
+	}
+	
 	public void reset() {
 		this.undoManager.discardAllEdits();
 		this.transformations = new ArrayList<AbstractTransformationEdit>();
-		this.selectedTransformationIndex = -1;
+		this.deselectTransformations();
 	}
 
 }

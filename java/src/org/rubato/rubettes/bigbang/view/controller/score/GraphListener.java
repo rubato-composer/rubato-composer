@@ -17,7 +17,11 @@ public class GraphListener implements ListSelectionListener {
 
 	public void valueChanged(ListSelectionEvent event) {
 		AbstractTransformationEdit transformation = (AbstractTransformationEdit)((JList)event.getSource()).getSelectedValue();
-		this.controller.transformationSelected(transformation);
+		if (transformation != null) {
+			this.controller.transformationSelected(transformation);
+		} else {
+			this.controller.transformationsDeselected();
+		}
 	}
 
 }
