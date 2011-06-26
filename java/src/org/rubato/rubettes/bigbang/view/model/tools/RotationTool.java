@@ -8,10 +8,14 @@ public class RotationTool extends DisplayTool {
 	
 	private Point2D.Double center;
 	private double startAngle;
-	private Point2D.Double endPoint;
 	private double arcAngle;
 	
 	public RotationTool(Point2D.Double center) {
+		super(null);
+		this.setCenter(center);
+	}
+	
+	public void setCenter(Point2D.Double center) {
 		this.center = center;
 	}
 	
@@ -19,33 +23,21 @@ public class RotationTool extends DisplayTool {
 		this.startAngle = startAngle;
 	}
 	
-	public void setEnd(Point2D.Double endPoint, double arcAngle) {
+	public void setArcAngle(double arcAngle) {
 		this.arcAngle = arcAngle;
-		this.endPoint = endPoint;
-	}
-	
-	public void resetRotation() {
-		this.startAngle = 0;
-		this.endPoint = null;
-		this.arcAngle = 0;
-	}
-	
-	@Override
-	public void updatePosition(double xZoomFactor, double yZoomFactor) {
-		//this.center =
 	}
 
 	@Override
 	public void paint(AbstractPainter painter) {
 		painter.setColor(this.DARK);
 		painter.fillOval(this.center.x-2, this.center.y-2, 4, 4);
-		if (this.endPoint != null) {
-			double radius = this.endPoint.distance(this.center);
+		if (this.endingPoint != null) {
+			double radius = this.endingPoint.distance(this.center);
 			double x = this.center.x-radius;
 			double y = this.center.y-radius;
 			double doubleR = radius*2;
 			painter.drawOval(x, y, doubleR, doubleR);
-			painter.drawLine(this.center.x, this.center.y, this.endPoint.x, this.endPoint.y);
+			painter.drawLine(this.center.x, this.center.y, this.endingPoint.x, this.endingPoint.y);
 			painter.setColor(this.BRIGHT);
 			if (this.arcAngle < 180) {
 				painter.fillArc(x, y, doubleR, doubleR, this.startAngle, this.arcAngle);

@@ -9,7 +9,6 @@ import javax.swing.event.MouseInputAdapter;
 import org.rubato.rubettes.bigbang.view.controller.ViewController;
 import org.rubato.rubettes.bigbang.view.model.tools.SelectionTool;
 import org.rubato.rubettes.bigbang.view.subview.JBigBangDisplay;
-import org.rubato.rubettes.util.GeometryTools;
 
 public class NoteSelectionAdapter extends MouseInputAdapter {
 	
@@ -19,7 +18,6 @@ public class NoteSelectionAdapter extends MouseInputAdapter {
 	
 	public NoteSelectionAdapter(ViewController controller) {
 		this.controller = controller;
-		this.selectionTool = new SelectionTool();
 	}
 	
 	public void mouseClicked(MouseEvent event) {
@@ -37,6 +35,7 @@ public class NoteSelectionAdapter extends MouseInputAdapter {
 			Point location = event.getPoint();
 			if (!((JBigBangDisplay)event.getSource()).getContents().getNotes().hasSelectedNoteAt(location)) {
 				this.startingPoint = new Point2D.Double(location.x, location.y);
+				this.selectionTool = new SelectionTool(this.startingPoint);
 			}
 		}
 	}
@@ -54,7 +53,7 @@ public class NoteSelectionAdapter extends MouseInputAdapter {
 	private void updateSelection(MouseEvent event, boolean stillSelecting) {
 		if (this.startingPoint != null) {
 			Point currentPoint = event.getPoint();
-			this.selectionTool.setArea(GeometryTools.getRectangle(this.startingPoint, new Point2D.Double(currentPoint.x, currentPoint.y)));
+			this.selectionTool.setEndingPoint(new Point2D.Double(currentPoint.x, currentPoint.y));
 			this.controller.selectNotes(this.selectionTool, stillSelecting);
 			if (!stillSelecting) {
 				this.startingPoint = null;

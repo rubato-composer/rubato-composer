@@ -1,6 +1,5 @@
 package org.rubato.rubettes.bigbang.view.controller.score;
 
-import java.awt.Dimension;
 import java.awt.Point;
 import java.awt.event.MouseEvent;
 import java.awt.geom.Point2D;
@@ -12,7 +11,6 @@ import org.rubato.rubettes.bigbang.view.model.tools.ShearingTool;
 
 public class NoteShearingAdapter extends MouseInputAdapter {
 	
-	private final Dimension REFERENCE = new Dimension(100, 100);
 	private ViewController controller;
 	private Point2D.Double center;
 	private ShearingTool shearingTool;
@@ -29,7 +27,7 @@ public class NoteShearingAdapter extends MouseInputAdapter {
 	
 	private void updateCenter(double x, double y) {
 		this.center = new Point2D.Double(x, y);
-		this.shearingTool = new ShearingTool(this.center, this.REFERENCE);
+		this.shearingTool = new ShearingTool(this.center);
 		this.controller.changeDisplayTool(this.shearingTool);
 	}
 	
@@ -78,8 +76,8 @@ public class NoteShearingAdapter extends MouseInputAdapter {
 		Point endPoint = event.getPoint();
 		double xDifference = endPoint.x-this.center.x;
 		double yDifference = endPoint.y-this.center.y;
-		double xFactor = 2*xDifference/this.REFERENCE.getWidth();
-		double yFactor = -2*yDifference/this.REFERENCE.getHeight();
+		double xFactor = 2*xDifference/this.shearingTool.REFERENCE.getWidth();
+		double yFactor = -2*yDifference/this.shearingTool.REFERENCE.getHeight();
 		if (event.isShiftDown()) {
 			if (Math.abs(xDifference) >= Math.abs(yDifference)) {
 				return new double[]{xFactor, 0};

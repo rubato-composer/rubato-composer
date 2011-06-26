@@ -39,7 +39,7 @@ public class NoteReflectionAdapter extends MouseInputAdapter {
 	}
 	
 	private void updateToolEndingPoint(Point2D.Double endPoint) {
-		this.reflectionTool.setEndPoint(endPoint);
+		this.reflectionTool.setEndingPoint(endPoint);
 		this.controller.changeDisplayTool(this.reflectionTool);
 	}
 

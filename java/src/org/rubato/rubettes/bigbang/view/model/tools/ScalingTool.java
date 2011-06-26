@@ -6,14 +6,12 @@ import java.awt.geom.Point2D;
 import org.rubato.rubettes.bigbang.view.subview.AbstractPainter;
 
 public class ScalingTool extends DisplayTool {
-	
-	private Point2D.Double center;
-	private Dimension reference;
+
+	public final Dimension REFERENCE = new Dimension(100, 100);
 	private double[] scaleFactors;
 	
-	public ScalingTool(Point2D.Double center, Dimension reference) {
-		this.center = center;
-		this.reference = reference;
+	public ScalingTool(Point2D.Double startingPoint) {
+		super(startingPoint);
 	}
 	
 	public void setScaleFactors(double[] scaleFactors) {
@@ -23,14 +21,14 @@ public class ScalingTool extends DisplayTool {
 	@Override
 	public void paint(AbstractPainter painter) {
 		painter.setColor(this.BRIGHT);
-		double width = this.reference.getWidth();
-		double height = this.reference.getHeight();
-		painter.fillRect(this.center.x-width/2, this.center.y-height/2, width, height);
+		double width = this.REFERENCE.getWidth();
+		double height = this.REFERENCE.getHeight();
+		painter.fillRect(this.startingPoint.x-width/2, this.startingPoint.y-height/2, width, height);
 		if (this.scaleFactors != null) {
 			painter.setColor(this.DARK);
-			width = this.scaleFactors[0]*this.reference.getWidth();
-			height = this.scaleFactors[1]*this.reference.getHeight();
-			painter.drawRect(this.center.x-width/2, this.center.y-height/2, width, height);
+			width = this.scaleFactors[0]*this.REFERENCE.getWidth();
+			height = this.scaleFactors[1]*this.REFERENCE.getHeight();
+			painter.drawRect(this.startingPoint.x-width/2, this.startingPoint.y-height/2, width, height);
 		}
 	}
 

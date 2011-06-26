@@ -9,15 +9,15 @@ import org.rubato.rubettes.bigbang.view.subview.AbstractPainter;
 
 public class ShearingTool extends DisplayTool {
 	
-	private Point2D.Double center;
-	private Rectangle2D.Double reference;
+	public final Dimension REFERENCE = new Dimension(100, 100);
 	private double[] shearingFactors;
+	private Rectangle2D.Double reference;
 	
-	public ShearingTool(Point2D.Double center, Dimension reference) {
-		this.center = center;
-		int width = (int)reference.getWidth();
-		int height = (int)reference.getHeight();
-		this.reference = new Rectangle2D.Double(this.center.x-width/2, this.center.y-height/2, width, height);
+	public ShearingTool(Point2D.Double startingPoint) {
+		super(startingPoint);
+		int width = this.REFERENCE.width;
+		int height = this.REFERENCE.height;
+		this.reference = new Rectangle2D.Double(this.startingPoint.x-width/2, this.startingPoint.y-height/2, width, height);
 	}
 	
 	public void setShearingFactors(double[] shearingFactors) {

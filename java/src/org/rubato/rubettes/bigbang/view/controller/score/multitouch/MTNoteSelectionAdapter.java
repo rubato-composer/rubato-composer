@@ -8,7 +8,6 @@ import org.mt4j.input.inputProcessors.MTGestureEvent;
 import org.mt4j.input.inputProcessors.componentProcessors.lassoProcessor.LassoEvent;
 import org.rubato.rubettes.bigbang.view.controller.ViewController;
 import org.rubato.rubettes.bigbang.view.model.tools.SelectionTool;
-import org.rubato.rubettes.util.GeometryTools;
 
 public class MTNoteSelectionAdapter implements IGestureEventListener {
 	
@@ -18,7 +17,6 @@ public class MTNoteSelectionAdapter implements IGestureEventListener {
 	
 	public MTNoteSelectionAdapter(ViewController controller) {
 		this.controller = controller;
-		this.selectionTool = new SelectionTool();
 	}
 
 	public boolean processGestureEvent(MTGestureEvent ge) {
@@ -29,6 +27,7 @@ public class MTNoteSelectionAdapter implements IGestureEventListener {
 				this.updateSelection(finger, false);
 			} else if (event.getId() == MTGestureEvent.GESTURE_DETECTED) {
 				this.startingPoint = finger;
+				this.selectionTool = new SelectionTool(this.startingPoint);
 			} else {
 				this.updateSelection(finger, true);
 			}
@@ -42,7 +41,7 @@ public class MTNoteSelectionAdapter implements IGestureEventListener {
 	
 	private void updateSelection(Point2D.Double finger, boolean stillSelecting) {
 		if (this.startingPoint != null) {
-			this.selectionTool.setArea(GeometryTools.getRectangle(this.startingPoint, finger));
+			this.selectionTool.setEndingPoint(finger);
 			this.controller.selectNotes(this.selectionTool, stillSelecting);
 			if (!stillSelecting) {
 				this.startingPoint = null;
