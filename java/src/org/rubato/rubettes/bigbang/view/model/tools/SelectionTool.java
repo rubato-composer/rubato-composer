@@ -10,8 +10,8 @@ public class SelectionTool extends DisplayTool {
 	
 	private Rectangle2D.Double area;
 	
-	public SelectionTool(Point2D.Double startingPoint) {
-		super(startingPoint);
+	public SelectionTool() {
+		super();
 	}
 	
 	@Override

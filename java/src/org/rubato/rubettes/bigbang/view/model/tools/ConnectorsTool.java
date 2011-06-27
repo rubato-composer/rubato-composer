@@ -11,7 +11,6 @@ public class ConnectorsTool extends DisplayTool {
 	private Point point;
 	
 	public ConnectorsTool(int relation) {
-		super(null);
 		this.relation = relation;
 	}
 

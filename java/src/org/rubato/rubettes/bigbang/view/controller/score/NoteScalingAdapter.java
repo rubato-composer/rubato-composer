@@ -43,7 +43,7 @@ public class NoteScalingAdapter extends NoteTransformationAdapter {
 
 	@Override
 	protected void initDisplayTool() {
-		this.displayTool = new ScalingTool(this.startingPoint);
+		this.displayTool = new ScalingTool();
 	}
 
 }

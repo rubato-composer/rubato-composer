@@ -15,7 +15,7 @@ public abstract class DisplayTool {
 	
 	protected Point2D.Double startingPoint, endingPoint;
 	
-	public DisplayTool(Point2D.Double startingPoint) {
+	public void setStartingPoint(Point2D.Double startingPoint) {
 		this.startingPoint = startingPoint;
 	}
 	

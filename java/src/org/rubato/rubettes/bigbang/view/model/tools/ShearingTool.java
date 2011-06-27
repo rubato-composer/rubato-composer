@@ -13,11 +13,10 @@ public class ShearingTool extends DisplayTool {
 	private Rectangle2D.Double reference;
 	double[] shearingFactors;
 	
-	public ShearingTool(Point2D.Double startingPoint) {
-		super(startingPoint);
-		int width = this.REFERENCE.width;
-		int height = this.REFERENCE.height;
-		this.reference = new Rectangle2D.Double(this.startingPoint.x-width/2, this.startingPoint.y-height/2, width, height);
+	@Override
+	public void setStartingPoint(Point2D.Double startingPoint) {
+		super.setStartingPoint(startingPoint);
+		this.reference = new Rectangle2D.Double(this.startingPoint.x-this.REFERENCE.width/2, this.startingPoint.y-this.REFERENCE.height/2, this.REFERENCE.width, this.REFERENCE.height);
 	}
 	
 	public void setShearingFactors(double[] shearingFactors) {

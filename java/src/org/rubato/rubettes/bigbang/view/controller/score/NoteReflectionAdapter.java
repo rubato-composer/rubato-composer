@@ -33,7 +33,7 @@ public class NoteReflectionAdapter extends NoteTransformationAdapter {
 
 	@Override
 	protected void initDisplayTool() {
-		this.displayTool = new ReflectionTool(this.startingPoint);
+		this.displayTool = new ReflectionTool();
 	}
 
 }

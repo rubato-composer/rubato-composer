@@ -6,10 +6,6 @@ import org.rubato.rubettes.bigbang.view.subview.AbstractPainter;
 
 public class TranslationTool extends DisplayTool {
 
-	public TranslationTool(Point2D.Double startingPoint) {
-		super(startingPoint);
-	}
-
 	private final int SIZE = 20;
 
 	@Override

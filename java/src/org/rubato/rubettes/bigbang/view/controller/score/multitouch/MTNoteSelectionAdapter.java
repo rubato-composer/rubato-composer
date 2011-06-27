@@ -27,7 +27,8 @@ public class MTNoteSelectionAdapter implements IGestureEventListener {
 				this.updateSelection(finger, false);
 			} else if (event.getId() == MTGestureEvent.GESTURE_DETECTED) {
 				this.startingPoint = finger;
-				this.selectionTool = new SelectionTool(this.startingPoint);
+				this.selectionTool = new SelectionTool();
+				this.selectionTool.setStartingPoint(this.startingPoint);
 			} else {
 				this.updateSelection(finger, true);
 			}
