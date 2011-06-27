@@ -40,7 +40,7 @@ public class ViewController extends Controller {
 	//general functionality
 	public static final String UNDO = "undo";
 	public static final String REDO = "redo";
-	public static final String TRANSFORMATIONS = "transformations";
+	public static final String DESELECT_TRANSFORMATIONS = "deselectTransformations";
 	public static final String INPUT_ACTIVE = "InputActive";
 	
 	//score manipulation - display
@@ -252,6 +252,10 @@ public class ViewController extends Controller {
 	
 	public void redo() {
 		this.callModelMethod(ViewController.REDO);
+	}
+	
+	public void deselectTransformations() {
+		this.callModelMethod(ViewController.DESELECT_TRANSFORMATIONS);
 	}
 	
 	public void changeInputActive(boolean inputActive) {
