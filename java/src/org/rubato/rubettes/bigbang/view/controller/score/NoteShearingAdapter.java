@@ -48,7 +48,7 @@ public class NoteShearingAdapter extends NoteTransformationAdapter {
 
 	@Override
 	protected void initDisplayTool() {
-		this.displayTool = new ShearingTool(this.startingPoint);
+		this.displayTool = new ShearingTool();
 	}
 
 }

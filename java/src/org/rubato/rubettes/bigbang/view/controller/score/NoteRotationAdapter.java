@@ -27,25 +27,24 @@ public class NoteRotationAdapter extends NoteTransformationAdapter {
 	
 	public void mouseClicked(MouseEvent event) {
 		Point clickedPoint = event.getPoint();
-		this.initDisplayTool();
 		this.updateCenter(clickedPoint.x, clickedPoint.y);
 	}
 	
-	public void mousePressed(MouseEvent event) {
-		if (event.getButton() == MouseEvent.BUTTON1 && this.center != null) {
-			Point pressedPoint = event.getPoint();
-			this.startingPoint = new Point2D.Double(pressedPoint.x, pressedPoint.y);
+	@Override
+	protected void updateStartingPoint(double x, double y) {
+		if (this.center != null) {
+			super.updateStartingPoint(x, y);
 			this.startingAngle = GeometryTools.calculateAngle(this.center, this.startingPoint);
-			((RotationTool)this.displayTool).setStartAngle(Math.toDegrees(this.startingAngle));
+			((RotationTool)this.displayTool).setStartingAngle(Math.toDegrees(this.startingAngle));
 		}
 	}
 
 	@Override
 	public void mouseDragged(MouseEvent event) {
-		super.mouseDragged(event);
 		Point2D.Double currentEndingPoint = new Point2D.Double(event.getPoint().x, event.getPoint().y);
 		double arcAngle = this.calculateArcAngle(currentEndingPoint);
 		this.updateArcAngle(arcAngle);
+		super.mouseDragged(event);
 	}
 	
 	@Override
@@ -66,7 +65,7 @@ public class NoteRotationAdapter extends NoteTransformationAdapter {
 
 	@Override
 	protected void initDisplayTool() {
-		this.displayTool = new RotationTool(this.center);
+		this.displayTool = new RotationTool();
 	}
 	
 	private void updateCenter(double x, double y) {
@@ -81,7 +80,7 @@ public class NoteRotationAdapter extends NoteTransformationAdapter {
 	
 	private void updateStartAngle(Point2D.Double endingPoint, double arcAngle) {
 		this.startingAngle = this.calculateStartingAngle(endingPoint, arcAngle);
-		((RotationTool)this.displayTool).setStartAngle(Math.toDegrees(this.startingAngle));
+		((RotationTool)this.displayTool).setStartingAngle(Math.toDegrees(this.startingAngle));
 	}
 	
 	private void updateArcAngle(double arcAngle) {

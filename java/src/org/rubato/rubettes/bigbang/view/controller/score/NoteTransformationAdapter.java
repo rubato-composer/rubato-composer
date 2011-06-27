@@ -18,6 +18,7 @@ public abstract class NoteTransformationAdapter extends MouseInputAdapter {
 	
 	public NoteTransformationAdapter(ViewController controller) {
 		this.init(controller);
+		this.inModificationMode = false;
 	}
 	
 	public NoteTransformationAdapter(ViewController controller, double[] startingPoint, double[] endingPoint) {
@@ -25,38 +26,42 @@ public abstract class NoteTransformationAdapter extends MouseInputAdapter {
 		this.updateStartingPoint(startingPoint[0], startingPoint[1]);
 		Point2D.Double endingPoint2D = new Point2D.Double(endingPoint[0], endingPoint[1]);
 		this.updateEndingPoint(endingPoint2D);
+		this.inModificationMode = true;
 	}
 	
 	private void init(ViewController controller) {
 		this.controller = controller;
 		this.dragging = false;
+		this.initDisplayTool();
 	}
 	
 	public void mousePressed(MouseEvent event) {
-		if (event.getButton() == MouseEvent.BUTTON1) {
+		if (event.getButton() == MouseEvent.BUTTON1 && !this.inModificationMode) {
 			this.updateStartingPoint(event.getPoint().x, event.getPoint().y);
 		}
 	}
 	
 	public void mouseDragged(MouseEvent event) {
 		this.updateEndingPoint(event);
-		this.transformSelectedNotes(event, true);
+		this.transformOrModifyTransformation(event, true);
 		this.dragging = true;
 	}
 
 	public void mouseReleased(MouseEvent event) {
-		if (this.displayTool != null && this.dragging) {
-			this.transformSelectedNotes(event, false);
-			this.displayTool = null;
-			this.controller.clearDisplayTool();
+		if (this.dragging) {
+			this.transformOrModifyTransformation(event, false);
 			this.dragging = false;
+			if (!this.inModificationMode) {
+				this.initDisplayTool();
+				this.controller.clearDisplayTool();
+			}
 		}
 	}
 	
-	private void updateStartingPoint(double x, double y) {
+	protected void updateStartingPoint(double x, double y) {
 		this.startingPoint = new Point2D.Double(x, y);
-		this.initDisplayTool();
-		this.controller.changeDisplayTool(this.displayTool);
+		this.displayTool.setStartingPoint(this.startingPoint);
+		this.updateDisplayTool();
 	}
 	
 	protected void updateEndingPoint(MouseEvent event) {
@@ -64,13 +69,29 @@ public abstract class NoteTransformationAdapter extends MouseInputAdapter {
 		this.updateEndingPoint(endingPoint);
 	}
 	
-	private void updateEndingPoint(Point2D.Double endPoint) {
-		this.displayTool.setEndingPoint(endPoint);
-		this.controller.changeDisplayTool(this.displayTool);
+	private void updateEndingPoint(Point2D.Double endingPoint) {
+		this.displayTool.setEndingPoint(endingPoint);
+		this.updateDisplayTool();
+	}
+	
+	private void transformOrModifyTransformation(MouseEvent event, boolean inPreviewMode) {
+		if (this.inModificationMode) {
+			this.modifySelectedTransformation(event, inPreviewMode);
+		} else {
+			this.transformSelectedNotes(event, inPreviewMode);
+		}
+	}
+	
+	private void modifySelectedTransformation(MouseEvent event, boolean inPreviewMode) {
+		
 	}
 	
 	protected abstract void transformSelectedNotes(MouseEvent event, boolean inPreviewMode);
 	
 	protected abstract void initDisplayTool();
+	
+	protected void updateDisplayTool() {
+		this.controller.changeDisplayTool(this.displayTool);
+	}
 
 }

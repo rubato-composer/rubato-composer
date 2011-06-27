@@ -38,7 +38,7 @@ public class NoteTranslationAdapter extends NoteTransformationAdapter {
 	
 	@Override
 	protected void initDisplayTool() {
-		this.displayTool = new TranslationTool(this.startingPoint);
+		this.displayTool = new TranslationTool();
 	}
 
 }

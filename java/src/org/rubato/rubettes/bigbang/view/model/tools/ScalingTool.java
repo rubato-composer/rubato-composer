@@ -1,7 +1,6 @@
 package org.rubato.rubettes.bigbang.view.model.tools;
 
 import java.awt.Dimension;
-import java.awt.geom.Point2D;
 
 import org.rubato.rubettes.bigbang.view.subview.AbstractPainter;
 
@@ -9,10 +8,6 @@ public class ScalingTool extends DisplayTool {
 
 	public final Dimension REFERENCE = new Dimension(100, 100);
 	private double[] scalingFactors;
-	
-	public ScalingTool(Point2D.Double startingPoint) {
-		super(startingPoint);
-	}
 	
 	public void setScalingFactors(double[] scalingFactors) {
 		this.scalingFactors = scalingFactors;

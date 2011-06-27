@@ -14,7 +14,6 @@ public class TransformationTool extends DisplayTool {
 	private double angle;
 	
 	public TransformationTool(Point2D.Double center, Point2D.Double opposite) {
-		super(center);
 		double width = opposite.x-center.x;
 		double height = opposite.y-center.y;
 		this.reference = new Rectangle2D.Double(center.x, center.y, width, height);

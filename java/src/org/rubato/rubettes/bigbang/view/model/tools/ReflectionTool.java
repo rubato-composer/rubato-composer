@@ -1,15 +1,10 @@
 package org.rubato.rubettes.bigbang.view.model.tools;
 
 import java.awt.geom.Point2D;
-import java.awt.geom.Point2D.Double;
 
 import org.rubato.rubettes.bigbang.view.subview.AbstractPainter;
 
 public class ReflectionTool extends DisplayTool {
-	
-	public ReflectionTool(Double startingPoint) {
-		super(startingPoint);
-	}
 
 	@Override
 	public void paint(AbstractPainter painter) {
