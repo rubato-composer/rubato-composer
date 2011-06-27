@@ -32,6 +32,12 @@ public abstract class NoteTransformationAdapter extends MouseInputAdapter {
 		this.dragging = false;
 	}
 	
+	public void mousePressed(MouseEvent event) {
+		if (event.getButton() == MouseEvent.BUTTON1) {
+			this.updateStartingPoint(event.getPoint().x, event.getPoint().y);
+		}
+	}
+	
 	public void mouseDragged(MouseEvent event) {
 		this.updateEndingPoint(event);
 		this.transformSelectedNotes(event, true);
@@ -47,7 +53,7 @@ public abstract class NoteTransformationAdapter extends MouseInputAdapter {
 		}
 	}
 	
-	protected void updateStartingPoint(double x, double y) {
+	private void updateStartingPoint(double x, double y) {
 		this.startingPoint = new Point2D.Double(x, y);
 		this.initDisplayTool();
 		this.controller.changeDisplayTool(this.displayTool);
@@ -58,7 +64,7 @@ public abstract class NoteTransformationAdapter extends MouseInputAdapter {
 		this.updateEndingPoint(endingPoint);
 	}
 	
-	protected void updateEndingPoint(Point2D.Double endPoint) {
+	private void updateEndingPoint(Point2D.Double endPoint) {
 		this.displayTool.setEndingPoint(endPoint);
 		this.controller.changeDisplayTool(this.displayTool);
 	}

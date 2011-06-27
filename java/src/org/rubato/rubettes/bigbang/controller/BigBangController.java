@@ -69,11 +69,11 @@ public class BigBangController extends Controller {
 		this.callModelMethod(BigBangController.REDO);
 	}
 	
-	public void transformationSelected(AbstractTransformationEdit transformation) {
+	public void selectTransformation(AbstractTransformationEdit transformation) {
 		this.callModelMethod(BigBangController.SELECT_TRANSFORMATION, transformation);
 	}
 	
-	public void transformationsDeselected() {
+	public void deselectTransformations() {
 		this.callModelMethod(BigBangController.DESELECT_TRANSFORMATIONS);
 	}
 	

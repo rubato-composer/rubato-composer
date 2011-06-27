@@ -138,7 +138,6 @@ public class BigBangView extends Model implements View {
 		}
 		this.displayMode = newMode;
 		this.firePropertyChange(ViewController.DISPLAY_MODE, null, newMode);
-		//this.clearDisplayTool();
 	}
 	
 	public void toggleMainOptionsVisible() {
@@ -298,24 +297,28 @@ public class BigBangView extends Model implements View {
 				this.setDisplayMode(new TranslationModeAdapter(this.viewController, startingPoint, endPoint));
 			} else {
 				AbstractLocalTransformationEdit localEdit = (AbstractLocalTransformationEdit)edit;
-				double[] center = this.getXYDisplayValues(localEdit.getCenter());
-				double[] endPoint = this.getXYDisplayValues(localEdit.getEndPoint());
+				double[] startingPoint = this.getXYDisplayValues(localEdit.getCenter());
+				double[] endingPoint = this.getXYDisplayValues(localEdit.getEndPoint());
 				if (edit instanceof RotationEdit) {
 					double angle = ((RotationEdit)edit).getAngle();
-					this.setDisplayMode(new RotationModeAdapter(this.viewController, center, endPoint, angle));
+					this.setDisplayMode(new RotationModeAdapter(this.viewController, startingPoint, endingPoint, angle));
 				} else if (edit instanceof ScalingEdit) {
 					double[] scaleFactors = ((ScalingEdit)edit).getScaleFactors();
-					this.setDisplayMode(new ScalingModeAdapter(this.viewController, center, scaleFactors));
+					this.setDisplayMode(new ScalingModeAdapter(this.viewController, startingPoint, endingPoint, scaleFactors));
 				} else if (edit instanceof ShearingEdit) {
-					double[] shearFactors = ((ShearingEdit)edit).getShearingFactors();
-					this.setDisplayMode(new ShearingModeAdapter(this.viewController, center, shearFactors));
+					double[] shearingFactors = ((ShearingEdit)edit).getShearingFactors();
+					this.setDisplayMode(new ShearingModeAdapter(this.viewController, startingPoint, endingPoint, shearingFactors));
 				} else if (edit instanceof ReflectionEdit) {
-					this.setDisplayMode(new ReflectionModeAdapter(this.viewController, center, endPoint));
+					this.setDisplayMode(new ReflectionModeAdapter(this.viewController, startingPoint, endingPoint));
 				}
 			}
 		} else {
 			this.clearDisplayTool();
 		}
+	}
+	
+	public void deselectTransformations() {
+		this.controller.deselectTransformations();
 	}
 	
 	public void translateSelectedNotes(Point2D.Double center, Point2D.Double endPoint, Boolean copyAndTransform, Boolean previewMode) {

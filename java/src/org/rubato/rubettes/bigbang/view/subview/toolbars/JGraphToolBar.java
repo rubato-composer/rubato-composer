@@ -44,7 +44,11 @@ public class JGraphToolBar extends JToolBar implements View {
 	}
 	
 	private void selectTransformation(AbstractTransformationEdit transformation) {
-		this.transformations.setSelectedValue(transformation, true);
+		if (transformation != null) {
+			this.transformations.setSelectedValue(transformation, true);
+		} else {
+			this.transformations.clearSelection();
+		}
 	}
 
 }

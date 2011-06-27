@@ -4,80 +4,39 @@ import java.awt.Point;
 import java.awt.event.MouseEvent;
 import java.awt.geom.Point2D;
 
-import javax.swing.event.MouseInputAdapter;
-
 import org.rubato.rubettes.bigbang.view.controller.ViewController;
 import org.rubato.rubettes.bigbang.view.model.tools.ShearingTool;
 
-public class NoteShearingAdapter extends MouseInputAdapter {
-	
-	private ViewController controller;
-	private Point2D.Double center;
-	private ShearingTool shearingTool;
+public class NoteShearingAdapter extends NoteTransformationAdapter {
 	
 	public NoteShearingAdapter(ViewController controller) {
-		this.controller = controller;
+		super(controller);
 	}
 	
-	public NoteShearingAdapter(ViewController controller, double[] center, double[] shearFactors) {
-		this.controller = controller;
-		this.updateCenter(center[0], center[1]);
-		this.updateToolShearFactors(shearFactors);
+	public NoteShearingAdapter(ViewController controller, double[] startingPoint, double[] endingPoint, double[] shearingFactors) {
+		super(controller, startingPoint, endingPoint);
+		((ShearingTool)this.displayTool).setShearingFactors(shearingFactors);
 	}
 	
-	private void updateCenter(double x, double y) {
-		this.center = new Point2D.Double(x, y);
-		this.shearingTool = new ShearingTool(this.center);
-		this.controller.changeDisplayTool(this.shearingTool);
+	@Override
+	protected void updateEndingPoint(MouseEvent event) {
+		((ShearingTool)this.displayTool).setShearingFactors(this.calculateShearingFactors(event));
+		super.updateEndingPoint(event);
 	}
 	
-	private void updateToolShearFactors(double[] shearFactors) {
-		this.shearingTool.setShearingFactors(shearFactors);
-		this.controller.changeDisplayTool(this.shearingTool);
-	}
-	
-	public void mousePressed(MouseEvent event) {
-		if (event.getButton() == MouseEvent.BUTTON1) {
-			this.updateCenter(event.getPoint().x, event.getPoint().y);
-		}
-	}
-
-	public void mouseDragged(MouseEvent event) {
-		this.updateShearingTool(event);
-	}
-
-	public void mouseReleased(MouseEvent event) {
-		this.shearSelectedNotes(event);
-	}
-	
-	private void updateShearingTool(MouseEvent event) {
-		if (this.shearingTool != null) {
-			double[] shearFactors = this.shear(event, true);
-			this.updateToolShearFactors(shearFactors);
-		}
-	}
-	
-	private void shearSelectedNotes(MouseEvent event) {
-		if (this.shearingTool != null) {
-			this.shear(event, false);
-			this.shearingTool = null;
-			this.controller.clearDisplayTool();
-		}
-	}
-	
-	private double[] shear(MouseEvent event, boolean inPreviewMode) {
+	@Override
+	protected void transformSelectedNotes(MouseEvent event, boolean inPreviewMode) {
 		double[] shearingFactors = this.calculateShearingFactors(event);
 		Point2D.Double currentEndPoint = new Point2D.Double(event.getPoint().x, event.getPoint().y);
-		this.controller.shearSelectedNotes(this.center, currentEndPoint, shearingFactors, event.isAltDown(), inPreviewMode);
-		return shearingFactors;
+		this.controller.shearSelectedNotes(this.startingPoint, currentEndPoint, shearingFactors, event.isAltDown(), inPreviewMode);
 	}
 	
 	private double[] calculateShearingFactors(MouseEvent event) {
-		Point endPoint = event.getPoint();
-		double xDifference = endPoint.x-this.center.x;
-		double yDifference = endPoint.y-this.center.y;
-		double xFactor = 2*xDifference/this.shearingTool.REFERENCE.getWidth();
-		double yFactor = -2*yDifference/this.shearingTool.REFERENCE.getHeight();
+		Point endingPoint = event.getPoint();
+		double xDifference = endingPoint.x-this.startingPoint.x;
+		double yDifference = endingPoint.y-this.startingPoint.y;
+		double xFactor = 2*xDifference/((ShearingTool)this.displayTool).REFERENCE.getWidth();
+		double yFactor = -2*yDifference/((ShearingTool)this.displayTool).REFERENCE.getHeight();
 		if (event.isShiftDown()) {
 			if (Math.abs(xDifference) >= Math.abs(yDifference)) {
 				return new double[]{xFactor, 0};
@@ -85,6 +44,11 @@ public class NoteShearingAdapter extends MouseInputAdapter {
 			return new double[]{0, yFactor};
 		}
 		return new double[]{xFactor, yFactor};
+	}
+
+	@Override
+	protected void initDisplayTool() {
+		this.displayTool = new ShearingTool(this.startingPoint);
 	}
 
 }

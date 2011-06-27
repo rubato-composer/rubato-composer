@@ -8,14 +8,14 @@ import org.rubato.rubettes.bigbang.view.subview.AbstractPainter;
 public class ScalingTool extends DisplayTool {
 
 	public final Dimension REFERENCE = new Dimension(100, 100);
-	private double[] scaleFactors;
+	private double[] scalingFactors;
 	
 	public ScalingTool(Point2D.Double startingPoint) {
 		super(startingPoint);
 	}
 	
-	public void setScaleFactors(double[] scaleFactors) {
-		this.scaleFactors = scaleFactors;
+	public void setScalingFactors(double[] scalingFactors) {
+		this.scalingFactors = scalingFactors;
 	}
 
 	@Override
@@ -24,10 +24,10 @@ public class ScalingTool extends DisplayTool {
 		double width = this.REFERENCE.getWidth();
 		double height = this.REFERENCE.getHeight();
 		painter.fillRect(this.startingPoint.x-width/2, this.startingPoint.y-height/2, width, height);
-		if (this.scaleFactors != null) {
+		if (this.scalingFactors != null) {
 			painter.setColor(this.DARK);
-			width = this.scaleFactors[0]*this.REFERENCE.getWidth();
-			height = this.scaleFactors[1]*this.REFERENCE.getHeight();
+			width = this.scalingFactors[0]*this.REFERENCE.getWidth();
+			height = this.scalingFactors[1]*this.REFERENCE.getHeight();
 			painter.drawRect(this.startingPoint.x-width/2, this.startingPoint.y-height/2, width, height);
 		}
 	}
