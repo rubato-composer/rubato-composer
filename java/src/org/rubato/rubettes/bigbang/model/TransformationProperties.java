@@ -66,6 +66,10 @@ public class TransformationProperties {
 		return this.anchorNodePath;
 	}
 	
+	public void setInPreviewMode(boolean inPreviewMode) {
+		this.inPreviewMode = inPreviewMode;
+	}
+	
 	public boolean inPreviewMode() {
 		return this.inPreviewMode;
 	}

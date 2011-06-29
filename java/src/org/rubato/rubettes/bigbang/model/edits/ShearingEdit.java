@@ -11,11 +11,16 @@ public class ShearingEdit extends AbstractLocalTransformationEdit {
 	public ShearingEdit(BigBangScoreManager scoreLayers, TransformationProperties properties, double[] shearingFactors) {
 		super(scoreLayers, properties);
 		this.shearingFactors = shearingFactors;
-		this.execute();
+		this.initTransformation();
+	}
+	
+	public void modify(double[] newValues) {
+		this.shearingFactors = newValues;
+		this.initTransformation();
 	}
 	
 	public String getPresentationName() {
-		return "Shearing";
+		return "Shearing " + super.getPresentationName();
 	}
 
 	@Override

@@ -62,6 +62,7 @@ public class BigBangView extends Model implements View {
 	private NotePath selectedAnchor;
 	private boolean inWallpaperMode;
 	private List<Integer> wallpaperRanges;
+	private AbstractTransformationEdit selectedTransformation;
 	
 	public BigBangView(BigBangController controller) {
 		this.controller = controller;
@@ -283,7 +284,8 @@ public class BigBangView extends Model implements View {
 	}
 	
 	private void selectTransformation(AbstractTransformationEdit edit) {
-		if (edit != null) {
+		this.selectedTransformation = edit;
+		if (this.selectedTransformation != null) {
 			//select perspective first
 			this.viewParameters.setSelectedXYViewParameters(this.getXYViewParameters(edit.getElementPaths()));
 			//TODO: center view?????
@@ -293,8 +295,8 @@ public class BigBangView extends Model implements View {
 			//then select displaymode and convert values!!
 			if (edit instanceof TranslationEdit) {
 				double[] startingPoint = this.getXYDisplayValues(((TranslationEdit)edit).getStartingPoint());
-				double[] endPoint = this.getXYDisplayValues(((TranslationEdit)edit).getEndPoint());
-				this.setDisplayMode(new TranslationModeAdapter(this.viewController, startingPoint, endPoint));
+				double[] endingPoint = this.getXYDisplayValues(((TranslationEdit)edit).getEndingPoint());
+				this.setDisplayMode(new TranslationModeAdapter(this.viewController, startingPoint, endingPoint));
 			} else {
 				AbstractLocalTransformationEdit localEdit = (AbstractLocalTransformationEdit)edit;
 				double[] startingPoint = this.getXYDisplayValues(localEdit.getCenter());
@@ -321,8 +323,23 @@ public class BigBangView extends Model implements View {
 		this.controller.deselectTransformations();
 	}
 	
-	public void translateSelectedNotes(Point2D.Double center, Point2D.Double endPoint, Boolean copyAndTransform, Boolean previewMode) {
-		TransformationProperties properties = this.getLocalTransformationProperties(center, endPoint, copyAndTransform, previewMode);
+	public void modifySelectedTransformation(Point2D.Double endingPoint) {
+		this.selectedTransformation.modify(this.getXYDenotatorValues(endingPoint));
+		this.controller.modifiedSelectedTransformation();
+	}
+	
+	public void modifySelectedTransformation(double[] newValues) {
+		this.selectedTransformation.modify(newValues);
+		this.controller.modifiedSelectedTransformation();
+	}
+	
+	public void modifyRotationAngle(Double angle) {
+		((RotationEdit)this.selectedTransformation).modifyAngle(angle);
+		this.controller.modifiedSelectedTransformation();
+	}
+	
+	public void translateSelectedNotes(Point2D.Double center, Point2D.Double endingPoint, Boolean copyAndTransform, Boolean previewMode) {
+		TransformationProperties properties = this.getLocalTransformationProperties(center, endingPoint, copyAndTransform, previewMode);
 		this.controller.translateNotes(properties);
 	}
 	

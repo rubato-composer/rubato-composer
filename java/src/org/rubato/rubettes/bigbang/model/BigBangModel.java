@@ -110,6 +110,8 @@ public class BigBangModel extends Model {
 	private void doTransformation(TransformationProperties properties, AbstractUndoableEdit edit) {
 		if (!properties.inPreviewMode() && !properties.getNodePaths().isEmpty()) {
 			this.undoRedoModel.postEdit(edit);
+		} else {
+			this.undoRedoModel.previewTransformationAtEnd(edit);
 		}
 	}
 	

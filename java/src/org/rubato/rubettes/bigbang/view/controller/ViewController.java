@@ -71,6 +71,8 @@ public class ViewController extends Controller {
 	public static final String SHEAR_NOTES = "shearSelectedNotes";
 	public static final String SHAPE_NOTES = "shapeSelectedNotes";
 	public static final String AFFINE_TRANSFORM_NOTES = "affineTransformSelectedNotes";
+	public static final String MODIFY_TRANSFORMATION = "modifySelectedTransformation";
+	public static final String MODIFY_ROTATION = "modifyRotationAngle";
 	
 	//score manipulation - wallpaper
 	public static final String START_WALLPAPER = "startWallpaper";
@@ -160,6 +162,18 @@ public class ViewController extends Controller {
 	
 	public void clearDisplayTool() {
 		this.callModelMethod(ViewController.CLEAR_DISPLAY_TOOL);
+	}
+	
+	public void modifySelectedTransformation(Point2D.Double endingPoint) {
+		this.callModelMethod(ViewController.MODIFY_TRANSFORMATION, endingPoint);
+	}
+	
+	public void modifySelectedTransformation(double[] newValues) {
+		this.callModelMethod(ViewController.MODIFY_TRANSFORMATION, newValues);
+	}
+	
+	public void modifyRotationAngle(Double angle) {
+		this.callModelMethod(ViewController.MODIFY_ROTATION, angle);
 	}
 	
 	public void translateSelectedNotes(Point2D.Double center, Point2D.Double endPoint, boolean copyAndTranslate, boolean previewMode) {

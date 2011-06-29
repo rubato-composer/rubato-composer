@@ -54,6 +54,13 @@ public class NoteRotationAdapter extends NoteTransformationAdapter {
 		this.controller.rotateSelectedNotes(this.center, currentEndingPoint, arcAngle, event.isAltDown(), inPreviewMode);
 	}
 	
+	@Override
+	protected void modifySelectedTransformation(MouseEvent event) {
+		Point2D.Double currentEndingPoint = new Point2D.Double(event.getPoint().x, event.getPoint().y);
+		double arcAngle = this.calculateArcAngle(currentEndingPoint);
+		this.controller.modifyRotationAngle(arcAngle);
+	}
+	
 	private double calculateStartingAngle(Point2D.Double endPoint, double arcAngle) {
 		double endAngle = GeometryTools.calculateAngle(this.center, endPoint);
 		return endAngle-arcAngle;
@@ -76,6 +83,9 @@ public class NoteRotationAdapter extends NoteTransformationAdapter {
 			this.initDisplayTool();
 		}
 		this.controller.changeDisplayTool(this.displayTool);
+		if (this.inModificationMode) {
+			this.controller.modifySelectedTransformation(this.center);
+		}
 	}
 	
 	private void updateStartAngle(Point2D.Double endingPoint, double arcAngle) {

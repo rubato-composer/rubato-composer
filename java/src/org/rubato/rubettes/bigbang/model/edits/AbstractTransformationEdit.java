@@ -17,23 +17,30 @@ import org.rubato.rubettes.util.NotePath;
 
 public abstract class AbstractTransformationEdit extends AbstractUndoableEdit {
 	
-	private BigBangScoreManager score;
-	private TransformationProperties properties;
+	private BigBangScoreManager scoreManager;
+	protected TransformationProperties properties;
 	private Set<NotePath> copyPaths;
+	private ModuleMorphism transformation;
 	
-	public AbstractTransformationEdit(BigBangScoreManager score, TransformationProperties properties) {
-		this.score = score;
+	public AbstractTransformationEdit(BigBangScoreManager scoreManager, TransformationProperties properties) {
+		this.scoreManager = scoreManager;
 		this.properties = properties;
 	}
 	
-	public abstract void execute();
+	protected abstract void initTransformation();
 	
-	public void redo() {
+	public void modify(double[] newValues) {
+		this.properties.setEndPoint(newValues);
+		this.initTransformation();
+	}
+	
+	/*public void redo() {
 		super.redo();
-		this.execute();
+		this.map();
 	}
 	
 	public void undo() {
+		//REMOVE ALL UNDO METHODS
 		super.undo();
 		if (this.properties.copyAndTransform()) {
 			this.score.removeNotes(this.copyPaths);
@@ -41,39 +48,39 @@ public abstract class AbstractTransformationEdit extends AbstractUndoableEdit {
 		if (this.properties.inWallpaperMode()) {
 			this.score.removeLastWallpaperTransformation();
 		}
-	}
+	}*/
 	
-	protected void map(RMatrix matrix, double[] shift) {
+	protected void initTransformation(RMatrix matrix, double[] shift) {
 		List<RMatrix> matrices = new ArrayList<RMatrix>();
 		matrices.add(matrix);
 		List<double[]> shifts = new ArrayList<double[]>();
 		shifts.add(shift);
-		this.map(matrices, shifts);
+		this.initTransformation(matrices, shifts);
 	}
 	
-	protected void map(List<RMatrix> matrices, List<double[]> shifts) {
+	protected void initTransformation(List<RMatrix> matrices, List<double[]> shifts) {
 		ModuleMorphism morphism = RFreeAffineMorphism.make(matrices.get(0), shifts.get(0));
 		for (int i = 1; i < matrices.size(); i++) {
 			try {
 				morphism = RFreeAffineMorphism.make(matrices.get(i), shifts.get(i)).compose(morphism);
 			} catch (CompositionException e) { e.printStackTrace(); }
 		}
-		this.map(morphism);
+		this.transformation = morphism;
 	}
 	
-	private void map(ModuleMorphism morphism) {
+	public void map() {
 		Set<NotePath> nodePaths = this.properties.getNodePaths();
 		int[][] elementPaths = this.properties.getElementPaths();
 		NotePath anchorNodePath = this.properties.getAnchorNodePath();
 		boolean inPreviewMode = this.properties.inPreviewMode();
 		boolean copyAndTransform = this.properties.copyAndTransform();
 		boolean inWallpaperMode = this.properties.inWallpaperMode();
-		BigBangTransformation transformation = new BigBangTransformation(morphism, elementPaths, copyAndTransform, anchorNodePath);
+		BigBangTransformation transformation = new BigBangTransformation(this.transformation, elementPaths, copyAndTransform, anchorNodePath);
 		Set<NotePath> resultPaths;
 		if (inWallpaperMode) {
-			resultPaths = this.score.addWallpaperTransformation(transformation, inPreviewMode);
+			resultPaths = this.scoreManager.addWallpaperTransformation(transformation, inPreviewMode);
 		} else {
-			resultPaths = this.score.mapNodes(nodePaths, transformation, inPreviewMode);
+			resultPaths = this.scoreManager.mapNodes(nodePaths, transformation, inPreviewMode);
 		}
 		if (copyAndTransform || inWallpaperMode) {
 			this.copyPaths = resultPaths;
@@ -82,12 +89,21 @@ public abstract class AbstractTransformationEdit extends AbstractUndoableEdit {
 		}
 	}
 	
+	public BigBangScoreManager getScoreManager() {
+		return this.scoreManager;
+	}
+	
 	public int[][] getElementPaths() {
 		return this.properties.getElementPaths();
 	}
 	
 	public String toString() {
 		return this.getPresentationName();
+	}
+	
+	@Override
+	public String getPresentationName() {
+		return this.properties.getEndPoint()[0] + "," + this.properties.getEndPoint()[1];
 	}
 
 }

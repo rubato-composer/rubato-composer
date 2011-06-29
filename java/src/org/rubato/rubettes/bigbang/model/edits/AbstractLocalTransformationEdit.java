@@ -15,22 +15,22 @@ public abstract class AbstractLocalTransformationEdit extends AbstractTransforma
 	
 	public AbstractLocalTransformationEdit(BigBangScoreManager scoreLayers, TransformationProperties properties) {
 		super(scoreLayers, properties);
+	}
+	
+	public void initTransformation() {
 		this.center = properties.getCenter();
 		this.endPoint = properties.getEndPoint();
 		this.shift1 = new double[]{-1*this.center[0],-1*this.center[1]};
 		this.shift2 = new double[]{this.center[0],this.center[1]};
+		this.initTransformation(this.getMatrix(), this.getShift());
 	}
 	
-	public void execute() {
-		this.transform(this.getMatrix(), this.getShift());
-	}
-	
-	public void undo() {
+	/*public void undo() {
 		super.undo();
 		this.transform(this.getMatrix().inverse(), this.getInverse(this.getShift()));
-	}
+	}*/
 	
-	protected void transform(RMatrix matrix, double[] shift) {
+	protected void initTransformation(RMatrix matrix, double[] shift) {
 		RMatrix identity = new RMatrix(new double[][]{{1,0},{0,1}});
 		List<RMatrix> matrices = new ArrayList<RMatrix>();
 		matrices.add(identity);
@@ -40,7 +40,7 @@ public abstract class AbstractLocalTransformationEdit extends AbstractTransforma
 		shifts.add(this.shift1);
 		shifts.add(shift);
 		shifts.add(this.shift2);
-		this.map(matrices, shifts);
+		this.initTransformation(matrices, shifts);
 	}
 	
 	protected abstract RMatrix getMatrix();
@@ -57,8 +57,8 @@ public abstract class AbstractLocalTransformationEdit extends AbstractTransforma
 		return new double[2];
 	}
 	
-	private double[] getInverse(double[] shift) {
+	/*private double[] getInverse(double[] shift) {
 		return new double[]{-1*shift[0], -1*shift[1]};
-	}
+	}*/
 	
 }
