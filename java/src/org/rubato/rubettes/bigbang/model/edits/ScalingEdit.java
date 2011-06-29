@@ -11,11 +11,16 @@ public class ScalingEdit extends AbstractLocalTransformationEdit {
 	public ScalingEdit(BigBangScoreManager scoreLayers, TransformationProperties properties, double[] scaleFactors) {
 		super(scoreLayers, properties);
 		this.scaleFactors = scaleFactors;
-		this.execute();
+		this.initTransformation();
+	}
+	
+	public void modify(double[] newValues) {
+		this.scaleFactors = newValues;
+		this.initTransformation();
 	}
 	
 	public String getPresentationName() {
-		return "Scaling";
+		return "Scaling " + super.getPresentationName();
 	}
 
 	@Override

@@ -31,6 +31,12 @@ public class NoteScalingAdapter extends NoteTransformationAdapter {
 		this.controller.scaleSelectedNotes(this.startingPoint, currentEndPoint, scaleFactors, event.isAltDown(), inPreviewMode);
 	}
 	
+	@Override
+	protected void modifySelectedTransformation(MouseEvent event) {
+		double[] scaleFactors = this.calculateScaleFactors(event);
+		this.controller.modifySelectedTransformation(scaleFactors);
+	}
+	
 	private double[] calculateScaleFactors(MouseEvent event) {
 		Point endPoint = event.getPoint();
 		double xFactor = Math.abs(endPoint.x-this.startingPoint.x)*2/((ScalingTool)this.displayTool).REFERENCE.getWidth();

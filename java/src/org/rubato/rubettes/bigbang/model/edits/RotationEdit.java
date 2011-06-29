@@ -11,7 +11,18 @@ public class RotationEdit extends AbstractLocalTransformationEdit {
 	public RotationEdit(BigBangScoreManager scoreLayers, TransformationProperties properties, double angle) {
 		super(scoreLayers, properties);
 		this.angle = angle;
-		this.execute();
+		this.initTransformation();
+	}
+	
+	@Override
+	public void modify(double[] newValues) {
+		this.properties.setCenter(newValues);
+		this.initTransformation();
+	}
+	
+	public void modifyAngle(double angle) {
+		this.angle = angle;
+		this.initTransformation();
 	}
 	
 	@Override
@@ -22,7 +33,7 @@ public class RotationEdit extends AbstractLocalTransformationEdit {
 	}
 	
 	public String getPresentationName() {
-		return "Rotation";
+		return "Rotation " + super.getPresentationName();
 	}
 	
 	public double getAngle() {

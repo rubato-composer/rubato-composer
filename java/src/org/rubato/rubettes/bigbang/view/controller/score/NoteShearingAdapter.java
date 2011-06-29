@@ -31,6 +31,12 @@ public class NoteShearingAdapter extends NoteTransformationAdapter {
 		this.controller.shearSelectedNotes(this.startingPoint, currentEndPoint, shearingFactors, event.isAltDown(), inPreviewMode);
 	}
 	
+	@Override
+	protected void modifySelectedTransformation(MouseEvent event) {
+		double[] shearingFactors = this.calculateShearingFactors(event);
+		this.controller.modifySelectedTransformation(shearingFactors);
+	}
+	
 	private double[] calculateShearingFactors(MouseEvent event) {
 		Point endingPoint = event.getPoint();
 		double xDifference = endingPoint.x-this.startingPoint.x;

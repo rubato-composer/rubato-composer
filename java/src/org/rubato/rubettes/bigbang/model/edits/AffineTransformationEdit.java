@@ -16,7 +16,7 @@ public class AffineTransformationEdit extends AbstractLocalTransformationEdit {
 		this.shift = shift;
 		this.angle = angle;
 		this.scaleFactors = scaleFactors;
-		this.execute();
+		this.initTransformation();
 	}
 	
 	@Override

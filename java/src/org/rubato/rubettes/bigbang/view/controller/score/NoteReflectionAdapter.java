@@ -25,6 +25,13 @@ public class NoteReflectionAdapter extends NoteTransformationAdapter {
 		this.controller.reflectSelectedNotes(this.startingPoint, currentEndPoint, reflectionVector, event.isAltDown(), inPreviewMode);
 	}
 	
+	@Override
+	protected void modifySelectedTransformation(MouseEvent event) {
+		Point currentPoint = event.getPoint();
+		double[] reflectionVector = this.calculateReflectionVector(currentPoint);
+		this.controller.modifySelectedTransformation(reflectionVector);
+	}
+	
 	private double[] calculateReflectionVector(Point endPoint) {
 		double x = endPoint.x-this.startingPoint.x;
 		double y = -1*(endPoint.y-this.startingPoint.y);

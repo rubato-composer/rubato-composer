@@ -18,6 +18,7 @@ public class BigBangController extends Controller {
 	public static final String GRAPH = "graph";
 	public static final String SELECT_TRANSFORMATION = "selectTransformation";
 	public static final String DESELECT_TRANSFORMATIONS = "deselectTransformations";
+	public static final String MODIFIED_TRANSFORMATION = "modifiedSelectedTransformation";
 	public static final String PLAY_MODE = "togglePlayMode";
 	public static final String TEMPO = "setTempo";
 	public static final String FM_MODEL = "FMModel";
@@ -75,6 +76,10 @@ public class BigBangController extends Controller {
 	
 	public void deselectTransformations() {
 		this.callModelMethod(BigBangController.DESELECT_TRANSFORMATIONS);
+	}
+	
+	public void modifiedSelectedTransformation() {
+		this.callModelMethod(BigBangController.MODIFIED_TRANSFORMATION);
 	}
 	
 	public void changeInputActive(boolean inputActive) {

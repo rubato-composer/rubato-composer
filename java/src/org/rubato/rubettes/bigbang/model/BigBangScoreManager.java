@@ -15,12 +15,11 @@ import org.rubato.rubettes.bigbang.controller.ScoreChangedNotification;
 import org.rubato.rubettes.bigbang.model.player.BigBangPlayer;
 import org.rubato.rubettes.bigbang.view.model.SelectedPaths;
 import org.rubato.rubettes.util.NotePath;
-import org.rubato.rubettes.util.PerformanceCheck;
 import org.rubato.rubettes.util.SoundNoteGenerator;
 
 public class BigBangScoreManager extends Model {
 	
-	private BigBangScore score, actualScore;
+	private BigBangScore score, actualScore, dynamicScore;
 	private BigBangWallpaper wallpaper;
 	private BigBangAlteration alteration;
 	private BigBangPlayer player;
@@ -156,27 +155,33 @@ public class BigBangScoreManager extends Model {
 	}
 	
 	public Set<NotePath> mapNodes(Set<NotePath> nodePaths, BigBangTransformation transformation, boolean inPreviewMode) {
-		PerformanceCheck.startTask("prepare");
-		this.updateActualScore(inPreviewMode);
-		PerformanceCheck.startTask("map");
+		//PerformanceCheck.startTask("prepare");
+		//this.updateActualScore(inPreviewMode);
+		//PerformanceCheck.startTask("map");
 		BigBangMapper mapper = new BigBangMapper(this.actualScore, transformation);
 		Set<NotePath> newPaths = new TreeSet<NotePath>(mapper.mapNodes(new ArrayList<NotePath>(nodePaths)));
-		PerformanceCheck.startTask("fire");
+		//PerformanceCheck.startTask("fire");
 		if (inPreviewMode) {
 			this.firePreviewCompositionChange(new TreeSet<NotePath>(nodePaths), transformation.getAnchorNodePath());
 		} else {
 			this.fireCompositionChange(this.actualScore, newPaths, transformation.getAnchorNodePath(), true);
 		}
-		PerformanceCheck.startTask("draw");
+		//PerformanceCheck.startTask("draw");
 		return newPaths;
 	}
 	
+	public void resetFactualScore() {
+		this.actualScore = (BigBangScore) this.score.clone();
+	}
+	
 	private void updateActualScore(boolean inPreviewMode) {
-		if (inPreviewMode) {
+		//if (inPreviewMode) {
 			this.actualScore = (BigBangScore) this.score.clone();
-		} else {
+		//}
+		/*towards implementation of dynamic score
+		 * else {
 			this.actualScore = this.score;
-		}
+		}*/
 	}
 	
 	public Map<NotePath,Double> shapeNotes(TransformationProperties properties, TreeMap<Double,Double> shapingLocations) {
