@@ -15,16 +15,14 @@ import org.rubato.rubettes.bigbang.view.controller.score.GraphListener;
 
 public class JGraphToolBar extends JToolBar implements View {
 	
-	private ViewController controller;
 	private JList transformations;
 	
 	public JGraphToolBar(ViewController controller, BigBangController bbController) {
-		this.controller = controller;
 		controller.addView(this);
 		bbController.addView(this);
 		this.transformations = new JList();
 		this.transformations.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-		this.transformations.addListSelectionListener(new GraphListener(bbController));
+		this.transformations.addListSelectionListener(new GraphListener(controller));
 		this.add(this.transformations);
 	}
 
@@ -33,9 +31,11 @@ public class JGraphToolBar extends JToolBar implements View {
 		if (propertyName.equals(BigBangController.GRAPH)) {
 			Object[] transformations = ((List<?>)event.getNewValue()).toArray();
 			this.updateTransformations(transformations);
-		} else if (propertyName.equals(BigBangController.SELECT_TRANSFORMATION)) {
+		} else if (propertyName.equals(ViewController.SELECT_TRANSFORMATION)) {
 			AbstractTransformationEdit transformation = (AbstractTransformationEdit)event.getNewValue();
 			this.selectTransformation(transformation);
+		} else if (propertyName.equals(BigBangController.DESELECT_TRANSFORMATIONS)) {
+			this.selectTransformation(null);
 		}
 	}
 	

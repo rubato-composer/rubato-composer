@@ -1,4 +1,4 @@
-package org.rubato.rubettes.bigbang.view.controller.score.actions;
+package org.rubato.rubettes.bigbang.view.controller.general;
 
 import java.awt.event.ActionEvent;
 

@@ -11,13 +11,14 @@ import javax.swing.JToolBar;
 import javax.swing.SpinnerNumberModel;
 import javax.swing.event.ChangeListener;
 
+import org.rubato.rubettes.bigbang.BigBangRubette;
 import org.rubato.rubettes.bigbang.controller.BigBangController;
 import org.rubato.rubettes.bigbang.view.View;
 import org.rubato.rubettes.bigbang.view.controller.ViewController;
+import org.rubato.rubettes.bigbang.view.controller.general.AddWindowAction;
 import org.rubato.rubettes.bigbang.view.controller.mode.DisplayModeAdapter;
 import org.rubato.rubettes.bigbang.view.controller.score.WallpaperRangeListener;
 import org.rubato.rubettes.bigbang.view.controller.score.actions.AddWallpaperDimensionAction;
-import org.rubato.rubettes.bigbang.view.controller.score.actions.AddWindowAction;
 import org.rubato.rubettes.bigbang.view.controller.score.actions.StopWallpaperAction;
 
 public class JMainToolBar extends JToolBar implements View {
@@ -35,13 +36,13 @@ public class JMainToolBar extends JToolBar implements View {
 		this.bbController = bbController;
 		this.viewController.addView(this);
 		this.bbController.addView(this);
-		this.initModeButtons(true);
+		this.initModeButtons();
 		this.rangeSpinners = new ArrayList<JSpinner>();
 		this.alterationPanel = new JAlterationPanel(viewController, bbController);
 	}
 	
-	private void initModeButtons(boolean multiTouch) {
-		if (multiTouch) {
+	private void initModeButtons() {
+		if (BigBangRubette.IS_MULTITOUCH) {
 			this.modeButtons = new MultiTouchModeButtons(this.viewController);
 		} else {
 			this.modeButtons = new MouseModeButtons(this.viewController);
@@ -87,10 +88,10 @@ public class JMainToolBar extends JToolBar implements View {
 			this.alterationButton.setSelected(false);
 			this.remove(this.alterationPanel);
 			this.repaint();
-		} else if (propertyName.equals(BigBangController.MULTITOUCH)) {
+		} /*else if (propertyName.equals(BigBangController.MULTITOUCH)) {
 			this.initModeButtons((Boolean)event.getNewValue());
 			this.repaint();
-		}
+		}*/
 	}
 	
 	private void selectModeButton(PropertyChangeEvent event) {

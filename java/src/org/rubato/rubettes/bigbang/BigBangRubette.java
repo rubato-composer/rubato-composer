@@ -18,6 +18,8 @@ import org.w3c.dom.Element;
 
 public class BigBangRubette extends AbstractRubette {
 	
+	public static final boolean IS_MULTITOUCH = false;
+	
 	//ban model from here!?
 	private BigBangModel model;
 	private BigBangView view;
@@ -31,8 +33,11 @@ public class BigBangRubette extends AbstractRubette {
         this.setInCount(1);
         this.setOutCount(1);
         this.controller = new BigBangController();
-        this.view = new BigBangView(this.controller);
-        //this.view = new MTBigBangView(this.controller);
+        if (BigBangRubette.IS_MULTITOUCH) {
+        	this.view = new MTBigBangView(this.controller);
+        } else {
+        	this.view = new BigBangView(this.controller);
+        }
         this.model = new BigBangModel(this.controller);
         this.model.setMultiTouch(false);
 	}

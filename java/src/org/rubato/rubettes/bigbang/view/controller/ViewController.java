@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.TreeMap;
 
 import org.rubato.rubettes.bigbang.controller.Controller;
+import org.rubato.rubettes.bigbang.model.edits.AbstractTransformationEdit;
 import org.rubato.rubettes.bigbang.view.View;
 import org.rubato.rubettes.bigbang.view.controller.mode.DisplayModeAdapter;
 import org.rubato.rubettes.bigbang.view.model.DisplayNote;
@@ -40,6 +41,7 @@ public class ViewController extends Controller {
 	//general functionality
 	public static final String UNDO = "undo";
 	public static final String REDO = "redo";
+	public static final String SELECT_TRANSFORMATION = "selectTransformation";
 	public static final String DESELECT_TRANSFORMATIONS = "deselectTransformations";
 	public static final String INPUT_ACTIVE = "InputActive";
 	
@@ -266,6 +268,10 @@ public class ViewController extends Controller {
 	
 	public void redo() {
 		this.callModelMethod(ViewController.REDO);
+	}
+	
+	public void selectTransformation(AbstractTransformationEdit transformation) {
+		this.callModelMethod(ViewController.SELECT_TRANSFORMATION, transformation);
 	}
 	
 	public void deselectTransformations() {
