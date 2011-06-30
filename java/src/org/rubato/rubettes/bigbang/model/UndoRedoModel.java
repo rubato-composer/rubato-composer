@@ -9,6 +9,7 @@ import javax.swing.undo.UndoableEditSupport;
 import org.rubato.rubettes.bigbang.controller.BigBangController;
 import org.rubato.rubettes.bigbang.controller.Controller;
 import org.rubato.rubettes.bigbang.model.edits.AbstractTransformationEdit;
+import org.rubato.rubettes.bigbang.view.model.SelectedPaths;
 
 public class UndoRedoModel extends Model {
 	
@@ -16,7 +17,6 @@ public class UndoRedoModel extends Model {
 	private UndoableEditSupport undoSupport;
 	private BigBangTransformationGraph transformations;
 	private List<AbstractTransformationEdit> undoneTransformations;
-	private int selectedTransformationIndex;
 	
 	public UndoRedoModel(Controller controller) {
 		controller.addModel(this);
@@ -25,6 +25,10 @@ public class UndoRedoModel extends Model {
 		this.undoSupport.addUndoableEditListener(new UndoAdaptor(this.undoManager));
 		this.reset();
 		this.firePropertyChange(BigBangController.UNDO, null, this.undoManager);
+		this.firePropertyChange(BigBangController.GRAPH, null, this.transformations);
+	}
+	
+	public void newWindowAdded(SelectedPaths paths) {
 		this.firePropertyChange(BigBangController.GRAPH, null, this.transformations);
 	}
 	
@@ -59,14 +63,8 @@ public class UndoRedoModel extends Model {
 		this.firePropertyChange(BigBangController.GRAPH, null, this.transformations);
 	}
 	
-	public void selectTransformation(AbstractTransformationEdit transformation) {
-		this.selectedTransformationIndex = this.transformations.indexOf(transformation);
-		this.firePropertyChange(BigBangController.SELECT_TRANSFORMATION, null, transformation);
-	}
-	
 	public void deselectTransformations() {
-		this.selectedTransformationIndex = -1;
-		this.firePropertyChange(BigBangController.SELECT_TRANSFORMATION, null, null);
+		this.firePropertyChange(BigBangController.DESELECT_TRANSFORMATIONS, null, null);
 	}
 	
 	public void modifiedSelectedTransformation() {

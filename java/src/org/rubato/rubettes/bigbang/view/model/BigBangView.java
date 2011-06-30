@@ -254,8 +254,6 @@ public class BigBangView extends Model implements View {
 			this.firePropertyChange(ViewController.REDO, null, event.getNewValue());
 		} else if (propertyName.equals(BigBangController.INPUT_ACTIVE)) {
 			this.firePropertyChange(ViewController.INPUT_ACTIVE, null, event.getNewValue());
-		} else if (propertyName.equals(BigBangController.SELECT_TRANSFORMATION)) {
-			this.selectTransformation((AbstractTransformationEdit)event.getNewValue());
 		}
 	}
 	
@@ -283,7 +281,7 @@ public class BigBangView extends Model implements View {
 		this.firePropertyChange(ViewController.DISPLAY_NOTES, null, this.displayNotes);
 	}
 	
-	private void selectTransformation(AbstractTransformationEdit edit) {
+	public void selectTransformation(AbstractTransformationEdit edit) {
 		this.selectedTransformation = edit;
 		if (this.selectedTransformation != null) {
 			//select perspective first
@@ -320,7 +318,7 @@ public class BigBangView extends Model implements View {
 	}
 	
 	public void deselectTransformations() {
-		this.controller.deselectTransformations();
+		this.selectTransformation(null);
 	}
 	
 	public void modifySelectedTransformation(Point2D.Double endingPoint) {

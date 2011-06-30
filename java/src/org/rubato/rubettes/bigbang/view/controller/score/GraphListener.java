@@ -4,14 +4,14 @@ import javax.swing.JList;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
-import org.rubato.rubettes.bigbang.controller.BigBangController;
 import org.rubato.rubettes.bigbang.model.edits.AbstractTransformationEdit;
+import org.rubato.rubettes.bigbang.view.controller.ViewController;
 
 public class GraphListener implements ListSelectionListener {
 	
-	private BigBangController controller;
+	private ViewController controller;
 	
-	public GraphListener(BigBangController controller) {
+	public GraphListener(ViewController controller) {
 		this.controller = controller;
 	}
 

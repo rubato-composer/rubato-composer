@@ -116,9 +116,9 @@ public class JWindowPreferencesDialog extends JDialog implements View, ItemListe
 			this.bbController.changeFMModel(this.fmModel.getSelectedItem());
 		} else if (source == this.waveform) {
 			this.bbController.changeWaveform(this.waveform.getSelectedItem());
-		} else if (source == this.multiTouch) {
+		}/* else if (source == this.multiTouch) {
 			this.bbController.setMultiTouch(this.multiTouch.isSelected());
-		}
+		}*/
 	}
 
 }

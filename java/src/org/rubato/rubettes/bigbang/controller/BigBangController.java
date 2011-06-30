@@ -5,7 +5,6 @@ import java.util.Set;
 import java.util.TreeMap;
 
 import org.rubato.rubettes.bigbang.model.TransformationProperties;
-import org.rubato.rubettes.bigbang.model.edits.AbstractTransformationEdit;
 import org.rubato.rubettes.bigbang.view.model.SelectedPaths;
 import org.rubato.rubettes.util.NotePath;
 
@@ -16,7 +15,6 @@ public class BigBangController extends Controller {
 	public static final String REDO = "redo";
 	public static final String POST_EDIT = "postEdit";
 	public static final String GRAPH = "graph";
-	public static final String SELECT_TRANSFORMATION = "selectTransformation";
 	public static final String DESELECT_TRANSFORMATIONS = "deselectTransformations";
 	public static final String MODIFIED_TRANSFORMATION = "modifiedSelectedTransformation";
 	public static final String PLAY_MODE = "togglePlayMode";
@@ -68,10 +66,6 @@ public class BigBangController extends Controller {
 	
 	public void redo() {
 		this.callModelMethod(BigBangController.REDO);
-	}
-	
-	public void selectTransformation(AbstractTransformationEdit transformation) {
-		this.callModelMethod(BigBangController.SELECT_TRANSFORMATION, transformation);
 	}
 	
 	public void deselectTransformations() {
