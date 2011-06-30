@@ -12,21 +12,26 @@ public class BigBangTransformationGraph extends ArrayList<AbstractTransformation
 	
 	@Override
 	public boolean add(AbstractTransformationEdit edit) {
+		return this.add(edit, false);
+	}
+	
+	public void previewTransformationAtEnd(AbstractTransformationEdit edit) {
+		this.add(edit, true);
+		this.removeLastWithoutUpdate();
+	}
+	
+	private boolean add(AbstractTransformationEdit edit, boolean inPreviewMode) {
 		boolean added = super.add(edit);
 		if (added) {
-			this.updateScore();
+			this.updateScore(inPreviewMode);
 		}
 		return added;
 	}
 	
-	public void previewTransformationAtEnd(AbstractTransformationEdit edit) {
-		this.add(edit);
-		this.removeLastWithoutUpdate();
-	}
-	
-	public void updateScore() {
+	public void updateScore(boolean inPreviewMode) {
 		if (this.size()>0) {
 			//System.out.println("updateScore");
+			this.get(this.size()-1).setInPreviewMode(inPreviewMode);
 			this.get(0).getScoreManager().resetFactualScore();
 			for (AbstractTransformationEdit edit: this) {
 				//System.out.println(edit.getPresentationName());
@@ -37,7 +42,7 @@ public class BigBangTransformationGraph extends ArrayList<AbstractTransformation
 	
 	public AbstractTransformationEdit removeLast() {
 		AbstractTransformationEdit removed = this.removeLastWithoutUpdate();
-		this.updateScore();
+		this.updateScore(false);
 		return removed;
 	}
 	

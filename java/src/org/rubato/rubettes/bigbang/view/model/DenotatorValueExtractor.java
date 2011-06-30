@@ -48,7 +48,7 @@ public class DenotatorValueExtractor {
 	}
 	
 	public DisplayNoteList extractDisplayNotes(ViewController controller, ScoreChangedNotification notification, boolean selectNotes, LayerStates layerStates) {
-		PerformanceCheck.startTask("extract");
+		//PerformanceCheck.startTask("extract");
 		this.notes = new DisplayNoteList(controller);
 		this.selectNotes = selectNotes;
 		this.selectedPaths = notification.getNotesToBeSelected();

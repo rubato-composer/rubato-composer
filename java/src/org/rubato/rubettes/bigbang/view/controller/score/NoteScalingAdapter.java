@@ -32,9 +32,9 @@ public class NoteScalingAdapter extends NoteTransformationAdapter {
 	}
 	
 	@Override
-	protected void modifySelectedTransformation(MouseEvent event) {
+	protected void modifySelectedTransformation(MouseEvent event, boolean inPreviewMode) {
 		double[] scaleFactors = this.calculateScaleFactors(event);
-		this.controller.modifySelectedTransformation(scaleFactors);
+		this.controller.modifySelectedTransformation(scaleFactors, inPreviewMode);
 	}
 	
 	private double[] calculateScaleFactors(MouseEvent event) {

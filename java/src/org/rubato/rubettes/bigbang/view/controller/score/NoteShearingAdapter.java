@@ -32,9 +32,9 @@ public class NoteShearingAdapter extends NoteTransformationAdapter {
 	}
 	
 	@Override
-	protected void modifySelectedTransformation(MouseEvent event) {
+	protected void modifySelectedTransformation(MouseEvent event, boolean inPreviewMode) {
 		double[] shearingFactors = this.calculateShearingFactors(event);
-		this.controller.modifySelectedTransformation(shearingFactors);
+		this.controller.modifySelectedTransformation(shearingFactors, inPreviewMode);
 	}
 	
 	private double[] calculateShearingFactors(MouseEvent event) {

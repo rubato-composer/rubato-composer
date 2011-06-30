@@ -34,6 +34,10 @@ public abstract class AbstractTransformationEdit extends AbstractUndoableEdit {
 		this.initTransformation();
 	}
 	
+	public void setInPreviewMode(boolean inPreviewMode) {
+		this.properties.setInPreviewMode(inPreviewMode);
+	}
+	
 	/*public void redo() {
 		super.redo();
 		this.map();

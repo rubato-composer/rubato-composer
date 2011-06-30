@@ -19,7 +19,7 @@ import org.rubato.rubettes.util.SoundNoteGenerator;
 
 public class BigBangScoreManager extends Model {
 	
-	private BigBangScore score, actualScore, dynamicScore;
+	private BigBangScore score, actualScore;
 	private BigBangWallpaper wallpaper;
 	private BigBangAlteration alteration;
 	private BigBangPlayer player;
@@ -326,7 +326,11 @@ public class BigBangScoreManager extends Model {
 	}
 	
 	private void playCompositionImmediately() {
-		this.playCompositionImmediately(this.score.getLayeredComposition());
+		if (this.actualScore != null) {
+			this.playCompositionImmediately(this.actualScore.getLayeredComposition());
+		} else {
+			this.playCompositionImmediately(this.score.getLayeredComposition());
+		}
 	}
 	
 	private void playCompositionImmediately(PowerDenotator composition) {

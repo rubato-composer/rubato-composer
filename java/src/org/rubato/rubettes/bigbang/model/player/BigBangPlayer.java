@@ -82,6 +82,11 @@ public class BigBangPlayer extends Thread {
 	public void setWaveform(String waveform) {
 		this.stopPlaying();
 		this.waveform = waveform;
+		this.player.setWaveform(waveform);
+	}
+	
+	public String getWaveform() {
+		return this.waveform;
 	}
 
 }

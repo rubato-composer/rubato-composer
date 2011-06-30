@@ -28,7 +28,7 @@ public class UndoRedoModel extends Model {
 		this.firePropertyChange(BigBangController.GRAPH, null, this.transformations);
 	}
 	
-	public void newWindowAdded(SelectedPaths paths) {
+	public void newWindowAdded(@SuppressWarnings("unused") SelectedPaths paths) {
 		this.firePropertyChange(BigBangController.GRAPH, null, this.transformations);
 	}
 	
@@ -67,8 +67,8 @@ public class UndoRedoModel extends Model {
 		this.firePropertyChange(BigBangController.DESELECT_TRANSFORMATIONS, null, null);
 	}
 	
-	public void modifiedSelectedTransformation() {
-		this.transformations.updateScore();
+	public void modifiedTransformation(Boolean inPreviewMode) {
+		this.transformations.updateScore(inPreviewMode);
 	}
 	
 	public void reset() {
