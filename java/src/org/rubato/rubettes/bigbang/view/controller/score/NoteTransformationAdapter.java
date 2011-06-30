@@ -76,7 +76,7 @@ public abstract class NoteTransformationAdapter extends MouseInputAdapter {
 	
 	private void transformOrModifyTransformation(MouseEvent event, boolean inPreviewMode) {
 		if (this.inModificationMode) {
-			this.modifySelectedTransformation(event);
+			this.modifySelectedTransformation(event, inPreviewMode);
 		} else {
 			this.transformSelectedNotes(event, inPreviewMode);
 		}
@@ -84,9 +84,9 @@ public abstract class NoteTransformationAdapter extends MouseInputAdapter {
 	
 	protected abstract void transformSelectedNotes(MouseEvent event, boolean inPreviewMode);
 	
-	protected void modifySelectedTransformation(MouseEvent event) {
+	protected void modifySelectedTransformation(MouseEvent event, boolean inPreviewMode) {
 		Point2D.Double currentEndPoint = new Point2D.Double(event.getPoint().x, event.getPoint().y);
-		this.controller.modifySelectedTransformation(currentEndPoint);
+		this.controller.modifySelectedTransformation(currentEndPoint, inPreviewMode);
 	}
 	
 	protected abstract void initDisplayTool();

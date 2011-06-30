@@ -166,16 +166,16 @@ public class ViewController extends Controller {
 		this.callModelMethod(ViewController.CLEAR_DISPLAY_TOOL);
 	}
 	
-	public void modifySelectedTransformation(Point2D.Double endingPoint) {
-		this.callModelMethod(ViewController.MODIFY_TRANSFORMATION, endingPoint);
+	public void modifySelectedTransformation(Point2D.Double endingPoint, boolean inPreviewMode) {
+		this.callModelMethod(ViewController.MODIFY_TRANSFORMATION, endingPoint, inPreviewMode);
 	}
 	
-	public void modifySelectedTransformation(double[] newValues) {
-		this.callModelMethod(ViewController.MODIFY_TRANSFORMATION, newValues);
+	public void modifySelectedTransformation(double[] newValues, boolean inPreviewMode) {
+		this.callModelMethod(ViewController.MODIFY_TRANSFORMATION, newValues, inPreviewMode);
 	}
 	
-	public void modifyRotationAngle(Double angle) {
-		this.callModelMethod(ViewController.MODIFY_ROTATION, angle);
+	public void modifyRotationAngle(Double angle, boolean inPreviewMode) {
+		this.callModelMethod(ViewController.MODIFY_ROTATION, angle, inPreviewMode);
 	}
 	
 	public void translateSelectedNotes(Point2D.Double center, Point2D.Double endPoint, boolean copyAndTranslate, boolean previewMode) {

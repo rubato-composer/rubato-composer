@@ -314,6 +314,7 @@ public class BigBangView extends Model implements View {
 			}
 		} else {
 			this.clearDisplayTool();
+			this.firePropertyChange(ViewController.SELECT_TRANSFORMATION, null, null);
 		}
 	}
 	
@@ -321,19 +322,19 @@ public class BigBangView extends Model implements View {
 		this.selectTransformation(null);
 	}
 	
-	public void modifySelectedTransformation(Point2D.Double endingPoint) {
+	public void modifySelectedTransformation(Point2D.Double endingPoint, Boolean inPreviewMode) {
 		this.selectedTransformation.modify(this.getXYDenotatorValues(endingPoint));
-		this.controller.modifiedSelectedTransformation();
+		this.controller.modifiedTransformation(inPreviewMode);
 	}
 	
-	public void modifySelectedTransformation(double[] newValues) {
+	public void modifySelectedTransformation(double[] newValues, Boolean inPreviewMode) {
 		this.selectedTransformation.modify(newValues);
-		this.controller.modifiedSelectedTransformation();
+		this.controller.modifiedTransformation(inPreviewMode);
 	}
 	
-	public void modifyRotationAngle(Double angle) {
+	public void modifyRotationAngle(Double angle, Boolean inPreviewMode) {
 		((RotationEdit)this.selectedTransformation).modifyAngle(angle);
-		this.controller.modifiedSelectedTransformation();
+		this.controller.modifiedTransformation(inPreviewMode);
 	}
 	
 	public void translateSelectedNotes(Point2D.Double center, Point2D.Double endingPoint, Boolean copyAndTransform, Boolean previewMode) {

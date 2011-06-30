@@ -55,10 +55,10 @@ public class NoteRotationAdapter extends NoteTransformationAdapter {
 	}
 	
 	@Override
-	protected void modifySelectedTransformation(MouseEvent event) {
+	protected void modifySelectedTransformation(MouseEvent event, boolean inPreviewMode) {
 		Point2D.Double currentEndingPoint = new Point2D.Double(event.getPoint().x, event.getPoint().y);
 		double arcAngle = this.calculateArcAngle(currentEndingPoint);
-		this.controller.modifyRotationAngle(arcAngle);
+		this.controller.modifyRotationAngle(arcAngle, inPreviewMode);
 	}
 	
 	private double calculateStartingAngle(Point2D.Double endPoint, double arcAngle) {
@@ -84,7 +84,7 @@ public class NoteRotationAdapter extends NoteTransformationAdapter {
 		}
 		this.controller.changeDisplayTool(this.displayTool);
 		if (this.inModificationMode) {
-			this.controller.modifySelectedTransformation(this.center);
+			this.controller.modifySelectedTransformation(this.center, false);
 		}
 	}
 	
