@@ -418,7 +418,7 @@ public class BigBangScore implements Cloneable {
 		return absoluteNotes;
 	}
 	
-	public LimitDenotator getNote(NotePath notePath, boolean remove) {
+	private LimitDenotator getNote(NotePath notePath, boolean remove) {
 		if (remove) {
 			return this.internalRemoveNote(notePath);
 		}

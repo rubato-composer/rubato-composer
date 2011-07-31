@@ -65,17 +65,33 @@ public class BigBangScoreManagerTest extends TestCase {
 	public void testMapNodesFlat() {
 		this.scoreManager.setComposition(this.objects.flatMacroScore);
 		BigBangTransformation translation = this.makeTranslation(-1,-2);
-		Set<NotePath> notePaths = this.makeNotePaths(new int[]{0,0}, new int[]{2,0});
+		List<NotePath> notePaths = this.makeNotePaths(new int[]{0,0}, new int[]{2,0});
 		List<NotePath> newPaths = new ArrayList<NotePath>(this.scoreManager.mapNodes(notePaths, translation, false));
 		TestCase.assertEquals(newPaths.get(0), new NotePath(new int[]{0,0}));
 		TestCase.assertEquals(newPaths.get(1), new NotePath(new int[]{1,0}));
+	}
+	
+	public void testMapNodesFlatSequential() {
+		this.scoreManager.setComposition(this.objects.flatMacroScore);
+		BigBangTransformation translation = this.makeTranslation(3,5);
+		List<NotePath> notePaths = this.makeNotePaths(new int[]{0,0}, new int[]{2,0});
+		/*List<List<LimitDenotator>> notes = this.scoreManager.getNotes(notePaths);
+		TestCase.assertTrue(notes.size() == 2);
+		List<NotePath> retrievedPaths = this.scoreManager.getNotePaths(notes);
+		System.out.println(retrievedPaths);*/
+		List<NotePath> newPaths = new ArrayList<NotePath>(this.scoreManager.mapNodes(notePaths, translation, false));
+		TestCase.assertEquals(newPaths.get(0), new NotePath(new int[]{1,0}));
+		TestCase.assertEquals(newPaths.get(1), new NotePath(new int[]{2,0}));
+		/*retrievedPaths = this.scoreManager.getNotePaths(notes);
+		System.out.println(retrievedPaths);
+		TestCase.assertTrue(retrievedPaths.equals(newPaths));*/
 	}
 	
 	public void testMapNodesMultiLevel() throws RubatoException {
 		this.objects.multiLevelMacroScore.appendFactor(this.objects.generator.createNodeDenotator(this.objects.note2Absolute));
 		this.scoreManager.setComposition(this.objects.multiLevelMacroScore);
 		BigBangTransformation translation = this.makeTranslation(-2, -1);
-		Set<NotePath> nodePaths = this.makeNotePaths(new int[]{1,0}, new int[]{0,1,0,0});
+		List<NotePath> nodePaths = this.makeNotePaths(new int[]{1,0}, new int[]{0,1,0,0});
 		List<NotePath> newPaths = new ArrayList<NotePath>(this.scoreManager.mapNodes(nodePaths, translation, false));
 		TestCase.assertEquals(newPaths.get(0), new NotePath(new int[]{0,0}));
 		TestCase.assertEquals(newPaths.get(1), new NotePath(new int[]{1,1,0,0}));
@@ -99,7 +115,7 @@ public class BigBangScoreManagerTest extends TestCase {
 		this.scoreManager.moveNotesToParent(paths, new NotePath(new int[]{0,0,6,0}), true);
 		
 		BigBangTransformation translation = this.makeTranslation(-2, -1);
-		Set<NotePath> nodePaths = this.makeNotePaths(new int[]{0,0,6,0,6,0});
+		List<NotePath> nodePaths = this.makeNotePaths(new int[]{0,0,6,0,6,0});
 		List<NotePath> newPaths = new ArrayList<NotePath>(this.scoreManager.mapNodes(nodePaths, translation, false));
 		TestCase.assertEquals(newPaths.get(0), new NotePath(new int[]{0,0,6,0,6,0}));
 		LimitDenotator expectedNote = this.objects.generator.createNoteDenotator(new double[]{-1,-4,5,0,1,0});
@@ -248,8 +264,8 @@ public class BigBangScoreManagerTest extends TestCase {
 		return new BigBangTransformation(translation, this.COORDINATE_PATHS, false, null);
 	}
 	
-	private Set<NotePath> makeNotePaths(int[]... intNotePaths) {
-		Set<NotePath> notePaths = new TreeSet<NotePath>();
+	private List<NotePath> makeNotePaths(int[]... intNotePaths) {
+		List<NotePath> notePaths = new ArrayList<NotePath>();
 		for (int[] currentPath: intNotePaths) {
 			notePaths.add(new NotePath(currentPath));
 		}
