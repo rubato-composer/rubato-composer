@@ -2,7 +2,8 @@ package org.rubato.rubettes.bigbang.model.edits;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
+import java.util.Map;
+import java.util.TreeMap;
 
 import javax.swing.undo.AbstractUndoableEdit;
 
@@ -19,7 +20,8 @@ public abstract class AbstractTransformationEdit extends AbstractUndoableEdit {
 	
 	private BigBangScoreManager scoreManager;
 	protected TransformationProperties properties;
-	private Set<NotePath> copyPaths;
+	private List<NotePath> copyPaths;
+	private List<NotePath> previousResultPaths;
 	private ModuleMorphism transformation;
 	
 	public AbstractTransformationEdit(BigBangScoreManager scoreManager, TransformationProperties properties) {
@@ -72,25 +74,47 @@ public abstract class AbstractTransformationEdit extends AbstractUndoableEdit {
 		this.transformation = morphism;
 	}
 	
-	public void map() {
-		Set<NotePath> nodePaths = this.properties.getNodePaths();
+	//TODO: return changes in paths!!!
+	public Map<NotePath,NotePath> map(Map<NotePath,NotePath> pathDifferences) {
+		this.properties.updateNodePaths(pathDifferences);
+		List<NotePath> notePaths = new ArrayList<NotePath>(this.properties.getNodePaths());
 		int[][] elementPaths = this.properties.getElementPaths();
 		NotePath anchorNodePath = this.properties.getAnchorNodePath();
 		boolean inPreviewMode = this.properties.inPreviewMode();
 		boolean copyAndTransform = this.properties.copyAndTransform();
 		boolean inWallpaperMode = this.properties.inWallpaperMode();
 		BigBangTransformation transformation = new BigBangTransformation(this.transformation, elementPaths, copyAndTransform, anchorNodePath);
-		Set<NotePath> resultPaths;
+		List<NotePath> resultPaths;
 		if (inWallpaperMode) {
 			resultPaths = this.scoreManager.addWallpaperTransformation(transformation, inPreviewMode);
 		} else {
-			resultPaths = this.scoreManager.mapNodes(nodePaths, transformation, inPreviewMode);
+			resultPaths = this.scoreManager.mapNodes(notePaths, transformation, inPreviewMode);
 		}
 		if (copyAndTransform || inWallpaperMode) {
 			this.copyPaths = resultPaths;
 		} else {
-			this.properties.setNodePaths(resultPaths);
+			//WOW not at all compatible with dynamic score mapping!!
+			//this.properties.setNodePaths(resultPaths);
 		}
+		Map<NotePath,NotePath> newDifferences = this.getPathDifferences(this.previousResultPaths, resultPaths);
+		this.previousResultPaths = resultPaths;
+		return newDifferences;
+	}
+	
+	private Map<NotePath,NotePath> getPathDifferences(List<NotePath> oldPaths, List<NotePath> newPaths) {
+		Map<NotePath,NotePath> pathDifferences = new TreeMap<NotePath,NotePath>();
+		if (oldPaths != null) {
+			if (oldPaths.size() != newPaths.size()) {
+				System.out.println(oldPaths.toString() + "   " + newPaths.toString());
+				return pathDifferences;
+			}
+			for (int i = 0; i < newPaths.size(); i++) {
+				if (!oldPaths.get(i).equals(newPaths.get(i))) {
+					pathDifferences.put(oldPaths.get(i), newPaths.get(i));
+				}
+			}
+		}
+		return pathDifferences;
 	}
 	
 	public BigBangScoreManager getScoreManager() {

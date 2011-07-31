@@ -1,5 +1,6 @@
 package org.rubato.rubettes.bigbang.model;
 
+import java.util.Map;
 import java.util.Set;
 
 import org.rubato.rubettes.util.NotePath;
@@ -25,6 +26,16 @@ public class TransformationProperties {
 	
 	public void setNodePaths(Set<NotePath> nodePaths) {
 		this.nodePaths = nodePaths;
+	}
+	
+	public void updateNodePaths(Map<NotePath,NotePath> pathDifferences) {
+		for (NotePath currentPath : pathDifferences.keySet()) {
+			if (this.nodePaths.contains(currentPath)) {
+				NotePath newPath = pathDifferences.get(currentPath);
+				this.nodePaths.add(newPath);
+				this.nodePaths.remove(currentPath);
+			}
+		}
 	}
 	
 	public Set<NotePath> getNodePaths() {

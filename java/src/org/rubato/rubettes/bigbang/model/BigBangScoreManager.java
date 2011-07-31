@@ -54,6 +54,7 @@ public class BigBangScoreManager extends Model {
 		boolean valid = this.score.setComposition(newComposition);
 		if (valid) {
 			this.fireCompositionChange();
+			this.resetFactualScore();
 		}
 		return valid;
 	}
@@ -77,9 +78,9 @@ public class BigBangScoreManager extends Model {
 		this.wallpaper.removeLastDimension();
 	}
 	
-	public Set<NotePath> addWallpaperTransformation(BigBangTransformation transformation, boolean inPreviewMode) {
+	public List<NotePath> addWallpaperTransformation(BigBangTransformation transformation, boolean inPreviewMode) {
 		this.wallpaper.addTransformationToLastDimension(transformation);
-		Set<NotePath> newPaths = this.createWallpaper(true, !inPreviewMode);
+		List<NotePath> newPaths = this.createWallpaper(true, !inPreviewMode);
 		if (inPreviewMode) {
 			this.wallpaper.removeLastTransformation();
 		}
@@ -90,22 +91,22 @@ public class BigBangScoreManager extends Model {
 		this.wallpaper.removeLastTransformation();
 	}
 	
-	private Set<NotePath> createWallpaper(boolean inPreviewMode, boolean selectMotif) {
+	private List<NotePath> createWallpaper(boolean inPreviewMode, boolean selectMotif) {
 		List<NotePath> motifPaths = this.wallpaper.getMotif();
 		this.updateActualScore(inPreviewMode);
 		List<List<LimitDenotator>> motifNodes = this.actualScore.extractNotes(motifPaths);
 		//CREATE ACTUAL WALLPAPER (to be selected when wallpaper finished)
 		this.wallpaper.applyTo(this.actualScore);
 		NotePath lastAnchorPath = this.wallpaper.getLastAnchorPath();
-		Set<NotePath> newMotifPaths = new TreeSet<NotePath>(this.actualScore.addNotes(motifNodes));
+		List<NotePath> newMotifPaths = this.actualScore.addNotes(motifNodes);
 		if (inPreviewMode) {
 			if (selectMotif) {
-				this.fireCompositionChange(this.actualScore, newMotifPaths, lastAnchorPath, true);
+				this.fireCompositionChange(this.actualScore, new TreeSet<NotePath>(newMotifPaths), lastAnchorPath, true);
 			} else {
-				this.firePreviewCompositionChange(newMotifPaths, lastAnchorPath);
+				this.firePreviewCompositionChange(new TreeSet<NotePath>(newMotifPaths), lastAnchorPath);
 			}
 		} else {
-			this.fireCompositionChange(this.actualScore, newMotifPaths, lastAnchorPath, true);
+			this.fireCompositionChange(this.actualScore, new TreeSet<NotePath>(newMotifPaths), lastAnchorPath, true);
 		}
 		return newMotifPaths;
 	}
@@ -154,17 +155,17 @@ public class BigBangScoreManager extends Model {
 		}
 	}
 	
-	public Set<NotePath> mapNodes(Set<NotePath> nodePaths, BigBangTransformation transformation, boolean inPreviewMode) {
+	public List<NotePath> mapNodes(List<NotePath> nodePaths, BigBangTransformation transformation, boolean inPreviewMode) {
 		//PerformanceCheck.startTask("prepare");
 		//this.updateActualScore(inPreviewMode);
 		//PerformanceCheck.startTask("map");
 		BigBangMapper mapper = new BigBangMapper(this.actualScore, transformation);
-		Set<NotePath> newPaths = new TreeSet<NotePath>(mapper.mapNodes(new ArrayList<NotePath>(nodePaths)));
+		List<NotePath> newPaths = mapper.mapNodes(nodePaths);
 		//PerformanceCheck.startTask("fire");
 		if (inPreviewMode) {
 			this.firePreviewCompositionChange(new TreeSet<NotePath>(nodePaths), transformation.getAnchorNodePath());
 		} else {
-			this.fireCompositionChange(this.actualScore, newPaths, transformation.getAnchorNodePath(), true);
+			this.fireCompositionChange(this.actualScore, new TreeSet<NotePath>(newPaths), transformation.getAnchorNodePath(), true);
 		}
 		//PerformanceCheck.startTask("draw");
 		return newPaths;
@@ -174,6 +175,8 @@ public class BigBangScoreManager extends Model {
 		this.actualScore = (BigBangScore) this.score.clone();
 	}
 	
+	
+	//TODO: REMOVE!!!
 	private void updateActualScore(boolean inPreviewMode) {
 		//if (inPreviewMode) {
 			this.actualScore = (BigBangScore) this.score.clone();
@@ -306,7 +309,8 @@ public class BigBangScoreManager extends Model {
 	}
 	
 	private void fireCompositionChange(Set<NotePath> selectedNodesPaths) {
-		this.fireCompositionChange(this.score, selectedNodesPaths, null, false);
+		this.resetFactualScore();
+		this.fireCompositionChange(this.actualScore, selectedNodesPaths, null, false);
 	}
 	
 	private void fireCompositionChange(BigBangScore score, Set<NotePath> selectedNodesPaths, NotePath selectedAnchorPath, boolean playback) {

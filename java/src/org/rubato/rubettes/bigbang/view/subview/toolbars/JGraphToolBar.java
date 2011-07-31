@@ -3,6 +3,7 @@ package org.rubato.rubettes.bigbang.view.subview.toolbars;
 import java.beans.PropertyChangeEvent;
 import java.util.List;
 
+import javax.swing.DropMode;
 import javax.swing.JList;
 import javax.swing.JToolBar;
 import javax.swing.ListSelectionModel;
@@ -21,6 +22,8 @@ public class JGraphToolBar extends JToolBar implements View {
 		controller.addView(this);
 		bbController.addView(this);
 		this.transformations = new JList();
+		this.transformations.setDragEnabled(true);
+		this.transformations.setDropMode(DropMode.INSERT);
 		this.transformations.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		this.transformations.addListSelectionListener(new GraphListener(controller));
 		this.add(this.transformations);
