@@ -1,6 +1,7 @@
 package org.rubato.rubettes.bigbang.view.model;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import org.rubato.rubettes.bigbang.model.Model;
 import org.rubato.rubettes.bigbang.view.controller.ViewController;
@@ -17,12 +18,12 @@ public class ViewParameters extends Model {
 	
 	private ArrayList<ViewParameter> parameters;
 	private int[] selectedViewParameters;
-	private double[] minValues, maxValues;
+	private List<Double> minValues, maxValues;
 	
 	public ViewParameters(ViewController controller, boolean invertYAxis) {
 		controller.addModel(this);
-		this.minValues = new double[5];
-		this.maxValues = new double[5];
+		this.minValues = new ArrayList<Double>();
+		this.maxValues = new ArrayList<Double>();
 		this.initParameters(invertYAxis);
 		this.setSelectedViewParameters(new int[]{0,1,2,3,4,-1});
 	}
@@ -65,7 +66,7 @@ public class ViewParameters extends Model {
 		return this.selectedViewParameters[index];
 	}
 	
-	public void setDenotatorMinAndMaxValues(double[] minValues, double[] maxValues) {
+	public void setDenotatorMinAndMaxValues(List<Double> minValues, List<Double> maxValues) {
 		this.minValues = minValues;
 		this.maxValues = maxValues;
 		this.updateMinAndMaxValues();
@@ -90,8 +91,8 @@ public class ViewParameters extends Model {
 		for (int i = 0; i < this.parameters.size(); i++) {
 			int d = this.selectedViewParameters[i];
 			//System.out.println(this.minValues[1]+" "+this.maxValues[1]);
-			if (d > -1) {
-				this.parameters.get(i).setDenotatorLimitsIfNotManual(this.minValues[d], this.maxValues[d]);
+			if (d > -1 && this.minValues.size() > d && this.maxValues.size() > d) {
+				this.parameters.get(i).setDenotatorLimitsIfNotManual(this.minValues.get(d), this.maxValues.get(d));
 			}
 		}
 		this.firePropertyChange(ViewController.VIEW_PARAMETERS, null, this);

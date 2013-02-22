@@ -3,16 +3,17 @@ package org.rubato.rubettes.bigbang.controller;
 import java.util.Set;
 import java.util.TreeSet;
 
+import org.rubato.math.yoneda.Denotator;
 import org.rubato.math.yoneda.PowerDenotator;
-import org.rubato.rubettes.util.NotePath;
+import org.rubato.rubettes.util.DenotatorPath;
 
 public class ScoreChangedNotification {
 	
-	private PowerDenotator score;
-	private Set<NotePath> notesToBeSelected;
-	private NotePath anchorToBeSelected;
+	private Denotator score;
+	private Set<DenotatorPath> notesToBeSelected;
+	private DenotatorPath anchorToBeSelected;
 	
-	public ScoreChangedNotification(PowerDenotator score, Set<NotePath> notesToBeSelected, NotePath anchorToBeSelected) {
+	public ScoreChangedNotification(Denotator score, Set<DenotatorPath> notesToBeSelected, DenotatorPath anchorToBeSelected) {
 		this.score = score;
 		this.notesToBeSelected = notesToBeSelected;
 		this.anchorToBeSelected = anchorToBeSelected;
@@ -20,18 +21,18 @@ public class ScoreChangedNotification {
 	
 	public ScoreChangedNotification(PowerDenotator score) {
 		this.score = score;
-		this.notesToBeSelected = new TreeSet<NotePath>();
+		this.notesToBeSelected = new TreeSet<DenotatorPath>();
 	}
 	
-	public PowerDenotator getScore() {
+	public Denotator getScore() {
 		return this.score;
 	}
 	
-	public Set<NotePath> getNotesToBeSelected() {
+	public Set<DenotatorPath> getNotesToBeSelected() {
 		return this.notesToBeSelected;
 	}
 	
-	public NotePath getAnchorToBeSelected() {
+	public DenotatorPath getAnchorToBeSelected() {
 		return this.anchorToBeSelected;
 	}
 

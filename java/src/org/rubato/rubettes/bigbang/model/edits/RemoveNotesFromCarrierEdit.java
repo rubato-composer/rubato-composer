@@ -7,7 +7,7 @@ import java.util.TreeSet;
 import javax.swing.undo.AbstractUndoableEdit;
 
 import org.rubato.rubettes.bigbang.model.BigBangScoreManager;
-import org.rubato.rubettes.util.NotePath;
+import org.rubato.rubettes.util.DenotatorPath;
 
 /*
  * same as flatten edit. unite!!
@@ -15,10 +15,10 @@ import org.rubato.rubettes.util.NotePath;
 public class RemoveNotesFromCarrierEdit extends AbstractUndoableEdit {
 	
 	private BigBangScoreManager score;
-	private Set<NotePath> oldNodePaths;
-	private TreeMap<NotePath,NotePath> newAndOldPaths;
+	private Set<DenotatorPath> oldNodePaths;
+	private TreeMap<DenotatorPath,DenotatorPath> newAndOldPaths;
 	
-	public RemoveNotesFromCarrierEdit(BigBangScoreManager score, TreeSet<NotePath> oldNodePaths) {
+	public RemoveNotesFromCarrierEdit(BigBangScoreManager score, TreeSet<DenotatorPath> oldNodePaths) {
 		this.score = score;
 		this.oldNodePaths = oldNodePaths;
 		this.execute();

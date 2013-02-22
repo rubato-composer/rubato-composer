@@ -3,7 +3,7 @@ package org.rubato.rubettes.bigbang.view.model.tools;
 import java.awt.Point;
 
 import org.rubato.rubettes.bigbang.view.subview.AbstractPainter;
-import org.rubato.rubettes.bigbang.view.subview.DisplayNoteList;
+import org.rubato.rubettes.bigbang.view.subview.DisplayObjectList;
 
 public class ConnectorsTool extends DisplayTool {
 
@@ -21,7 +21,7 @@ public class ConnectorsTool extends DisplayTool {
 	@Override
 	public void paint(AbstractPainter painter) {
 		if (this.display != null && this.point != null) {
-			DisplayNoteList notes = this.display.getNotes();
+			DisplayObjectList notes = this.display.getNotes();
 			notes.paintSelectedNotesConnectors(painter, this.point.x, this.point.y, this.relation);
 			notes.paintSelectedNotes(painter);
 		}

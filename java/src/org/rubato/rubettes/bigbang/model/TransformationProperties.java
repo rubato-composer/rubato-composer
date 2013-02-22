@@ -3,12 +3,12 @@ package org.rubato.rubettes.bigbang.model;
 import java.util.Map;
 import java.util.Set;
 
-import org.rubato.rubettes.util.NotePath;
+import org.rubato.rubettes.util.DenotatorPath;
 
 public class TransformationProperties {
 	
-	private Set<NotePath> nodePaths;
-	private NotePath anchorNodePath;
+	private Set<DenotatorPath> nodePaths;
+	private DenotatorPath anchorNodePath;
 	private int[][] elementPaths;
 	private boolean copyAndTransform;
 	private double[] center;
@@ -16,7 +16,7 @@ public class TransformationProperties {
 	private boolean inPreviewMode;
 	private boolean inWallpaperMode;
 	
-	public TransformationProperties(Set<NotePath> nodePaths, int[][] elementPaths, boolean copyAndTransform, boolean inPreviewMode, boolean inWallpaperMode) {
+	public TransformationProperties(Set<DenotatorPath> nodePaths, int[][] elementPaths, boolean copyAndTransform, boolean inPreviewMode, boolean inWallpaperMode) {
 		this.nodePaths = nodePaths;
 		this.elementPaths = elementPaths;
 		this.copyAndTransform = copyAndTransform;
@@ -24,21 +24,21 @@ public class TransformationProperties {
 		this.inWallpaperMode = inWallpaperMode;
 	}
 	
-	public void setNodePaths(Set<NotePath> nodePaths) {
+	public void setNodePaths(Set<DenotatorPath> nodePaths) {
 		this.nodePaths = nodePaths;
 	}
 	
-	public void updateNodePaths(Map<NotePath,NotePath> pathDifferences) {
-		for (NotePath currentPath : pathDifferences.keySet()) {
+	public void updateNodePaths(Map<DenotatorPath,DenotatorPath> pathDifferences) {
+		for (DenotatorPath currentPath : pathDifferences.keySet()) {
 			if (this.nodePaths.contains(currentPath)) {
-				NotePath newPath = pathDifferences.get(currentPath);
+				DenotatorPath newPath = pathDifferences.get(currentPath);
 				this.nodePaths.add(newPath);
 				this.nodePaths.remove(currentPath);
 			}
 		}
 	}
 	
-	public Set<NotePath> getNodePaths() {
+	public Set<DenotatorPath> getNodePaths() {
 		return this.nodePaths;
 	}
 	
@@ -69,11 +69,11 @@ public class TransformationProperties {
 		return this.endPoint;
 	}
 	
-	public void setAnchorNodePath(NotePath anchorNodePath) {
+	public void setAnchorNodePath(DenotatorPath anchorNodePath) {
 		this.anchorNodePath = anchorNodePath;
 	}
 	
-	public NotePath getAnchorNodePath() {
+	public DenotatorPath getAnchorNodePath() {
 		return this.anchorNodePath;
 	}
 	

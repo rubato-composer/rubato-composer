@@ -12,52 +12,52 @@ import org.rubato.math.module.RElement;
 import org.rubato.math.module.RRing;
 import org.rubato.math.yoneda.Denotator;
 import org.rubato.math.yoneda.LimitDenotator;
-import org.rubato.rubettes.util.NotePath;
+import org.rubato.rubettes.util.DenotatorPath;
 
 public class BigBangShaper extends BigBangScoreManipulator {
 	
-	private List<NotePath> notePaths;
+	private List<DenotatorPath> notePaths;
 	private TreeMap<Double,Double> shapingLocations;
 	private boolean copyAndShape;
 	private double shapingRange;
 	
 	public BigBangShaper(BigBangScore score, TransformationProperties properties, TreeMap<Double,Double> shapingLocations) {
 		super(score, properties.getElementPaths());
-		this.notePaths = new ArrayList<NotePath>(properties.getNodePaths());
+		this.notePaths = new ArrayList<DenotatorPath>(properties.getNodePaths());
 		this.shapingLocations = shapingLocations;
 		this.shapingRange = 0.5;
 		this.copyAndShape = properties.copyAndTransform();
 	}
 	
-	public Map<NotePath,Double> shapeNotes() {
+	public Map<DenotatorPath,Double> shapeNotes() {
 		//PerformanceCheck.startTask(".pre");
 		Map<List<LimitDenotator>,Double> newNoteTracesAndOldYValues = new HashMap<List<LimitDenotator>,Double>();
 		
 		this.notePaths = this.score.reverseSort(this.notePaths);
 		
-		Iterator<NotePath> notePathsIterator = this.notePaths.iterator();
+		Iterator<DenotatorPath> notePathsIterator = this.notePaths.iterator();
 		if (notePathsIterator.hasNext()) {
-			NotePath firstOfNextSiblings = notePathsIterator.next();
+			DenotatorPath firstOfNextSiblings = notePathsIterator.next();
 			while (firstOfNextSiblings != null) {
 				firstOfNextSiblings = this.shapeAndAddNextSiblings(newNoteTracesAndOldYValues, firstOfNextSiblings, notePathsIterator);
 			}
 		}
 		//PerformanceCheck.startTask(".find");
-		Map<NotePath,Double> newPathsAndOldYValues = new TreeMap<NotePath,Double>();
+		Map<DenotatorPath,Double> newPathsAndOldYValues = new TreeMap<DenotatorPath,Double>();
 		this.findPaths(newNoteTracesAndOldYValues, newPathsAndOldYValues);
 		return newPathsAndOldYValues; 
 	}
 	
-	private NotePath shapeAndAddNextSiblings(Map<List<LimitDenotator>,Double> newNoteTracesAndOldYValues, NotePath firstSiblingPath, Iterator<NotePath> nodePathsIterator) {
+	private DenotatorPath shapeAndAddNextSiblings(Map<List<LimitDenotator>,Double> newNoteTracesAndOldYValues, DenotatorPath firstSiblingPath, Iterator<DenotatorPath> nodePathsIterator) {
 		//PerformanceCheck.startTask(".first_sib");
 		List<LimitDenotator> siblings = new ArrayList<LimitDenotator>();
-		List<NotePath> siblingsPaths = new ArrayList<NotePath>();
+		List<DenotatorPath> siblingsPaths = new ArrayList<DenotatorPath>();
 		
 		siblingsPaths.add(firstSiblingPath);
 		siblings.add(this.getNode(firstSiblingPath));
-		NotePath siblingsAnchorPath = firstSiblingPath.getParentPath();
+		DenotatorPath siblingsAnchorPath = firstSiblingPath.getParentPath();
 		
-		NotePath currentSiblingPath = firstSiblingPath;
+		DenotatorPath currentSiblingPath = firstSiblingPath;
 		while (nodePathsIterator.hasNext()) {
 			currentSiblingPath = nodePathsIterator.next();
 			//PerformanceCheck.startTask(".next_sibs");
@@ -73,7 +73,7 @@ public class BigBangShaper extends BigBangScoreManipulator {
 		return null;
 	}
 	
-	private void removeShapeAndAdd(Map<List<LimitDenotator>,Double> newNoteTracesAndOldYValues, List<LimitDenotator> notes, NotePath anchorPath, List<NotePath> siblingsPaths) {
+	private void removeShapeAndAdd(Map<List<LimitDenotator>,Double> newNoteTracesAndOldYValues, List<LimitDenotator> notes, DenotatorPath anchorPath, List<DenotatorPath> siblingsPaths) {
 		//PerformanceCheck.startTask(".remove");
 		if (!this.copyAndShape) {
 			this.score.removeNotes(siblingsPaths);
@@ -81,7 +81,7 @@ public class BigBangShaper extends BigBangScoreManipulator {
 		this.shapeAndAddNodes(notes, anchorPath, newNoteTracesAndOldYValues);
 	}
 	
-	private void shapeAndAddNodes(List<LimitDenotator> nodesAndNotes, NotePath anchorPath, Map<List<LimitDenotator>,Double> newNoteTracesAndOldYValues) {
+	private void shapeAndAddNodes(List<LimitDenotator> nodesAndNotes, DenotatorPath anchorPath, Map<List<LimitDenotator>,Double> newNoteTracesAndOldYValues) {
 		Map<LimitDenotator,Double> newNotesAndOldYValues = new HashMap<LimitDenotator,Double>();
 		boolean modulators = nodesAndNotes.get(0).getForm().equals(this.score.noteGenerator.SOUND_NOTE_FORM);
 		for (int i = 0; i < nodesAndNotes.size(); i++) {
@@ -100,7 +100,7 @@ public class BigBangShaper extends BigBangScoreManipulator {
 		//PerformanceCheck.startTask(".add");
 		//TODO: ADD THEM AS THE SAME TYPE AS THEIR ORIGINAL!! MODULATOR OR SATELLITE
 		List<LimitDenotator> newNotes = new ArrayList<LimitDenotator>(newNotesAndOldYValues.keySet());
-		List<NotePath> newPaths = this.score.addNotesToParent(newNotes, anchorPath, modulators);
+		List<DenotatorPath> newPaths = this.score.addNotesToParent(newNotes, anchorPath, modulators);
 		List<List<LimitDenotator>> newNoteTraces = this.score.extractNotes(newPaths);
 		//PerformanceCheck.startTask(".extract");
 		for (int i = 0; i < newNoteTraces.size(); i++) {
@@ -120,9 +120,9 @@ public class BigBangShaper extends BigBangScoreManipulator {
 		return note;
 	}
 	
-	private void findPaths(Map<List<LimitDenotator>,Double> newNotesAndOldYValues, Map<NotePath,Double> newPathsAndOldYValues) {
+	private void findPaths(Map<List<LimitDenotator>,Double> newNotesAndOldYValues, Map<DenotatorPath,Double> newPathsAndOldYValues) {
 		List<List<LimitDenotator>> notes = new ArrayList<List<LimitDenotator>>(newNotesAndOldYValues.keySet());
-		List<NotePath> paths = this.score.findPaths(notes);
+		List<DenotatorPath> paths = this.score.findPaths(notes);
 		for (int i = 0; i < notes.size(); i++) {
 			newPathsAndOldYValues.put(paths.get(i), newNotesAndOldYValues.get(notes.get(i)));
 		}

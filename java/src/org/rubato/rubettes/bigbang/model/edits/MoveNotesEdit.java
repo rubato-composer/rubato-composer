@@ -6,16 +6,16 @@ import java.util.Set;
 import javax.swing.undo.AbstractUndoableEdit;
 
 import org.rubato.rubettes.bigbang.model.BigBangScoreManager;
-import org.rubato.rubettes.util.NotePath;
+import org.rubato.rubettes.util.DenotatorPath;
 
 public class MoveNotesEdit extends AbstractUndoableEdit {
 	
 	private BigBangScoreManager score;
-	private Set<NotePath> notePaths;
-	private Map<NotePath,Integer> newPathsAndOldLayers;
+	private Set<DenotatorPath> notePaths;
+	private Map<DenotatorPath,Integer> newPathsAndOldLayers;
 	private int layerIndex;
 	
-	public MoveNotesEdit(BigBangScoreManager scoreLayers, Set<NotePath> notePaths, int layerIndex) {
+	public MoveNotesEdit(BigBangScoreManager scoreLayers, Set<DenotatorPath> notePaths, int layerIndex) {
 		this.score = scoreLayers;
 		this.notePaths = notePaths;
 		this.layerIndex = layerIndex;

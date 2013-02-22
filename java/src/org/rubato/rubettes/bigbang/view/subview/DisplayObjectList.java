@@ -9,23 +9,23 @@ import java.util.TreeSet;
 
 import org.rubato.rubettes.bigbang.view.View;
 import org.rubato.rubettes.bigbang.view.controller.ViewController;
-import org.rubato.rubettes.bigbang.view.model.DisplayNote;
+import org.rubato.rubettes.bigbang.view.model.DisplayObject;
 import org.rubato.rubettes.bigbang.view.model.LayerState;
 import org.rubato.rubettes.bigbang.view.model.LayerStates;
-import org.rubato.rubettes.util.NotePath;
+import org.rubato.rubettes.util.DenotatorPath;
 
-public class DisplayNoteList extends TreeSet<DisplayNote> implements View {
+public class DisplayObjectList extends TreeSet<DisplayObject> implements View {
 	
-	private Set<DisplayNote> selectedNotes;
-	private DisplayNote selectedAnchorNote;
+	private Set<DisplayObject> selectedNotes;
+	private DisplayObject selectedAnchorNote;
 	
-	public DisplayNoteList(ViewController controller) {
+	public DisplayObjectList(ViewController controller) {
 		controller.addView(this);
-		this.selectedNotes = new TreeSet<DisplayNote>();
+		this.selectedNotes = new TreeSet<DisplayObject>();
 	}
 	
 	public void tempSelectNotes(Rectangle2D.Double area) {
-		for (DisplayNote currentNote: this) {
+		for (DisplayObject currentNote: this) {
 			if (!this.selectedNotes.contains(currentNote)) {
 				currentNote.setSelected(currentNote.intersects(area));
 			}
@@ -33,7 +33,7 @@ public class DisplayNoteList extends TreeSet<DisplayNote> implements View {
 	}
 	
 	public int selectNotes(Rectangle2D.Double area) {
-		for (DisplayNote currentNote: this) {
+		for (DisplayObject currentNote: this) {
 			if (currentNote.intersects(area)) {
 				this.selectNote(currentNote);
 			}
@@ -41,7 +41,7 @@ public class DisplayNoteList extends TreeSet<DisplayNote> implements View {
 		return this.selectedNotes.size();
 	}
 	
-	private void toggleSelected(DisplayNote note) {
+	private void toggleSelected(DisplayObject note) {
 		if (note.isSelected()) {
 			this.deselectNote(note);
 		} else {
@@ -49,7 +49,7 @@ public class DisplayNoteList extends TreeSet<DisplayNote> implements View {
 		}
 	}
 	
-	public void selectNote(DisplayNote note) {
+	public void selectNote(DisplayObject note) {
 		if (this.isNotSelectedAnchorNote(note)) {
 			note.setSelected(true);
 			if (!this.selectedNotes.contains(note) && note.isActive()) {
@@ -60,26 +60,26 @@ public class DisplayNoteList extends TreeSet<DisplayNote> implements View {
 		}
 	}
 	
-	private void deselectNote(DisplayNote note) {
+	private void deselectNote(DisplayObject note) {
 		note.setSelected(false);
 		this.selectedNotes.remove(note);
 	}
 	
-	private boolean isNotSelectedAnchorNote(DisplayNote note) {
+	private boolean isNotSelectedAnchorNote(DisplayObject note) {
 		return (this.selectedAnchorNote != null && !this.selectedAnchorNote.equals(note))
 			|| this.selectedAnchorNote == null;
 	}
 	
-	private void deselectParents(DisplayNote note) {
-		DisplayNote parent = note.getParent(); 
+	private void deselectParents(DisplayObject note) {
+		DisplayObject parent = note.getParent(); 
 		if (parent != null) {
 			this.deselectNote(parent);
 			this.deselectParents(parent);
 		}
 	}
 	
-	private void deselectChildren(DisplayNote note) {
-		for (DisplayNote currentChild: note.getChildren()) {
+	private void deselectChildren(DisplayObject note) {
+		for (DisplayObject currentChild: note.getChildren()) {
 			this.deselectNote(currentChild);
 			this.deselectChildren(currentChild);
 		}
@@ -87,7 +87,7 @@ public class DisplayNoteList extends TreeSet<DisplayNote> implements View {
 	
 	public int selectTopOrDeselectAllNotes(Point location) {
 		//notes are saved from bottom to top... just takes one note
-		for (DisplayNote currentNote: this) {
+		for (DisplayObject currentNote: this) {
 			if (currentNote.getRectangle().contains(location)) {
 				this.toggleSelected(currentNote);
 				return this.selectedNotes.size();
@@ -98,13 +98,13 @@ public class DisplayNoteList extends TreeSet<DisplayNote> implements View {
 	}
 	
 	private void deselectAllNotes() {
-		for (DisplayNote currentNote: this.selectedNotes) {
+		for (DisplayObject currentNote: this.selectedNotes) {
 			currentNote.setSelected(false);
 		}
-		this.selectedNotes = new TreeSet<DisplayNote>();
+		this.selectedNotes = new TreeSet<DisplayObject>();
 	}
 	
-	public DisplayNote getNoteAt(Point location) {
+	public DisplayObject getNoteAt(Point location) {
 		return this.getNoteAt(location, this);
 	}
 	
@@ -112,8 +112,8 @@ public class DisplayNoteList extends TreeSet<DisplayNote> implements View {
 		return this.getNoteAt(location, this.selectedNotes) != null;
 	}
 	
-	private DisplayNote getNoteAt(Point location, Set<DisplayNote> notes) {
-		for (DisplayNote currentNote : notes) {
+	private DisplayObject getNoteAt(Point location, Set<DisplayObject> notes) {
+		for (DisplayObject currentNote : notes) {
 			if (currentNote.getRectangle().contains(location)) {
 				return currentNote;
 			}
@@ -122,7 +122,7 @@ public class DisplayNoteList extends TreeSet<DisplayNote> implements View {
 	}
 	
 	public void selectOrDeselectAnchorNote(Point location) {
-		DisplayNote noteInLocation = this.getNoteAt(location);
+		DisplayObject noteInLocation = this.getNoteAt(location);
 		if (noteInLocation != null) {
 			if (noteInLocation.equals(this.selectedAnchorNote)) {
 				this.selectedAnchorNote = null;
@@ -134,14 +134,14 @@ public class DisplayNoteList extends TreeSet<DisplayNote> implements View {
 		}
 	}
 	
-	public void setSelectedAnchorNote(DisplayNote note) {
+	public void setSelectedAnchorNote(DisplayObject note) {
 		this.selectedAnchorNote = note;
 		this.selectedNotes.remove(note);
 	}
 	
-	public NotePath getSelectedAnchorNodePath() {
+	public DenotatorPath getSelectedAnchorNodePath() {
 		if (this.selectedAnchorNote != null) {
-			return this.selectedAnchorNote.getOriginalPath();
+			return this.selectedAnchorNote.getTopDenotatorPath();
 		}
 		return null;
 	}
@@ -153,23 +153,23 @@ public class DisplayNoteList extends TreeSet<DisplayNote> implements View {
 		return null;
 	}
 	
-	public Set<NotePath> getSelectedNodePaths() {
-		TreeSet<NotePath> notePaths = new TreeSet<NotePath>();
-		for (DisplayNote currentNote : this.selectedNotes) {
+	public Set<DenotatorPath> getSelectedNodePaths() {
+		TreeSet<DenotatorPath> objectPaths = new TreeSet<DenotatorPath>();
+		for (DisplayObject currentObject : this.selectedNotes) {
 			//nodePaths.add(new DenotatorPath(currentNote.getOriginalPath()));
-			notePaths.add(currentNote.getOriginalPath());
+			objectPaths.add(currentObject.getTopDenotatorPath());
 		}
-		return notePaths;
+		return objectPaths;
 	}
 	
 	private void makeAllModulatorsVisible() {
-		for (DisplayNote currentNote: this) {
+		for (DisplayObject currentNote: this) {
 			currentNote.setVisibility(LayerState.active);
 		}
 	}
 	
 	public void updateModulatorVisibility(int modLevel, int siblingNumber) {
-		for (DisplayNote currentNote: this) {
+		for (DisplayObject currentNote: this) {
 			if (currentNote.getValue(5) == modLevel
 					&& (siblingNumber == -1 || currentNote.getValue(7) == siblingNumber)) {
 				currentNote.setVisibility(LayerState.active);
@@ -181,7 +181,7 @@ public class DisplayNoteList extends TreeSet<DisplayNote> implements View {
 	}
 	
 	private void updateVisibility(LayerStates states) {
-		for (DisplayNote currentNote: this) {
+		for (DisplayObject currentNote: this) {
 			LayerState currentState = states.get(currentNote.getLayer());
 			currentNote.setVisibility(currentState);
 			if (!currentState.equals(LayerState.active)) {
@@ -193,7 +193,7 @@ public class DisplayNoteList extends TreeSet<DisplayNote> implements View {
 	}
 	
 	public void updateBounds(double xZoomFactor, double yZoomFactor, int xPosition, int yPosition) {
-		for (DisplayNote currentNote : this) {
+		for (DisplayObject currentNote : this) {
 			currentNote.updateBounds(xZoomFactor, yZoomFactor, xPosition, yPosition);
 		}
 	}
@@ -208,19 +208,19 @@ public class DisplayNoteList extends TreeSet<DisplayNote> implements View {
 	}
 	
 	public void paintSelectedNotesConnectors(AbstractPainter painter, int parentX, int parentY, int relation) {
-		for (DisplayNote currentNote : this.selectedNotes) {
+		for (DisplayObject currentNote : this.selectedNotes) {
 			currentNote.paintConnectors(painter, parentX, parentY, relation);
 		}
 	}
 	
-	private void paintConnectors(AbstractPainter painter, Set<DisplayNote> notes) {
-		for (DisplayNote currentNote : notes) {
+	private void paintConnectors(AbstractPainter painter, Set<DisplayObject> notes) {
+		for (DisplayObject currentNote : notes) {
 			currentNote.paintConnectors(painter);
 		}
 	}
 	
 	private void paintInactiveNotes(AbstractPainter painter) {
-		for (DisplayNote currentNote : this) {
+		for (DisplayObject currentNote : this) {
 			if (!currentNote.isActive()) {
 				currentNote.paint(painter);
 			}
@@ -228,7 +228,7 @@ public class DisplayNoteList extends TreeSet<DisplayNote> implements View {
 	}
 	
 	private void paintActiveNotes(AbstractPainter painter) {
-		for (DisplayNote currentNote : this) {
+		for (DisplayObject currentNote : this) {
 			if (currentNote.isActive()) {
 				currentNote.paint(painter);
 			}
@@ -236,7 +236,7 @@ public class DisplayNoteList extends TreeSet<DisplayNote> implements View {
 	}
 	
 	public void paintSelectedNotes(AbstractPainter painter) {
-		for (DisplayNote currentNote : this.selectedNotes) {
+		for (DisplayObject currentNote : this.selectedNotes) {
 			currentNote.paint(painter);
 		}
 	}

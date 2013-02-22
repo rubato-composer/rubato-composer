@@ -1,8 +1,9 @@
 package org.rubato.rubettes.bigbang.view.subview;
 
 import java.awt.Point;
+import java.util.List;
 
-import org.rubato.rubettes.bigbang.view.model.DisplayNote;
+import org.rubato.rubettes.bigbang.view.model.DisplayObject;
 import org.rubato.rubettes.bigbang.view.model.ViewParameter;
 import org.rubato.rubettes.bigbang.view.model.ViewParameters;
 import org.rubato.rubettes.bigbang.view.model.tools.DisplayTool;
@@ -12,7 +13,7 @@ public class DisplayContents {
 	//finally merge with display!!!!
 	protected ViewParameters viewParameters;
 	private int[] selectedViewParameters;
-	protected DisplayNoteList notes;
+	protected DisplayObjectList notes;
 	private DisplayAxes axes;
 	private DisplayTool tool;
 	protected int currentWidth, currentHeight;
@@ -24,15 +25,15 @@ public class DisplayContents {
 		this.axes = new DisplayAxes(this);
 	}
 	
-	public void setNotes(DisplayNoteList notes) {
-		for (DisplayNote currentNote : notes) {
+	public void setNotes(DisplayObjectList notes) {
+		for (DisplayObject currentNote : notes) {
 			currentNote.setDisplay(this);
 		}
 		this.notes = notes;
 		this.updateNoteBounds();
 	}
 	
-	public DisplayNoteList getNotes() {
+	public DisplayObjectList getNotes() {
 		return this.notes;
 	}
 	
@@ -155,11 +156,11 @@ public class DisplayContents {
 		return this.satellitesConnected;
 	}
 	
-	public double translateValue(double[] denotatorValues, int i) {
+	public double translateValue(List<Double> denotatorValues, int i) {
 		int v = this.selectedViewParameters[i];
-		if (v > -1) {
+		if (v > -1 && v < denotatorValues.size()) {
 			//System.out.println(v+" "+this.viewParameters.get(i).translateDenotatorValue(denotatorValues[v]));
-			return this.viewParameters.get(i).translateDenotatorValue(denotatorValues[v]);
+			return this.viewParameters.get(i).translateDenotatorValue(denotatorValues.get(v));
 		}
 		return this.viewParameters.get(i).getDefaultValue();
 	}

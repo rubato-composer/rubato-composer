@@ -7,22 +7,22 @@ import javax.swing.undo.AbstractUndoableEdit;
 
 import org.rubato.math.yoneda.LimitDenotator;
 import org.rubato.rubettes.bigbang.model.BigBangScoreManager;
-import org.rubato.rubettes.util.NotePath;
+import org.rubato.rubettes.util.DenotatorPath;
 
 public class DeleteNotesEdit extends AbstractUndoableEdit {
 	
 	private BigBangScoreManager score;
-	private List<NotePath> notePaths;
+	private List<DenotatorPath> notePaths;
 	private List<LimitDenotator> notes;
 	
-	public DeleteNotesEdit(BigBangScoreManager scoreLayers, List<NotePath> notePaths) {
+	public DeleteNotesEdit(BigBangScoreManager scoreLayers, List<DenotatorPath> notePaths) {
 		this.score = scoreLayers;
 		this.notePaths = notePaths;
 		this.execute();
 	}
 	
 	public void execute() {
-		this.notes = this.score.removeNotes(new TreeSet<NotePath>(this.notePaths));
+		this.notes = this.score.removeNotes(new TreeSet<DenotatorPath>(this.notePaths));
 	}
 	
 	public void redo() {
@@ -32,7 +32,7 @@ public class DeleteNotesEdit extends AbstractUndoableEdit {
 	
 	public void undo() {
 		super.undo();
-		List<NotePath> oldAnchorPaths = NotePath.getParentPaths(this.notePaths);
+		List<DenotatorPath> oldAnchorPaths = DenotatorPath.getParentPaths(this.notePaths);
 		this.notePaths = this.score.addNotes(this.notes, oldAnchorPaths);
 	}
 	

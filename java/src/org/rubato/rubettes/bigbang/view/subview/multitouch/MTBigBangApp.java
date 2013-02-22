@@ -10,7 +10,7 @@ import org.rubato.rubettes.bigbang.view.controller.mode.multitouch.MTDisplayMode
 import org.rubato.rubettes.bigbang.view.model.ViewParameters;
 import org.rubato.rubettes.bigbang.view.model.tools.DisplayTool;
 import org.rubato.rubettes.bigbang.view.subview.DisplayContents;
-import org.rubato.rubettes.bigbang.view.subview.DisplayNoteList;
+import org.rubato.rubettes.bigbang.view.subview.DisplayObjectList;
 
 public class MTBigBangApp extends MTApplication implements View {
 	
@@ -80,7 +80,7 @@ public class MTBigBangApp extends MTApplication implements View {
 			this.contents.setViewParameters((ViewParameters)event.getNewValue());
 			this.repaint();
 		} else if (propertyName.equals(ViewController.DISPLAY_NOTES)) {
-			this.contents.setNotes((DisplayNoteList)event.getNewValue());
+			this.contents.setNotes((DisplayObjectList)event.getNewValue());
 			this.repaint(false);
 		} else if (propertyName.equals(ViewController.DISPLAY_TOOL)) {
 			this.contents.setTool((DisplayTool)event.getNewValue());

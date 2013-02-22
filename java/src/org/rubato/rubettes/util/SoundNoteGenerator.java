@@ -31,15 +31,15 @@ public class SoundNoteGenerator extends NoteGenerator {
 		return this.createSoundScore(new ArrayList<Denotator>());
 	}
 	
-	public PowerDenotator convertScore(PowerDenotator input) {
+	public Denotator convertScore(Denotator input) {
 		Form inputForm = input.getForm();
 		if (inputForm.equals(this.soundScoreForm)) {
 			return input;
 		} else if (inputForm.equals(this.macroScoreForm)) {
-			return this.convertToSpecificScore(input);
+			return this.convertToSpecificScore((PowerDenotator)input);
 		} else if (inputForm.equals(this.scoreForm)) {
-			return this.convertScoreToSoundScore(input);
-		} else return null;
+			return this.convertScoreToSoundScore((PowerDenotator)input);
+		} else return input;
 	}
 	
 	private PowerDenotator convertScoreToSoundScore(PowerDenotator score) {

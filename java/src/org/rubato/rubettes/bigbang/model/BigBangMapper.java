@@ -14,7 +14,7 @@ import org.rubato.math.module.morphism.RFreeAffineMorphism;
 import org.rubato.math.yoneda.Denotator;
 import org.rubato.math.yoneda.LimitDenotator;
 import org.rubato.rubettes.util.ArbitraryDenotatorMapper;
-import org.rubato.rubettes.util.NotePath;
+import org.rubato.rubettes.util.DenotatorPath;
 
 public class BigBangMapper extends BigBangScoreManipulator {
 	
@@ -29,38 +29,38 @@ public class BigBangMapper extends BigBangScoreManipulator {
 		this.relative = transformation.getAnchorNodePath() != null;
 	}
 	
-	public List<NotePath> mapNodes(List<NotePath> nodePaths) {
+	public List<DenotatorPath> mapNodes(List<DenotatorPath> nodePaths) {
 		//PerformanceCheck.startTask(".pre");
 		List<List<LimitDenotator>> newNodes = new ArrayList<List<LimitDenotator>>();
 		nodePaths = this.score.reverseSort(nodePaths);
 		
-		Iterator<NotePath> nodePathsIterator = nodePaths.iterator();
+		Iterator<DenotatorPath> nodePathsIterator = nodePaths.iterator();
 		if (nodePathsIterator.hasNext()) {
-			NotePath firstOfNextSiblings = nodePathsIterator.next();
+			DenotatorPath firstOfNextSiblings = nodePathsIterator.next();
 			while (firstOfNextSiblings != null) {
 				firstOfNextSiblings = this.mapAndAddNextSiblings(newNodes, firstOfNextSiblings, nodePathsIterator);
 			}
 		}
 		//PerformanceCheck.startTask(".find");
-		List<NotePath> newPaths = this.score.findPaths(newNodes);
+		List<DenotatorPath> newPaths = this.score.findPaths(newNodes);
 		return newPaths; 
 	}
 	
-	private NotePath mapAndAddNextSiblings(List<List<LimitDenotator>> newNodes, NotePath firstSiblingPath, Iterator<NotePath> nodePathsIterator) {
+	private DenotatorPath mapAndAddNextSiblings(List<List<LimitDenotator>> newNodes, DenotatorPath firstSiblingPath, Iterator<DenotatorPath> nodePathsIterator) {
 		//PerformanceCheck.startTask(".first_sib");
 		List<LimitDenotator> siblings = new ArrayList<LimitDenotator>();
-		List<NotePath> siblingsPaths = new ArrayList<NotePath>();
+		List<DenotatorPath> siblingsPaths = new ArrayList<DenotatorPath>();
 		
 		siblingsPaths.add(firstSiblingPath);
 		siblings.add(this.getNode(firstSiblingPath));
-		NotePath siblingsAnchorPath = firstSiblingPath.getParentPath();
+		DenotatorPath siblingsAnchorPath = firstSiblingPath.getParentPath();
 		ModuleMorphism siblingsMorphism = this.morphism;
 		if (this.relative) {
 			LimitDenotator siblingsAnchor = this.score.getAbsoluteNote(siblingsAnchorPath);
 			siblingsMorphism = this.generateRelativeMorphism(this.extractValues(siblingsAnchor));
 		}
 		
-		NotePath currentSiblingPath = firstSiblingPath;
+		DenotatorPath currentSiblingPath = firstSiblingPath;
 		while (nodePathsIterator.hasNext()) {
 			currentSiblingPath = nodePathsIterator.next();
 			//PerformanceCheck.startTask(".next_sibs");
@@ -76,7 +76,7 @@ public class BigBangMapper extends BigBangScoreManipulator {
 		return null;
 	}
 	
-	private void removeMapAndAdd(List<List<LimitDenotator>> newNodes, List<LimitDenotator> nodes, NotePath anchorPath, List<NotePath> siblingsPaths, ModuleMorphism morphism) {
+	private void removeMapAndAdd(List<List<LimitDenotator>> newNodes, List<LimitDenotator> nodes, DenotatorPath anchorPath, List<DenotatorPath> siblingsPaths, ModuleMorphism morphism) {
 		//PerformanceCheck.startTask(".remove");
 		if (!this.copyAndMap) {
 			this.score.removeNotes(siblingsPaths);
@@ -84,7 +84,7 @@ public class BigBangMapper extends BigBangScoreManipulator {
 		newNodes.addAll(this.mapAndAddNodes(nodes, anchorPath, morphism));
 	}
 	
-	private List<List<LimitDenotator>> mapAndAddNodes(List<LimitDenotator> nodesAndNotes, NotePath anchorPath, ModuleMorphism morphism) {
+	private List<List<LimitDenotator>> mapAndAddNodes(List<LimitDenotator> nodesAndNotes, DenotatorPath anchorPath, ModuleMorphism morphism) {
 		List<LimitDenotator> mappedNodesOrNotes = new ArrayList<LimitDenotator>();
 		ArbitraryDenotatorMapper mapper = new ArbitraryDenotatorMapper(morphism, this.coordinatePaths);
 		boolean modulators = nodesAndNotes.get(0).getForm().equals(this.score.noteGenerator.SOUND_NOTE_FORM);
@@ -106,7 +106,7 @@ public class BigBangMapper extends BigBangScoreManipulator {
 		}
 		//PerformanceCheck.startTask(".add");
 		//TODO: ADD THEM AS THE SAME TYPE AS THEIR ORIGINAL!! MODULATOR OR SATELLITE  
-		List<NotePath> newPaths = this.score.addNotesToParent(mappedNodesOrNotes, anchorPath, modulators);
+		List<DenotatorPath> newPaths = this.score.addNotesToParent(mappedNodesOrNotes, anchorPath, modulators);
 		//PerformanceCheck.startTask(".extract");
 		return this.score.extractNotes(newPaths);
 	}

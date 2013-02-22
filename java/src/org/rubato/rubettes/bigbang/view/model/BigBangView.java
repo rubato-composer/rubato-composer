@@ -36,9 +36,9 @@ import org.rubato.rubettes.bigbang.view.controller.mode.TranslationModeAdapter;
 import org.rubato.rubettes.bigbang.view.controller.mode.temp.TemporaryDisplayMode;
 import org.rubato.rubettes.bigbang.view.model.tools.DisplayTool;
 import org.rubato.rubettes.bigbang.view.model.tools.SelectionTool;
-import org.rubato.rubettes.bigbang.view.subview.DisplayNoteList;
+import org.rubato.rubettes.bigbang.view.subview.DisplayObjectList;
 import org.rubato.rubettes.bigbang.view.subview.JBigBangPanel;
-import org.rubato.rubettes.util.NotePath;
+import org.rubato.rubettes.util.DenotatorPath;
 
 public class BigBangView extends Model implements View {
 	
@@ -55,11 +55,11 @@ public class BigBangView extends Model implements View {
 	private boolean viewParametersVisible;
 	protected ViewParameters viewParameters;
 	private boolean satellitesConnected;
-	protected DisplayNoteList displayNotes;
+	protected DisplayObjectList displayNotes;
 	private DisplayTool displayTool;
 	//just used in preview mode
-	private Set<NotePath> selectedNotes;
-	private NotePath selectedAnchor;
+	private Set<DenotatorPath> selectedNotes;
+	private DenotatorPath selectedAnchor;
 	private boolean inWallpaperMode;
 	private List<Integer> wallpaperRanges;
 	private AbstractTransformationEdit selectedTransformation;
@@ -69,7 +69,7 @@ public class BigBangView extends Model implements View {
 		this.controller.addView(this);
 		this.initViewMVC();
 		this.initViewParameterControls();
-		this.setDisplayNotes(new DisplayNoteList(viewController), new double[5], new double[5]);
+		this.setDisplayNotes(new DisplayObjectList(viewController), new ArrayList<Double>(), new ArrayList<Double>());
 		this.setSatellitesConnected(true);
 		//this.setDisplayMode(new DrawNotesDisplayMode());
 		this.setDisplayPosition(new Point(0, 600));
@@ -261,7 +261,7 @@ public class BigBangView extends Model implements View {
 		this.viewController.removeView(this.displayNotes);
 		ScoreChangedNotification notification = (ScoreChangedNotification)event.getNewValue();
 		DenotatorValueExtractor extractor = new DenotatorValueExtractor();
-		DisplayNoteList newNotes = extractor.extractDisplayNotes(viewController, notification, !preview, this.layerStates);
+		DisplayObjectList newNotes = extractor.extractDisplayObjects(viewController, notification, !preview, this.layerStates);
 		if (this.modFilterOn) {
 			newNotes.updateModulatorVisibility(this.modLevel, this.modNumber);
 		}
@@ -275,7 +275,7 @@ public class BigBangView extends Model implements View {
 		this.setDisplayNotes(newNotes, extractor.getMinValues(), extractor.getMaxValues());
 	}
 	
-	private void setDisplayNotes(DisplayNoteList displayNotes, double[] minValues, double[] maxValues) {
+	private void setDisplayNotes(DisplayObjectList displayNotes, List<Double> minValues, List<Double> maxValues) {
 		this.displayNotes = displayNotes;
 		this.viewParameters.setDenotatorMinAndMaxValues(minValues, maxValues);
 		this.firePropertyChange(ViewController.DISPLAY_NOTES, null, this.displayNotes);
@@ -377,7 +377,7 @@ public class BigBangView extends Model implements View {
 			this.wallpaperRanges = new ArrayList<Integer>();
 			this.inWallpaperMode = true;
 			this.firePropertyChange(ViewController.START_WALLPAPER, null, null);
-			this.controller.startWallpaper(new ArrayList<NotePath>(this.displayNotes.getSelectedNodePaths()));
+			this.controller.startWallpaper(new ArrayList<DenotatorPath>(this.displayNotes.getSelectedNodePaths()));
 		} else {
 			this.firePropertyChange(ViewController.ADD_WP_DIMENSION, null, null);
 		}
@@ -413,7 +413,7 @@ public class BigBangView extends Model implements View {
 	}
 	
 	public void setAlterationComposition(Integer index) {
-		Set<NotePath> nodePaths = this.displayNotes.getSelectedNodePaths();
+		Set<DenotatorPath> nodePaths = this.displayNotes.getSelectedNodePaths();
 		this.controller.setAlterationComposition(index, nodePaths);
 	}
 	
@@ -443,7 +443,7 @@ public class BigBangView extends Model implements View {
 		TransformationProperties properties = this.getTransformationProperties(copyAndTransform, previewMode);
 		double[] denotatorCenter = this.getXYDenotatorValues(center);
 		double[] denotatorEndPoint = this.getXYDenotatorValues(endPoint);
-		NotePath anchorNodePath = this.displayNotes.getSelectedAnchorNodePath();
+		DenotatorPath anchorNodePath = this.displayNotes.getSelectedAnchorNodePath();
 		if (anchorNodePath != null) {
 			if (this.selectedNotes != null) {
 				anchorNodePath = this.selectedAnchor;
@@ -459,7 +459,7 @@ public class BigBangView extends Model implements View {
 	}
 	
 	private TransformationProperties getTransformationProperties(boolean copyAndTransform, boolean previewMode) {
-		Set<NotePath> notePaths;
+		Set<DenotatorPath> notePaths;
 		if (this.selectedNotes == null) {
 			notePaths = this.displayNotes.getSelectedNodePaths();
 		} else {
@@ -476,59 +476,59 @@ public class BigBangView extends Model implements View {
 	}
 	
 	public void deleteSelectedNotes() {
-		List<NotePath> nodePaths = new ArrayList<NotePath>(this.displayNotes.getSelectedNodePaths());
+		List<DenotatorPath> nodePaths = new ArrayList<DenotatorPath>(this.displayNotes.getSelectedNodePaths());
 		if (nodePaths.size() > 0) {
 			this.controller.deleteNotes(nodePaths);
 		}
 	}
 	
 	public void copySelectedNotesTo(Integer layerIndex) {
-		Set<NotePath> nodePaths = this.displayNotes.getSelectedNodePaths();
+		Set<DenotatorPath> nodePaths = this.displayNotes.getSelectedNodePaths();
 		if (nodePaths.size() > 0) {
 			this.controller.copyNotes(nodePaths, layerIndex);
 		}
 	}
 	
 	public void copySelectedNotesToNewLayer() {
-		Set<NotePath> nodePaths = this.displayNotes.getSelectedNodePaths();
+		Set<DenotatorPath> nodePaths = this.displayNotes.getSelectedNodePaths();
 		if (nodePaths.size() > 0) {
 			this.controller.copyNotes(nodePaths, this.layerStates.size());
 		}
 	}
 	
 	public void moveSelectedNotesTo(Integer layerIndex) {
-		Set<NotePath> nodePaths = this.displayNotes.getSelectedNodePaths();
+		Set<DenotatorPath> nodePaths = this.displayNotes.getSelectedNodePaths();
 		if (nodePaths.size() > 0) {
 			this.controller.moveNotes(nodePaths, layerIndex);
 		}
 	}
 	
 	public void moveSelectedNotesToNewLayer() {
-		Set<NotePath> nodePaths = this.displayNotes.getSelectedNodePaths();
+		Set<DenotatorPath> nodePaths = this.displayNotes.getSelectedNodePaths();
 		if (nodePaths.size() > 0) {
 			this.controller.moveNotes(nodePaths, this.layerStates.size());
 		}
 	}
 	
-	public void addSelectedNotesAsSatellitesTo(DisplayNote parentNote) {
-		Set<NotePath> satelliteNodePaths = this.displayNotes.getSelectedNodePaths();
-		NotePath parentNodePath = parentNote.getOriginalPath();
+	public void addSelectedNotesAsSatellitesTo(DisplayObject parentNote) {
+		Set<DenotatorPath> satelliteNodePaths = this.displayNotes.getSelectedNodePaths();
+		DenotatorPath parentNodePath = parentNote.getTopDenotatorPath();
 		this.controller.buildSatellites(satelliteNodePaths, parentNodePath);
 	}
 	
 	public void flattenSelectedNotes() {
-		Set<NotePath> nodePaths = this.displayNotes.getSelectedNodePaths();
+		Set<DenotatorPath> nodePaths = this.displayNotes.getSelectedNodePaths();
 		this.controller.flattenNotes(nodePaths);
 	}
 	
-	public void addSelectedNotesAsModulatorsTo(DisplayNote parentNote) {
+	/*public void addSelectedNotesAsModulatorsTo(DisplayObject parentNote) {
 		Set<NotePath> modulatorNodePaths = this.displayNotes.getSelectedNodePaths();
 		NotePath parentNodePath = parentNote.getOriginalPath();
 		this.controller.addAsModulators(modulatorNodePaths, parentNodePath);
-	}
+	}*/
 	
 	public void removeSelectedNotesFromCarrier() {
-		Set<NotePath> nodePaths = this.displayNotes.getSelectedNodePaths();
+		Set<DenotatorPath> nodePaths = this.displayNotes.getSelectedNodePaths();
 		this.controller.removeNotesFromCarrier(nodePaths);
 	}
 	
