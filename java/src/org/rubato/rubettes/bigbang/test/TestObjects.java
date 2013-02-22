@@ -3,12 +3,22 @@ package org.rubato.rubettes.bigbang.test;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.rubato.base.Repository;
+import org.rubato.base.RubatoException;
+import org.rubato.math.module.DomainException;
+import org.rubato.math.module.ProductElement;
+import org.rubato.math.module.RElement;
+import org.rubato.math.yoneda.Denotator;
 import org.rubato.math.yoneda.LimitDenotator;
+import org.rubato.math.yoneda.NameDenotator;
 import org.rubato.math.yoneda.PowerDenotator;
+import org.rubato.math.yoneda.PowerForm;
+import org.rubato.math.yoneda.SimpleDenotator;
+import org.rubato.math.yoneda.SimpleForm;
 import org.rubato.rubettes.bigbang.controller.BigBangController;
 import org.rubato.rubettes.bigbang.model.BigBangScore;
 import org.rubato.rubettes.bigbang.model.BigBangScoreManager;
-import org.rubato.rubettes.util.NotePath;
+import org.rubato.rubettes.util.DenotatorPath;
 import org.rubato.rubettes.util.SoundNoteGenerator;
 
 public class TestObjects {
@@ -30,6 +40,7 @@ public class TestObjects {
 	public LimitDenotator note0, note1Absolute, note1Relative, note2Absolute, note2Relative; 
 	public PowerDenotator flatMacroScore;
 	public PowerDenotator multiLevelMacroScore;
+	public PowerDenotator realTriples;
 	
 	public TestObjects() {
 		this.generator = new SoundNoteGenerator();
@@ -42,7 +53,12 @@ public class TestObjects {
 		this.note2Relative = this.generator.createNoteDenotator(new double[]{1,-3,5,0,1,0});
 		this.flatMacroScore = this.generator.createFlatSoundScore(this.ABSOLUTE);
 		this.multiLevelMacroScore = this.generator.createMultiLevelSoundScore(this.RELATIVE);
-		this.createComplexSoundScore();
+		try {
+			this.createComplexSoundScore();
+			this.createRealTriples();
+		} catch (RubatoException err) {
+			err.printStackTrace();
+		}
 	}
 	
 	private void createComplexSoundScore() {
@@ -51,22 +67,36 @@ public class TestObjects {
 		notes.add(this.generator.createNoteDenotator(this.NOTE2_ABSOLUTE_VALUES));
 		notes.add(this.generator.createNoteDenotator(this.NOTE1_ABSOLUTE_VALUES));
 		notes.add(this.generator.createNoteDenotator(this.NOTE0_VALUES));
-		List<NotePath> parentPaths = new ArrayList<NotePath>();
-		parentPaths.add(new NotePath(new int[]{0,0}));
-		parentPaths.add(new NotePath(new int[]{0,0}));
-		parentPaths.add(new NotePath(new int[]{0,1,0,1,0,0}));
-		int[] functions = new int[]{NotePath.MODULATOR, NotePath.MODULATOR, NotePath.MODULATOR};
+		List<DenotatorPath> parentPaths = new ArrayList<DenotatorPath>();
+		parentPaths.add(new DenotatorPath(new int[]{0,0}));
+		parentPaths.add(new DenotatorPath(new int[]{0,0}));
+		parentPaths.add(new DenotatorPath(new int[]{0,1,0,1,0,0}));
+		int[] functions = new int[]{DenotatorPath.MODULATOR, DenotatorPath.MODULATOR, DenotatorPath.MODULATOR};
 		this.score.addNotes(notes, parentPaths, functions);
 		
 		notes = new ArrayList<LimitDenotator>();
 		notes.add(this.generator.createNoteDenotator(this.NOTE2_ABSOLUTE_VALUES));
 		notes.add(this.generator.createNoteDenotator(this.NOTE1_ABSOLUTE_VALUES));
 		notes.add(this.generator.createNoteDenotator(this.NOTE0_VALUES));
-		parentPaths = new ArrayList<NotePath>();
-		parentPaths.add(new NotePath(new int[]{0,0,6,1}));
-		parentPaths.add(new NotePath(new int[]{0,1,0,0}));
-		parentPaths.add(new NotePath(new int[]{0,1,0,1,0,0,6,0}));
+		parentPaths = new ArrayList<DenotatorPath>();
+		parentPaths.add(new DenotatorPath(new int[]{0,0,6,1}));
+		parentPaths.add(new DenotatorPath(new int[]{0,1,0,0}));
+		parentPaths.add(new DenotatorPath(new int[]{0,1,0,1,0,0,6,0}));
 		this.score.addNotes(notes, parentPaths, functions);
+	}
+	
+	private void createRealTriples() throws DomainException, RubatoException {
+		SimpleForm realTripleForm = (SimpleForm) Repository.systemRepository().getForm("RealTriple");
+		ProductElement element1 = ProductElement.make(new RElement(1), new RElement(2), new RElement(3));
+		ProductElement element2 = ProductElement.make(new RElement(4), new RElement(3), new RElement(1));
+		ProductElement element3 = ProductElement.make(new RElement(2), new RElement(1), new RElement(5));
+		List<Denotator> triples = new ArrayList<Denotator>();
+		triples.add(new SimpleDenotator(NameDenotator.make(""), realTripleForm, element1));
+		triples.add(new SimpleDenotator(NameDenotator.make(""), realTripleForm, element2));
+		triples.add(new SimpleDenotator(NameDenotator.make(""), realTripleForm, element3));
+		PowerForm realTriplesForm = new PowerForm(NameDenotator.make("RealTriples"), realTripleForm);
+		Repository.systemRepository().register(realTriplesForm);
+		this.realTriples = new PowerDenotator(NameDenotator.make(""), realTriplesForm, triples);
 	}
 
 }

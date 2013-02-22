@@ -25,15 +25,15 @@ public class MacroNoteGenerator extends NoteGenerator {
 		return this.createMacroScore(new ArrayList<Denotator>());
 	}
 	
-	public PowerDenotator convertScore(PowerDenotator input) {
+	public Denotator convertScore(Denotator input) {
 		Form inputForm = input.getForm();
 		if (inputForm.equals(this.macroScoreForm)) {
-			return this.splitVoicesToLayers(input);
+			return this.splitVoicesToLayers((PowerDenotator)input);
 		} else if (inputForm.equals(this.scoreForm)) {
-			return this.convertScoreToMacroScore(input);
+			return this.convertScoreToMacroScore((PowerDenotator)input);
 		} else if (inputForm.equals(this.soundScoreForm)) {
-			return this.convertToSpecificScore(input);
-		} else return null;
+			return this.convertToSpecificScore((PowerDenotator)input);
+		} else return input;
 	}
 	
 	/**

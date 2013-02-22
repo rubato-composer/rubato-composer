@@ -9,19 +9,22 @@ import java.util.List;
 
 import org.rubato.rubettes.bigbang.view.subview.AbstractPainter;
 import org.rubato.rubettes.bigbang.view.subview.DisplayContents;
-import org.rubato.rubettes.util.NotePath;
+import org.rubato.rubettes.util.DenotatorPath;
 
-public class DisplayNote implements Comparable<Object> {
+public class DisplayObject implements Comparable<Object> {
 	
 	private static final float DARK = 0.6f;
 	private static final float BRIGHT = 1;
 	
-	private NotePath originalPath;
+	private int topDenotatorType;
+	private DenotatorPath topDenotatorPath;
 	private DisplayContents display;
-	private DisplayNote parent;
+	private DisplayObject parent;
 	private int relation;
-	private List<DisplayNote> children;
-	private double[] values;
+	private List<DisplayObject> children;
+	private List<Double> values;
+	private List<String> valueNames;
+	private List<DenotatorPath> valuePaths;
 	private int layer;
 	private double xDiff, yDiff;
 	private Rectangle2D.Double rectangle;
@@ -34,12 +37,22 @@ public class DisplayNote implements Comparable<Object> {
 	private float currentHue, currentOpacity;
 	private Color currentColor;
 	
-	public DisplayNote(double[] values, DisplayNote parent, int relation, NotePath originalPath, int layer) {
-		this.values = values;
+	//creates a DisplayObject without values. these are typically added later
+	public DisplayObject(DisplayObject parent, int relation, int satelliteLevel, int siblingNumber, int topDenotatorType, DenotatorPath topDenotatorPath) {
+		this(parent, relation, satelliteLevel, siblingNumber, topDenotatorType, topDenotatorPath, 0);
+	}
+	
+	public DisplayObject(DisplayObject parent, int relation, int satelliteLevel, int siblingNumber, int topDenotatorType, DenotatorPath topDenotatorPath, int layer) {
+		this.values = new ArrayList<Double>();
+		this.valueNames = new ArrayList<String>();
+		this.valuePaths = new ArrayList<DenotatorPath>();
+		this.addValue("Satellite Level", satelliteLevel);
+		this.addValue("Sibling number", siblingNumber);
 		this.parent = parent;
 		this.relation = relation;
-		this.originalPath = originalPath;
-		this.children = new ArrayList<DisplayNote>();
+		this.topDenotatorType = topDenotatorType;
+		this.topDenotatorPath = topDenotatorPath;
+		this.children = new ArrayList<DisplayObject>();
 		this.selectionVisible = true;
 		this.layer = layer;
 	}
@@ -48,19 +61,23 @@ public class DisplayNote implements Comparable<Object> {
 		this.display = display;
 	}
 	
-	public void setChildren(List<DisplayNote> children) {
+	public void setChildren(List<DisplayObject> children) {
 		this.children = children;
+	}
+	
+	public void addChild(DisplayObject newChild) {
+		this.children.add(newChild);
 	}
 	
 	public boolean hasChildren() {
 		return this.children.size() > 0;
 	}
 	
-	public DisplayNote getParent() {
+	public DisplayObject getParent() {
 		return this.parent;
 	}
 	
-	public List<DisplayNote> getChildren() {
+	public List<DisplayObject> getChildren() {
 		return this.children;
 	}
 	
@@ -101,8 +118,23 @@ public class DisplayNote implements Comparable<Object> {
 		this.yDiff += y;
 	}
 	
-	public double getValue(int i) {
-		return this.values[i];
+	public void addValue(String name, double value) {
+		this.values.add(value);
+		this.valueNames.add(name);
+	}
+	
+	public void addValues(String denotatorName, DenotatorPath denotatorPath, double[] values) {
+		//keep two last values last (satellite level and sibling number)
+		int currentIndex = this.values.size()-2; 
+		for (int i = 0; i < values.length; i++) {
+			this.values.add(currentIndex+i, values[i]);
+			this.valueNames.add(currentIndex+i, denotatorName);
+			this.valuePaths.add(denotatorPath);
+		}
+	}
+	
+	public double getValue(int index) {
+		return this.values.get(index);
 	}
 	
 	private double getX(double xZoomFactor, int xPosition) {
@@ -138,9 +170,9 @@ public class DisplayNote implements Comparable<Object> {
 	
 	private float getBrightness() {
 		if (this.selected && this.selectionVisible) {
-			return DisplayNote.DARK;
+			return DisplayObject.DARK;
 		}
-		return DisplayNote.BRIGHT;
+		return DisplayObject.BRIGHT;
 	}
 	
 	public void setVisibility(LayerState state) {
@@ -172,7 +204,7 @@ public class DisplayNote implements Comparable<Object> {
 	
 	public void paintConnectors(AbstractPainter painter, double parentX, double parentY, int relation) {
 		if (this.visible) {
-			if (relation == NotePath.SATELLITE) {
+			if (relation == DenotatorPath.SATELLITE) {
 				painter.setColor(Color.black);
 			} else {
 				painter.setColor(this.getColor());
@@ -188,7 +220,7 @@ public class DisplayNote implements Comparable<Object> {
 			triangle.lineTo(this.rectangle.x, this.rectangle.y+this.rectangle.height);
 			triangle.lineTo(this.rectangle.x+this.rectangle.width, this.rectangle.y);
 			triangle.closePath();
-			painter.setColor(Color.getHSBColor(this.currentHue, this.currentOpacity, DisplayNote.DARK));
+			painter.setColor(Color.getHSBColor(this.currentHue, this.currentOpacity, DisplayObject.DARK));
 			painter.fillPolygon(triangle);
 		}
 	}
@@ -216,8 +248,8 @@ public class DisplayNote implements Comparable<Object> {
 		return this.center;
 	}
 	
-	public NotePath getOriginalPath() {
-		return this.originalPath;
+	public DenotatorPath getTopDenotatorPath() {
+		return this.topDenotatorPath;
 	}
 	
 	public boolean intersects(Rectangle2D.Double area) {
@@ -225,17 +257,17 @@ public class DisplayNote implements Comparable<Object> {
 	}
 
 	public int compareTo(Object object) {
-		if (!(object instanceof DisplayNote)) {
+		if (!(object instanceof DisplayObject)) {
 			throw new ClassCastException("DisplayNote expected.");
 		}
-		DisplayNote otherNote = (DisplayNote)object;
+		DisplayObject otherNote = (DisplayObject)object;
 		int layerCompare = new Integer(this.layer).compareTo(otherNote.layer);
 		if (layerCompare != 0) { 
 			return layerCompare;
 		}
-		for (int i = 0; i < this.values.length; i++) {
-			Double thisValue = this.values[i];
-			Double otherValue = otherNote.values[i];
+		for (int i = 0; i < this.values.size(); i++) {
+			Double thisValue = this.values.get(i);
+			Double otherValue = otherNote.values.get(i);
 			int comparison = thisValue.compareTo(otherValue);
 			if (comparison != 0) {
 				return comparison;

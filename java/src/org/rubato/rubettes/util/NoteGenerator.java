@@ -78,7 +78,7 @@ public abstract class NoteGenerator {
 		this.noteModulePaths.add(new int[]{5,0});
 	}
 	
-	public abstract PowerDenotator convertScore(PowerDenotator input);
+	public abstract Denotator convertScore(Denotator input);
 	
 	public abstract PowerDenotator createEmptyScore();
 	

@@ -1,7 +1,6 @@
 package org.rubato.rubettes.bigbang.model.player;
 
 import org.rubato.math.yoneda.Denotator;
-import org.rubato.math.yoneda.PowerDenotator;
 import org.rubato.rubettes.bigbang.view.model.DenotatorValueExtractor;
 
 public class BigBangPlayer extends Thread {
@@ -16,7 +15,7 @@ public class BigBangPlayer extends Thread {
 	private long startingTime;
 	private JSynPlayer player;
 	
-	private PowerDenotator composition;
+	private Denotator composition;
 	private int bpm;
 	private String waveform;
 	
@@ -33,15 +32,15 @@ public class BigBangPlayer extends Thread {
 		this.start();
 	}
 	
-	public synchronized void playCompositionImmediately(PowerDenotator composition) {
+	public synchronized void playCompositionImmediately(Denotator composition) {
 		this.playComposition(composition, System.currentTimeMillis());
 	}
 	
-	public synchronized void playComposition(PowerDenotator composition) {
+	public synchronized void playComposition(Denotator composition) {
 		this.playComposition(composition, System.currentTimeMillis() + this.DELAY);
 	}
 	
-	private synchronized void playComposition(PowerDenotator composition, long startingTime) {
+	private synchronized void playComposition(Denotator composition, long startingTime) {
 		this.startingTime = startingTime;
 		this.composition = composition;
 	}

@@ -9,7 +9,7 @@ import java.util.List;
  * @author flo
  *
  */
-public class NotePath extends ArrayList<Integer> implements Comparable<Object> {
+public class DenotatorPath extends ArrayList<Integer> implements Comparable<Object> {
 	
 	//constants designating the three possible note functions (carriers are either anchor or
 	//satellite...)
@@ -17,25 +17,25 @@ public class NotePath extends ArrayList<Integer> implements Comparable<Object> {
 	public static final int SATELLITE = 1;
 	public static final int MODULATOR = 2;
 	
-	public NotePath() {
+	public DenotatorPath() {
 	}
 	
-	public NotePath(NotePath path) {
+	public DenotatorPath(DenotatorPath path) {
 		super(path);
 	}
 	
-	private NotePath(NotePath path, int additionalIndex) {
+	private DenotatorPath(DenotatorPath path, int additionalIndex) {
 		super(path);
 		this.add(additionalIndex);
 	}
 	
-	public NotePath(int[] path) {
+	public DenotatorPath(int[] path) {
 		for (int currentIndex: path) {
 			this.add(currentIndex);
 		}
 	}
 	
-	private NotePath(List<Integer> path) {
+	private DenotatorPath(List<Integer> path) {
 		super(path);
 	}
 	
@@ -43,9 +43,9 @@ public class NotePath extends ArrayList<Integer> implements Comparable<Object> {
 		this.remove(this.size()-1);
 	}
 	
-	private NotePath subPath(int fromIndex, int toIndex) {
+	private DenotatorPath subPath(int fromIndex, int toIndex) {
 		try {
-			return new NotePath(this.subList(fromIndex, toIndex));
+			return new DenotatorPath(this.subList(fromIndex, toIndex));
 		} catch (IllegalArgumentException e) {
 			return null;
 		}
@@ -56,10 +56,10 @@ public class NotePath extends ArrayList<Integer> implements Comparable<Object> {
 	 * indices are smaller.
 	 */
 	public int compareTo(Object object) {
-		if (!(object instanceof NotePath)) {
+		if (!(object instanceof DenotatorPath)) {
 			throw new ClassCastException("NotePath expected, got " + object.getClass());
 		}
-		NotePath otherPath = (NotePath)object;
+		DenotatorPath otherPath = (DenotatorPath)object;
 		if (this.size() == otherPath.size()) {
 			for (int i = 0; i < this.size(); i++) {
 				Integer thisIndex = this.get(i);
@@ -114,9 +114,15 @@ public class NotePath extends ArrayList<Integer> implements Comparable<Object> {
 		return this.size() % 2 == 1;
 	}
 	
-	public NotePath getPowersetChildPath(int index) {
+	public DenotatorPath getChildPath(int index) {
+		DenotatorPath childPath = new DenotatorPath(this);
+		childPath.add(index);
+		return childPath;
+	}
+	
+	public DenotatorPath getPowersetChildPath(int index) {
 		if (this.isPowersetPath()) {
-			NotePath childPath = new NotePath(this);
+			DenotatorPath childPath = new DenotatorPath(this);
 			childPath.add(index);
 			if (!this.isModulatorPath()) {
 				childPath.add(0);
@@ -126,8 +132,8 @@ public class NotePath extends ArrayList<Integer> implements Comparable<Object> {
 		return null;
 	}
 	
-	public NotePath getChildPath(int index, boolean modulator) {
-		NotePath childPath = new NotePath(this);
+	public DenotatorPath getChildPath(int index, boolean modulator) {
+		DenotatorPath childPath = new DenotatorPath(this);
 		if (modulator) {
 			childPath.add(6);
 			childPath.add(index);
@@ -145,18 +151,18 @@ public class NotePath extends ArrayList<Integer> implements Comparable<Object> {
 	/**
 	 * @return the node path for satellites, note path for modulators
 	 */
-	public NotePath getElementPath() {
+	public DenotatorPath getElementPath() {
 		if (!this.isModulatorPath()) {
-			return new NotePath(this.subPath(0, this.size()-1));
+			return new DenotatorPath(this.subPath(0, this.size()-1));
 		}
-		return new NotePath(this);
+		return new DenotatorPath(this);
 	}
 	
 	/**
 	 * @return the path of the powerset this note is contained in
 	 */
-	public NotePath getPowersetPath() {
-		NotePath powersetPath = this.getElementPath();
+	public DenotatorPath getPowersetPath() {
+		DenotatorPath powersetPath = this.getElementPath();
 		powersetPath.removeLast();
 		return powersetPath;
 	}
@@ -165,16 +171,16 @@ public class NotePath extends ArrayList<Integer> implements Comparable<Object> {
 	 * @return the node index for satellites, note index for modulators
 	 */
 	public int getNoteIndex() {
-		NotePath elementPath = this.getElementPath();
+		DenotatorPath elementPath = this.getElementPath();
 		return elementPath.get(elementPath.size()-1);
 	}
 	
 	/**
 	 * @return a list of the paths of all parent notes through the hierarchy starting with the direct parent
 	 */
-	public List<NotePath> getParentPaths() {
-		List<NotePath> parentPaths = new ArrayList<NotePath>();
-		NotePath currentPath = this.getParentPath();
+	public List<DenotatorPath> getParentPaths() {
+		List<DenotatorPath> parentPaths = new ArrayList<DenotatorPath>();
+		DenotatorPath currentPath = this.getParentPath();
 		while (currentPath != null) {
 			parentPaths.add(currentPath);
 			currentPath = currentPath.getParentPath();
@@ -182,88 +188,88 @@ public class NotePath extends ArrayList<Integer> implements Comparable<Object> {
 		return parentPaths;
 	}
 	
-	public NotePath getParentPath() {
+	public DenotatorPath getParentPath() {
 		if (this.isModulatorPath()) {
 			return this.getCarrierPath();
 		}
 		return this.getAnchorPath();
 	}
 	
-	public NotePath getChildrenPath() {
+	public DenotatorPath getChildrenPath() {
 		if (this.isModulatorPath()) {
 			return this.getModulatorsPath();
 		}
 		return this.getSatellitesPath();
 	}
 	
-	public NotePath getSatellitesPath() {
+	public DenotatorPath getSatellitesPath() {
 		if (!this.isModulatorPath()) {
-			return new NotePath(this.subPath(0, this.size()-1), 1);
+			return new DenotatorPath(this.subPath(0, this.size()-1), 1);
 		}
 		return null;
 	}
 	
-	private NotePath getAnchorPath() {
+	private DenotatorPath getAnchorPath() {
 		if (!this.isTopLevelAnchor()) {
-			NotePath anchorPath = this.subPath(0, this.size()-3);
+			DenotatorPath anchorPath = this.subPath(0, this.size()-3);
 			anchorPath.add(0);
 			return anchorPath;
 		}
 		return null;
 	}
 	
-	public NotePath getModulatorsPath() {
-		return new NotePath(this, 6);
+	public DenotatorPath getModulatorsPath() {
+		return new DenotatorPath(this, 6);
 	}
 	
-	private NotePath getCarrierPath() {
+	private DenotatorPath getCarrierPath() {
 		if (this.isModulatorPath()) {
 			return this.subPath(0, this.size()-2);
 		}
 		return null;
 	}
 	
-	public boolean isChildOf(NotePath path) {
+	public boolean isChildOf(DenotatorPath path) {
 		if (this.isModulatorPath()) {
 			return this.isModulatorOf(path);
 		}
 		return this.isSatelliteOf(path);
 	}
 	
-	private boolean isSatelliteOf(NotePath path) {
-		NotePath anchorPath = this.getAnchorPath();
+	private boolean isSatelliteOf(DenotatorPath path) {
+		DenotatorPath anchorPath = this.getAnchorPath();
 		return (path == null && anchorPath == null) || (anchorPath != null && anchorPath.equals(path));
 	}
 	
-	private boolean isModulatorOf(NotePath path) {
-		NotePath carrierPath = this.getCarrierPath();
+	private boolean isModulatorOf(DenotatorPath path) {
+		DenotatorPath carrierPath = this.getCarrierPath();
 		return carrierPath != null && carrierPath.equals(path);
 	}
 	
-	public static List<NotePath> getParentPaths(List<NotePath> notePaths) {
-		List<NotePath> parentPaths = new ArrayList<NotePath>();
-		for (NotePath currentNotePath: notePaths) {
+	public static List<DenotatorPath> getParentPaths(List<DenotatorPath> notePaths) {
+		List<DenotatorPath> parentPaths = new ArrayList<DenotatorPath>();
+		for (DenotatorPath currentNotePath: notePaths) {
 			parentPaths.add(currentNotePath.getParentPath());
 		}
 		return parentPaths;
 	}
 	
-	public static List<NotePath> getGrandParentPaths(List<NotePath> notePaths) {
-		List<NotePath> grandParentPaths = new ArrayList<NotePath>();
-		for (NotePath currentNotePath: notePaths) {
+	public static List<DenotatorPath> getGrandParentPaths(List<DenotatorPath> notePaths) {
+		List<DenotatorPath> grandParentPaths = new ArrayList<DenotatorPath>();
+		for (DenotatorPath currentNotePath: notePaths) {
 			grandParentPaths.add(currentNotePath.getParentPath().getParentPath());
 		}
 		return grandParentPaths;
 	}
 	
-	public static int[] getFunctions(List<NotePath> notePaths) {
+	public static int[] getFunctions(List<DenotatorPath> notePaths) {
 		int[] functions = new int[notePaths.size()];
 		for (int i = 0; i < notePaths.size(); i++) {
-			NotePath currentNotePath = notePaths.get(i);
+			DenotatorPath currentNotePath = notePaths.get(i);
 			if (currentNotePath.isModulatorPath()) {
-				functions[i] = NotePath.MODULATOR;
+				functions[i] = DenotatorPath.MODULATOR;
 			} else {
-				functions[i] = NotePath.SATELLITE;
+				functions[i] = DenotatorPath.SATELLITE;
 			}
 		}
 		return functions;

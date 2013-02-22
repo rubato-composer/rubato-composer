@@ -12,23 +12,26 @@ public class JSynScore {
 	private List<JSynNote> notes;
 	
 	/**
-	 * Creates a JSynScore from a flattened Rubato MacroScore.
+	 * Creates a JSynScore from a flattened Rubato MacroScore or SoundScore.
+	 * TODO: Other types will have to be added!! first step: anything that contains notes.... 
 	 * @param rubatoScore a flattened MacroScore
 	 */
-	public JSynScore(PowerDenotator rubatoScore, int bpm) {
+	public JSynScore(Denotator rubatoScore, int bpm) {
 		this.notes = new ArrayList<JSynNote>();
 		
-		DenotatorValueExtractor extractor = new DenotatorValueExtractor();
-		for (Denotator currentNode : rubatoScore.getFactors()) {
-			this.notes.add(extractor.extractValues(currentNode, bpm));
+		if (rubatoScore.getType() == Denotator.POWER) {
+			DenotatorValueExtractor extractor = new DenotatorValueExtractor();
+			for (Denotator currentNode : ((PowerDenotator)rubatoScore).getFactors()) {
+				this.notes.add(extractor.extractValues(currentNode, bpm));
+			}
 		}
 	}
 	
-	public JSynScore(Denotator node, int bpm) {
+	/*private JSynScore(Denotator node, int bpm) {
 		this.notes = new ArrayList<JSynNote>();
 		DenotatorValueExtractor extractor = new DenotatorValueExtractor();
 		this.notes.add(extractor.extractValues(node, bpm));
-	}
+	}*/
 	
 	public List<JSynNote> getNotes() {
 		return this.notes;

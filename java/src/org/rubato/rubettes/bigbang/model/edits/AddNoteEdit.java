@@ -3,13 +3,13 @@ package org.rubato.rubettes.bigbang.model.edits;
 import javax.swing.undo.AbstractUndoableEdit;
 
 import org.rubato.rubettes.bigbang.model.BigBangScoreManager;
-import org.rubato.rubettes.util.NotePath;
+import org.rubato.rubettes.util.DenotatorPath;
 
 public class AddNoteEdit extends AbstractUndoableEdit {
 	
 	private BigBangScoreManager scoreManager;
 	private double[] noteValues;
-	private NotePath notePath;
+	private DenotatorPath notePath;
 	
 	public AddNoteEdit(BigBangScoreManager scoreManager, double[] noteValues) {
 		this.scoreManager = scoreManager;

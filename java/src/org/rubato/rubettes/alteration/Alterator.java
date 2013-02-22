@@ -18,7 +18,7 @@ import org.rubato.math.yoneda.NameDenotator;
 import org.rubato.math.yoneda.PowerDenotator;
 import org.rubato.math.yoneda.SimpleDenotator;
 import org.rubato.math.yoneda.SimpleForm;
-import org.rubato.rubettes.util.NotePath;
+import org.rubato.rubettes.util.DenotatorPath;
 
 public class Alterator {
 	
@@ -193,22 +193,22 @@ public class Alterator {
 			System.arraycopy(allPaths[i], 1, shortPaths[i], 0, allPaths[i].length-1);
 		}
 		
-		this.alterModulators(morphedDenotator.get(new int[]{0}), pole.get(new int[]{0}), new NotePath(), shortPaths, degrees);
+		this.alterModulators(morphedDenotator.get(new int[]{0}), pole.get(new int[]{0}), new DenotatorPath(), shortPaths, degrees);
 		
 		
 		
 		return morphedDenotator;
 	}
 	
-	private void alterModulators(Denotator note, Denotator pole, NotePath currentPath, int[][] paths, double[] degrees) throws RubatoException {
-		NotePath currentModulatorsPath = currentPath.getModulatorsPath();
+	private void alterModulators(Denotator note, Denotator pole, DenotatorPath currentPath, int[][] paths, double[] degrees) throws RubatoException {
+		DenotatorPath currentModulatorsPath = currentPath.getModulatorsPath();
 		PowerDenotator modulators = (PowerDenotator)note.get(currentModulatorsPath.toIntArray());
 		PowerDenotator poleModulators = (PowerDenotator)pole.get(currentModulatorsPath.toIntArray());
 		
 		int minFactors = Math.min(modulators.getFactorCount(), poleModulators.getFactorCount());
 		if (minFactors > 0) {
 			for (int i = 0; i < minFactors; i++) {
-				NotePath currentSubPath = currentPath.getChildPath(i, true);
+				DenotatorPath currentSubPath = currentPath.getChildPath(i, true);
 				Denotator currentModulator = note.get(currentSubPath.toIntArray());
 				Denotator currentPole = pole.get(currentSubPath.toIntArray());
 				

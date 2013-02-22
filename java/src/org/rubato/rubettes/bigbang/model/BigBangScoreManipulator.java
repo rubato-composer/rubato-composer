@@ -1,7 +1,7 @@
 package org.rubato.rubettes.bigbang.model;
 
 import org.rubato.math.yoneda.LimitDenotator;
-import org.rubato.rubettes.util.NotePath;
+import org.rubato.rubettes.util.DenotatorPath;
 
 /**
  * Manipulates satellite and sound node hierarchies
@@ -18,7 +18,7 @@ public class BigBangScoreManipulator {
 		this.coordinatePaths = coordinatePaths;
 	}
 	
-	protected LimitDenotator getNode(NotePath nodePath) {
+	protected LimitDenotator getNode(DenotatorPath nodePath) {
 		return this.score.getAbsoluteNote(nodePath);
 	}
 

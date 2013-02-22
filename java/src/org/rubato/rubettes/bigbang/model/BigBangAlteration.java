@@ -9,12 +9,12 @@ import org.rubato.math.yoneda.Denotator;
 import org.rubato.math.yoneda.LimitDenotator;
 import org.rubato.rubettes.alteration.Alterator;
 import org.rubato.rubettes.bigbang.controller.BigBangController;
-import org.rubato.rubettes.util.NotePath;
+import org.rubato.rubettes.util.DenotatorPath;
 
 public class BigBangAlteration extends Model {
 	
 	private boolean active;
-	private List<Set<NotePath>> compositions;
+	private List<Set<DenotatorPath>> compositions;
 	private List<Integer> selectedCoordinates;
 	private double startDegree, endDegree;
 	private Alterator alterator;
@@ -26,9 +26,9 @@ public class BigBangAlteration extends Model {
 	}
 	
 	public void reset() {
-		this.compositions = new ArrayList<Set<NotePath>>();
-		this.compositions.add(new TreeSet<NotePath>());
-		this.compositions.add(new TreeSet<NotePath>());
+		this.compositions = new ArrayList<Set<DenotatorPath>>();
+		this.compositions.add(new TreeSet<DenotatorPath>());
+		this.compositions.add(new TreeSet<DenotatorPath>());
 		this.selectedCoordinates = new ArrayList<Integer>();
 		for (int i = 0; i < 5; i++) {
 			this.selectedCoordinates.add(i);
@@ -40,15 +40,15 @@ public class BigBangAlteration extends Model {
 		this.fireActivity();
 	}
 	
-	public Set<NotePath> getComposition(int index) {
+	public Set<DenotatorPath> getComposition(int index) {
 		try {
 			return this.compositions.get(index);
 		} catch (ArrayIndexOutOfBoundsException e) {
-			return new TreeSet<NotePath>();
+			return new TreeSet<DenotatorPath>();
 		}
 	}
 	
-	public void setAlterationComposition(TreeSet<NotePath> nodePaths, Integer index) {
+	public void setAlterationComposition(TreeSet<DenotatorPath> nodePaths, Integer index) {
 		this.compositions.set(index, nodePaths);
 		this.resetDegrees();
 	}
@@ -85,13 +85,13 @@ public class BigBangAlteration extends Model {
 			}
 			System.out.println(onlyModulators);
 			this.alterator.setCoordinates(coordinates);
-			List<NotePath> c1 = new ArrayList<NotePath>(this.compositions.get(1));
+			List<DenotatorPath> c1 = new ArrayList<DenotatorPath>(this.compositions.get(1));
 			List<LimitDenotator> composition1 = score.getAbsoluteNodes(c1);
 			for (LimitDenotator currentNeighbor: composition1) {
 				this.alterator.addNeighbor(currentNeighbor);
 			}
-			List<NotePath> anchorPaths = NotePath.getParentPaths(new ArrayList<NotePath>(this.compositions.get(0)));
-			List<Denotator> composition0 = this.toDenotatorList(score.removeNotes(new ArrayList<NotePath>(this.compositions.get(0))));
+			List<DenotatorPath> anchorPaths = DenotatorPath.getParentPaths(new ArrayList<DenotatorPath>(this.compositions.get(0)));
+			List<Denotator> composition0 = this.toDenotatorList(score.removeNotes(new ArrayList<DenotatorPath>(this.compositions.get(0))));
 			List<LimitDenotator> alteredNodes = this.alterator.getSoundScoreAlteration(composition0, this.startDegree, this.endDegree, onlyModulators);
 			score.addNotes(alteredNodes, anchorPaths);
 		}

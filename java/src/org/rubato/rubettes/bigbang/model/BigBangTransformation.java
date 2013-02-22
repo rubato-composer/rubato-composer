@@ -3,16 +3,16 @@ package org.rubato.rubettes.bigbang.model;
 import org.rubato.math.matrix.RMatrix;
 import org.rubato.math.module.morphism.ModuleMorphism;
 import org.rubato.math.module.morphism.RFreeAffineMorphism;
-import org.rubato.rubettes.util.NotePath;
+import org.rubato.rubettes.util.DenotatorPath;
 
 public class BigBangTransformation {
 	
 	private ModuleMorphism morphism; 
 	private int[][] coordinatePaths;
 	private boolean copyAndMap; 
-	private NotePath anchorNodePath;
+	private DenotatorPath anchorNodePath;
 	
-	public BigBangTransformation(ModuleMorphism morphism, int[][] coordinatePaths, boolean copyAndMap, NotePath anchorNodePath) {
+	public BigBangTransformation(ModuleMorphism morphism, int[][] coordinatePaths, boolean copyAndMap, DenotatorPath anchorNodePath) {
 		this.morphism = morphism;
 		this.coordinatePaths = coordinatePaths;
 		this.copyAndMap = copyAndMap;
@@ -35,7 +35,7 @@ public class BigBangTransformation {
 		return this.copyAndMap;
 	}
 	
-	public NotePath getAnchorNodePath() {
+	public DenotatorPath getAnchorNodePath() {
 		return this.anchorNodePath;
 	}
 	

@@ -3,19 +3,19 @@ package org.rubato.rubettes.bigbang.model;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.rubato.rubettes.util.NotePath;
+import org.rubato.rubettes.util.DenotatorPath;
 
 public class BigBangWallpaper {
 	
-	private List<NotePath> motif;
+	private List<DenotatorPath> motif;
 	private List<BigBangWallpaperDimension> dimensions;
 	
-	public BigBangWallpaper(List<NotePath> motif) {
+	public BigBangWallpaper(List<DenotatorPath> motif) {
 		this.motif = motif;
 		this.dimensions = new ArrayList<BigBangWallpaperDimension>();
 	}
 	
-	public List<NotePath> getMotif() {
+	public List<DenotatorPath> getMotif() {
 		return this.motif;
 	}
 	
@@ -42,7 +42,7 @@ public class BigBangWallpaper {
 		this.dimensions.get(dimensions.size()-1).removeLastTransformation();
 	}
 	
-	public NotePath getLastAnchorPath() {
+	public DenotatorPath getLastAnchorPath() {
 		if (this.dimensions.size() > 0) {
 			BigBangTransformation t = this.dimensions.get(dimensions.size()-1).getLastTransformation();
 			if (t != null) {
@@ -60,15 +60,15 @@ public class BigBangWallpaper {
 	}
 	
 	public void applyTo(BigBangScore score) {
-		List<NotePath> currentMotif = this.motif;
+		List<DenotatorPath> currentMotif = this.motif;
 		for (BigBangWallpaperDimension currentDimension: this.dimensions) {
 			currentMotif = this.mapDimension(score, currentMotif, currentDimension);
 		}
 		
 	}
 	
-	private List<NotePath> mapDimension(BigBangScore score, List<NotePath> currentPaths, BigBangWallpaperDimension dimension) {
-		List<NotePath> resultPaths = new ArrayList<NotePath>();
+	private List<DenotatorPath> mapDimension(BigBangScore score, List<DenotatorPath> currentPaths, BigBangWallpaperDimension dimension) {
+		List<DenotatorPath> resultPaths = new ArrayList<DenotatorPath>();
 		int rangeFrom = dimension.getRangeFrom();
 		int rangeTo = dimension.getRangeTo();
 		int i = 0;
@@ -95,7 +95,7 @@ public class BigBangWallpaper {
 		return resultPaths;
 	}
 	
-	private List<NotePath> map(BigBangScore score, List<NotePath> currentPaths, BigBangWallpaperDimension dimension, boolean copyAndMap, boolean inverse) {
+	private List<DenotatorPath> map(BigBangScore score, List<DenotatorPath> currentPaths, BigBangWallpaperDimension dimension, boolean copyAndMap, boolean inverse) {
 		List<BigBangTransformation> transformations = dimension.getTransformations();
 		if (inverse) {
 			for (int i = transformations.size()-1; i >= 0; i--) {

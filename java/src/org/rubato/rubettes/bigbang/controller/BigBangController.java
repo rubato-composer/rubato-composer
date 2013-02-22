@@ -6,7 +6,7 @@ import java.util.TreeMap;
 
 import org.rubato.rubettes.bigbang.model.TransformationProperties;
 import org.rubato.rubettes.bigbang.view.model.SelectedPaths;
-import org.rubato.rubettes.util.NotePath;
+import org.rubato.rubettes.util.DenotatorPath;
 
 public class BigBangController extends Controller {
 	
@@ -104,15 +104,15 @@ public class BigBangController extends Controller {
 		this.callModelMethod(BigBangController.ADD_NOTE, denotatorValues);
 	}
 	
-	public void deleteNotes(List<NotePath> nodePaths) {
+	public void deleteNotes(List<DenotatorPath> nodePaths) {
 		this.callModelMethod(BigBangController.DELETE_NOTES, nodePaths);
 	}
 	
-	public void copyNotes(Set<NotePath> nodePaths, int layerIndex) {
+	public void copyNotes(Set<DenotatorPath> nodePaths, int layerIndex) {
 		this.callModelMethod(BigBangController.COPY_NOTES, nodePaths, layerIndex);
 	}
 	
-	public void moveNotes(Set<NotePath> nodePaths, int layerIndex) {
+	public void moveNotes(Set<DenotatorPath> nodePaths, int layerIndex) {
 		this.callModelMethod(BigBangController.MOVE_NOTES, nodePaths, layerIndex);
 	}
 	
@@ -144,23 +144,23 @@ public class BigBangController extends Controller {
 		this.callModelMethod(BigBangController.AFFINE_TRANSFORM_NOTES, properties, shift, angle, scaleFactors);
 	}
 	
-	public void buildSatellites(Set<NotePath> satelliteNodePaths, NotePath anchorNodePath) {
+	public void buildSatellites(Set<DenotatorPath> satelliteNodePaths, DenotatorPath anchorNodePath) {
 		this.callModelMethod(BigBangController.SATELLITE_NOTES, satelliteNodePaths, anchorNodePath);
 	}
 	
-	public void flattenNotes(Set<NotePath> satelliteNodePaths) {
+	public void flattenNotes(Set<DenotatorPath> satelliteNodePaths) {
 		this.callModelMethod(BigBangController.FLATTEN_NOTES, satelliteNodePaths);
 	}
 	
-	public void addAsModulators(Set<NotePath> modulatorNodePaths, NotePath carrierNodePath) {
+	public void addAsModulators(Set<DenotatorPath> modulatorNodePaths, DenotatorPath carrierNodePath) {
 		this.callModelMethod(BigBangController.ADD_AS_MODULATOR_NOTES, modulatorNodePaths, carrierNodePath);
 	}
 	
-	public void removeNotesFromCarrier(Set<NotePath> modulatorNodePaths) {
+	public void removeNotesFromCarrier(Set<DenotatorPath> modulatorNodePaths) {
 		this.callModelMethod(BigBangController.REMOVE_NOTES_FROM_CARRIER, modulatorNodePaths);
 	}
 	
-	public void startWallpaper(List<NotePath> nodePaths) {
+	public void startWallpaper(List<DenotatorPath> nodePaths) {
 		this.callModelMethod(BigBangController.START_WALLPAPER, nodePaths);
 	}
 	
@@ -180,7 +180,7 @@ public class BigBangController extends Controller {
 		this.callModelMethod(BigBangController.TOGGLE_ALTERATION_MODE);
 	}
 	
-	public void setAlterationComposition(int index, Set<NotePath> nodePaths) {
+	public void setAlterationComposition(int index, Set<DenotatorPath> nodePaths) {
 		this.callModelMethod(BigBangController.SET_ALTERATION_COMPOSITION, nodePaths, index);
 	}
 	

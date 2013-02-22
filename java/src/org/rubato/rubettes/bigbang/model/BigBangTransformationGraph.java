@@ -5,7 +5,7 @@ import java.util.Map;
 import java.util.TreeMap;
 
 import org.rubato.rubettes.bigbang.model.edits.AbstractTransformationEdit;
-import org.rubato.rubettes.util.NotePath;
+import org.rubato.rubettes.util.DenotatorPath;
 
 public class BigBangTransformationGraph extends ArrayList<AbstractTransformationEdit> {
 	
@@ -32,7 +32,7 @@ public class BigBangTransformationGraph extends ArrayList<AbstractTransformation
 	
 	public void updateScore(boolean inPreviewMode) {
 		if (this.size()>0) {
-			Map<NotePath,NotePath> pathDifferences = new TreeMap<NotePath,NotePath>();
+			Map<DenotatorPath,DenotatorPath> pathDifferences = new TreeMap<DenotatorPath,DenotatorPath>();
 			this.get(this.size()-1).setInPreviewMode(inPreviewMode);
 			this.get(0).getScoreManager().resetFactualScore();
 			for (AbstractTransformationEdit edit: this) {

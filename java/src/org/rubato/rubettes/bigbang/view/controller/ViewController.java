@@ -10,7 +10,7 @@ import org.rubato.rubettes.bigbang.controller.Controller;
 import org.rubato.rubettes.bigbang.model.edits.AbstractTransformationEdit;
 import org.rubato.rubettes.bigbang.view.View;
 import org.rubato.rubettes.bigbang.view.controller.mode.DisplayModeAdapter;
-import org.rubato.rubettes.bigbang.view.model.DisplayNote;
+import org.rubato.rubettes.bigbang.view.model.DisplayObject;
 import org.rubato.rubettes.bigbang.view.model.ZoomChange;
 import org.rubato.rubettes.bigbang.view.model.tools.DisplayTool;
 import org.rubato.rubettes.bigbang.view.model.tools.SelectionTool;
@@ -230,7 +230,7 @@ public class ViewController extends Controller {
 		this.callModelMethod(ViewController.MOVE_NOTES_NEW);
 	}
 	
-	public void addSelectedNotesAsSatellitesTo(DisplayNote parentNote) {
+	public void addSelectedNotesAsSatellitesTo(DisplayObject parentNote) {
 		this.callModelMethod(ViewController.SATELLITE_NOTES, parentNote);
 	}
 	
@@ -238,7 +238,7 @@ public class ViewController extends Controller {
 		this.callModelMethod(ViewController.FLATTEN_NOTES);
 	}
 	
-	public void addSelectedNotesAsModulatorsTo(DisplayNote parentNote) {
+	public void addSelectedNotesAsModulatorsTo(DisplayObject parentNote) {
 		this.callModelMethod(ViewController.MODULATOR_NOTES, parentNote);
 	}
 	

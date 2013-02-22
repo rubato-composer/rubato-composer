@@ -7,14 +7,14 @@ import javax.swing.undo.AbstractUndoableEdit;
 
 import org.rubato.rubettes.bigbang.model.BigBangScoreManager;
 import org.rubato.rubettes.bigbang.model.TransformationProperties;
-import org.rubato.rubettes.util.NotePath;
+import org.rubato.rubettes.util.DenotatorPath;
 
 public class ShapingEdit extends AbstractUndoableEdit {
 	
 	private BigBangScoreManager score;
 	private TransformationProperties properties;
 	private TreeMap<Double,Double> shapingLocations;
-	private Map<NotePath,Double> newPathsAndOldYValues;
+	private Map<DenotatorPath,Double> newPathsAndOldYValues;
 	
 	public ShapingEdit(BigBangScoreManager score, TransformationProperties properties, TreeMap<Double,Double> shapingLocations) {
 		this.score = score;

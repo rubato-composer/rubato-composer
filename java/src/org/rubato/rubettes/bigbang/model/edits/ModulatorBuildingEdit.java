@@ -7,18 +7,18 @@ import java.util.TreeSet;
 import javax.swing.undo.AbstractUndoableEdit;
 
 import org.rubato.rubettes.bigbang.model.BigBangScoreManager;
-import org.rubato.rubettes.util.NotePath;
+import org.rubato.rubettes.util.DenotatorPath;
 
 public class ModulatorBuildingEdit extends AbstractUndoableEdit {
 	
 	private BigBangScoreManager scoreLayers;
-	private List<NotePath> oldModulatorPaths;
-	private NotePath carrierPath;
-	private List<NotePath> newModulatorPaths;
+	private List<DenotatorPath> oldModulatorPaths;
+	private DenotatorPath carrierPath;
+	private List<DenotatorPath> newModulatorPaths;
 	
-	public ModulatorBuildingEdit(BigBangScoreManager scoreLayers, TreeSet<NotePath> oldModulators, NotePath carrierPath) {
+	public ModulatorBuildingEdit(BigBangScoreManager scoreLayers, TreeSet<DenotatorPath> oldModulators, DenotatorPath carrierPath) {
 		this.scoreLayers = scoreLayers;
-		this.oldModulatorPaths = new ArrayList<NotePath>(oldModulators);
+		this.oldModulatorPaths = new ArrayList<DenotatorPath>(oldModulators);
 		this.carrierPath = carrierPath;
 		this.execute();
 	}
