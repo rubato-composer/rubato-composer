@@ -5,8 +5,6 @@ import java.util.TreeSet;
 
 import junit.framework.TestCase;
 
-import org.rubato.base.RubatoException;
-import org.rubato.math.module.DomainException;
 import org.rubato.rubettes.bigbang.controller.ScoreChangedNotification;
 import org.rubato.rubettes.bigbang.view.controller.ViewController;
 import org.rubato.rubettes.bigbang.view.model.DenotatorValueExtractor;
@@ -38,7 +36,13 @@ public class DenotatorValueExtractorTest extends TestCase {
 		TestCase.assertTrue(notes.size() == 3);
 	}
 	
-	public void testExtractDisplayObjectsWithRealTriples() {
+	public void testExtractDisplayObjectsWithQ3() {
+		ScoreChangedNotification notification = new ScoreChangedNotification(this.objects.rationalTriples, new TreeSet<DenotatorPath>(), new DenotatorPath());
+		DisplayObjectList triples = this.extractor.extractDisplayObjects(this.viewController, notification, false, new LayerStates(this.viewController));
+		TestCase.assertTrue(triples.size() == 4);
+	}
+	
+	public void testExtractDisplayObjectsWithProductRing() {
 		ScoreChangedNotification notification = new ScoreChangedNotification(this.objects.realTriples, new TreeSet<DenotatorPath>(), new DenotatorPath());
 		DisplayObjectList triples = this.extractor.extractDisplayObjects(this.viewController, notification, false, new LayerStates(this.viewController));
 		TestCase.assertTrue(triples.size() == 3);

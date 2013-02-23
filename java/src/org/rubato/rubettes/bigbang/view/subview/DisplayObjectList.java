@@ -4,6 +4,7 @@ import java.awt.Point;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.beans.PropertyChangeEvent;
+import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
 
@@ -17,6 +18,7 @@ import org.rubato.rubettes.util.DenotatorPath;
 public class DisplayObjectList extends TreeSet<DisplayObject> implements View {
 	
 	private Set<DisplayObject> selectedNotes;
+	private List<String> valueNames;
 	private DisplayObject selectedAnchorNote;
 	
 	public DisplayObjectList(ViewController controller) {
@@ -260,6 +262,14 @@ public class DisplayObjectList extends TreeSet<DisplayObject> implements View {
 			int[] selectedMods = (int[])event.getNewValue();
 			this.updateModulatorVisibility(selectedMods[0], selectedMods[1]);
 		}
+	}
+	
+	public void setValueNames(List<String> valueNames) {
+		this.valueNames = valueNames;
+	}
+	
+	public List<String> getValueNames() {
+		return this.valueNames;
 	}
 
 }

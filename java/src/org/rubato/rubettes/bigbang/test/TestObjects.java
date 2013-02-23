@@ -1,12 +1,16 @@
 package org.rubato.rubettes.bigbang.test;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.rubato.base.Repository;
 import org.rubato.base.RubatoException;
 import org.rubato.math.module.DomainException;
+import org.rubato.math.module.Module;
+import org.rubato.math.module.ModuleElement;
 import org.rubato.math.module.ProductElement;
+import org.rubato.math.module.QElement;
 import org.rubato.math.module.RElement;
 import org.rubato.math.yoneda.Denotator;
 import org.rubato.math.yoneda.LimitDenotator;
@@ -40,7 +44,7 @@ public class TestObjects {
 	public LimitDenotator note0, note1Absolute, note1Relative, note2Absolute, note2Relative; 
 	public PowerDenotator flatMacroScore;
 	public PowerDenotator multiLevelMacroScore;
-	public PowerDenotator realTriples;
+	public PowerDenotator realTriples, rationalTriples;
 	
 	public TestObjects() {
 		this.generator = new SoundNoteGenerator();
@@ -55,7 +59,8 @@ public class TestObjects {
 		this.multiLevelMacroScore = this.generator.createMultiLevelSoundScore(this.RELATIVE);
 		try {
 			this.createComplexSoundScore();
-			this.createRealTriples();
+			this.createProductRingRealTriples();
+			this.createFreeRationalTriples();
 		} catch (RubatoException err) {
 			err.printStackTrace();
 		}
@@ -85,7 +90,7 @@ public class TestObjects {
 		this.score.addNotes(notes, parentPaths, functions);
 	}
 	
-	private void createRealTriples() throws DomainException, RubatoException {
+	private void createProductRingRealTriples() throws DomainException, RubatoException {
 		SimpleForm realTripleForm = (SimpleForm) Repository.systemRepository().getForm("RealTriple");
 		ProductElement element1 = ProductElement.make(new RElement(1), new RElement(2), new RElement(3));
 		ProductElement element2 = ProductElement.make(new RElement(4), new RElement(3), new RElement(1));
@@ -95,8 +100,25 @@ public class TestObjects {
 		triples.add(new SimpleDenotator(NameDenotator.make(""), realTripleForm, element2));
 		triples.add(new SimpleDenotator(NameDenotator.make(""), realTripleForm, element3));
 		PowerForm realTriplesForm = new PowerForm(NameDenotator.make("RealTriples"), realTripleForm);
-		Repository.systemRepository().register(realTriplesForm);
+		//Repository.systemRepository().register(realTriplesForm);
 		this.realTriples = new PowerDenotator(NameDenotator.make(""), realTriplesForm, triples);
+	}
+	
+	private void createFreeRationalTriples() throws DomainException, RubatoException {
+		Module rationalTriples = Repository.systemRepository().getModule("Triples of rationals");
+		SimpleForm rationalTripleForm = new SimpleForm(NameDenotator.make("RationalTriple"), rationalTriples); 
+		//Repository.systemRepository().register(rationalTripleForm);
+		ModuleElement element1 = rationalTriples.createElement(Arrays.<ModuleElement>asList(new QElement(1), new QElement(2), new QElement(3)));
+		ModuleElement element2 = rationalTriples.createElement(Arrays.<ModuleElement>asList(new QElement(4), new QElement(3), new QElement(1)));
+		ModuleElement element3 = rationalTriples.createElement(Arrays.<ModuleElement>asList(new QElement(2), new QElement(1), new QElement(5)));
+		ModuleElement element4 = rationalTriples.createElement(Arrays.<ModuleElement>asList(new QElement(3), new QElement(4), new QElement(2)));
+		List<Denotator> triples = new ArrayList<Denotator>();
+		triples.add(new SimpleDenotator(NameDenotator.make(""), rationalTripleForm, element1));
+		triples.add(new SimpleDenotator(NameDenotator.make(""), rationalTripleForm, element2));
+		triples.add(new SimpleDenotator(NameDenotator.make(""), rationalTripleForm, element3));
+		triples.add(new SimpleDenotator(NameDenotator.make(""), rationalTripleForm, element4));
+		PowerForm realTriplesForm = new PowerForm(NameDenotator.make("RationalTriples"), rationalTripleForm);
+		this.rationalTriples = new PowerDenotator(NameDenotator.make(""), realTriplesForm, triples);
 	}
 
 }
