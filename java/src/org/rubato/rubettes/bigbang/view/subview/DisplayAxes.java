@@ -1,15 +1,16 @@
 package org.rubato.rubettes.bigbang.view.subview;
 
 import java.awt.Color;
-
-import org.rubato.rubettes.bigbang.view.model.DenotatorValueExtractor;
+import java.util.List;
 
 public class DisplayAxes {
 	
 	private DisplayContents display;
+	private List<String> axisNames;
 	
-	public DisplayAxes(DisplayContents display) {
+	public DisplayAxes(DisplayContents display, List<String> axisNames) {
 		this.display = display;
+		this.axisNames = axisNames;
 	}
 	
 	public void paint(AbstractPainter painter) {
@@ -95,7 +96,7 @@ public class DisplayAxes {
 	private String getAxisName(int i) {
 		int selectedParameter = this.display.getSelectedViewParameter(i);
 		if (selectedParameter >= 0) {
-			return DenotatorValueExtractor.VALUE_NAMES[selectedParameter];
+			return this.axisNames.get(selectedParameter);
 		}
 		return "";
 	}

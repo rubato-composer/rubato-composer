@@ -14,13 +14,13 @@ public class JSynNote {
 	private List<JSynModulator> modulators;
 	private int bpm;
 	
-	public JSynNote(double[] rubatoValues, int bpm) {
+	public JSynNote(List<Double> rubatoValues, int bpm) {
 		this.bpm = bpm;
-		this.setOnsetFromDenotator(rubatoValues[0], bpm);
-		this.setFrequency(rubatoValues[1]);
-		this.setAmplitude(rubatoValues[2]);
-		this.setDuration(rubatoValues[3], bpm);
-		this.setVoice((int) rubatoValues[4]);
+		this.setOnsetFromDenotator(rubatoValues.get(0), bpm);
+		this.setFrequency(rubatoValues.get(1));
+		this.setAmplitude(rubatoValues.get(2));
+		this.setDuration(rubatoValues.get(3), bpm);
+		this.setVoice((int) rubatoValues.get(4).doubleValue());
 		this.modulators = new ArrayList<JSynModulator>();
 	}
 	
@@ -89,7 +89,7 @@ public class JSynNote {
 		return JSynPlayer.BASE_A4*Math.pow(2, (midiPitch-57)/12);
 	}
 	
-	public JSynModulator addModulator(double[] rubatoValues) {
+	public JSynModulator addModulator(List<Double> rubatoValues) {
 		JSynModulator modulator = new JSynModulator(rubatoValues, this.bpm); 
 		this.modulators.add(modulator);
 		return modulator;

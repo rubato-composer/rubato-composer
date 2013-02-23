@@ -22,7 +22,6 @@ public class DisplayContents {
 	private boolean satellitesConnected;
 	
 	public DisplayContents() {
-		this.axes = new DisplayAxes(this);
 	}
 	
 	public void setNotes(DisplayObjectList notes) {
@@ -31,6 +30,7 @@ public class DisplayContents {
 		}
 		this.notes = notes;
 		this.updateNoteBounds();
+		this.axes = new DisplayAxes(this, notes.getValueNames());
 	}
 	
 	public DisplayObjectList getNotes() {

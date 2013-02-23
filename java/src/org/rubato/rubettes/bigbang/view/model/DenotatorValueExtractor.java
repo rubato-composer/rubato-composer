@@ -1,6 +1,7 @@
 package org.rubato.rubettes.bigbang.view.model;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 
@@ -9,6 +10,7 @@ import org.rubato.math.module.ModuleElement;
 import org.rubato.math.module.ProductElement;
 import org.rubato.math.module.RElement;
 import org.rubato.math.module.RRing;
+import org.rubato.math.module.RingElement;
 import org.rubato.math.yoneda.ColimitDenotator;
 import org.rubato.math.yoneda.Denotator;
 import org.rubato.math.yoneda.LimitDenotator;
@@ -25,7 +27,7 @@ import org.rubato.rubettes.util.DenotatorPath;
 public class DenotatorValueExtractor {
 	
 	private int maxLayer;
-	private List<String> simpleNames;
+	private List<String> valueNames;
 	private List<Double> minValues, maxValues;
 	private DisplayObjectList displayObjects;
 	//TreeSet in future for faster searching!!!
@@ -47,7 +49,7 @@ public class DenotatorValueExtractor {
 	
 	public DisplayObjectList extractDisplayObjects(ViewController controller, ScoreChangedNotification notification, boolean selectObjects, LayerStates layerStates) {
 		//PerformanceCheck.startTask("extract");
-		this.simpleNames = new ArrayList<String>();
+		this.valueNames = new ArrayList<String>();
 		this.minValues = new ArrayList<Double>();
 		this.maxValues = new ArrayList<Double>();
 		this.displayObjects = new DisplayObjectList(controller);
@@ -59,6 +61,9 @@ public class DenotatorValueExtractor {
 			this.extractDisplayObjects(notification.getScore(), null, null, DenotatorPath.ANCHOR, 0, 0, new DenotatorPath());
 		} catch (RubatoException e) { e.printStackTrace(); }
 		this.layerStates.removeLayers(this.maxLayer);
+		this.valueNames.add("Satellite Level");
+		this.valueNames.add("Sibling number");
+		this.displayObjects.setValueNames(this.valueNames);
 		return this.displayObjects;
 	}
 	
@@ -138,7 +143,7 @@ public class DenotatorValueExtractor {
 	}
 	
 	private void addSimpleValues(DisplayObject largerObject, SimpleDenotator simpleDenotator, DenotatorPath path) {
-		double[] objectValues = this.extractSimpleValues(simpleDenotator);
+		List<Double> objectValues = this.extractSimpleValues(simpleDenotator);
 		largerObject.addValues(simpleDenotator.getForm().getNameString(), path, objectValues);
 		//TODO: a map should keep track which DOs have certain simples so that they can be found quick
 	}
@@ -166,7 +171,7 @@ public class DenotatorValueExtractor {
 	public JSynNote extractValues(Denotator node, int bpm) {
 		try {
 			Denotator note = node.get(new int[]{0});
-			double[] noteValues = this.extractValues(note, new double[8]);
+			List<Double> noteValues = this.extractValues(note, new ArrayList<Double>());
 			JSynNote jSynNote = new JSynNote(noteValues, bpm);
 			this.extractModulators(jSynNote, note, noteValues);
 			return jSynNote;
@@ -176,70 +181,76 @@ public class DenotatorValueExtractor {
 		}
 	}
 	
-	public void extractModulators(JSynNote jSynNote, Denotator note, double[] parentValues) throws RubatoException {
+	public void extractModulators(JSynNote jSynNote, Denotator note, List<Double> parentValues) throws RubatoException {
 		PowerDenotator modulators = (PowerDenotator)note.get(new int[]{6});
 		for (Denotator currentModulator: modulators.getFactors()) {
-			double[] modulatorValues = this.extractValues(currentModulator, parentValues);
+			List<Double> modulatorValues = this.extractValues(currentModulator, parentValues);
 			JSynModulator jSynMod = jSynNote.addModulator(modulatorValues);
 			this.extractModulators(jSynMod, currentModulator, modulatorValues);
 		}
 	}
 	
-	private double[] extractSimpleValues(SimpleDenotator denotator) {
+	private List<Double> extractSimpleValues(SimpleDenotator denotator) {
 		ModuleElement element = denotator.getElement();
-		double[] values;
-		//TODO: make both product modules and n-dim modules work
+		List<Double> values = new ArrayList<Double>();
 		if (element instanceof ProductElement) {
-			values = this.extractSimpleValues((ProductElement) element);
+			this.extractValues((ProductElement) element, values);
+		} else if (element.getModule().getDimension() > 1) {
+			this.extractValues(element, values);
 		} else {
-			values = new double[] {this.extractSimpleValue(element)};
+			values = Arrays.asList(this.extractValue(element));
 		}
 		this.updateMinAndMax(denotator.getForm().getNameString(), values);
 		return values;
 	}
 	
-	private double[] extractSimpleValues(ProductElement element) {
-		int dimension = element.getFactorCount();
-		double[] values = new double[dimension];
-		for (int i = 0; i < dimension; i++) {
-			values[i] = this.extractSimpleValue(element.getFactor(i));
+	//recursively extracts values from multileveled ProductElements  
+	private void extractValues(ProductElement element, List<Double> values) {
+		for (int i = 0; i < element.getFactorCount(); i++) {
+			RingElement currentFactor = element.getFactor(i);
+			if (currentFactor instanceof ProductElement) {
+				this.extractValues((ProductElement)currentFactor, values);
+			}
+			values.add(this.extractValue(element.getFactor(i)));
+		}
+	}
+	
+	private List<Double> extractValues(ModuleElement element, List<Double> values) {
+		for (int i = 0; i < element.getModule().getDimension(); i++) {
+			values.add(this.extractValue(element.getComponent(i)));
 		}
 		return values;
 	}
 	
-	private double extractSimpleValue(ModuleElement element) {
+	private double extractValue(ModuleElement element) {
 		return ((RElement)element.cast(RRing.ring)).getValue();
 		//TODO: add functionality for relative def!!! could be selected somewhere in the GUI 
 	}
 	
-	private void updateMinAndMax(String simpleName, double[] values) {
-		for (int i = 0; i < values.length; i++) {
+	private void updateMinAndMax(String simpleName, List<Double> values) {
+		for (int i = 0; i < values.size(); i++) {
 			String currentName = simpleName + i;
-			int nameIndex = this.simpleNames.indexOf(currentName);
+			int nameIndex = this.valueNames.indexOf(currentName);
 			if (nameIndex < 0) {
-				this.simpleNames.add(currentName);
-				nameIndex = this.simpleNames.size()-1;
+				this.valueNames.add(currentName);
+				nameIndex = this.valueNames.size()-1;
 				this.minValues.add(Double.MAX_VALUE);
 				this.maxValues.add(Double.MIN_VALUE);
 			}
-			this.minValues.set(nameIndex, Math.min(values[i], this.minValues.get(nameIndex)));
-			this.maxValues.set(nameIndex, Math.max(values[i], this.maxValues.get(nameIndex)));
+			this.minValues.set(nameIndex, Math.min(values.get(i), this.minValues.get(nameIndex)));
+			this.maxValues.set(nameIndex, Math.max(values.get(i), this.maxValues.get(nameIndex)));
 		}
 	}
 	
 	//TODO: get rid of this at some point
-	private double[] extractValues(Denotator note, double[] parentValues) throws RubatoException {
-		double[] values = new double[8];
-		for (int i = 0; i < values.length-3; i++) {
+	private List<Double> extractValues(Denotator note, List<Double> parentValues) throws RubatoException {
+		List<Double> values = new ArrayList<Double>();
+		for (int i = 0; i < 5; i++) {
 			ModuleElement e = note.getElement(this.ELEMENT_PATHS[i]).cast(RRing.ring);
-			values[i] = ((RElement)e).getValue() + parentValues[i];
+			values.add(((RElement)e).getValue() + parentValues.get(i));
 		}
 		this.updateMinAndMax("", values);
 		return values;
-	}
-	
-	public List<String> getSimpleNames() {
-		return this.simpleNames;
 	}
 	
 	public List<Double> getMinValues() {

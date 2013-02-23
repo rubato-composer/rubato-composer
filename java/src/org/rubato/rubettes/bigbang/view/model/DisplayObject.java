@@ -123,11 +123,11 @@ public class DisplayObject implements Comparable<Object> {
 		this.valueNames.add(name);
 	}
 	
-	public void addValues(String denotatorName, DenotatorPath denotatorPath, double[] values) {
+	public void addValues(String denotatorName, DenotatorPath denotatorPath, List<Double> values) {
 		//keep two last values last (satellite level and sibling number)
 		int currentIndex = this.values.size()-2; 
-		for (int i = 0; i < values.length; i++) {
-			this.values.add(currentIndex+i, values[i]);
+		for (int i = 0; i < values.size(); i++) {
+			this.values.add(currentIndex+i, values.get(i));
 			this.valueNames.add(currentIndex+i, denotatorName);
 			this.valuePaths.add(denotatorPath);
 		}
