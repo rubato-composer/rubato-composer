@@ -33,7 +33,7 @@ public class DisplayContents {
 		this.axes = new DisplayAxes(this, notes.getValueNames());
 	}
 	
-	public DisplayObjectList getNotes() {
+	public DisplayObjectList getDisplayObjects() {
 		return this.notes;
 	}
 	

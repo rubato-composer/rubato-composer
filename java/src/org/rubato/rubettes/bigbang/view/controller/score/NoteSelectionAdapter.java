@@ -33,7 +33,7 @@ public class NoteSelectionAdapter extends MouseInputAdapter {
 	public void mousePressed(MouseEvent event) {
 		if (event.getButton() == MouseEvent.BUTTON1 && !event.isPopupTrigger()) {
 			Point location = event.getPoint();
-			if (!((JBigBangDisplay)event.getSource()).getContents().getNotes().hasSelectedNoteAt(location)) {
+			if (!((JBigBangDisplay)event.getSource()).getContents().getDisplayObjects().hasSelectedNoteAt(location)) {
 				this.startingPoint = new Point2D.Double(location.x, location.y);
 				this.selectionTool = new SelectionTool();
 				this.selectionTool.setStartingPoint(this.startingPoint);

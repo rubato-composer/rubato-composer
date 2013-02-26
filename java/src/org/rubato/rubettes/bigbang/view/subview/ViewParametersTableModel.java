@@ -8,12 +8,21 @@ public class ViewParametersTableModel extends AbstractTableModel {
 	
 	private String[] columnNames;
 	private int[] data;
+	private int rowCount;
 	
 	public ViewParametersTableModel() {
 		this.data = new int[ViewParameters.VIEW_PARAMETER_COUNT];
-		this.columnNames = new String[ViewParameters.VIEW_PARAMETER_COUNT];
+		this.generateColumnNames();
 		for (int i = 0; i < this.data.length; i++) {
 			this.data[i] = -1;
+		}
+		this.rowCount = 0;
+	}
+	
+	private void generateColumnNames() {
+		this.columnNames = new String[ViewParameters.VIEW_PARAMETER_COUNT];
+		for (int i = 0; i < this.columnNames.length; i++) {
+			this.columnNames[i] = Character.toString(ViewParameters.VIEW_PARAMETER_NAMES[i].charAt(0));
 		}
 	}
 	
@@ -29,18 +38,16 @@ public class ViewParametersTableModel extends AbstractTableModel {
         return this.data.length;
     }
 	
+	public void setRowCount(int rowCount) {
+		this.rowCount = rowCount;
+	}
+	
 	public int getRowCount() {
-        return ViewParameters.VIEW_PARAMETER_COUNT;
+        return this.rowCount;
     }
 	
-	public void setColumnNames(ViewParameters parameters) {
-		for (int i = 0; i < this.columnNames.length; i++) {
-			this.columnNames[i] = parameters.get(i).getName();
-		}
-	}
-
-    public String getColumnName(int col) {
-        return "";
+	public String getColumnName(int col) {
+    	return this.columnNames[col];
     }
 
     public Object getValueAt(int row, int col) {

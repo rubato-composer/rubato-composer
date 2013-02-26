@@ -23,7 +23,7 @@ import org.rubato.rubettes.bigbang.view.subview.toolbars.JGraphToolBar;
 public class JBigBangPanel extends JPanel {
 	
 	private JMainOptionsPanel mainOptionsPanel;
-	private JViewParametersTable viewParametersTable;
+	private JViewParametersScrollPane viewParametersScrollPane;
 	
 	public JBigBangPanel(ViewController controller, BigBangController bbController) {
 		this.setLayout(new BorderLayout());
@@ -51,10 +51,10 @@ public class JBigBangPanel extends JPanel {
 		this.mainOptionsPanel = new JMainOptionsPanel(controller);
 		controller.addView(this.mainOptionsPanel);
 		display.add(this.mainOptionsPanel);
-		this.viewParametersTable = new JViewParametersTable(controller);
-		controller.addView(this.viewParametersTable);
+		this.viewParametersScrollPane = new JViewParametersScrollPane(controller);
+		controller.addView(this.viewParametersScrollPane);
 		//display.add(this.viewParametersTable.getTableHeader());
-		display.add(this.viewParametersTable);
+		display.add(this.viewParametersScrollPane);
 	}
 	
 	private JPanel makeButtonPanel(ViewController controller) {
@@ -63,7 +63,7 @@ public class JBigBangPanel extends JPanel {
         buttonPanel.setLayout(layout);
 
         buttonPanel.add(this.makeMenuButton(this.mainOptionsPanel, new ToggleMainOptionsAction(controller), layout));
-		buttonPanel.add(this.makeMenuButton(this.viewParametersTable, new ToggleViewParametersAction(controller), layout));
+		buttonPanel.add(this.makeMenuButton(this.viewParametersScrollPane, new ToggleViewParametersAction(controller), layout));
 		return buttonPanel;
 	}
 	

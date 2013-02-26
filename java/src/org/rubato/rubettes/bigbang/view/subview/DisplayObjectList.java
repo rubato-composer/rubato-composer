@@ -4,6 +4,7 @@ import java.awt.Point;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.beans.PropertyChangeEvent;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
@@ -24,6 +25,7 @@ public class DisplayObjectList extends TreeSet<DisplayObject> implements View {
 	public DisplayObjectList(ViewController controller) {
 		controller.addView(this);
 		this.selectedNotes = new TreeSet<DisplayObject>();
+		this.valueNames = new ArrayList<String>();
 	}
 	
 	public void tempSelectNotes(Rectangle2D.Double area) {
