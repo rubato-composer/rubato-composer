@@ -23,7 +23,7 @@ public class NoteTranslationAdapter extends NoteTransformationAdapter {
 	public void mousePressed(MouseEvent event) {
 		super.mousePressed(event);
 		if (event.getButton() == MouseEvent.BUTTON1) {
-			this.isTouchingNotes = ((JBigBangDisplay)event.getSource()).getContents().getNotes().hasSelectedNoteAt(event.getPoint());
+			this.isTouchingNotes = ((JBigBangDisplay)event.getSource()).getContents().getDisplayObjects().hasSelectedNoteAt(event.getPoint());
 		}
 	}
 	

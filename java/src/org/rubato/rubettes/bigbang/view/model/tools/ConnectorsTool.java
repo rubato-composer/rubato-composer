@@ -21,7 +21,7 @@ public class ConnectorsTool extends DisplayTool {
 	@Override
 	public void paint(AbstractPainter painter) {
 		if (this.display != null && this.point != null) {
-			DisplayObjectList notes = this.display.getNotes();
+			DisplayObjectList notes = this.display.getDisplayObjects();
 			notes.paintSelectedNotesConnectors(painter, this.point.x, this.point.y, this.relation);
 			notes.paintSelectedNotes(painter);
 		}

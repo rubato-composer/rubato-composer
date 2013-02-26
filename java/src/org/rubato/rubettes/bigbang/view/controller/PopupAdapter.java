@@ -26,7 +26,7 @@ public class PopupAdapter extends MouseAdapter {
     private void maybeShowPopup(MouseEvent event) {
     	Point location = event.getPoint();
         if (event.isPopupTrigger()) {
-        	this.popup.setNoteMode(((JBigBangDisplay)event.getSource()).getContents().getNotes().hasSelectedNoteAt(location));
+        	this.popup.setNoteMode(((JBigBangDisplay)event.getSource()).getContents().getDisplayObjects().hasSelectedNoteAt(location));
             this.popup.show(event.getComponent(), event.getX(), event.getY());
         }
     }

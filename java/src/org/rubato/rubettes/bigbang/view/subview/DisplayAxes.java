@@ -95,7 +95,7 @@ public class DisplayAxes {
 	
 	private String getAxisName(int i) {
 		int selectedParameter = this.display.getSelectedViewParameter(i);
-		if (selectedParameter >= 0) {
+		if (selectedParameter >= 0 && this.axisNames != null && this.axisNames.size() > selectedParameter) {
 			return this.axisNames.get(selectedParameter);
 		}
 		return "";

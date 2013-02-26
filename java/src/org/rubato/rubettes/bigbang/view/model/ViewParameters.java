@@ -15,6 +15,7 @@ public class ViewParameters extends Model {
 	public static final int HUE = 4;
 	public static final int HEIGHT = 5;
 	public static final int VIEW_PARAMETER_COUNT = 6;
+	public static final String[] VIEW_PARAMETER_NAMES = new String[]{"X-Axis", "Y-Axis", "Opacity", "Width", "Color", "Height"};
 	
 	private ArrayList<ViewParameter> parameters;
 	private int[] selectedViewParameters;
@@ -30,14 +31,14 @@ public class ViewParameters extends Model {
 	
 	private void initParameters(boolean invertYAxis) {
 		this.parameters = new ArrayList<ViewParameter>();
-		this.parameters.add(new ViewParameter("x-axis", false, 0, false)); //x
-		this.parameters.add(new ViewParameter("y-axis", invertYAxis, 0, false)); //y
-		ViewParameter opacity = new ViewParameter("opacity", false, 1, 0, 1, false);
-		opacity.setMinAndMaxGoalValues(false, 0, 127, false);
-		this.parameters.add(new ViewParameter("opacity", false, 1, 0.35, 1, false)); //saturation
-		this.parameters.add(new ViewParameter("width", false, 1, false)); //width
-		this.parameters.add(new ViewParameter("color", false, 0.0833, 0.0833, 1.0833, true)); //hue
-		this.parameters.add(new ViewParameter("height", false, 1, 1, 10, false)); //height
+		this.parameters.add(new ViewParameter(VIEW_PARAMETER_NAMES[0], false, 0, false)); //x
+		this.parameters.add(new ViewParameter(VIEW_PARAMETER_NAMES[1], invertYAxis, 0, false)); //y
+		//ViewParameter opacity = new ViewParameter("opacity", false, 1, 0, 1, false);
+		//opacity.setMinAndMaxGoalValues(false, 0, 127, false);
+		this.parameters.add(new ViewParameter(VIEW_PARAMETER_NAMES[2], false, 1, 0.35, 1, false)); //saturation
+		this.parameters.add(new ViewParameter(VIEW_PARAMETER_NAMES[3], false, 1, false)); //width
+		this.parameters.add(new ViewParameter(VIEW_PARAMETER_NAMES[4], false, 0.0833, 0.0833, 1.0833, true)); //hue
+		this.parameters.add(new ViewParameter(VIEW_PARAMETER_NAMES[5], false, 1, 1, 10, false)); //height
 		this.firePropertyChange(ViewController.VIEW_PARAMETERS, null, this);
 	}
 	

@@ -26,7 +26,7 @@ public class BuildModulatorsAdapter extends MouseInputAdapter {
 	
 	public void mouseClicked(MouseEvent event) {
 		Point location = event.getPoint();
-		DisplayObject noteInLocation = ((JBigBangDisplay)event.getSource()).getContents().getNotes().getNoteAt(location);
+		DisplayObject noteInLocation = ((JBigBangDisplay)event.getSource()).getContents().getDisplayObjects().getNoteAt(location);
 		if (noteInLocation != null) {
 			this.controller.addSelectedNotesAsModulatorsTo(noteInLocation);
 			this.mode.goBackToPreviousMode();
