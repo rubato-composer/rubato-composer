@@ -105,7 +105,6 @@ public abstract class AbstractTransformationEdit extends AbstractUndoableEdit {
 		Map<DenotatorPath,DenotatorPath> pathDifferences = new TreeMap<DenotatorPath,DenotatorPath>();
 		if (oldPaths != null) {
 			if (oldPaths.size() != newPaths.size()) {
-				System.out.println(oldPaths.toString() + "   " + newPaths.toString());
 				return pathDifferences;
 			}
 			for (int i = 0; i < newPaths.size(); i++) {

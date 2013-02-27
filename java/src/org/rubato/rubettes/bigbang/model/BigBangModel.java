@@ -7,7 +7,6 @@ import java.util.TreeSet;
 import javax.swing.undo.AbstractUndoableEdit;
 
 import org.rubato.math.yoneda.Denotator;
-import org.rubato.math.yoneda.PowerDenotator;
 import org.rubato.rubettes.bigbang.controller.BigBangController;
 import org.rubato.rubettes.bigbang.model.edits.AddNoteEdit;
 import org.rubato.rubettes.bigbang.model.edits.AddWallpaperDimensionEdit;
@@ -55,7 +54,7 @@ public class BigBangModel extends Model {
 		this.firePropertyChange(BigBangController.MULTITOUCH, null, this.multiTouch);
 	}
 	
-	public boolean setComposition(PowerDenotator newComposition) {
+	public boolean setComposition(Denotator newComposition) {
 		this.undoRedoModel.reset();
 		return this.scoreManager.setComposition(newComposition);
 	}

@@ -36,10 +36,7 @@ public class DenotatorValueExtractor {
 	private DenotatorPath selectedAnchor;
 	private LayerStates layerStates;
 	
-	public static final String[] VALUE_NAMES = new String[] {
-			"Onset", "Pitch", "Loudness", "Duration", "Voice", "Modulator level",
-			"Satellite level", "Sibling number"};
-	public final int[][] ELEMENT_PATHS = new int[][] {
+	private final int[][] ELEMENT_PATHS = new int[][] {
 			{0,0},{1,0},{2,0},{3,0},{4,0},{5,0}};
 	public static final int[][] DENOTATOR_PATHS = new int[][] {
 			{0},{1},{2},{3},{4},{5}};
@@ -73,12 +70,12 @@ public class DenotatorValueExtractor {
 		if (currentDenotator.getType() == Denotator.SIMPLE) {
 			SimpleDenotator currentSimple = (SimpleDenotator)currentDenotator;
 			if (largerObject == null) {
-				largerObject = this.addDisplayObject(currentSimple, parent, satelliteLevel, siblingNumber, relation, currentPath);
+				largerObject = this.addDisplayObject(currentSimple, parent, relation, satelliteLevel, siblingNumber, currentPath);
 			}
 			this.addSimpleValues(largerObject, currentSimple, currentPath);
 		} else if (currentDenotator.getType() == Denotator.LIMIT) {
 			if (largerObject == null) {
-				largerObject = this.addDisplayObject(currentDenotator, parent, satelliteLevel, siblingNumber, relation, currentPath);
+				largerObject = this.addDisplayObject(currentDenotator, parent, relation, satelliteLevel, siblingNumber, currentPath);
 			}
 			LimitDenotator currentLimit = (LimitDenotator)currentDenotator;
 			for (int i = 0; i < currentLimit.getFactorCount(); i++) {
@@ -87,7 +84,7 @@ public class DenotatorValueExtractor {
 			}
 		} else if (currentDenotator.getType() == Denotator.COLIMIT) {
 			if (largerObject == null) {
-				largerObject = this.addDisplayObject(currentDenotator, parent, satelliteLevel, siblingNumber, relation, currentPath);
+				largerObject = this.addDisplayObject(currentDenotator, parent, relation, satelliteLevel, siblingNumber, currentPath);
 			}
 			Denotator onlyChild = ((ColimitDenotator)currentDenotator).getFactor();
 			this.extractDisplayObjects(onlyChild, parent, largerObject, relation, satelliteLevel, siblingNumber, currentPath.getChildPath(0));
@@ -193,43 +190,44 @@ public class DenotatorValueExtractor {
 	private List<Double> extractSimpleValues(SimpleDenotator denotator) {
 		ModuleElement element = denotator.getElement();
 		List<Double> values = new ArrayList<Double>();
+		List<String> moduleNames = new ArrayList<String>(); 
 		if (element instanceof ProductElement) {
-			this.extractValues((ProductElement) element, values);
+			this.extractValues((ProductElement) element, values, moduleNames);
 		} else if (element.getModule().getDimension() > 1) {
-			this.extractValues(element, values);
+			this.extractValues(element, values, moduleNames);
 		} else {
-			values = Arrays.asList(this.extractValue(element));
+			this.extractValue(element, values, moduleNames);
 		}
-		this.updateMinAndMax(denotator.getForm().getNameString(), values);
+		this.updateMinAndMax(denotator.getForm().getNameString(), values, moduleNames);
 		return values;
 	}
 	
 	//recursively extracts values from multileveled ProductElements  
-	private void extractValues(ProductElement element, List<Double> values) {
+	private void extractValues(ProductElement element, List<Double> values, List<String> moduleNames) {
 		for (int i = 0; i < element.getFactorCount(); i++) {
 			RingElement currentFactor = element.getFactor(i);
 			if (currentFactor instanceof ProductElement) {
-				this.extractValues((ProductElement)currentFactor, values);
+				this.extractValues((ProductElement)currentFactor, values, moduleNames);
 			}
-			values.add(this.extractValue(element.getFactor(i)));
+			this.extractValue(element.getFactor(i), values, moduleNames);
 		}
 	}
 	
-	private List<Double> extractValues(ModuleElement element, List<Double> values) {
+	private void extractValues(ModuleElement element, List<Double> values, List<String> moduleNames) {
 		for (int i = 0; i < element.getModule().getDimension(); i++) {
-			values.add(this.extractValue(element.getComponent(i)));
+			this.extractValue(element.getComponent(i), values, moduleNames);
 		}
-		return values;
 	}
 	
-	private double extractValue(ModuleElement element) {
-		return ((RElement)element.cast(RRing.ring)).getValue();
+	private void extractValue(ModuleElement element, List<Double> values, List<String> moduleNames) {
+		values.add(((RElement)element.cast(RRing.ring)).getValue());
+		moduleNames.add(element.getModule().toVisualString());
 		//TODO: add functionality for relative def!!! could be selected somewhere in the GUI 
 	}
 	
-	private void updateMinAndMax(String simpleName, List<Double> values) {
+	private void updateMinAndMax(String simpleName, List<Double> values, List<String> moduleNames) {
 		for (int i = 0; i < values.size(); i++) {
-			String currentName = simpleName + i;
+			String currentName = simpleName + " " + moduleNames + " " + (i+1);
 			int nameIndex = this.valueNames.indexOf(currentName);
 			if (nameIndex < 0) {
 				this.valueNames.add(currentName);
@@ -249,7 +247,7 @@ public class DenotatorValueExtractor {
 			ModuleElement e = note.getElement(this.ELEMENT_PATHS[i]).cast(RRing.ring);
 			values.add(((RElement)e).getValue() + parentValues.get(i));
 		}
-		this.updateMinAndMax("", values);
+		this.updateMinAndMax("", values, new ArrayList<String>());
 		return values;
 	}
 	

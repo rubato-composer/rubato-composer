@@ -6,6 +6,7 @@ import java.util.List;
 
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
+import javax.swing.table.TableCellRenderer;
 
 import org.rubato.rubettes.bigbang.view.View;
 import org.rubato.rubettes.bigbang.view.controller.ViewController;
@@ -31,7 +32,7 @@ public class JViewParametersScrollPane extends JScrollPane implements View {
 		this.setCorner(JScrollPane.UPPER_LEFT_CORNER, this.rowNameTable.getTableHeader());
 		this.setPreferredSize(new Dimension(200, 100));
 		this.viewParametersTable.setPreferredScrollableViewportSize(new Dimension(10, 10));
-		this.rowNameTable.setPreferredScrollableViewportSize(new Dimension(100, 100));
+		//this.rowNameTable.setPreferredScrollableViewportSize(new Dimension(100, 100));
 		//this.rowNameTable.getColumnModel().getColumn(0).setPreferredWidth(50);
 		//this.setColumnHeaderView(this.viewParametersTable)
 		//this.setCorner(JScrollPane.UPPER_LEFT_CORNER, this.rowNameTable.getTableHeader());
@@ -43,13 +44,15 @@ public class JViewParametersScrollPane extends JScrollPane implements View {
 	
 	private void updateRowNames(List<String> rowNames) {
 		((ViewParametersRowHeaderTableModel)this.rowNameTable.getModel()).setValues(rowNames);
-		this.updateRowCount(rowNames.size());
-	}
-	
-	private void updateRowCount(int rowCount) {
+		int rowCount = this.rowNameTable.getRowCount();
 		((ViewParametersTableModel)this.viewParametersTable.getModel()).setRowCount(rowCount);
-		//this.viewParametersTable.setPreferredSize(new Dimension(100, 100/6*rowCount));
-		this.setPreferredSize(new Dimension(200, 100/6*rowCount+20));
+		int maxNameWidth = 0;
+		for (int row = 0; row < rowCount; row++) {
+			TableCellRenderer renderer = this.rowNameTable.getCellRenderer(row, 0);
+			maxNameWidth = Math.max (this.rowNameTable.prepareRenderer(renderer, row, 0).getPreferredSize().width, maxNameWidth);
+		}
+		this.rowNameTable.setPreferredScrollableViewportSize(new Dimension(maxNameWidth+10, 100));
+		this.setPreferredSize(new Dimension(110+maxNameWidth, 100/6*rowCount+20));
 	}
 	
 	public void modelPropertyChange(PropertyChangeEvent event) {

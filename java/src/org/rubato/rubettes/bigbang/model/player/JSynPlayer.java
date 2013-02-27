@@ -39,7 +39,7 @@ public class JSynPlayer implements Tweakable {
 			}
 			
 			this.initThreads(score);
-			System.out.println("threads " + this.threads.size());
+			//System.out.println("threads " + this.threads.size());
 			
 			this.threads.start();
 			
