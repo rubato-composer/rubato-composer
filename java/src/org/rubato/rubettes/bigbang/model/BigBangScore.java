@@ -42,7 +42,8 @@ public class BigBangScore implements Cloneable {
 	public boolean setComposition(Denotator newComposition) {
 		boolean valid = false;
 		if (newComposition != null) {
-			this.score = this.noteGenerator.convertScore(newComposition);
+			//this.score = this.noteGenerator.convertScore(newComposition);
+			this.score = newComposition;
 			if (this.score != null) {
 				valid = true;
 			}

@@ -118,7 +118,7 @@ public class DisplayObject implements Comparable<Object> {
 		this.yDiff += y;
 	}
 	
-	public void addValue(String name, double value) {
+	private void addValue(String name, double value) {
 		this.values.add(value);
 		this.valueNames.add(name);
 	}
@@ -135,6 +135,10 @@ public class DisplayObject implements Comparable<Object> {
 	
 	public double getValue(int index) {
 		return this.values.get(index);
+	}
+	
+	public List<Double> getValues() {
+		return this.values;
 	}
 	
 	private double getX(double xZoomFactor, int xPosition) {
@@ -256,8 +260,13 @@ public class DisplayObject implements Comparable<Object> {
 		return this.rectangle.intersects(area) || area.contains(this.center);
 	}
 
+	//why such an intricate compare method???
 	public int compareTo(Object object) {
 		if (!(object instanceof DisplayObject)) {
+			throw new ClassCastException("DisplayObject expected.");
+		}
+		return this.topDenotatorPath.compareTo(((DisplayObject)object).getTopDenotatorPath());
+		/*if (!(object instanceof DisplayObject)) {
 			throw new ClassCastException("DisplayNote expected.");
 		}
 		DisplayObject otherNote = (DisplayObject)object;
@@ -274,6 +283,7 @@ public class DisplayObject implements Comparable<Object> {
 			}
 		}
 		return 0;
+		*/
 	}
 
 }
