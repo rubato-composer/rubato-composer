@@ -1,7 +1,6 @@
 package org.rubato.rubettes.bigbang.view.model;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 
@@ -55,7 +54,7 @@ public class DenotatorValueExtractor {
 		this.selectedAnchor = notification.getAnchorToBeSelected();
 		this.layerStates = layerStates;
 		try {
-			this.extractDisplayObjects(notification.getScore(), null, null, DenotatorPath.ANCHOR, 0, 0, new DenotatorPath());
+			this.extractDisplayObjects(notification.getScore(), null, null, DenotatorPath.ANCHOR, 0, 0, new DenotatorPath(notification.getScore().getForm()));
 		} catch (RubatoException e) { e.printStackTrace(); }
 		this.layerStates.removeLayers(this.maxLayer);
 		this.valueNames.add("Satellite Level");
@@ -125,7 +124,7 @@ public class DenotatorValueExtractor {
 	}*/
 	
 	private DisplayObject addDisplayObject(Denotator denotator, DisplayObject parent, int relation, int satelliteLevel, int siblingNumber, DenotatorPath path) {
-		DisplayObject displayObject = new DisplayObject(parent, relation, satelliteLevel, siblingNumber, denotator.getType(), new DenotatorPath(path));
+		DisplayObject displayObject = new DisplayObject(parent, relation, satelliteLevel, siblingNumber, denotator.getType(), path.clone());
 		displayObject.setVisibility(this.layerStates.get(displayObject.getLayer()));
 		this.displayObjects.add(displayObject);
 		if (this.selectObjects) {

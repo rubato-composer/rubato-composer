@@ -5,6 +5,7 @@ import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 
+import org.rubato.base.Repository;
 import org.rubato.base.RubatoException;
 import org.rubato.math.module.Module;
 import org.rubato.math.module.RElement;
@@ -85,9 +86,9 @@ public class Alterator {
 		return alteredDenotators;
 	}
 	
-	public List<LimitDenotator> getSoundScoreAlteration(List<Denotator> input0, double startDegree, double endDegree, boolean onlyModulators) {
+	public List<Denotator> getSoundScoreAlteration(List<Denotator> input0, double startDegree, double endDegree, boolean onlyModulators) {
 		this.neighborFinder.fillKDTree();
-		List<LimitDenotator> alteredDenotators = new ArrayList<LimitDenotator>();
+		List<Denotator> alteredDenotators = new ArrayList<Denotator>();
 		Iterator<Denotator> input0Coordinates = input0.iterator();
 		int[][] paths = this.coordinatePaths;
 		int[][] differentPaths = new int[][]{{0,0,0}};
@@ -103,7 +104,7 @@ public class Alterator {
 				Denotator morphedDenotator;
 				//need to copy both denotators, since copy makes an address change so sum fails
 				morphedDenotator = this.morphSoundDenotator(currentDenotator.copy(), nearestNeighbour.copy(), pathIndices, paths, differentPaths, minAndMax, startDegrees, endDegrees, onlyModulators);
-				alteredDenotators.add((LimitDenotator)morphedDenotator);
+				alteredDenotators.add(morphedDenotator);
 			}
 		} catch (RubatoException e) { e.printStackTrace(); }
 		return alteredDenotators;
@@ -193,7 +194,7 @@ public class Alterator {
 			System.arraycopy(allPaths[i], 1, shortPaths[i], 0, allPaths[i].length-1);
 		}
 		
-		this.alterModulators(morphedDenotator.get(new int[]{0}), pole.get(new int[]{0}), new DenotatorPath(), shortPaths, degrees);
+		this.alterModulators(morphedDenotator.get(new int[]{0}), pole.get(new int[]{0}), new DenotatorPath(Repository.systemRepository().getForm("SoundScore")), shortPaths, degrees);
 		
 		
 		
@@ -201,14 +202,14 @@ public class Alterator {
 	}
 	
 	private void alterModulators(Denotator note, Denotator pole, DenotatorPath currentPath, int[][] paths, double[] degrees) throws RubatoException {
-		DenotatorPath currentModulatorsPath = currentPath.getModulatorsPath();
+		DenotatorPath currentModulatorsPath = currentPath.getPowersetPath(1);
 		PowerDenotator modulators = (PowerDenotator)note.get(currentModulatorsPath.toIntArray());
 		PowerDenotator poleModulators = (PowerDenotator)pole.get(currentModulatorsPath.toIntArray());
 		
 		int minFactors = Math.min(modulators.getFactorCount(), poleModulators.getFactorCount());
 		if (minFactors > 0) {
 			for (int i = 0; i < minFactors; i++) {
-				DenotatorPath currentSubPath = currentPath.getChildPath(i, true);
+				DenotatorPath currentSubPath = currentPath.getSatellitePath(i, 1);
 				Denotator currentModulator = note.get(currentSubPath.toIntArray());
 				Denotator currentPole = pole.get(currentSubPath.toIntArray());
 				

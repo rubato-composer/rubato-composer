@@ -8,6 +8,11 @@ import javax.swing.undo.AbstractUndoableEdit;
 import org.rubato.rubettes.bigbang.model.BigBangScoreManager;
 import org.rubato.rubettes.util.DenotatorPath;
 
+/**
+ * TODO: will soon not exist anymore....
+ * @author flo
+ *
+ */
 public class MoveNotesEdit extends AbstractUndoableEdit {
 	
 	private BigBangScoreManager score;
@@ -23,7 +28,7 @@ public class MoveNotesEdit extends AbstractUndoableEdit {
 	}
 	
 	public void execute() {
-		this.newPathsAndOldLayers = this.score.moveNotesToLayer(this.notePaths, this.layerIndex);
+		//this.newPathsAndOldLayers = this.score.moveNotesToLayer(this.notePaths, this.layerIndex);
 	}
 	
 	public void redo() {
@@ -33,7 +38,7 @@ public class MoveNotesEdit extends AbstractUndoableEdit {
 	
 	public void undo() {
 		super.undo();
-		this.notePaths = this.score.moveNotesToLayers(this.newPathsAndOldLayers);
+		//this.notePaths = this.score.moveNotesToLayers(this.newPathsAndOldLayers);
 	}
 	
 	public String getPresentationName() {

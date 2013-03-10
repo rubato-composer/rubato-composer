@@ -68,7 +68,7 @@ public class MorphingRubetteTest extends TestCase {
 		TestCase.assertTrue(timeInfo1[0] == 0 && timeInfo1[1] == 4);
 		TestCase.assertTrue(timeInfo2[0] == 0 && timeInfo2[1] == 4);
 		//check durations
-		System.out.println("l"+this.getDuration(score2.getFactor(0)));
+		//System.out.println("l"+this.getDuration(score2.getFactor(0)));
 		TestCase.assertTrue(this.getDuration(score1.getFactor(0)) < 1);
 		TestCase.assertTrue(this.getDuration(score1.getFactor(4)) < 84.0/125);
 		TestCase.assertTrue(this.getDuration(score1.getFactor(5)) < Math.pow(4.0/5,2));
@@ -84,7 +84,7 @@ public class MorphingRubetteTest extends TestCase {
 		TestCase.assertTrue(timeInfo1[0] == 0 && timeInfo1[1] == 4);
 		TestCase.assertTrue(timeInfo2[0] == 0 && timeInfo2[1] == 4);
 		//check durations
-		System.out.println("l"+this.getDuration(score1.getFactor(0)));
+		//System.out.println("l"+this.getDuration(score1.getFactor(0)));
 		TestCase.assertTrue(this.getDuration(score1.getFactor(0)) == 0.6400000000000001); //12/25
 		TestCase.assertTrue(this.getDuration(score1.getFactor(4)) < 1);
 		TestCase.assertTrue(this.getDuration(score1.getFactor(5)) > 1);

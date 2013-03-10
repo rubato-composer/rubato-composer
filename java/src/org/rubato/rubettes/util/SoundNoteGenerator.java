@@ -20,6 +20,7 @@ import org.rubato.math.yoneda.SimpleDenotator;
 
 public class SoundNoteGenerator extends NoteGenerator {
 	
+	public final Form SOUND_SCORE_FORM = Repository.systemRepository().getForm("SoundScore");
 	public final LimitForm SOUND_NODE_FORM = (LimitForm) Repository.systemRepository().getForm("SoundNode");
 	public final LimitForm SOUND_NOTE_FORM = (LimitForm) Repository.systemRepository().getForm("SoundNote");
 	private PowerForm modulatorsForm = (PowerForm) Repository.systemRepository().getForm("Modulators");

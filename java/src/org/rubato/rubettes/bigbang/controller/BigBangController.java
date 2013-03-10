@@ -25,7 +25,7 @@ public class BigBangController extends Controller {
 	public static final String INPUT_ACTIVE = "InputActive";
 	public static final String COMPOSITION = "Composition";
 	public static final String PREVIEW = "Preview";
-	public static final String ADD_NOTE = "addNote";
+	public static final String ADD_NOTE = "addObject";
 	public static final String DELETE_NOTES = "deleteNotes";
 	public static final String COPY_NOTES = "copyNotes";
 	public static final String MOVE_NOTES = "moveNotes";

@@ -9,22 +9,20 @@ import javax.swing.undo.AbstractUndoableEdit;
 import org.rubato.rubettes.bigbang.model.BigBangScoreManager;
 import org.rubato.rubettes.util.DenotatorPath;
 
-public class CopyNotesEdit extends AbstractUndoableEdit {
+public class CopyObjectsEdit extends AbstractUndoableEdit {
 	
 	private BigBangScoreManager score;
-	private Set<DenotatorPath> notePaths;
+	private Set<DenotatorPath> objectPaths;
 	private List<DenotatorPath> copyPaths;
-	private int layerIndex;
 	
-	public CopyNotesEdit(BigBangScoreManager scoreLayers, Set<DenotatorPath> notePaths, int layerIndex) {
+	public CopyObjectsEdit(BigBangScoreManager scoreLayers, Set<DenotatorPath> objectPaths) {
 		this.score = scoreLayers;
-		this.notePaths = notePaths;
-		this.layerIndex = layerIndex;
+		this.objectPaths = objectPaths;
 		this.execute();
 	}
 	
 	public void execute() {
-		this.copyPaths = this.score.copyNotesToLayer(this.notePaths, this.layerIndex);
+		this.copyPaths = this.score.copyObjects(this.objectPaths);
 	}
 	
 	public void redo() {
@@ -34,11 +32,11 @@ public class CopyNotesEdit extends AbstractUndoableEdit {
 	
 	public void undo() {
 		super.undo();
-		this.score.removeNotes(new TreeSet<DenotatorPath>(this.copyPaths));
+		this.score.removeObjects(new TreeSet<DenotatorPath>(this.copyPaths));
 	}
 	
 	public String getPresentationName() {
-		return "Copy Notes";
+		return "Copy Objects";
 	}
 
 }
