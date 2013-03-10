@@ -8,14 +8,12 @@ import java.util.TreeMap;
 import java.util.TreeSet;
 
 import org.rubato.math.yoneda.Denotator;
-import org.rubato.math.yoneda.LimitDenotator;
-import org.rubato.math.yoneda.PowerDenotator;
+import org.rubato.rubettes.bigbang.BigBangRubette;
 import org.rubato.rubettes.bigbang.controller.BigBangController;
 import org.rubato.rubettes.bigbang.controller.ScoreChangedNotification;
 import org.rubato.rubettes.bigbang.model.player.BigBangPlayer;
 import org.rubato.rubettes.bigbang.view.model.SelectedPaths;
 import org.rubato.rubettes.util.DenotatorPath;
-import org.rubato.rubettes.util.SoundNoteGenerator;
 
 public class BigBangScoreManager extends Model {
 	
@@ -27,12 +25,11 @@ public class BigBangScoreManager extends Model {
 	
 	public BigBangScoreManager(BigBangController controller) {
 		controller.addModel(this);
-		this.score = new BigBangScore(new SoundNoteGenerator());
+		this.score = new BigBangScore(BigBangRubette.STANDARD_FORM);
 		this.alteration = new BigBangAlteration(controller);
 		this.player = new BigBangPlayer();
 		this.playingActive = false;
 		this.setTempo(BigBangPlayer.INITIAL_BPM);
-		this.score.setNoteGenerator(new SoundNoteGenerator());
 	}
 	
 	public void togglePlayMode() {
@@ -94,11 +91,11 @@ public class BigBangScoreManager extends Model {
 	private List<DenotatorPath> createWallpaper(boolean inPreviewMode, boolean selectMotif) {
 		List<DenotatorPath> motifPaths = this.wallpaper.getMotif();
 		this.updateActualScore(inPreviewMode);
-		List<List<LimitDenotator>> motifNodes = this.actualScore.extractNotes(motifPaths);
+		List<List<Denotator>> motifNodes = this.actualScore.extractObjects(motifPaths);
 		//CREATE ACTUAL WALLPAPER (to be selected when wallpaper finished)
 		this.wallpaper.applyTo(this.actualScore);
 		DenotatorPath lastAnchorPath = this.wallpaper.getLastAnchorPath();
-		List<DenotatorPath> newMotifPaths = this.actualScore.addNotes(motifNodes);
+		List<DenotatorPath> newMotifPaths = this.actualScore.addObjects(motifNodes);
 		if (inPreviewMode) {
 			if (selectMotif) {
 				this.fireCompositionChange(this.actualScore, new TreeSet<DenotatorPath>(newMotifPaths), lastAnchorPath, true);
@@ -190,7 +187,7 @@ public class BigBangScoreManager extends Model {
 	public Map<DenotatorPath,Double> shapeNotes(TransformationProperties properties, TreeMap<Double,Double> shapingLocations) {
 		this.updateActualScore(properties.inPreviewMode());
 		BigBangShaper shaper = new BigBangShaper(this.actualScore, properties, shapingLocations);
-		Map<DenotatorPath,Double> newPathsAndOldYValues = shaper.shapeNotes();
+		Map<DenotatorPath,Double> newPathsAndOldYValues = shaper.shapeObjects();
 		
 		if (properties.inPreviewMode()) {
 			this.firePreviewCompositionChange(new TreeSet<DenotatorPath>(properties.getNodePaths()), null);
@@ -200,19 +197,19 @@ public class BigBangScoreManager extends Model {
 		return newPathsAndOldYValues;
 	}
 	
-	public void undoShapeNotes(Map<DenotatorPath,Double> newPathsAndOldYValues) {
+	public void undoShapeObjects(Map<DenotatorPath,Double> newPathsAndOldYValues) {
 		
 	}
 	
-	public DenotatorPath addNote(double[] values) {
-		DenotatorPath newPath = this.score.addNote(values);
+	public DenotatorPath addObject(Map<DenotatorPath,Double> pathsWithValues) {
+		DenotatorPath newPath = this.score.addObject(pathsWithValues);
 		this.fireCompositionChange();
-		this.playNote(this.score.getNote(newPath));
+		this.playNote(this.score.getObject(newPath));
 		return newPath;
 	}
 	
-	public List<DenotatorPath> addNotes(List<LimitDenotator> notes, List<DenotatorPath> parentPaths) {
-		List<DenotatorPath> newPaths = this.score.addNotes(notes, parentPaths);
+	public List<DenotatorPath> addObjects(List<Denotator> objects, List<DenotatorPath> parentPaths) {
+		List<DenotatorPath> newPaths = this.score.addObjects(objects, parentPaths);
 		this.fireCompositionChange(new TreeSet<DenotatorPath>(newPaths));
 		return newPaths;
 	}
@@ -221,25 +218,25 @@ public class BigBangScoreManager extends Model {
 	 * 
 	 * @param nodePaths the list of node paths has to be sorted from small to big
 	 */
-	public List<LimitDenotator> removeNotes(Set<DenotatorPath> notePaths) {
-		List<LimitDenotator> notes = this.score.removeNotes(new ArrayList<DenotatorPath>(notePaths));
+	public List<Denotator> removeObjects(Set<DenotatorPath> objectPaths) {
+		List<Denotator> removedObjects = this.score.removeObjects(new ArrayList<DenotatorPath>(objectPaths));
 		this.fireCompositionChange();
-		return notes;
+		return removedObjects;
 	}
 	
-	public LimitDenotator removeNote(DenotatorPath nodePath) {
-		LimitDenotator removedNode = this.score.removeNote(nodePath);
+	public Denotator removeObject(DenotatorPath objectPath) {
+		Denotator removedObject = this.score.removeObject(objectPath);
 		this.fireCompositionChange();
-		return removedNode;
+		return removedObject;
 	}
 	
-	public List<DenotatorPath> copyNotesToLayer(Set<DenotatorPath> notePaths, int layerIndex) {
-		List<DenotatorPath> newPaths = this.score.copyNotesToLayer(new ArrayList<DenotatorPath>(notePaths), layerIndex);
+	public List<DenotatorPath> copyObjects(Set<DenotatorPath> objectPaths) {
+		List<DenotatorPath> newPaths = this.score.copyObjects(new ArrayList<DenotatorPath>(objectPaths));
 		this.fireCompositionChange(new TreeSet<DenotatorPath>(newPaths));
 		return newPaths;
 	}
 	
-	public Map<DenotatorPath,Integer> moveNotesToLayer(Set<DenotatorPath> notePaths, int layerIndex) {
+	/*public Map<DenotatorPath,Integer> moveNotesToLayer(Set<DenotatorPath> notePaths, int layerIndex) {
 		Map<DenotatorPath,Integer> newPathsAndOldLayer = this.score.moveNotesToLayer(new ArrayList<DenotatorPath>(notePaths), layerIndex);
 		this.fireCompositionChange(newPathsAndOldLayer.keySet());
 		return newPathsAndOldLayer;
@@ -249,10 +246,10 @@ public class BigBangScoreManager extends Model {
 		List<DenotatorPath> newPaths = this.score.moveNotesToLayers(newPathsAndOldLayer);
 		this.fireCompositionChange(newPathsAndOldLayer.keySet());
 		return new TreeSet<DenotatorPath>(newPaths);
-	}
+	}*/
 	
-	public List<DenotatorPath> moveNotesToParent(List<DenotatorPath> notePaths, DenotatorPath parentPath, boolean asModulators) {
-		List<DenotatorPath> newPaths = this.score.moveNotesToParent(notePaths, parentPath, asModulators);
+	public List<DenotatorPath> moveObjectsToParent(List<DenotatorPath> objectPaths, DenotatorPath parentPath, int powersetIndex) {
+		List<DenotatorPath> newPaths = this.score.moveObjectsToParent(objectPaths, parentPath, powersetIndex);
 		this.fireCompositionChange(new TreeSet<DenotatorPath>(newPaths));
 		return newPaths;
 	}
@@ -264,8 +261,8 @@ public class BigBangScoreManager extends Model {
 	 * @param anchorNode
 	 */
 	public List<DenotatorPath> undoMoveToParent(List<DenotatorPath> actualPaths, List<DenotatorPath> oldPaths) {
-		List<LimitDenotator> newNotes = this.score.removeNotes(actualPaths);
-		List<DenotatorPath> newPaths = this.score.addNotes(newNotes, DenotatorPath.getParentPaths(oldPaths));
+		List<Denotator> newObjects = this.score.removeObjects(actualPaths);
+		List<DenotatorPath> newPaths = this.score.addObjects(newObjects, DenotatorPath.getAnchorPowersetPaths(oldPaths));
 		this.fireCompositionChange(new TreeSet<DenotatorPath>(newPaths));
 		return newPaths;
 	}
@@ -278,11 +275,11 @@ public class BigBangScoreManager extends Model {
 	 */
 	public TreeMap<DenotatorPath,DenotatorPath> flattenNotes(Set<DenotatorPath> notePaths) {
 		List<DenotatorPath> notePathsList = new ArrayList<DenotatorPath>(notePaths);
-		List<DenotatorPath> oldParentPaths = DenotatorPath.getParentPaths(notePathsList);
-		List<DenotatorPath> oldGrandParentPaths = DenotatorPath.getGrandParentPaths(notePathsList);
-		int[] noteFunctions = DenotatorPath.getFunctions(notePathsList);
-		List<LimitDenotator> notes = this.score.removeNotes(notePathsList);
-		List<DenotatorPath> newPaths = this.score.addNotes(notes, oldGrandParentPaths, noteFunctions);
+		List<DenotatorPath> oldParentPaths = DenotatorPath.getAnchorPowersetPaths(notePathsList);
+		List<DenotatorPath> oldGrandParentPaths = DenotatorPath.getGrandAnchorPowersetPaths(notePathsList);
+		int[] powersetIndices = DenotatorPath.getPowersetIndices(notePathsList);
+		List<Denotator> notes = this.score.removeObjects(notePathsList);
+		List<DenotatorPath> newPaths = this.score.addObjects(notes, oldGrandParentPaths, powersetIndices);
 		TreeMap<DenotatorPath,DenotatorPath> newPathsAndOldParentPaths = this.getPathMap(newPaths, oldParentPaths);
 		this.fireCompositionChange(newPathsAndOldParentPaths.keySet());
 		return newPathsAndOldParentPaths;
@@ -298,8 +295,8 @@ public class BigBangScoreManager extends Model {
 	
 	public Set<DenotatorPath> unflattenNotes(Map<DenotatorPath,DenotatorPath> newAndOldPaths) {
 		List<DenotatorPath> keys = new ArrayList<DenotatorPath>(newAndOldPaths.keySet());
-		List<LimitDenotator> notes = this.score.removeNotes(keys);
-		Set<DenotatorPath> newPaths = new TreeSet<DenotatorPath>(this.score.addNotes(notes, new ArrayList<DenotatorPath>(newAndOldPaths.values())));
+		List<Denotator> objects = this.score.removeObjects(keys);
+		Set<DenotatorPath> newPaths = new TreeSet<DenotatorPath>(this.score.addObjects(objects, new ArrayList<DenotatorPath>(newAndOldPaths.values())));
 		this.fireCompositionChange(newPaths);
 		return newPaths;
 	}
@@ -369,7 +366,7 @@ public class BigBangScoreManager extends Model {
 	}
 	
 	public void setFMModel(String fmModel) {
-		this.score.noteGenerator.setFMModel(fmModel);
+		//TODO: THINK ABOUT THIS!!! this.score.noteGenerator.setFMModel(fmModel);
 		this.firePropertyChange(BigBangController.FM_MODEL, null, fmModel);
 	}
 	

@@ -35,9 +35,9 @@ public class ShapingEdit extends AbstractUndoableEdit {
 	public void undo() {
 		super.undo();
 		if (this.properties.copyAndTransform()) {
-			this.score.removeNotes(this.newPathsAndOldYValues.keySet());
+			this.score.removeObjects(this.newPathsAndOldYValues.keySet());
 		} else {
-			this.score.undoShapeNotes(this.newPathsAndOldYValues);
+			this.score.undoShapeObjects(this.newPathsAndOldYValues);
 		}
 	}
 	

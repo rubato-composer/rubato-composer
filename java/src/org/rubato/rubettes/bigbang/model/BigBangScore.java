@@ -5,50 +5,48 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.TreeMap;
 import java.util.TreeSet;
 
 import org.rubato.base.RubatoException;
 import org.rubato.math.yoneda.Denotator;
 import org.rubato.math.yoneda.Form;
-import org.rubato.math.yoneda.LimitDenotator;
 import org.rubato.math.yoneda.PowerDenotator;
+import org.rubato.math.yoneda.PowerForm;
 import org.rubato.rubettes.util.DenotatorPath;
-import org.rubato.rubettes.util.NoteGenerator;
-import org.rubato.rubettes.util.SoundNoteGenerator;
+import org.rubato.rubettes.util.ObjectGenerator;
 
 public class BigBangScore implements Cloneable {
 	
-	protected SoundNoteGenerator noteGenerator;
+	protected ObjectGenerator objectGenerator;
 	protected Denotator score;
 	
-	public BigBangScore(SoundNoteGenerator noteGenerator) {
-		this.setNoteGenerator(noteGenerator);
-		this.score = this.noteGenerator.createEmptyScore();
+	public BigBangScore(Form baseForm) {
+		this.objectGenerator = new ObjectGenerator(baseForm);
+		this.score = this.objectGenerator.createEmptyScore();
 	}
 	
 	public Object clone() {
-		BigBangScore clone = new BigBangScore(this.noteGenerator);
+		BigBangScore clone = new BigBangScore(this.objectGenerator.getBaseForm());
 		clone.score = this.getComposition().copy();
 		return clone;
 	}
 	
-	public void setNoteGenerator(SoundNoteGenerator noteGenerator) {
+	/*public void setNoteGenerator(SoundNoteGenerator noteGenerator) {
 		this.noteGenerator = noteGenerator;
 		//reset composition so that it converts if necessary!!
 		this.setComposition(this.score);
-	}
+	}*/
 	
+	/**
+	 * @return true if newComposition is of an allowed form type
+	 */
 	public boolean setComposition(Denotator newComposition) {
-		boolean valid = false;
-		if (newComposition != null) {
+		if (newComposition != null && this.objectGenerator.setBaseForm(newComposition.getForm())) {
 			//this.score = this.noteGenerator.convertScore(newComposition);
 			this.score = newComposition;
-			if (this.score != null) {
-				valid = true;
-			}
+			return true;
 		}
-		return valid;
+		return false;
 	}
 	
 	public Denotator getLayeredComposition() {
@@ -60,25 +58,28 @@ public class BigBangScore implements Cloneable {
 		return this.score;
 	}
 	
-	public NoteGenerator getNoteGenerator() {
-		return this.noteGenerator;
+	public ObjectGenerator getObjectGenerator() {
+		return this.objectGenerator;
 	}
 	
 	/**
-	 * Adds a new note in a new node to the top macro score of the composition.
-	 * @param values the note to be added
+	 * Adds a new object with the given values to the top powerset of the score in case there is one
+	 * @param values the values of the object to be added
 	 * @param layerIndex the layer on which it is to be added
-	 * @return the new path of the note
+	 * @return the new path of the object
 	 */
-	public DenotatorPath addNote(double[] values) {
-		DenotatorPath topSoundScorePath = new DenotatorPath();
-		LimitDenotator newNode = this.noteGenerator.createFMNodeDenotator(values);
-		return this.addNote(newNode, topSoundScorePath);
+	public DenotatorPath addObject(Map<DenotatorPath,Double> pathsWithValues) {
+		DenotatorPath topPowersetPath = this.objectGenerator.getTopPowersetPath();
+		if (topPowersetPath != null) {
+			Denotator newObject = this.objectGenerator.createTopLevelObject(pathsWithValues);
+			return this.addObject(newObject, topPowersetPath);
+		}
+		return null;
 	}
 	
-	private DenotatorPath addNote(LimitDenotator note, DenotatorPath powersetPath) {
-		note = this.internalAddNote(note, powersetPath);
-		return this.findPath(note, powersetPath);
+	private DenotatorPath addObject(Denotator object, DenotatorPath powersetPath) {
+		object = this.internalAddObject(object, powersetPath);
+		return this.findPath(object, powersetPath);
 	}
 	
 	/**
@@ -87,87 +88,51 @@ public class BigBangScore implements Cloneable {
 	 * be relative to their anchor node.
 	 * @param nodes the nodes to be added
 	 * @param anchorPaths
-	 * @return the new paths of the added nodes 
+	 * @return the new paths of the added nodes
+	 * 
+	 * TODO: why this method????? the one with the powersetIndices should be used!!!! 
 	 */
-	public List<DenotatorPath> addNotes(List<LimitDenotator> notes, List<DenotatorPath> parentPaths) {
-		notes = this.makeNotesRelative(notes, parentPaths);
+	public List<DenotatorPath> addObjects(List<Denotator> notes, List<DenotatorPath> parentPaths) {
+		notes = this.makeObjectsRelative(notes, parentPaths);
+		notes.get(0).display();
+		System.out.println();
 		List<DenotatorPath> childrenPaths = new ArrayList<DenotatorPath>();
 		for (int i = 0; i < notes.size(); i++) {
 			DenotatorPath currentParentPath = parentPaths.get(i);
 			DenotatorPath currentChildrenPath = null;
-			if (currentParentPath != null && currentParentPath.size() > 0) {
-				currentChildrenPath = currentParentPath.getChildrenPath(); 
+			if (currentParentPath != null) {
+				currentChildrenPath = currentParentPath.getFirstPowersetPath(); 
 			}
-			notes.set(i, this.internalAddNote(notes.get(i), currentChildrenPath));
+			notes.set(i, this.internalAddObject(notes.get(i), currentChildrenPath));
 			childrenPaths.add(currentChildrenPath);
 		}
 		List<DenotatorPath> newPaths = this.findPaths(notes, childrenPaths);
 		return newPaths;
 	}
 	
-	public List<DenotatorPath> addNotes(List<LimitDenotator> notes, List<DenotatorPath> parentPaths, int[] noteFunctions) {
-		notes = this.makeNotesRelative(notes, parentPaths);
+	public List<DenotatorPath> addObjects(List<Denotator> objects, List<DenotatorPath> parentPaths, int[] powersetIndices) {
+		objects = this.makeObjectsRelative(objects, parentPaths);
 		List<DenotatorPath> powersetPaths = new ArrayList<DenotatorPath>();
-		for (int i = 0; i < notes.size(); i++) {
+		for (int i = 0; i < objects.size(); i++) {
 			DenotatorPath currentParentPath = parentPaths.get(i);
 			DenotatorPath currentPowersetPath = null;
 			if (currentParentPath != null) {
-				if (noteFunctions[i] == DenotatorPath.MODULATOR) {
-					currentPowersetPath = currentParentPath.getModulatorsPath();
-				} else {
-					currentPowersetPath = currentParentPath.getChildrenPath();
-				}
+				currentPowersetPath = currentParentPath.getPowersetPath(powersetIndices[i]);
 			}
-			notes.set(i, this.internalAddNote(notes.get(i), currentPowersetPath));
+			objects.set(i, this.internalAddObject(objects.get(i), currentPowersetPath));
 			powersetPaths.add(currentPowersetPath);
 		}
-		List<DenotatorPath> newPaths = this.findPaths(notes, powersetPaths);
+		List<DenotatorPath> newPaths = this.findPaths(objects, powersetPaths);
 		return newPaths;
 	}
 	
-	public List<DenotatorPath> copyNotesToLayer(List<DenotatorPath> notePaths, int layerIndex) {
-		List<DenotatorPath> parentPaths = DenotatorPath.getParentPaths(notePaths);
-		List<LimitDenotator> newNotes = new ArrayList<LimitDenotator>();
-		for (DenotatorPath currentPath: notePaths) {
-			newNotes.add(this.noteGenerator.copyAndSetLayer(this.extractNote(currentPath), layerIndex));
+	public List<DenotatorPath> copyObjects(List<DenotatorPath> objectPaths) {
+		List<DenotatorPath> parentPaths = DenotatorPath.getAnchorPowersetPaths(objectPaths);
+		List<Denotator> newObjects = new ArrayList<Denotator>();
+		for (DenotatorPath currentPath: objectPaths) {
+			newObjects.add(this.extractObject(currentPath).copy());
 		}
-		List<DenotatorPath> newPaths = this.addNotes(newNotes, parentPaths);
-		return newPaths;
-	}
-	
-	public Map<DenotatorPath,Integer> moveNotesToLayer(List<DenotatorPath> notePaths, int layerIndex) {
-		//TODO: WHY NOT ONLY SET LAYER???
-		List<DenotatorPath> parentPaths = DenotatorPath.getParentPaths(notePaths);
-		List<Integer> oldLayers = new ArrayList<Integer>();
-		List<LimitDenotator> newNotes = new ArrayList<LimitDenotator>();
-		for (DenotatorPath currentPath: notePaths) {
-			LimitDenotator currentNote = this.extractNote(currentPath);
-			oldLayers.add(this.noteGenerator.getLayer(currentNote));
-			newNotes.add(this.noteGenerator.copyAndSetLayer(currentNote, layerIndex));
-		}
-		this.removeNotes(notePaths);
-		List<DenotatorPath> newPaths = this.addNotes(newNotes, parentPaths);
-		return this.generateMap(newPaths, oldLayers);
-	}
-	
-	private Map<DenotatorPath,Integer> generateMap(List<DenotatorPath> paths, List<Integer> ints) {
-		Map<DenotatorPath,Integer> map = new TreeMap<DenotatorPath,Integer>();
-		for (int i = 0; i < paths.size(); i++) {
-			map.put(paths.get(i), ints.get(i));
-		}
-		return map;
-	}
-	
-	public List<DenotatorPath> moveNotesToLayers(Map<DenotatorPath,Integer> pathsAndNewLayers) {
-		//TODO: WHY NOT ONLY SET LAYER???
-		List<DenotatorPath> notePaths = new ArrayList<DenotatorPath>(pathsAndNewLayers.keySet());
-		List<DenotatorPath> parentPaths = DenotatorPath.getParentPaths(notePaths);
-		List<LimitDenotator> newNotes = new ArrayList<LimitDenotator>();
-		for (DenotatorPath currentPath: pathsAndNewLayers.keySet()) {
-			newNotes.add(this.noteGenerator.copyAndSetLayer(this.extractNote(currentPath), pathsAndNewLayers.get(currentPath)));
-		}
-		this.removeNotes(notePaths);
-		List<DenotatorPath> newPaths = this.addNotes(newNotes, parentPaths);
+		List<DenotatorPath> newPaths = this.addObjects(newObjects, parentPaths);
 		return newPaths;
 	}
 	
@@ -179,61 +144,58 @@ public class BigBangScore implements Cloneable {
 	 * @param asModulators if true then the notes are added as modulators
 	 * @return
 	 */
-	public List<DenotatorPath> moveNotesToParent(List<DenotatorPath> notePaths, DenotatorPath parentPath, boolean asModulators) {
-		LimitDenotator parentNote = this.extractNote(parentPath);
-		List<LimitDenotator> newNotes = this.removeNotes(notePaths);
-		DenotatorPath newParentPath = this.findPath(parentNote, parentPath.getPowersetPath());
-		return this.addNotesToParent(newNotes, newParentPath, asModulators);
+	public List<DenotatorPath> moveObjectsToParent(List<DenotatorPath> objectPaths, DenotatorPath parentPath, int powersetIndex) {
+		Denotator parentObject = this.extractObject(parentPath);
+		List<Denotator> newNotes = this.removeObjects(objectPaths);
+		DenotatorPath newParentPath = this.findPath(parentObject, parentPath.getAnchorPowersetPath());
+		return this.addObjectsToParent(newNotes, newParentPath, powersetIndex);
 	} 
 	
-	public List<DenotatorPath> addNotesToParent(List<LimitDenotator> notes, DenotatorPath parentPath, boolean asModulators) {
-		DenotatorPath childrenSetPath;
-		if (parentPath != null) {
-			if (asModulators) {
-				childrenSetPath = parentPath.getModulatorsPath();
-			} else {
-				childrenSetPath = parentPath.getChildrenPath();
-			}
-			notes = this.makeNotesRelative(notes, parentPath);
-		} else {
-			childrenSetPath = new DenotatorPath();
+	/**
+	 * adds the given objects to the powersetIndex-th powerset of the object at parentPath
+	 * @return the new paths of the added objects
+	 */
+	public List<DenotatorPath> addObjectsToParent(List<Denotator> objects, DenotatorPath parentPath, int powersetIndex) {
+		DenotatorPath childrenSetPath = parentPath.getPowersetPath(powersetIndex);
+		if (parentPath.size() > 0) {
+			objects = this.makeObjectsRelative(objects, parentPath);
 		}
-		for (int i = 0; i < notes.size(); i++) {
-			notes.set(i, this.internalAddNote(notes.get(i), childrenSetPath));
+		for (int i = 0; i < objects.size(); i++) {
+			objects.set(i, this.internalAddObject(objects.get(i), childrenSetPath));
 		}
-		List<DenotatorPath> newPaths = this.findPaths(notes, childrenSetPath);
+		List<DenotatorPath> newPaths = this.findPaths(objects, childrenSetPath);
 		return newPaths;
 	}
 	
-	public List<DenotatorPath> addNotes(List<List<LimitDenotator>> noteLists) {
-		for (List<LimitDenotator> notes: noteLists) {
+	public List<DenotatorPath> addObjects(List<List<Denotator>> objectLists) {
+		for (List<Denotator> currentObjects: objectLists) {
 			DenotatorPath newPath = null;
-			DenotatorPath childrenPath = null;
+			DenotatorPath childrenPath = new DenotatorPath(this.score.getForm());
 			//PowerDenotator currentMacroScore = this.getMacroScore(macroScorePath);
-			for (int i = 0; i < notes.size()-1; i++) {
-				LimitDenotator currentNote = notes.get(i);
+			for (int i = 0; i < currentObjects.size()-1; i++) {
+				Denotator currentNote = currentObjects.get(i);
 				newPath = this.findPath(currentNote, childrenPath);
-				childrenPath = newPath.getChildrenPath();
+				childrenPath = newPath.getFirstPowersetPath();
 				//currentMacroScore = this.getMacroScore(macroScorePath);
 			}
-			this.addNote(notes.get(notes.size()-1), childrenPath);
+			this.addObject(currentObjects.get(currentObjects.size()-1), childrenPath);
 		}
-		return this.findPaths(noteLists);
+		return this.findPaths(objectLists);
 	}
 	
 	/*
 	 * returns the added element, which might have been converted to another type (node, note)
 	 */
-	private LimitDenotator internalAddNote(LimitDenotator note, DenotatorPath powersetPath) {
+	private Denotator internalAddObject(Denotator object, DenotatorPath powersetPath) {
 		try {
-			note = this.convertNote(note, powersetPath);
 			PowerDenotator powerset = this.getPowerset(powersetPath);
-			powerset.appendFactor(note);
+			object = this.objectGenerator.convertDenotatorIfNecessary(object, powerset.getForm().getForms().get(0));
+			powerset.appendFactor(object);
 		} catch (RubatoException e) { e.printStackTrace(); }
-		return note;
+		return object;
 	}
 	
-	private LimitDenotator convertNote(LimitDenotator note, DenotatorPath powersetPath) {
+	/*private LimitDenotator convertNote(LimitDenotator note, DenotatorPath powersetPath) {
 		boolean isModulatorPath = powersetPath != null && powersetPath.isModulatorPath();
 		if (isModulatorPath && note.getForm().getNameString().equals("SoundNode")) {
 			return this.noteGenerator.convertNodeToModulator(note);
@@ -241,102 +203,87 @@ public class BigBangScore implements Cloneable {
 			return this.noteGenerator.convertModulatorToNode(note);
 		}
 		return note;
-	}
+	}*/
 	
-	public List<DenotatorPath> findPaths(List<List<LimitDenotator>> noteLists) {
+	public List<DenotatorPath> findPaths(List<List<Denotator>> noteLists) {
 		List<DenotatorPath> paths = new ArrayList<DenotatorPath>();
-		for (List<LimitDenotator> currentNoteList: noteLists) {
+		for (List<Denotator> currentNoteList: noteLists) {
 			paths.add(this.findPath(currentNoteList));
 		}
 		return paths;
 	}
 	
 	/*
-	 * finds the path along the given anchors, carriers, satellites and modulators
+	 * finds the path along the given objects, which are all satellites of each other
 	 */
-	private DenotatorPath findPath(List<LimitDenotator> notes) {
-		DenotatorPath path = new DenotatorPath();
-		PowerDenotator currentPowerset = this.getPowerset(path);
-		LimitDenotator currentNote = this.convertNoteIfNecessary(notes.get(0), path);
-		int currentIndex = currentPowerset.indexOf(currentNote);
-		path = path.getPowersetChildPath(currentIndex);
-		for (int i = 1; i < notes.size(); i++) {
-			DenotatorPath currentPath;
-			currentIndex = -1;
-			if (!path.isModulatorPath()) {
-				currentPath = path.getChildrenPath();
-				PowerDenotator currentSatellites = this.getPowerset(currentPath);
-				currentNote = this.convertNoteIfNecessary(notes.get(i), currentPath);
-				currentIndex = currentSatellites.indexOf(currentNote);
-			}
-			if (currentIndex >= 0) {
-				path = path.getChildPath(currentIndex, false);
-			} else {
-				currentPath = path.getModulatorsPath();
-				PowerDenotator currentModulators = this.getPowerset(currentPath);
-				currentNote = this.convertNoteIfNecessary(notes.get(i), currentPath);
-				currentIndex = currentModulators.indexOf(currentNote);
-				if (currentIndex >= 0) {
-					path = path.getChildPath(currentIndex, true);
-				} else {
-					return null;
-				}
-			}
+	private DenotatorPath findPath(List<Denotator> objects) {
+		DenotatorPath currentPath = new DenotatorPath(this.objectGenerator.getBaseForm());
+		for (Denotator currentObject: objects) {
+			currentPath = this.findObjectInNextPowersets(currentObject, currentPath);
 		}
-		return path; 
+		return currentPath; 
 	}
 	
-	private List<DenotatorPath> findPaths(List<LimitDenotator> notes, List<DenotatorPath> powersetPaths) {
+	private DenotatorPath findObjectInNextPowersets(Denotator object, DenotatorPath path) {
+		int currentPowersetIndex = 0;
+		while (true) {
+			//TODO: could be optimized....
+			DenotatorPath currentPowersetPath = path.getPowersetPath(currentPowersetIndex);
+			PowerDenotator currentPowerset = this.getPowerset(currentPowersetPath);
+			int objectIndex = currentPowerset.indexOf(object);
+			if (objectIndex >= 0) {
+				return currentPowersetPath.getChildPath(objectIndex);
+			}
+			currentPowersetIndex++;
+		}
+	}
+	
+	private List<DenotatorPath> findPaths(List<Denotator> objects, List<DenotatorPath> powersetPaths) {
 		List<DenotatorPath> paths = new ArrayList<DenotatorPath>();
-		for (int i = 0; i < notes.size(); i++) {
-			paths.add(this.findPath(notes.get(i), powersetPaths.get(i)));
+		for (int i = 0; i < objects.size(); i++) {
+			paths.add(this.findPath(objects.get(i), powersetPaths.get(i)));
 		}
 		return paths;
 	}
 	
-	private List<DenotatorPath> findPaths(List<LimitDenotator> notes, DenotatorPath powersetPath) {
+	private List<DenotatorPath> findPaths(List<Denotator> objects, DenotatorPath powersetPath) {
 		List<DenotatorPath> paths = new ArrayList<DenotatorPath>();
-		for (int i = 0; i < notes.size(); i++) {
-			paths.add(this.findPath(notes.get(i), powersetPath));
+		for (int i = 0; i < objects.size(); i++) {
+			paths.add(this.findPath(objects.get(i), powersetPath));
 		}
 		return paths;
 	}
 	
 	/*
-	 * Finds the path of a note if it is present in the given powerset. Works for both, sets of
-	 * nodes and notes (automatically converts a note into a node when necessary)
+	 * Finds the path of an object if it is present in the given powerset
 	 */
-	private DenotatorPath findPath(LimitDenotator note, DenotatorPath powersetPath) {
-		note = this.convertNoteIfNecessary(note, powersetPath);
+	private DenotatorPath findPath(Denotator object, DenotatorPath powersetPath) {
 		PowerDenotator powerset = this.getPowerset(powersetPath);
-		int index = powerset.indexOf(note);
-		if (powersetPath != null) {
-			return powersetPath.getPowersetChildPath(index);
-		}
-		return new DenotatorPath(new int[]{index,0});
+		int objectIndex = powerset.indexOf(object);
+		return powersetPath.getChildPath(objectIndex);
+		//return new DenotatorPath(this.objectGenerator.getBaseForm(), new int[]{index,0});
 	}
 	
-	private LimitDenotator convertNoteIfNecessary(LimitDenotator note, DenotatorPath powersetPath) {
+	/*private LimitDenotator convertNoteIfNecessary(LimitDenotator note, DenotatorPath powersetPath) {
 		if (powersetPath != null && !powersetPath.isModulatorPath()
 				&& !note.getForm().equals(this.noteGenerator.SOUND_NODE_FORM)) {
 			note = this.noteGenerator.createNodeDenotator(note);
 		}
 		return note;
-	}
+	}*/
 	
+	/*
+	 * returns the PowerDenotator at powersetPath in this score. null if it is none
+	 */
 	private PowerDenotator getPowerset(DenotatorPath powersetPath) {
-		if (powersetPath != null && powersetPath.size() > 0) {
-			try {
-				return (PowerDenotator)this.score.get(powersetPath.toIntArray());
-			} catch (RubatoException e) { e.printStackTrace(); } 
-		} else if (this.score.getType() == Form.POWER) {
-			return (PowerDenotator)this.score;
-		}
+		try {
+			return (PowerDenotator)this.score.get(powersetPath.toIntArray());
+		} catch (RubatoException e) { e.printStackTrace(); }
 		return null;
 	}
 	
-	public List<LimitDenotator> getAbsoluteNodes(List<DenotatorPath> nodePaths) {
-		return this.getAbsoluteNotes(nodePaths, false);
+	public List<Denotator> getAbsoluteNodes(List<DenotatorPath> objectPaths) {
+		return this.getAbsoluteObjects(objectPaths, false);
 	}
 	
 	/* WHATTHE?? WHY SO COMPLICATED AND NOT JUST REMOVENOTES()...
@@ -361,14 +308,14 @@ public class BigBangScore implements Cloneable {
 	 * @param nodePaths the paths of the notes to be removed
 	 * @return the removed SoundNotes and SoundNodes (in the order of the note paths)
 	 */
-	public List<LimitDenotator> removeNotes(List<DenotatorPath> notePaths) {
-		return this.getAbsoluteNotes(notePaths, true);
+	public List<Denotator> removeObjects(List<DenotatorPath> objectPaths) {
+		return this.getAbsoluteObjects(objectPaths, true);
 	}
 	
-	public LimitDenotator removeNote(DenotatorPath notePath) {
-		LimitDenotator absoluteNote = this.getAbsoluteNote(notePath);
-		this.internalRemoveNote(notePath);
-		return absoluteNote;
+	public Denotator removeObject(DenotatorPath objectPath) {
+		Denotator absoluteObject = this.getAbsoluteObject(objectPath);
+		this.internalRemoveObject(objectPath);
+		return absoluteObject;
 	}
 	
 	/**
@@ -377,8 +324,8 @@ public class BigBangScore implements Cloneable {
 	 * @param remove true removes the notes from the score
 	 * @return
 	 */
-	private List<LimitDenotator> getAbsoluteNotes(List<DenotatorPath> notePaths, boolean remove) {
-		List<LimitDenotator> notesAndNodes = new ArrayList<LimitDenotator>();
+	private List<Denotator> getAbsoluteObjects(List<DenotatorPath> notePaths, boolean remove) {
+		List<Denotator> notesAndNodes = new ArrayList<Denotator>();
 		notePaths = this.reverseSort(notePaths);
 		Iterator<DenotatorPath> notePathsIterator = notePaths.iterator();
 		if (notePathsIterator.hasNext()) {
@@ -391,43 +338,43 @@ public class BigBangScore implements Cloneable {
 		return notesAndNodes;
 	}
 	
-	private DenotatorPath addNextAbsoluteSiblingsTo(List<LimitDenotator> absoluteNotes, DenotatorPath currentNotePath, Iterator<DenotatorPath> notePathsIterator, boolean remove) {
-		List<LimitDenotator> currentSiblings = new ArrayList<LimitDenotator>();
+	private DenotatorPath addNextAbsoluteSiblingsTo(List<Denotator> absoluteObjects, DenotatorPath currentObjectPath, Iterator<DenotatorPath> objectPathsIterator, boolean remove) {
+		List<Denotator> currentSiblings = new ArrayList<Denotator>();
 		
-		DenotatorPath parentPath = currentNotePath.getParentPath();
-		LimitDenotator currentNote = this.getNote(currentNotePath, remove);
+		DenotatorPath parentPath = currentObjectPath.getAnchorPath();
+		Denotator currentNote = this.getObject(currentObjectPath, remove);
 		currentSiblings.add(currentNote);
 		
-		while (notePathsIterator.hasNext()) {
-			currentNotePath = notePathsIterator.next();
-			if (currentNotePath.isChildOf(parentPath)) {
-				currentSiblings.add(this.getNote(currentNotePath, remove));
+		while (objectPathsIterator.hasNext()) {
+			currentObjectPath = objectPathsIterator.next();
+			if (currentObjectPath.isChildOf(parentPath)) {
+				currentSiblings.add(this.getObject(currentObjectPath, remove));
 			} else {
-				absoluteNotes.addAll(this.makeNotesAbsolute(currentSiblings, parentPath));
-				return currentNotePath;
+				absoluteObjects.addAll(this.makeObjectsAbsolute(currentSiblings, parentPath));
+				return currentObjectPath;
 			}
 		}
-		absoluteNotes.addAll(this.makeNotesAbsolute(currentSiblings, parentPath));
+		absoluteObjects.addAll(this.makeObjectsAbsolute(currentSiblings, parentPath));
 		return null;
 	}
 	
-	private List<LimitDenotator> makeNotesAbsolute(List<LimitDenotator> noteList, DenotatorPath parentPath) {
+	private List<Denotator> makeObjectsAbsolute(List<Denotator> noteList, DenotatorPath parentPath) {
 		if (parentPath == null) {
 			return noteList;
 		}
-		LimitDenotator absoluteParent = this.getAbsoluteNote(parentPath);
-		List<LimitDenotator> absoluteNotes = new ArrayList<LimitDenotator>();
-		for (LimitDenotator currentNote: noteList) {
-			absoluteNotes.add(this.noteGenerator.makeNoteAbsolute(currentNote, absoluteParent));
+		Denotator absoluteParent = this.getAbsoluteObject(parentPath);
+		List<Denotator> absoluteObjects = new ArrayList<Denotator>();
+		for (Denotator currentObject: noteList) {
+			absoluteObjects.add(this.objectGenerator.makeObjectAbsolute(currentObject, absoluteParent));
 		}
-		return absoluteNotes;
+		return absoluteObjects;
 	}
 	
-	private LimitDenotator getNote(DenotatorPath notePath, boolean remove) {
+	private Denotator getObject(DenotatorPath notePath, boolean remove) {
 		if (remove) {
-			return this.internalRemoveNote(notePath);
+			return this.internalRemoveObject(notePath);
 		}
-		return this.extractNote(notePath);
+		return this.extractObject(notePath);
 	}
 	
 	/**
@@ -435,12 +382,12 @@ public class BigBangScore implements Cloneable {
 	 * a note from its modulator powerset
 	 * @param notePath the path to a note
 	 */
-	private LimitDenotator internalRemoveNote(DenotatorPath notePath) {
+	private Denotator internalRemoveObject(DenotatorPath objectPath) {
 		try {
-			int[] powersetPath = notePath.getPowersetPath().toIntArray();
-			int noteIndex = notePath.getNoteIndex();
+			int[] powersetPath = objectPath.getAnchorPowersetPath().toIntArray();
+			int objectIndex = objectPath.getObjectIndex();
 			PowerDenotator powerset = (PowerDenotator)this.score.get(powersetPath);
-			return (LimitDenotator) powerset.removeFactor(noteIndex);
+			return powerset.removeFactor(objectIndex);
 		} catch (RubatoException e) {
 			e.printStackTrace();
 			return null;
@@ -461,54 +408,51 @@ public class BigBangScore implements Cloneable {
 	 * @param nodePaths
 	 * @return
 	 */
-	public List<List<LimitDenotator>> extractNotes(List<DenotatorPath> notePaths) {
+	public List<List<Denotator>> extractObjects(List<DenotatorPath> objectPaths) {
 		//PerformanceCheck.startTask("..e1");
-		List<List<LimitDenotator>> anchorNotes = new ArrayList<List<LimitDenotator>>();
-		for (DenotatorPath currentNodePath: notePaths) {
-			anchorNotes.add(this.extractNotes(currentNodePath));
+		List<List<Denotator>> anchorObjects = new ArrayList<List<Denotator>>();
+		for (DenotatorPath currentNodePath: objectPaths) {
+			anchorObjects.add(this.extractObjects(currentNodePath));
 		}
-		return anchorNotes;
+		return anchorObjects;
 	}
 	
 	/**
-	 * extracts the series of parent notes for the given note
+	 * extracts the series of anchor notes for the given note
 	 * @param notePath
 	 * @return
 	 */
-	public List<LimitDenotator> extractNotes(DenotatorPath notePath) {
+	public List<Denotator> extractObjects(DenotatorPath objectPath) {
 		//PerformanceCheck.startTask("..e2");
-		List<LimitDenotator> parentNotes = new ArrayList<LimitDenotator>();
-		while (notePath != null && notePath.size() > 0) {
-			parentNotes.add(0, this.extractNote(notePath));
-			notePath = notePath.getParentPath(); 
+		List<Denotator> parentObjects = new ArrayList<Denotator>();
+		while (objectPath != null && objectPath.size() > 0) {
+			parentObjects.add(0, this.extractObject(objectPath));
+			objectPath = objectPath.getAnchorPath(); 
 		}
-		return parentNotes;
+		return parentObjects;
 	}
 	
-	/**
+	/*
 	 * extracts the node of a satellite or the note of a modulator
-	 * @param notePath
-	 * @return
 	 */
-	private LimitDenotator extractNote(DenotatorPath notePath) {
+	private Denotator extractObject(DenotatorPath objectPath) {
 		//PerformanceCheck.startTask("..e3");
 		try {
-			//EXTRACT NODE OR NOTE!!!!
-			return (LimitDenotator) this.score.get(notePath.getElementPath().toIntArray());
+			return this.score.get(objectPath.toIntArray());
 		} catch (RubatoException e) {
 			e.printStackTrace();
 			return null;
 		}
 	}
 	
-	private List<LimitDenotator> makeNotesRelative(List<LimitDenotator> noteList, List<DenotatorPath> parentPaths) {
-		List<LimitDenotator> relativeNotes = new ArrayList<LimitDenotator>();
+	private List<Denotator> makeObjectsRelative(List<Denotator> noteList, List<DenotatorPath> parentPaths) {
+		List<Denotator> relativeNotes = new ArrayList<Denotator>();
 		for (int i = 0; i < noteList.size(); i++) {
-			LimitDenotator currentNote = noteList.get(i);
+			Denotator currentNote = noteList.get(i);
 			DenotatorPath currentParentPath = parentPaths.get(i);
 			if (currentParentPath != null && currentParentPath.size() > 0) {
-				LimitDenotator absoluteParentNote = this.getAbsoluteNote(currentParentPath);
-				relativeNotes.add(this.noteGenerator.makeNoteRelative(noteList.get(i), absoluteParentNote));
+				Denotator absoluteParentNote = this.getAbsoluteObject(currentParentPath);
+				relativeNotes.add(this.objectGenerator.makeObjectRelative(noteList.get(i), absoluteParentNote));
 			} else {
 				relativeNotes.add(currentNote);
 			}
@@ -516,30 +460,30 @@ public class BigBangScore implements Cloneable {
 		return relativeNotes;
 	}
 	
-	private List<LimitDenotator> makeNotesRelative(List<LimitDenotator> noteList, DenotatorPath parentPath) {
-		LimitDenotator absoluteParentNote = this.getAbsoluteNote(parentPath);
-		List<LimitDenotator> relativeNotes = new ArrayList<LimitDenotator>();
-		for (LimitDenotator currentNote: noteList) {
-			relativeNotes.add(this.noteGenerator.makeNoteRelative(currentNote, absoluteParentNote));
+	private List<Denotator> makeObjectsRelative(List<Denotator> objectList, DenotatorPath parentPath) {
+		Denotator absoluteParentObject = this.getAbsoluteObject(parentPath);
+		List<Denotator> relativeObjects = new ArrayList<Denotator>();
+		for (Denotator currentObject: objectList) {
+			relativeObjects.add(this.objectGenerator.makeObjectRelative(currentObject, absoluteParentObject));
 		}
-		return relativeNotes;
+		return relativeObjects;
 	}
 	
-	public LimitDenotator getAbsoluteNote(DenotatorPath notePath) {
-		List<DenotatorPath> parentPaths = notePath.getParentPaths();
+	public Denotator getAbsoluteObject(DenotatorPath notePath) {
+		List<DenotatorPath> parentPaths = notePath.getAnchorPaths();
 		if (parentPaths.size() <= 0) {
-			return this.extractNote(notePath);
+			return this.extractObject(notePath);
 		}
 		Collections.reverse(parentPaths);
-		LimitDenotator currentAbsoluteParent = this.extractNote(parentPaths.get(0));
+		Denotator currentAbsoluteParent = this.extractObject(parentPaths.get(0));
 		for (int i = 1; i < parentPaths.size(); i++) {
-			currentAbsoluteParent = this.noteGenerator.makeNoteAbsolute(this.extractNote(parentPaths.get(i)), currentAbsoluteParent);
+			currentAbsoluteParent = this.objectGenerator.makeObjectAbsolute(this.extractObject(parentPaths.get(i)), currentAbsoluteParent);
 		}
-		return this.noteGenerator.makeNoteAbsolute(this.extractNote(notePath), currentAbsoluteParent);
+		return this.objectGenerator.makeObjectAbsolute(this.extractObject(notePath), currentAbsoluteParent);
 	}
 	
-	public LimitDenotator getNote(DenotatorPath notePath) {
-		return this.getNote(notePath, false);
+	public Denotator getObject(DenotatorPath objectPath) {
+		return this.getObject(objectPath, false);
 	}
 	
 	public List<DenotatorPath> reverseSort(List<DenotatorPath> paths) {

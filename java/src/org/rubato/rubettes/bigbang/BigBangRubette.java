@@ -3,10 +3,12 @@ package org.rubato.rubettes.bigbang;
 import javax.swing.JComponent;
 
 import org.rubato.base.AbstractRubette;
+import org.rubato.base.Repository;
 import org.rubato.base.RubatoConstants;
 import org.rubato.base.Rubette;
 import org.rubato.composer.RunInfo;
 import org.rubato.math.yoneda.Denotator;
+import org.rubato.math.yoneda.Form;
 import org.rubato.rubettes.bigbang.controller.BigBangController;
 import org.rubato.rubettes.bigbang.model.BigBangModel;
 import org.rubato.rubettes.bigbang.view.model.BigBangView;
@@ -18,6 +20,7 @@ import org.w3c.dom.Element;
 public class BigBangRubette extends AbstractRubette {
 	
 	public static final boolean IS_MULTITOUCH = false;
+	public static final Form STANDARD_FORM = Repository.systemRepository().getForm("SoundScore");
 	
 	//ban model from here!?
 	private BigBangModel model;

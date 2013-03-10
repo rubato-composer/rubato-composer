@@ -1,6 +1,7 @@
 package org.rubato.rubettes.bigbang.model;
 
 import java.util.ArrayList;
+import java.util.Map;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
@@ -8,11 +9,11 @@ import javax.swing.undo.AbstractUndoableEdit;
 
 import org.rubato.math.yoneda.Denotator;
 import org.rubato.rubettes.bigbang.controller.BigBangController;
-import org.rubato.rubettes.bigbang.model.edits.AddNoteEdit;
+import org.rubato.rubettes.bigbang.model.edits.AddObjectEdit;
 import org.rubato.rubettes.bigbang.model.edits.AddWallpaperDimensionEdit;
 import org.rubato.rubettes.bigbang.model.edits.AffineTransformationEdit;
-import org.rubato.rubettes.bigbang.model.edits.CopyNotesEdit;
-import org.rubato.rubettes.bigbang.model.edits.DeleteNotesEdit;
+import org.rubato.rubettes.bigbang.model.edits.CopyObjectsEdit;
+import org.rubato.rubettes.bigbang.model.edits.DeleteObjectsEdit;
 import org.rubato.rubettes.bigbang.model.edits.FlattenNotesEdit;
 import org.rubato.rubettes.bigbang.model.edits.ModulatorBuildingEdit;
 import org.rubato.rubettes.bigbang.model.edits.MoveNotesEdit;
@@ -63,16 +64,16 @@ public class BigBangModel extends Model {
 		return this.scoreManager.getComposition();
 	}
 	
-	public void addNote(double[] denotatorValues) {
-		this.undoRedoModel.postEdit(new AddNoteEdit(this.scoreManager, denotatorValues));
+	public void addObject(Map<DenotatorPath,Double> pathsWithValues) {
+		this.undoRedoModel.postEdit(new AddObjectEdit(this.scoreManager, pathsWithValues));
 	}
 	
-	public void deleteNotes(ArrayList<DenotatorPath> nodePaths) {
-		this.undoRedoModel.postEdit(new DeleteNotesEdit(this.scoreManager, nodePaths));
+	public void deleteObjects(ArrayList<DenotatorPath> objectPaths) {
+		this.undoRedoModel.postEdit(new DeleteObjectsEdit(this.scoreManager, objectPaths));
 	}
 	
-	public void copyNotes(TreeSet<DenotatorPath> nodePaths, Integer layerIndex) {
-		this.undoRedoModel.postEdit(new CopyNotesEdit(this.scoreManager, nodePaths, layerIndex));
+	public void copyObjects(TreeSet<DenotatorPath> nodePaths) {
+		this.undoRedoModel.postEdit(new CopyObjectsEdit(this.scoreManager, nodePaths));
 	}
 	
 	public void moveNotes(TreeSet<DenotatorPath> nodePaths, Integer layerIndex) {

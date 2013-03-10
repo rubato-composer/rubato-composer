@@ -6,7 +6,6 @@ import java.util.Set;
 import java.util.TreeSet;
 
 import org.rubato.math.yoneda.Denotator;
-import org.rubato.math.yoneda.LimitDenotator;
 import org.rubato.rubettes.alteration.Alterator;
 import org.rubato.rubettes.bigbang.controller.BigBangController;
 import org.rubato.rubettes.util.DenotatorPath;
@@ -83,23 +82,23 @@ public class BigBangAlteration extends Model {
 			if (onlyModulators) {
 				coordinates = this.selectedCoordinates.subList(0, this.selectedCoordinates.size()-1);
 			}
-			System.out.println(onlyModulators);
+			//System.out.println(onlyModulators);
 			this.alterator.setCoordinates(coordinates);
 			List<DenotatorPath> c1 = new ArrayList<DenotatorPath>(this.compositions.get(1));
-			List<LimitDenotator> composition1 = score.getAbsoluteNodes(c1);
-			for (LimitDenotator currentNeighbor: composition1) {
+			List<Denotator> composition1 = score.getAbsoluteNodes(c1);
+			for (Denotator currentNeighbor: composition1) {
 				this.alterator.addNeighbor(currentNeighbor);
 			}
-			List<DenotatorPath> anchorPaths = DenotatorPath.getParentPaths(new ArrayList<DenotatorPath>(this.compositions.get(0)));
-			List<Denotator> composition0 = this.toDenotatorList(score.removeNotes(new ArrayList<DenotatorPath>(this.compositions.get(0))));
-			List<LimitDenotator> alteredNodes = this.alterator.getSoundScoreAlteration(composition0, this.startDegree, this.endDegree, onlyModulators);
-			score.addNotes(alteredNodes, anchorPaths);
+			List<DenotatorPath> anchorPaths = DenotatorPath.getAnchorPowersetPaths(new ArrayList<DenotatorPath>(this.compositions.get(0)));
+			List<Denotator> composition0 = this.toDenotatorList(score.removeObjects(new ArrayList<DenotatorPath>(this.compositions.get(0))));
+			List<Denotator> alteredNodes = this.alterator.getSoundScoreAlteration(composition0, this.startDegree, this.endDegree, onlyModulators);
+			score.addObjects(alteredNodes, anchorPaths);
 		}
 	}
 	
-	private List<Denotator> toDenotatorList(List<LimitDenotator> limitDenotators) {
+	private List<Denotator> toDenotatorList(List<Denotator> limitDenotators) {
 		List<Denotator> denotators = new ArrayList<Denotator>();
-		for (LimitDenotator currentDenotator: limitDenotators) {
+		for (Denotator currentDenotator: limitDenotators) {
 			denotators.add(currentDenotator);
 		}
 		return denotators;

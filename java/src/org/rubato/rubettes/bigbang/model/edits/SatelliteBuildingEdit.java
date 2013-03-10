@@ -24,7 +24,7 @@ public class SatelliteBuildingEdit extends AbstractUndoableEdit {
 	}
 	
 	public void execute() {
-		this.newSatellitePaths = this.scoreLayers.moveNotesToParent(this.oldSatellitePaths, this.anchorPath, false);
+		this.newSatellitePaths = this.scoreLayers.moveObjectsToParent(this.oldSatellitePaths, this.anchorPath, 0);
 	}
 	
 	public void redo() {

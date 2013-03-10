@@ -1,24 +1,26 @@
 package org.rubato.rubettes.bigbang.model.edits;
 
+import java.util.Map;
+
 import javax.swing.undo.AbstractUndoableEdit;
 
 import org.rubato.rubettes.bigbang.model.BigBangScoreManager;
 import org.rubato.rubettes.util.DenotatorPath;
 
-public class AddNoteEdit extends AbstractUndoableEdit {
+public class AddObjectEdit extends AbstractUndoableEdit {
 	
 	private BigBangScoreManager scoreManager;
-	private double[] noteValues;
-	private DenotatorPath notePath;
+	private Map<DenotatorPath,Double> pathsWithValues;
+	private DenotatorPath objectPath;
 	
-	public AddNoteEdit(BigBangScoreManager scoreManager, double[] noteValues) {
+	public AddObjectEdit(BigBangScoreManager scoreManager, Map<DenotatorPath,Double> pathsWithValues) {
 		this.scoreManager = scoreManager;
-		this.noteValues = noteValues;
+		this.pathsWithValues = pathsWithValues;
 		this.execute();
 	}
 	
 	public void execute() {
-		this.notePath = this.scoreManager.addNote(this.noteValues);
+		this.objectPath = this.scoreManager.addObject(this.pathsWithValues);
 	}
 	
 	public void redo() {
@@ -28,11 +30,11 @@ public class AddNoteEdit extends AbstractUndoableEdit {
 	
 	public void undo() {
 		super.undo();
-		this.scoreManager.removeNote(this.notePath);
+		this.scoreManager.removeObject(this.objectPath);
 	}
 	
 	public String getPresentationName() {
-		return "Add Note";
+		return "Add Object";
 	}
 
 }
