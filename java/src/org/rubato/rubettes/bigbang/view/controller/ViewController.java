@@ -54,7 +54,7 @@ public class ViewController extends Controller {
 	public static final String CLEAR_DISPLAY_TOOL = "clearDisplayTool";
 	
 	//score manipulation - denotators
-	public static final String ADD_NOTE = "addNote";
+	public static final String ADD_OBJECT = "addObject";
 	public static final String DELETE_NOTES = "deleteSelectedNotes";
 	public static final String COPY_NOTES = "copySelectedNotesTo";
 	public static final String COPY_NOTES_NEW = "copySelectedNotesToNewLayer";
@@ -206,8 +206,8 @@ public class ViewController extends Controller {
 		this.callModelMethod(ViewController.SHAPE_NOTES, location, copyAndTransform, previewMode);
 	}
 	
-	public void addNote(Point2D.Double location) {
-		this.callModelMethod(ViewController.ADD_NOTE, location);
+	public void addObject(Point2D.Double location) {
+		this.callModelMethod(ViewController.ADD_OBJECT, location);
 	}
 	
 	public void deleteSelectedNotes() {

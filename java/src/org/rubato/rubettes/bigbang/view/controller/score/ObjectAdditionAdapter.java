@@ -7,12 +7,12 @@ import javax.swing.event.MouseInputAdapter;
 
 import org.rubato.rubettes.bigbang.view.controller.ViewController;
 
-public class NoteAdditionAdapter extends MouseInputAdapter {
+public class ObjectAdditionAdapter extends MouseInputAdapter {
 	
 	private ViewController controller;
 	private int mouseButton;
 	
-	public NoteAdditionAdapter(ViewController controller, int mouseButton) {
+	public ObjectAdditionAdapter(ViewController controller, int mouseButton) {
 		this.controller = controller;
 		this.mouseButton = mouseButton;
 	}
@@ -28,7 +28,7 @@ public class NoteAdditionAdapter extends MouseInputAdapter {
 	private void drawNote(MouseEvent event) {
 		if (event.getButton() == this.mouseButton) {
 			Point2D.Double point = new Point2D.Double(event.getPoint().x, event.getPoint().y);
-			this.controller.addNote(point);
+			this.controller.addObject(point);
 		}
 	}
 

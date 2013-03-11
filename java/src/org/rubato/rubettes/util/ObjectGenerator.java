@@ -16,7 +16,6 @@ import org.rubato.math.yoneda.NameDenotator;
 import org.rubato.math.yoneda.SimpleDenotator;
 
 /**
- * TODO: MAKE EVERYTHING DENOTATOR!!!!! INSTEAD OF OBJECT..
  * @author flo
  *
  */
@@ -64,20 +63,9 @@ public class ObjectGenerator {
 	public Denotator createTopLevelObject(Map<DenotatorPath,Double> pathsWithValues) {
 		Denotator object = this.topPowersetElementForm.createDefaultDenotator();
 		for (DenotatorPath currentPath : pathsWithValues.keySet()) {
-			this.replaceValue(object, currentPath.subPath(this.topPowersetPath.size()).toIntArray(), pathsWithValues.get(currentPath));
+			object = this.replaceValue(object, currentPath.toIntArray(), pathsWithValues.get(currentPath));
 		}
 		return object;
-	}
-	
-	//TODO: DOES IT WORK?????
-	public void replaceValue(Denotator object, int[] elementPath, double value) {
-		try {
-			ModuleElement oldElement = object.getElement(elementPath);
-			ModuleElement newElement = new RElement(value).cast(object.getElement(elementPath).getModule());
-			oldElement.add(newElement.difference(oldElement));
-		} catch (RubatoException e) {
-			e.printStackTrace();
-		}
 	}
 	
 	public Double getDoubleValue(Denotator note, int[] elementPath) {
@@ -229,12 +217,11 @@ public class ObjectGenerator {
 	}
 	
 	private Denotator replaceSimples(Denotator object, Map<DenotatorPath,SimpleDenotator> simples) {
-		for (DenotatorPath currentPath : simples.keySet()) {
-			SimpleDenotator currentSimple = simples.get(currentPath);
-			try {
-				object = object.replace(currentPath.toIntArray(), currentSimple);
-			} catch (RubatoException e) { e.printStackTrace(); }
-		}
+		try {
+			for (DenotatorPath currentPath : simples.keySet()) {
+				object = object.replace(currentPath.toIntArray(), simples.get(currentPath));
+			}
+		} catch (RubatoException e) { e.printStackTrace(); }
 		return object;
 	}
 	
@@ -270,6 +257,18 @@ public class ObjectGenerator {
 		} catch(DomainException e) {
 			e.printStackTrace();
 			return null;
+		}
+	}
+	
+	public Denotator replaceValue(Denotator object, int[] simplePath, double value) {
+		try {
+			SimpleDenotator oldSimple = (SimpleDenotator)object.get(simplePath);
+			ModuleElement newElement = new RElement(value).cast(oldSimple.getElement().getModule());
+			SimpleDenotator newSimple = new SimpleDenotator(NameDenotator.make(""), oldSimple.getSimpleForm(), newElement);
+			return object.replace(simplePath, newSimple);
+		} catch (RubatoException e) {
+			e.printStackTrace();
+			return object;
 		}
 	}
 

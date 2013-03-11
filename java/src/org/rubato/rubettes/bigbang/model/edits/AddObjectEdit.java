@@ -1,6 +1,6 @@
 package org.rubato.rubettes.bigbang.model.edits;
 
-import java.util.Map;
+import java.util.TreeMap;
 
 import javax.swing.undo.AbstractUndoableEdit;
 
@@ -10,10 +10,10 @@ import org.rubato.rubettes.util.DenotatorPath;
 public class AddObjectEdit extends AbstractUndoableEdit {
 	
 	private BigBangScoreManager scoreManager;
-	private Map<DenotatorPath,Double> pathsWithValues;
+	private TreeMap<DenotatorPath,Double> pathsWithValues;
 	private DenotatorPath objectPath;
 	
-	public AddObjectEdit(BigBangScoreManager scoreManager, Map<DenotatorPath,Double> pathsWithValues) {
+	public AddObjectEdit(BigBangScoreManager scoreManager, TreeMap<DenotatorPath,Double> pathsWithValues) {
 		this.scoreManager = scoreManager;
 		this.pathsWithValues = pathsWithValues;
 		this.execute();

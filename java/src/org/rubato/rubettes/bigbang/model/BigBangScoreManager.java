@@ -201,7 +201,7 @@ public class BigBangScoreManager extends Model {
 		
 	}
 	
-	public DenotatorPath addObject(Map<DenotatorPath,Double> pathsWithValues) {
+	public DenotatorPath addObject(TreeMap<DenotatorPath,Double> pathsWithValues) {
 		DenotatorPath newPath = this.score.addObject(pathsWithValues);
 		this.fireCompositionChange();
 		this.playNote(this.score.getObject(newPath));

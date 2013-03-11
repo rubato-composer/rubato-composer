@@ -8,6 +8,7 @@ import java.awt.geom.Rectangle2D;
 import java.beans.PropertyChangeEvent;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 
@@ -469,10 +470,10 @@ public class BigBangView extends Model implements View {
 		return new TransformationProperties(notePaths, denotatorPaths, copyAndTransform, previewMode, this.inWallpaperMode);
 	}
 	
-	public void addNote(Point2D.Double location) {
-		double[] denotatorValues = this.getDenotatorValues(location);
+	public void addObject(Point2D.Double location) {
+		Map<DenotatorPath,Double> denotatorValues = this.getDenotatorValues(location);
 		//int layerIndex = this.layerStates.getSmallestActiveLayerIndex();
-		this.controller.addNote(denotatorValues);
+		this.controller.addObject(denotatorValues);
 	}
 	
 	public void deleteSelectedNotes() {
@@ -555,16 +556,17 @@ public class BigBangView extends Model implements View {
 		return new double[] {xValue, yValue};
 	}
 	
-	private double[] getDenotatorValues(Point2D.Double location) {
-		double[] denotatorValues = new double[]{0,0,120,1,0,this.layerStates.getSmallestActiveLayerIndex()};
+	private Map<DenotatorPath,Double> getDenotatorValues(Point2D.Double location) {
+		Map<DenotatorPath,Double> denotatorValues = this.displayNotes.getTopDenotatorStandardValues();
 		this.replaceDenotatorValue(location.x, this.viewParameters.getSelected(0), this.displayPosition.x, this.xZoomFactor, denotatorValues);
 		this.replaceDenotatorValue(location.y, this.viewParameters.getSelected(1), this.displayPosition.y, this.yZoomFactor, denotatorValues);
 		return denotatorValues;
 	}
 	
-	private void replaceDenotatorValue(double displayValue, int parameterIndex, int position, double zoomFactor, double[] values) {
+	private void replaceDenotatorValue(double displayValue, int parameterIndex, int position, double zoomFactor, Map<DenotatorPath,Double> values) {
 		if (parameterIndex > -1) {
-			values[parameterIndex] = this.getDenotatorValue(displayValue, parameterIndex, position, zoomFactor);
+			DenotatorPath associatedPath = this.displayNotes.getPathInTopDenotatorSimple(parameterIndex);
+			values.put(associatedPath, this.getDenotatorValue(displayValue, parameterIndex, position, zoomFactor));
 		}
 	}
 	

@@ -2,6 +2,7 @@ package org.rubato.rubettes.bigbang.view.model;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.rubato.base.RubatoException;
@@ -9,9 +10,9 @@ import org.rubato.math.module.ModuleElement;
 import org.rubato.math.module.ProductElement;
 import org.rubato.math.module.RElement;
 import org.rubato.math.module.RRing;
-import org.rubato.math.module.RingElement;
 import org.rubato.math.yoneda.ColimitDenotator;
 import org.rubato.math.yoneda.Denotator;
+import org.rubato.math.yoneda.Form;
 import org.rubato.math.yoneda.LimitDenotator;
 import org.rubato.math.yoneda.PowerDenotator;
 import org.rubato.math.yoneda.SimpleDenotator;
@@ -35,6 +36,7 @@ public class DenotatorValueExtractor {
 	private DenotatorPath selectedAnchor;
 	private LayerStates layerStates;
 	
+	//TODO: REMOVE!!!
 	private final int[][] ELEMENT_PATHS = new int[][] {
 			{0,0},{1,0},{2,0},{3,0},{4,0},{5,0}};
 	public static final int[][] DENOTATOR_PATHS = new int[][] {
@@ -60,6 +62,7 @@ public class DenotatorValueExtractor {
 		this.valueNames.add("Satellite Level");
 		this.valueNames.add("Sibling number");
 		this.displayObjects.setValueNames(this.valueNames);
+		this.displayObjects.setTopDenotatorValues(this.getTopDenotatorValues(notification.getScore().getForm()));
 		return this.displayObjects;
 	}
 	
@@ -101,28 +104,6 @@ public class DenotatorValueExtractor {
 		return largerObject;
 	}
 	
-	//recursive method!!
-	/*private List<DisplayObject> extractDisplayObjects(Denotator score, DisplayObject parent, int relation, int recLevel, int satLevel, NotePath currentPath) throws RubatoException {
-		List<DisplayObject> siblings = new ArrayList<DisplayObject>();
-		PowerDenotator currentPowerset = (PowerDenotator)soundScore.get(currentPath.toIntArray());
-		for (int i = 0; i < currentPowerset.getFactorCount(); i++) {
-			//create display note
-			NotePath currentSubPath = currentPath.getPowersetChildPath(i);
-			Denotator currentNote = soundScore.get(currentSubPath.toIntArray());
-			DisplayObject currentDisplayNote = this.addNote(currentNote, parent, relation, modLevel, satLevel, i, currentSubPath);
-			//recursive call for the note's satellites
-			NotePath currentSatellitesPath = currentSubPath.getSatellitesPath();
-			if (currentSatellitesPath != null) {
-				currentDisplayNote.setChildren(this.extractDisplayObjects(soundScore, currentDisplayNote, NotePath.SATELLITE, modLevel, satLevel+1, currentSatellitesPath));
-			}
-			//recursive call for the note's modulators
-			NotePath currentModulatorsPath = currentSubPath.getModulatorsPath();
-			currentDisplayNote.setChildren(this.extractDisplayObjects(soundScore, currentDisplayNote, NotePath.MODULATOR, modLevel+1, satLevel, currentModulatorsPath));
-			siblings.add(currentDisplayNote);
-		}
-		return siblings;
-	}*/
-	
 	private DisplayObject addDisplayObject(Denotator denotator, DisplayObject parent, int relation, int satelliteLevel, int siblingNumber, DenotatorPath path) {
 		DisplayObject displayObject = new DisplayObject(parent, relation, satelliteLevel, siblingNumber, denotator.getType(), path.clone());
 		displayObject.setVisibility(this.layerStates.get(displayObject.getLayer()));
@@ -139,29 +120,10 @@ public class DenotatorValueExtractor {
 	}
 	
 	private void addSimpleValues(DisplayObject largerObject, SimpleDenotator simpleDenotator, DenotatorPath path) {
-		List<Double> objectValues = this.extractSimpleValues(simpleDenotator);
+		List<Double> objectValues = this.extractValues(simpleDenotator);
 		largerObject.addValues(simpleDenotator.getForm().getNameString(), path, objectValues);
 		//TODO: a map should keep track which DOs have certain simples so that they can be found quick
 	}
-	
-	/*private DisplayObject addNote(Denotator note, DisplayObject parent, int relation, int modLevel, int satLevel, int siblingNumber, NotePath nodePath) throws RubatoException {
-		double[] noteValues = this.extractValues(note, parent, modLevel, satLevel, siblingNumber);
-		ModuleElement e = note.getElement(this.ELEMENT_PATHS[5]);
-		int layer = ((ZElement)e).getValue();
-		this.maxLayer = Math.max(layer, this.maxLayer);
-		DisplayObject displayNote = new DisplayObject(noteValues, parent, relation, new NotePath(nodePath), layer);
-		displayNote.setVisibility(this.layerStates.get(layer));
-		this.displayObjects.add(displayNote);
-		if (this.selectObjects) {
-			if (this.selectedPaths.contains(nodePath)) {
-				this.displayObjects.selectNote(displayNote);
-			}
-		}
-		if (this.selectedAnchor != null && this.selectedAnchor.equals(nodePath)) {
-			this.displayObjects.setSelectedAnchorNote(displayNote);
-		}
-		return displayNote;
-	}*/
 	
 	//TODO: REWRITE ALL JSYN-RELATED ONES!!!
 	public JSynNote extractValues(Denotator node, int bpm) {
@@ -186,47 +148,37 @@ public class DenotatorValueExtractor {
 		}
 	}
 	
-	private List<Double> extractSimpleValues(SimpleDenotator denotator) {
-		ModuleElement element = denotator.getElement();
+	//TODO: make this as elegant and the same as in DenotatorPath
+	private List<Double> extractValues(SimpleDenotator denotator) {
 		List<Double> values = new ArrayList<Double>();
-		List<String> moduleNames = new ArrayList<String>(); 
-		if (element instanceof ProductElement) {
-			this.extractValues((ProductElement) element, values, moduleNames);
-		} else if (element.getModule().getDimension() > 1) {
-			this.extractValues(element, values, moduleNames);
-		} else {
-			this.extractValue(element, values, moduleNames);
-		}
+		List<String> moduleNames = new ArrayList<String>();
+		this.extractValues(denotator.getElement(), values, moduleNames, "");
 		this.updateMinAndMax(denotator.getForm().getNameString(), values, moduleNames);
 		return values;
 	}
 	
-	//recursively extracts values from multileveled ProductElements  
-	private void extractValues(ProductElement element, List<Double> values, List<String> moduleNames) {
-		for (int i = 0; i < element.getFactorCount(); i++) {
-			RingElement currentFactor = element.getFactor(i);
-			if (currentFactor instanceof ProductElement) {
-				this.extractValues((ProductElement)currentFactor, values, moduleNames);
+	private void extractValues(ModuleElement currentElement, List<Double> values, List<String> moduleNames, String indexString) {
+		if (currentElement instanceof ProductElement) {
+			ProductElement productElement = (ProductElement)currentElement;
+			for (int i = 0; i < productElement.getFactorCount(); i++) {
+				if (!indexString.isEmpty()) indexString += ".";
+				this.extractValues(productElement.getFactor(i), values, moduleNames, indexString+(i+1));
 			}
-			this.extractValue(element.getFactor(i), values, moduleNames);
+		} else if (currentElement.getModule().getDimension() > 1) {
+			for (int i = 0; i < currentElement.getModule().getDimension(); i++) {
+				if (!indexString.isEmpty()) indexString += ".";
+				this.extractValues(currentElement.getComponent(i), values, moduleNames, indexString+(i+1));
+			}
+		} else {
+			values.add(((RElement)currentElement.cast(RRing.ring)).getValue());
+			moduleNames.add(DenotatorPath.makeModuleName(currentElement.getModule(), indexString));
+			//TODO: add functionality for relative def!!! could be selected somewhere in the GUI 
 		}
-	}
-	
-	private void extractValues(ModuleElement element, List<Double> values, List<String> moduleNames) {
-		for (int i = 0; i < element.getModule().getDimension(); i++) {
-			this.extractValue(element.getComponent(i), values, moduleNames);
-		}
-	}
-	
-	private void extractValue(ModuleElement element, List<Double> values, List<String> moduleNames) {
-		values.add(((RElement)element.cast(RRing.ring)).getValue());
-		moduleNames.add(element.getModule().toVisualString());
-		//TODO: add functionality for relative def!!! could be selected somewhere in the GUI 
 	}
 	
 	private void updateMinAndMax(String simpleName, List<Double> values, List<String> moduleNames) {
 		for (int i = 0; i < values.size(); i++) {
-			String currentName = simpleName + " " + moduleNames + " " + (i+1);
+			String currentName = simpleName + " " + moduleNames.get(i);
 			int nameIndex = this.valueNames.indexOf(currentName);
 			if (nameIndex < 0) {
 				this.valueNames.add(currentName);
@@ -248,6 +200,16 @@ public class DenotatorValueExtractor {
 		}
 		this.updateMinAndMax("", values, new ArrayList<String>());
 		return values;
+	}
+	
+	/*
+	 * TODO: standardize this everywhere!!! and refine...
+	 */
+	private Map<String,DenotatorPath> getTopDenotatorValues(Form form) {
+		if (form.getType() == Form.POWER || form.getType() == Form.LIST) {
+			return new DenotatorPath(form).getChildPath(0).findValues();
+		}
+		return new DenotatorPath(form).findValues();
 	}
 	
 	public List<Double> getMinValues() {

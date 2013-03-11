@@ -94,8 +94,6 @@ public class BigBangScore implements Cloneable {
 	 */
 	public List<DenotatorPath> addObjects(List<Denotator> notes, List<DenotatorPath> parentPaths) {
 		notes = this.makeObjectsRelative(notes, parentPaths);
-		notes.get(0).display();
-		System.out.println();
 		List<DenotatorPath> childrenPaths = new ArrayList<DenotatorPath>();
 		for (int i = 0; i < notes.size(); i++) {
 			DenotatorPath currentParentPath = parentPaths.get(i);

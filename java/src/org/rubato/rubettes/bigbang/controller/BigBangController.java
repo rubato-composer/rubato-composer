@@ -1,6 +1,7 @@
 package org.rubato.rubettes.bigbang.controller;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 
@@ -25,7 +26,7 @@ public class BigBangController extends Controller {
 	public static final String INPUT_ACTIVE = "InputActive";
 	public static final String COMPOSITION = "Composition";
 	public static final String PREVIEW = "Preview";
-	public static final String ADD_NOTE = "addObject";
+	public static final String ADD_OBJECT = "addObject";
 	public static final String DELETE_NOTES = "deleteNotes";
 	public static final String COPY_NOTES = "copyNotes";
 	public static final String MOVE_NOTES = "moveNotes";
@@ -100,8 +101,8 @@ public class BigBangController extends Controller {
 		this.setModelProperty(BigBangController.MULTITOUCH, multiTouch);
 	}
 	
-	public void addNote(double[] denotatorValues) {
-		this.callModelMethod(BigBangController.ADD_NOTE, denotatorValues);
+	public void addObject(Map<DenotatorPath,Double> denotatorValues) {
+		this.callModelMethod(BigBangController.ADD_OBJECT, denotatorValues);
 	}
 	
 	public void deleteNotes(List<DenotatorPath> nodePaths) {

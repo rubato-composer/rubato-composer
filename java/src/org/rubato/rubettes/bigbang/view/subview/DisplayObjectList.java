@@ -6,7 +6,9 @@ import java.awt.geom.Rectangle2D;
 import java.beans.PropertyChangeEvent;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.TreeMap;
 import java.util.TreeSet;
 
 import org.rubato.rubettes.bigbang.view.View;
@@ -18,6 +20,10 @@ import org.rubato.rubettes.util.DenotatorPath;
 
 public class DisplayObjectList extends TreeSet<DisplayObject> implements View {
 	
+	private Map<String,DenotatorPath> topDenotatorValues;
+	private Map<DenotatorPath,Double> topDenotatorStandardValues;
+	//TODO: put them somewhere else...
+	private Map<String,Double> standardValues;
 	private Set<DisplayObject> selectedNotes;
 	private List<String> valueNames;
 	private DisplayObject selectedAnchorNote;
@@ -26,6 +32,41 @@ public class DisplayObjectList extends TreeSet<DisplayObject> implements View {
 		controller.addView(this);
 		this.selectedNotes = new TreeSet<DisplayObject>();
 		this.valueNames = new ArrayList<String>();
+		this.standardValues = new TreeMap<String,Double>();
+		this.standardValues.put("Onset R", 0.0);
+		this.standardValues.put("Pitch Q", 0.0);
+		this.standardValues.put("Loudness Z", 120.0);
+		this.standardValues.put("Duration R", 1.0);
+		this.standardValues.put("Voice Z", 0.0);
+		this.topDenotatorStandardValues = new TreeMap<DenotatorPath,Double>();
+	}
+	
+	public void setValueNames(List<String> valueNames) {
+		this.valueNames = valueNames;
+	}
+	
+	public List<String> getValueNames() {
+		return this.valueNames;
+	}
+	
+	public void setTopDenotatorValues(Map<String,DenotatorPath> valuesNamesAndPaths) {
+		this.topDenotatorValues = valuesNamesAndPaths;
+		this.updateTopDenotatorStandardValues();
+	}
+	
+	public DenotatorPath getPathInTopDenotatorSimple(int valueIndex) {
+		return this.topDenotatorValues.get(this.valueNames.get(valueIndex));
+	}
+	
+	private void updateTopDenotatorStandardValues() {
+		this.topDenotatorStandardValues = new TreeMap<DenotatorPath,Double>();
+		for (String currentName : this.topDenotatorValues.keySet()) {
+			this.topDenotatorStandardValues.put(this.topDenotatorValues.get(currentName), this.standardValues.get(currentName));
+		}
+	}
+	
+	public Map<DenotatorPath,Double> getTopDenotatorStandardValues() {
+		return this.topDenotatorStandardValues;
 	}
 	
 	public void tempSelectNotes(Rectangle2D.Double area) {
@@ -264,14 +305,6 @@ public class DisplayObjectList extends TreeSet<DisplayObject> implements View {
 			int[] selectedMods = (int[])event.getNewValue();
 			this.updateModulatorVisibility(selectedMods[0], selectedMods[1]);
 		}
-	}
-	
-	public void setValueNames(List<String> valueNames) {
-		this.valueNames = valueNames;
-	}
-	
-	public List<String> getValueNames() {
-		return this.valueNames;
 	}
 
 }
