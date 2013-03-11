@@ -2,6 +2,8 @@ package org.rubato.rubettes.bigbang.test;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
 
 import junit.framework.TestCase;
 
@@ -21,16 +23,19 @@ public class BigBangScoreTest extends TestCase {
 		this.score = new BigBangScore(this.objects.SOUND_SCORE_FORM);;
 	}
 	
-	/*TODO: adapt!!! public void testAddNode() {
-		DenotatorPath nodePath = this.score.addObject(this.objects.NOTE0_VALUES);
-		TestCase.assertEquals(nodePath, new DenotatorPath(this.objects.SOUND_SCORE_FORM, new int[]{0,0}));
-		nodePath = this.score.addObject(this.objects.NOTE2_ABSOLUTE_VALUES);
-		TestCase.assertEquals(nodePath, new DenotatorPath(this.objects.SOUND_SCORE_FORM, new int[]{1,0}));
-		nodePath = this.score.addObject(this.objects.NOTE1_ABSOLUTE_VALUES);
-		TestCase.assertEquals(nodePath, new DenotatorPath(this.objects.SOUND_SCORE_FORM, new int[]{1,0}));
+	public void testAddNote() throws RubatoException {
+		DenotatorPath nodePath = this.score.addObject(this.generateNodeValueMap(this.objects.NOTE0_VALUES));
+		TestCase.assertEquals(new DenotatorPath(this.objects.SOUND_SCORE_FORM, new int[]{0}), nodePath);
+		this.assertEqualNodes(this.objects.node0, this.score.getObject(new DenotatorPath(this.objects.SOUND_SCORE_FORM, new int[]{0})));
+		nodePath = this.score.addObject(this.generateNodeValueMap(this.objects.NOTE2_ABSOLUTE_VALUES));
+		TestCase.assertEquals(new DenotatorPath(this.objects.SOUND_SCORE_FORM, new int[]{1}), nodePath);
+		this.assertEqualNodes(this.objects.node2Absolute, this.score.getObject(new DenotatorPath(this.objects.SOUND_SCORE_FORM, new int[]{1})));
+		nodePath = this.score.addObject(this.generateNodeValueMap(this.objects.NOTE1_ABSOLUTE_VALUES));
+		TestCase.assertEquals(new DenotatorPath(this.objects.SOUND_SCORE_FORM, new int[]{1}), nodePath);
+		this.assertEqualNodes(this.objects.node1Absolute, this.score.getObject(new DenotatorPath(this.objects.SOUND_SCORE_FORM, new int[]{1})));
 		PowerDenotator composition = (PowerDenotator)this.score.getComposition();
 		TestCase.assertTrue(composition.getFactorCount() == 3);
-	}*/
+	}
 	
 	public void testAddNodesAndFindPaths() {
 		//addNodes
@@ -104,6 +109,14 @@ public class BigBangScoreTest extends TestCase {
 			nodePaths.add(new DenotatorPath(this.objects.SOUND_SCORE_FORM, currentPath));
 		}
 		return nodePaths;
+	}
+	
+	private Map<DenotatorPath,Double> generateNodeValueMap(double[] noteValues) {
+		Map<DenotatorPath,Double> valueMap = new TreeMap<DenotatorPath,Double>();
+		for (int i = 0; i < noteValues.length; i++) {
+			valueMap.put(new DenotatorPath(this.objects.SOUND_NODE_FORM, new int[]{0,i}), noteValues[i]);
+		}
+		return valueMap;
 	}
 	
 	private void assertEqualNodes(Denotator note1, Denotator note2) throws RubatoException {

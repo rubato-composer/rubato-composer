@@ -64,7 +64,7 @@ public class BigBangModel extends Model {
 		return this.scoreManager.getComposition();
 	}
 	
-	public void addObject(Map<DenotatorPath,Double> pathsWithValues) {
+	public void addObject(TreeMap<DenotatorPath,Double> pathsWithValues) {
 		this.undoRedoModel.postEdit(new AddObjectEdit(this.scoreManager, pathsWithValues));
 	}
 	

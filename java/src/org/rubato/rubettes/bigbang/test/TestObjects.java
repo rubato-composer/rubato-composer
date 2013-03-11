@@ -29,6 +29,7 @@ import org.rubato.rubettes.util.SoundNoteGenerator;
 public class TestObjects {
 	
 	public final Form SOUND_SCORE_FORM = Repository.systemRepository().getForm("SoundScore");
+	public final Form SOUND_NODE_FORM = Repository.systemRepository().getForm("SoundNode");
 	
 	public final double[][] ABSOLUTE = new double[][]{
 			{0,60,120,1,0,0},{1,63,116,1,0,0},{2,60,121,1,1,0}};

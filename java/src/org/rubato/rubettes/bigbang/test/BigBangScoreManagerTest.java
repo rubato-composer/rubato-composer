@@ -231,7 +231,6 @@ public class BigBangScoreManagerTest extends TestCase {
 		this.assertEqualNodes(this.objects.node0, this.scoreManager.getComposition().get(new int[]{0}));
 		this.assertEqualNodes(this.objects.node1Absolute, this.scoreManager.getComposition().get(new int[]{1}));
 		this.assertEqualNodes(this.objects.node2Relative, this.scoreManager.getComposition().get(new int[]{1,1,0}));
-		System.out.println("NOW");
 		this.scoreManager.unflattenNotes(newAndOldPaths);
 		this.assertEqualNodes(this.objects.node0, this.scoreManager.getComposition().get(new int[]{0}));
 		this.assertEqualNodes(this.objects.node1Relative, this.scoreManager.getComposition().get(new int[]{0,1,0}));
