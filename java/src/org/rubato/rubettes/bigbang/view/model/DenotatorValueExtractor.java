@@ -22,6 +22,7 @@ import org.rubato.rubettes.bigbang.model.player.JSynNote;
 import org.rubato.rubettes.bigbang.view.controller.ViewController;
 import org.rubato.rubettes.bigbang.view.subview.DisplayObjectList;
 import org.rubato.rubettes.util.DenotatorPath;
+import org.rubato.rubettes.util.DenotatorValueFinder;
 
 //TODO: deal with case that different occurences of same form have independent maxima!!!  
 public class DenotatorValueExtractor {
@@ -50,7 +51,7 @@ public class DenotatorValueExtractor {
 		this.valueNames = new ArrayList<String>();
 		this.minValues = new ArrayList<Double>();
 		this.maxValues = new ArrayList<Double>();
-		this.displayObjects = new DisplayObjectList(controller);
+		this.displayObjects = new DisplayObjectList(controller, notification.getScore().getForm());
 		this.selectObjects = selectObjects;
 		this.selectedPaths = notification.getNotesToBeSelected();
 		this.selectedAnchor = notification.getAnchorToBeSelected();
@@ -59,10 +60,11 @@ public class DenotatorValueExtractor {
 			this.extractDisplayObjects(notification.getScore(), null, null, DenotatorPath.ANCHOR, 0, 0, new DenotatorPath(notification.getScore().getForm()));
 		} catch (RubatoException e) { e.printStackTrace(); }
 		this.layerStates.removeLayers(this.maxLayer);
+		this.displayObjects.setTopDenotatorValues(this.getTopDenotatorValues(notification.getScore().getForm()));
+		//TODO: CURRENTLY ONLY FINDS THE NAMES IN THE TOP DENOTATOR!!!!!! adjust methods!!
 		this.valueNames.add("Satellite Level");
 		this.valueNames.add("Sibling number");
 		this.displayObjects.setValueNames(this.valueNames);
-		this.displayObjects.setTopDenotatorValues(this.getTopDenotatorValues(notification.getScore().getForm()));
 		return this.displayObjects;
 	}
 	
@@ -171,7 +173,7 @@ public class DenotatorValueExtractor {
 			}
 		} else {
 			values.add(((RElement)currentElement.cast(RRing.ring)).getValue());
-			moduleNames.add(DenotatorPath.makeModuleName(currentElement.getModule(), indexString));
+			moduleNames.add(DenotatorValueFinder.makeModuleName(currentElement.getModule(), indexString));
 			//TODO: add functionality for relative def!!! could be selected somewhere in the GUI 
 		}
 	}
@@ -203,13 +205,15 @@ public class DenotatorValueExtractor {
 	}
 	
 	/*
-	 * TODO: standardize this everywhere!!! and refine...
+	 * TODO: only search once!!!! and standardize!!
 	 */
 	private Map<String,DenotatorPath> getTopDenotatorValues(Form form) {
 		if (form.getType() == Form.POWER || form.getType() == Form.LIST) {
-			return new DenotatorPath(form).getChildPath(0).findValues();
+			form = form.getForm(0);
 		}
-		return new DenotatorPath(form).findValues();
+		DenotatorValueFinder finder = new DenotatorValueFinder(form, false);
+		this.valueNames = finder.getValueNamesInFoundOrder();
+		return finder.getValueNamesAndPaths();
 	}
 	
 	public List<Double> getMinValues() {

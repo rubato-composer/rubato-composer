@@ -8,6 +8,7 @@ import java.util.TreeMap;
 import java.util.TreeSet;
 
 import org.rubato.math.yoneda.Denotator;
+import org.rubato.math.yoneda.Form;
 import org.rubato.rubettes.bigbang.BigBangRubette;
 import org.rubato.rubettes.bigbang.controller.BigBangController;
 import org.rubato.rubettes.bigbang.controller.ScoreChangedNotification;
@@ -45,6 +46,11 @@ public class BigBangScoreManager extends Model {
 	public void newWindowAdded(SelectedPaths paths) {
 		this.fireCompositionChange(this.score, paths.getNodePaths(), paths.getAnchorPath(), false);
 		this.alteration.fireState();
+	}
+	
+	public void setForm(Form form) {
+		this.score.setForm(form);
+		this.fireCompositionChange(this.score, null, null, false);
 	}
 	
 	public boolean setComposition(Denotator newComposition) {
