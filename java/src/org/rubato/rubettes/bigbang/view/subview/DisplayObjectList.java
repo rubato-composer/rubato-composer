@@ -11,6 +11,7 @@ import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
+import org.rubato.math.yoneda.Form;
 import org.rubato.rubettes.bigbang.view.View;
 import org.rubato.rubettes.bigbang.view.controller.ViewController;
 import org.rubato.rubettes.bigbang.view.model.DisplayObject;
@@ -20,6 +21,7 @@ import org.rubato.rubettes.util.DenotatorPath;
 
 public class DisplayObjectList extends TreeSet<DisplayObject> implements View {
 	
+	private Form baseForm;
 	private Map<String,DenotatorPath> topDenotatorValues;
 	private Map<DenotatorPath,Double> topDenotatorStandardValues;
 	//TODO: put them somewhere else...
@@ -28,8 +30,9 @@ public class DisplayObjectList extends TreeSet<DisplayObject> implements View {
 	private List<String> valueNames;
 	private DisplayObject selectedAnchorNote;
 	
-	public DisplayObjectList(ViewController controller) {
+	public DisplayObjectList(ViewController controller, Form baseForm) {
 		controller.addView(this);
+		this.baseForm = baseForm;
 		this.selectedNotes = new TreeSet<DisplayObject>();
 		this.valueNames = new ArrayList<String>();
 		this.standardValues = new TreeMap<String,Double>();
@@ -47,6 +50,10 @@ public class DisplayObjectList extends TreeSet<DisplayObject> implements View {
 	
 	public List<String> getValueNames() {
 		return this.valueNames;
+	}
+	
+	public Form getBaseForm() {
+		return this.baseForm;
 	}
 	
 	public void setTopDenotatorValues(Map<String,DenotatorPath> valuesNamesAndPaths) {

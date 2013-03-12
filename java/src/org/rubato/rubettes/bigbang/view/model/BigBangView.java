@@ -70,7 +70,7 @@ public class BigBangView extends Model implements View {
 		this.controller.addView(this);
 		this.initViewMVC();
 		this.initViewParameterControls();
-		this.setDisplayNotes(new DisplayObjectList(viewController), new ArrayList<Double>(), new ArrayList<Double>());
+		this.setDisplayNotes(new DisplayObjectList(viewController, null), new ArrayList<Double>(), new ArrayList<Double>());
 		this.setSatellitesConnected(true);
 		//this.setDisplayMode(new DrawNotesDisplayMode());
 		this.setDisplayPosition(new Point(0, 600));
@@ -108,8 +108,8 @@ public class BigBangView extends Model implements View {
 	}
 	
 	private void initViewParameterControls() {
-		this.viewParametersVisible = true;
-		this.toggleViewParametersVisible();
+		//this.viewParametersVisible = false;
+		//this.toggleViewParametersVisible();
 		this.mainOptionsVisible = true;
 		this.toggleMainOptionsVisible();
 	}

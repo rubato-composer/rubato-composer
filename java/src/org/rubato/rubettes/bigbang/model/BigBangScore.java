@@ -11,7 +11,6 @@ import org.rubato.base.RubatoException;
 import org.rubato.math.yoneda.Denotator;
 import org.rubato.math.yoneda.Form;
 import org.rubato.math.yoneda.PowerDenotator;
-import org.rubato.math.yoneda.PowerForm;
 import org.rubato.rubettes.util.DenotatorPath;
 import org.rubato.rubettes.util.ObjectGenerator;
 
@@ -21,8 +20,8 @@ public class BigBangScore implements Cloneable {
 	protected Denotator score;
 	
 	public BigBangScore(Form baseForm) {
-		this.objectGenerator = new ObjectGenerator(baseForm);
-		this.score = this.objectGenerator.createEmptyScore();
+		this.objectGenerator = new ObjectGenerator();
+		this.resetScore(baseForm);
 	}
 	
 	public Object clone() {
@@ -31,11 +30,17 @@ public class BigBangScore implements Cloneable {
 		return clone;
 	}
 	
-	/*public void setNoteGenerator(SoundNoteGenerator noteGenerator) {
-		this.noteGenerator = noteGenerator;
-		//reset composition so that it converts if necessary!!
-		this.setComposition(this.score);
-	}*/
+	public boolean setForm(Form form) {
+		return this.resetScore(form);
+	}
+	
+	private boolean resetScore(Form baseForm) {
+		boolean validForm = this.objectGenerator.setBaseForm(baseForm);
+		if (validForm) {
+			this.setComposition(this.objectGenerator.createEmptyScore());
+		}
+		return validForm;
+	}
 	
 	/**
 	 * @return true if newComposition is of an allowed form type

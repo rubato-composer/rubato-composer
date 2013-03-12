@@ -25,10 +25,6 @@ public class ObjectGenerator {
 	private DenotatorPath topPowersetPath;
 	private Form topPowersetElementForm;
 	
-	public ObjectGenerator(Form baseForm) {
-		this.setBaseForm(baseForm);
-	}
-	
 	public Denotator createEmptyScore() {
 		return this.baseForm.createDefaultDenotator();
 	}

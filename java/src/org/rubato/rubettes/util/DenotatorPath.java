@@ -339,53 +339,6 @@ public class DenotatorPath implements Comparable<Object> {
 		return null;
 	}
 	
-	public Map<String,DenotatorPath> findValues() {
-		Map<String,DenotatorPath> values = new TreeMap<String,DenotatorPath>();
-		PriorityQueue<DenotatorPath> subPathsQueue = new PriorityQueue<DenotatorPath>();
-		subPathsQueue.add(new DenotatorPath(this.getForm()));
-		while (!subPathsQueue.isEmpty()) {
-			DenotatorPath currentPath = subPathsQueue.poll();
-			Form currentForm = currentPath.getForm();
-			if (currentForm.getType() == Form.SIMPLE) {
-				this.putValueNames(currentForm.getNameString(), ((SimpleForm)currentForm).getModule(), currentPath, values, "");
-			//do not search farther if form is either power or list!!
-			} else if (currentForm.getType() == Form.LIMIT || currentForm.getType() == Form.COLIMIT) {
-				for (int i = 0; i < currentForm.getForms().size(); i++) {
-					subPathsQueue.add(currentPath.getChildPath(i));
-				}
-			}
-		}
-		return values;
-	}
-	
-	//recursively finds all values and their names
-	private void putValueNames(String simpleName, Module currentModule, DenotatorPath currentPath, Map<String,DenotatorPath> valueNamesAndPaths, String indexString) {
-		if (currentModule instanceof ProductRing) {
-			ProductRing productRing = (ProductRing)currentModule;
-			for (int i = 0; i < productRing.getFactorCount(); i++) {
-				if (!indexString.isEmpty()) indexString += ".";
-				this.putValueNames(simpleName, productRing.getFactor(i), currentPath.getChildPath(i), valueNamesAndPaths, indexString+(i+1));
-			}
-		} else if (currentModule.getDimension() > 1) {
-			for (int i = 0; i < currentModule.getDimension(); i++) {
-				if (!indexString.isEmpty()) indexString += ".";
-				//System.out.println(currentModule + " " + currentModule.getComponentModule(i) + " " + currentPath.getChildPath(i));
-				this.putValueNames(simpleName, currentModule.getComponentModule(i), currentPath.getChildPath(i), valueNamesAndPaths, indexString+(i+1));
-			}
-		} else {
-			valueNamesAndPaths.put(simpleName + " " + DenotatorPath.makeModuleName(currentModule, indexString), currentPath);
-		}
-	}
-	
-	public static String makeModuleName(Module module, String indexString) {
-		String moduleName = indexString;
-		if (!indexString.isEmpty()) {
-			moduleName += " ";
-		}
-		moduleName += module.toVisualString();
-		return moduleName;
-	}
-	
 	public String toString() {
 		return this.indices.toString();
 	}

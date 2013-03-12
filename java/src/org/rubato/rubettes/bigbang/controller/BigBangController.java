@@ -5,6 +5,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 
+import org.rubato.math.yoneda.Form;
 import org.rubato.rubettes.bigbang.model.TransformationProperties;
 import org.rubato.rubettes.bigbang.view.model.SelectedPaths;
 import org.rubato.rubettes.util.DenotatorPath;
@@ -24,6 +25,7 @@ public class BigBangController extends Controller {
 	public static final String WAVEFORM = "Waveform";
 	public static final String MULTITOUCH = "MultiTouch";
 	public static final String INPUT_ACTIVE = "InputActive";
+	public static final String FORM = "setForm";
 	public static final String COMPOSITION = "Composition";
 	public static final String PREVIEW = "Preview";
 	public static final String ADD_OBJECT = "addObject";
@@ -79,6 +81,10 @@ public class BigBangController extends Controller {
 	
 	public void changeInputActive(boolean inputActive) {
 		this.setModelProperty(BigBangController.INPUT_ACTIVE, inputActive);
+	}
+	
+	public void setForm(Form form) {
+		this.callModelMethod(BigBangController.FORM, form);
 	}
 	
 	public void togglePlayMode() {

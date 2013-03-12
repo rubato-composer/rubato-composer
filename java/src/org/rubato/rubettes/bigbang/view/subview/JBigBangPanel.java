@@ -29,7 +29,7 @@ public class JBigBangPanel extends JPanel {
 		this.setLayout(new BorderLayout());
 		this.add(this.createToolBarsPanel(controller, bbController), BorderLayout.NORTH);
 		JBigBangDisplay display = new JBigBangDisplay(controller);
-		this.initMenuComponents(display, controller);
+		this.initMenuComponents(display, controller, bbController);
 		this.add(display, BorderLayout.CENTER);
 		this.add(this.makeButtonPanel(controller), BorderLayout.EAST);
 		new JWindowPreferencesDialog(controller, bbController);
@@ -46,15 +46,15 @@ public class JBigBangPanel extends JPanel {
 		return toolBarsPanel;
 	}
 	
-	private void initMenuComponents(JBigBangDisplay display, ViewController controller) {
+	private void initMenuComponents(JBigBangDisplay display, ViewController controller, BigBangController bbController) {
 		display.setLayout(new FlowLayout(FlowLayout.RIGHT));
-		this.mainOptionsPanel = new JMainOptionsPanel(controller);
+		this.mainOptionsPanel = new JMainOptionsPanel(controller, bbController);
 		controller.addView(this.mainOptionsPanel);
 		display.add(this.mainOptionsPanel);
 		this.viewParametersScrollPane = new JViewParametersScrollPane(controller);
 		controller.addView(this.viewParametersScrollPane);
 		//display.add(this.viewParametersTable.getTableHeader());
-		display.add(this.viewParametersScrollPane);
+		this.mainOptionsPanel.add(this.viewParametersScrollPane, BorderLayout.SOUTH);
 	}
 	
 	private JPanel makeButtonPanel(ViewController controller) {
@@ -63,7 +63,7 @@ public class JBigBangPanel extends JPanel {
         buttonPanel.setLayout(layout);
 
         buttonPanel.add(this.makeMenuButton(this.mainOptionsPanel, new ToggleMainOptionsAction(controller), layout));
-		buttonPanel.add(this.makeMenuButton(this.viewParametersScrollPane, new ToggleViewParametersAction(controller), layout));
+		//buttonPanel.add(this.makeMenuButton(this.viewParametersScrollPane, new ToggleViewParametersAction(controller), layout));
 		return buttonPanel;
 	}
 	

@@ -62,7 +62,7 @@ public class JViewParametersScrollPane extends JScrollPane implements View {
 		} else if (propertyName.equals(ViewController.SELECTED_VIEW_PARAMETERS)) {
 			this.updateViewParameters((int[]) event.getNewValue());
 		} else if (propertyName.equals(ViewController.VIEW_PARAMETERS_VISIBLE)) {
-			this.setVisible(((Boolean)event.getNewValue()).booleanValue());
+			this.setVisible((Boolean)event.getNewValue());
 		}
 	}
 
