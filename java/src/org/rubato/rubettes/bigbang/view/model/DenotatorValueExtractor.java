@@ -110,7 +110,7 @@ public class DenotatorValueExtractor {
 		DisplayObject displayObject = new DisplayObject(parent, relation, satelliteLevel, siblingNumber, denotator.getType(), path.clone());
 		displayObject.setVisibility(this.layerStates.get(displayObject.getLayer()));
 		this.displayObjects.add(displayObject);
-		if (this.selectObjects) {
+		if (this.selectObjects && this.selectedPaths != null) {
 			if (this.selectedPaths.contains(path)) {
 				this.displayObjects.selectNote(displayObject);
 			}
@@ -150,7 +150,7 @@ public class DenotatorValueExtractor {
 		}
 	}
 	
-	//TODO: make this as elegant and the same as in DenotatorPath
+	//TODO: maybe outsource, join with ObjectGenerator.createModule
 	private List<Double> extractValues(SimpleDenotator denotator) {
 		List<Double> values = new ArrayList<Double>();
 		List<String> moduleNames = new ArrayList<String>();

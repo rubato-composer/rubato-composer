@@ -558,15 +558,22 @@ public class BigBangView extends Model implements View {
 	
 	private Map<DenotatorPath,Double> getDenotatorValues(Point2D.Double location) {
 		Map<DenotatorPath,Double> denotatorValues = this.displayNotes.getTopDenotatorStandardValues();
-		this.replaceDenotatorValue(location.x, this.viewParameters.getSelected(0), this.displayPosition.x, this.xZoomFactor, denotatorValues);
-		this.replaceDenotatorValue(location.y, this.viewParameters.getSelected(1), this.displayPosition.y, this.yZoomFactor, denotatorValues);
+		int XParameterIndex = this.viewParameters.getSelected(0);
+		int YParameterIndex = this.viewParameters.getSelected(1);
+		this.replaceDenotatorValue(location.x, XParameterIndex, this.displayPosition.x, this.xZoomFactor, denotatorValues);
+		if (XParameterIndex != YParameterIndex) {
+			this.replaceDenotatorValue(location.y, YParameterIndex, this.displayPosition.y, this.yZoomFactor, denotatorValues);
+		}
 		return denotatorValues;
 	}
 	
 	private void replaceDenotatorValue(double displayValue, int parameterIndex, int position, double zoomFactor, Map<DenotatorPath,Double> values) {
 		if (parameterIndex > -1) {
 			DenotatorPath associatedPath = this.displayNotes.getPathInTopDenotatorSimple(parameterIndex);
-			values.put(associatedPath, this.getDenotatorValue(displayValue, parameterIndex, position, zoomFactor));
+			//null happens when satellite or sibling level is selected
+			if (associatedPath != null) {
+				values.put(associatedPath, this.getDenotatorValue(displayValue, parameterIndex, position, zoomFactor));
+			}
 		}
 	}
 	
