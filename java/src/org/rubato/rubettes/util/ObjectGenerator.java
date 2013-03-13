@@ -1,5 +1,7 @@
 package org.rubato.rubettes.util;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.PriorityQueue;
 import java.util.TreeMap;
@@ -7,8 +9,12 @@ import java.util.TreeMap;
 import org.rubato.base.RubatoException;
 import org.rubato.math.module.DomainException;
 import org.rubato.math.module.ModuleElement;
+import org.rubato.math.module.ProductElement;
 import org.rubato.math.module.RElement;
+import org.rubato.math.module.RProperFreeElement;
+import org.rubato.math.module.RProperFreeModule;
 import org.rubato.math.module.RRing;
+import org.rubato.math.module.RingElement;
 import org.rubato.math.yoneda.Denotator;
 import org.rubato.math.yoneda.FactorDenotator;
 import org.rubato.math.yoneda.Form;
@@ -23,7 +29,7 @@ public class ObjectGenerator {
 	
 	private Form baseForm;
 	private DenotatorPath topPowersetPath;
-	private Form topPowersetElementForm;
+	private Form topLevelObjectForm;
 	
 	public Denotator createEmptyScore() {
 		return this.baseForm.createDefaultDenotator();
@@ -53,13 +59,25 @@ public class ObjectGenerator {
 	
 	private void calculateTopPowersetPathAndForm() {
 		this.topPowersetPath = new DenotatorPath(this.baseForm).getFirstPowersetPath();
-		this.topPowersetElementForm = this.topPowersetPath.getForm().getForm(0);
+		if (this.topPowersetPath != null) {
+			this.topLevelObjectForm = this.topPowersetPath.getForm().getForm(0);
+		} else {
+			this.topLevelObjectForm = this.baseForm;
+		}
 	}
 	
 	public Denotator createTopLevelObject(Map<DenotatorPath,Double> pathsWithValues) {
-		Denotator object = this.topPowersetElementForm.createDefaultDenotator();
+		Denotator object = this.topLevelObjectForm.createDefaultDenotator();
 		for (DenotatorPath currentPath : pathsWithValues.keySet()) {
-			object = this.replaceValue(object, currentPath.toIntArray(), pathsWithValues.get(currentPath));
+			if (currentPath.isElementPath()) {
+				int[] simplePath = currentPath.getDenotatorSubpath().toIntArray();
+				int[] elementPath = currentPath.getElementSubpath().toIntArray();
+				if (pathsWithValues.get(currentPath) != null) {
+					object = this.replaceValue(object, simplePath, elementPath, pathsWithValues.get(currentPath));
+				}
+			} else {
+				object = this.replaceValue(object, currentPath.toIntArray(), pathsWithValues.get(currentPath));
+			}
 		}
 		return object;
 	}
@@ -265,6 +283,42 @@ public class ObjectGenerator {
 		} catch (RubatoException e) {
 			e.printStackTrace();
 			return object;
+		}
+	}
+	
+	public Denotator replaceValue(Denotator object, int[] simplePath, int[] elementPath, double value) {
+		try {
+			SimpleDenotator oldSimple = (SimpleDenotator)object.get(simplePath);
+			ModuleElement newElement = this.createModuleElement(oldSimple.getElement(), elementPath, 0, value);
+			SimpleDenotator newSimple = new SimpleDenotator(NameDenotator.make(""), oldSimple.getSimpleForm(), newElement);
+			return object.replace(simplePath, newSimple);
+		} catch (RubatoException e) {
+			e.printStackTrace();
+			return object;
+		}
+	}
+	
+	//TODO: fix things with current position!!!!!
+	private ModuleElement createModuleElement(ModuleElement currentElement, int[] elementPath, int currentPosition, double value) {
+		int currentIndex = elementPath[currentPosition];
+		int currentDimension = currentElement.getModule().getDimension();
+		if (currentElement instanceof ProductElement) {
+			ProductElement productElement = (ProductElement)currentElement;
+			List<RingElement> factors = new ArrayList<RingElement>();
+			for (int i = 0; i < productElement.getFactorCount(); i++) {
+				if (i == currentIndex) {
+					factors.add((RingElement)this.createModuleElement(productElement.getFactor(i), elementPath, currentPosition, value));
+				} else {
+					factors.add(productElement.getFactor(i));
+				}
+			}
+			return ProductElement.make(factors).cast(productElement.getModule());
+		} else if (currentDimension > 1) {
+			double[] values = ((RProperFreeElement)currentElement.cast(RProperFreeModule.make(currentDimension))).getValue();
+			values[elementPath[elementPath.length-1]] = value;
+			return RProperFreeElement.make(values).cast(currentElement.getModule());
+		} else {
+			return new RElement(value).cast(currentElement.getModule());
 		}
 	}
 

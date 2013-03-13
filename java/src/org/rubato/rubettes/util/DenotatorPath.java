@@ -2,9 +2,7 @@ package org.rubato.rubettes.util;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.PriorityQueue;
-import java.util.TreeMap;
 
 import org.rubato.base.RubatoException;
 import org.rubato.math.module.Module;
@@ -62,26 +60,25 @@ public class DenotatorPath implements Comparable<Object> {
 		Form currentForm = this.baseForm;
 		Module currentModule = null;
 		this.elementPathIndex = -1;
-		for (int i : this.indices) {
+		for (int i = 0; i < this.indices.size(); i++) {
+			int currentIndex = this.indices.get(i);
 			if (currentForm.getType() == Form.POWER || currentForm.getType() == Form.LIST) {
 				currentForm = currentForm.getForm(0);
 			} else if (currentForm.getType() != Form.SIMPLE) {
-				if (currentForm.getFormCount() <= i) {
+				if (currentForm.getFormCount() <= currentIndex) {
 					//hahaha
-					try { throw new RubatoException("Illegal DenotatorPath" + this.baseForm.getNameString() + ": " + this); }
+					try { throw new RubatoException("Illegal DenotatorPath: " + this.baseForm.getNameString() + ": " + this); }
 					catch (RubatoException e) { e.printStackTrace(); }
 				}
-				currentForm = currentForm.getForm(i);
+				currentForm = currentForm.getForm(currentIndex);
 			} else {
 				currentModule = ((SimpleForm)currentForm).getModule();
-				if (i < this.indices.size()) {
-					this.elementPathIndex = i+1;
-					for (int j = i+1; j < this.indices.size(); j++) {
-						if (currentModule instanceof ProductRing) {
-							currentModule = ((ProductRing)currentModule).getFactor(j);
-						} else {
-							currentModule = currentModule.getComponentModule(j);
-						}
+				this.elementPathIndex = i;
+				for (int j = i; j < this.indices.size(); j++) {
+					if (currentModule instanceof ProductRing) {
+						currentModule = ((ProductRing)currentModule).getFactor(j);
+					} else {
+						currentModule = currentModule.getComponentModule(j);
 					}
 				}
 			}
@@ -98,12 +95,26 @@ public class DenotatorPath implements Comparable<Object> {
 		return this.module != null;
 	}
 	
+	public DenotatorPath getDenotatorSubpath() {
+		if (this.elementPathIndex >= 0) {
+			return this.subPath(0, this.elementPathIndex);
+		}
+		return this;
+	}
+	
+	public DenotatorPath getElementSubpath() {
+		if (this.elementPathIndex >= 0) {
+			return this.subPath(this.elementPathIndex);
+		}
+		return null;
+	}
+	
 	public DenotatorPath clone() {
 		return new DenotatorPath(this.baseForm, new ArrayList<Integer>(this.indices));
 	}
 	
 	public DenotatorPath subPath(int fromIndex) {
-		return this.subPath(fromIndex, this.indices.size()-1);
+		return this.subPath(fromIndex, this.indices.size());
 	}
 	
 	public DenotatorPath subPath(int fromIndex, int toIndex) {

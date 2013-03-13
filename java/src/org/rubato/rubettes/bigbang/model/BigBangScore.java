@@ -75,11 +75,13 @@ public class BigBangScore implements Cloneable {
 	 */
 	public DenotatorPath addObject(Map<DenotatorPath,Double> pathsWithValues) {
 		DenotatorPath topPowersetPath = this.objectGenerator.getTopPowersetPath();
+		Denotator newObject = this.objectGenerator.createTopLevelObject(pathsWithValues);
 		if (topPowersetPath != null) {
-			Denotator newObject = this.objectGenerator.createTopLevelObject(pathsWithValues);
 			return this.addObject(newObject, topPowersetPath);
 		}
-		return null;
+		//no powerset to add it in, so replace the whole score
+		this.setComposition(newObject);
+		return new DenotatorPath(this.score.getForm());
 	}
 	
 	private DenotatorPath addObject(Denotator object, DenotatorPath powersetPath) {
@@ -441,7 +443,11 @@ public class BigBangScore implements Cloneable {
 	private Denotator extractObject(DenotatorPath objectPath) {
 		//PerformanceCheck.startTask("..e3");
 		try {
-			return this.score.get(objectPath.toIntArray());
+			int[] intPath = objectPath.toIntArray();
+			if (intPath.length > 0) {
+				return this.score.get(intPath);
+			}
+			return this.score;
 		} catch (RubatoException e) {
 			e.printStackTrace();
 			return null;

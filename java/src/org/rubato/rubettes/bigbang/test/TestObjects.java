@@ -30,6 +30,12 @@ public class TestObjects {
 	
 	public final Form SOUND_SCORE_FORM = Repository.systemRepository().getForm("SoundScore");
 	public final Form SOUND_NODE_FORM = Repository.systemRepository().getForm("SoundNode");
+	public final Form SOUND_NOTE_FORM = Repository.systemRepository().getForm("SoundNote");
+	public final Module RATIONAL_TRIPLE_MODULE = Repository.systemRepository().getModule("Triples of rationals"); 
+	public final SimpleForm RATIONAL_TRIPLE_FORM = new SimpleForm(NameDenotator.make("RationalTriple"), RATIONAL_TRIPLE_MODULE);
+	public final PowerForm RATIONAL_TRIPLES_FORM = new PowerForm(NameDenotator.make("RationalTriples"), RATIONAL_TRIPLE_FORM);
+	public final SimpleForm REAL_TRIPLE_FORM = (SimpleForm) Repository.systemRepository().getForm("RealTriple");
+	public final PowerForm REAL_TRIPLES_FORM = new PowerForm(NameDenotator.make("RealTriples"), REAL_TRIPLE_FORM);
 	
 	public final double[][] ABSOLUTE = new double[][]{
 			{0,60,120,1,0,0},{1,63,116,1,0,0},{2,60,121,1,1,0}};
@@ -102,34 +108,29 @@ public class TestObjects {
 	}
 	
 	private void createProductRingRealTriples() throws DomainException, RubatoException {
-		SimpleForm realTripleForm = (SimpleForm) Repository.systemRepository().getForm("RealTriple");
 		ProductElement element1 = ProductElement.make(new RElement(1), new RElement(2), new RElement(3));
 		ProductElement element2 = ProductElement.make(new RElement(4), new RElement(3), new RElement(1));
 		ProductElement element3 = ProductElement.make(new RElement(2), new RElement(1), new RElement(5));
 		List<Denotator> triples = new ArrayList<Denotator>();
-		triples.add(new SimpleDenotator(NameDenotator.make(""), realTripleForm, element1));
-		triples.add(new SimpleDenotator(NameDenotator.make(""), realTripleForm, element2));
-		triples.add(new SimpleDenotator(NameDenotator.make(""), realTripleForm, element3));
-		PowerForm realTriplesForm = new PowerForm(NameDenotator.make("RealTriples"), realTripleForm);
+		triples.add(new SimpleDenotator(NameDenotator.make(""), REAL_TRIPLE_FORM, element1));
+		triples.add(new SimpleDenotator(NameDenotator.make(""), REAL_TRIPLE_FORM, element2));
+		triples.add(new SimpleDenotator(NameDenotator.make(""), REAL_TRIPLE_FORM, element3));
+		
 		//Repository.systemRepository().register(realTriplesForm);
-		this.realTriples = new PowerDenotator(NameDenotator.make(""), realTriplesForm, triples);
+		this.realTriples = new PowerDenotator(NameDenotator.make(""), REAL_TRIPLES_FORM, triples);
 	}
 	
 	private void createFreeRationalTriples() throws DomainException, RubatoException {
-		Module rationalTriples = Repository.systemRepository().getModule("Triples of rationals");
-		SimpleForm rationalTripleForm = new SimpleForm(NameDenotator.make("RationalTriple"), rationalTriples); 
-		//Repository.systemRepository().register(rationalTripleForm);
-		ModuleElement element1 = rationalTriples.createElement(Arrays.<ModuleElement>asList(new QElement(1), new QElement(2), new QElement(3)));
-		ModuleElement element2 = rationalTriples.createElement(Arrays.<ModuleElement>asList(new QElement(4), new QElement(3), new QElement(1)));
-		ModuleElement element3 = rationalTriples.createElement(Arrays.<ModuleElement>asList(new QElement(2), new QElement(1), new QElement(5)));
-		ModuleElement element4 = rationalTriples.createElement(Arrays.<ModuleElement>asList(new QElement(3), new QElement(4), new QElement(2)));
+		ModuleElement element1 = RATIONAL_TRIPLE_MODULE.createElement(Arrays.<ModuleElement>asList(new QElement(1), new QElement(2), new QElement(3)));
+		ModuleElement element2 = RATIONAL_TRIPLE_MODULE.createElement(Arrays.<ModuleElement>asList(new QElement(4), new QElement(3), new QElement(1)));
+		ModuleElement element3 = RATIONAL_TRIPLE_MODULE.createElement(Arrays.<ModuleElement>asList(new QElement(2), new QElement(1), new QElement(5)));
+		ModuleElement element4 = RATIONAL_TRIPLE_MODULE.createElement(Arrays.<ModuleElement>asList(new QElement(3), new QElement(4), new QElement(2)));
 		List<Denotator> triples = new ArrayList<Denotator>();
-		triples.add(new SimpleDenotator(NameDenotator.make(""), rationalTripleForm, element1));
-		triples.add(new SimpleDenotator(NameDenotator.make(""), rationalTripleForm, element2));
-		triples.add(new SimpleDenotator(NameDenotator.make(""), rationalTripleForm, element3));
-		triples.add(new SimpleDenotator(NameDenotator.make(""), rationalTripleForm, element4));
-		PowerForm realTriplesForm = new PowerForm(NameDenotator.make("RationalTriples"), rationalTripleForm);
-		this.rationalTriples = new PowerDenotator(NameDenotator.make(""), realTriplesForm, triples);
+		triples.add(new SimpleDenotator(NameDenotator.make(""), RATIONAL_TRIPLE_FORM, element1));
+		triples.add(new SimpleDenotator(NameDenotator.make(""), RATIONAL_TRIPLE_FORM, element2));
+		triples.add(new SimpleDenotator(NameDenotator.make(""), RATIONAL_TRIPLE_FORM, element3));
+		triples.add(new SimpleDenotator(NameDenotator.make(""), RATIONAL_TRIPLE_FORM, element4));
+		this.rationalTriples = new PowerDenotator(NameDenotator.make(""), RATIONAL_TRIPLES_FORM, triples);
 	}
 
 }
