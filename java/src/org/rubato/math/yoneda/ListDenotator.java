@@ -507,6 +507,13 @@ public class ListDenotator
     public List<Denotator> getFactors() {
         return new LinkedList<Denotator>(getListMorphismMap().getFactors());
     }
+    
+    /**
+     * Returns the internal index of denotator <code>d</code>.
+     */
+    public int indexOf(Denotator d) {
+    	return getListMorphismMap().indexOf(d);
+    }
 
 
     /**

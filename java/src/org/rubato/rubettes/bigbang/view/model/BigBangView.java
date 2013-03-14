@@ -29,6 +29,7 @@ import org.rubato.rubettes.bigbang.model.edits.TranslationEdit;
 import org.rubato.rubettes.bigbang.view.View;
 import org.rubato.rubettes.bigbang.view.controller.ViewController;
 import org.rubato.rubettes.bigbang.view.controller.mode.DisplayModeAdapter;
+import org.rubato.rubettes.bigbang.view.controller.mode.DrawingModeAdapter;
 import org.rubato.rubettes.bigbang.view.controller.mode.ReflectionModeAdapter;
 import org.rubato.rubettes.bigbang.view.controller.mode.RotationModeAdapter;
 import org.rubato.rubettes.bigbang.view.controller.mode.ScalingModeAdapter;
@@ -72,8 +73,9 @@ public class BigBangView extends Model implements View {
 		this.initViewParameterControls();
 		this.setDisplayNotes(new DisplayObjectList(viewController, null), new ArrayList<Double>(), new ArrayList<Double>());
 		this.setSatellitesConnected(true);
-		//this.setDisplayMode(new DrawNotesDisplayMode());
-		this.setDisplayPosition(new Point(0, 600));
+		this.setDisplayMode(new DrawingModeAdapter(viewController));
+		//TODO:make this automatic when displaynotes loaded!!! depending on max/min and window size
+		this.setDisplayPosition(new Point(20, 560));
 		this.setZoomFactors(5.0, 5.0);
 		this.modFilterOn = false;
 		this.modNumber = -1;
@@ -279,6 +281,8 @@ public class BigBangView extends Model implements View {
 	private void setDisplayNotes(DisplayObjectList displayNotes, List<Double> minValues, List<Double> maxValues) {
 		this.displayNotes = displayNotes;
 		this.viewParameters.setDenotatorMinAndMaxValues(minValues, maxValues);
+		//do not select parameters for satellite and sibling number...
+		this.viewParameters.initSelections(displayNotes.getValueNames().size()-2);
 		this.firePropertyChange(ViewController.DISPLAY_NOTES, null, this.displayNotes);
 	}
 	
@@ -286,7 +290,7 @@ public class BigBangView extends Model implements View {
 		this.selectedTransformation = edit;
 		if (this.selectedTransformation != null) {
 			//select perspective first
-			this.viewParameters.setSelectedXYViewParameters(this.getXYViewParameters(edit.getElementPaths()));
+			this.viewParameters.setSelectedXYViewParameters(this.getXYViewParameters(edit.getValuePaths()));
 			//TODO: center view?????
 			
 			//TODO: then select notes!!!
@@ -418,27 +422,6 @@ public class BigBangView extends Model implements View {
 		this.controller.setAlterationComposition(index, nodePaths);
 	}
 	
-	private int[][] getXYDenotatorPaths() {
-		int[][] denotatorPaths = new int[4][];
-		for (int i = 0; i < denotatorPaths.length; i++) {
-			int selectedViewParameter = this.viewParameters.getSelected(i%2);
-			denotatorPaths[i] = DenotatorValueExtractor.DENOTATOR_PATHS[selectedViewParameter];
-		}
-		return denotatorPaths;
-	}
-	
-	private int[] getXYViewParameters(int[][] denotatorPaths) {
-		int[] viewParameters = new int[2];
-		for (int i = 0; i <= 1; i++) {
-			for (int j = 0; j < DenotatorValueExtractor.DENOTATOR_PATHS.length; j++) {
-				if (denotatorPaths[i] == DenotatorValueExtractor.DENOTATOR_PATHS[j]) {
-					viewParameters[i] = j;
-				}
-			}
-		}
-		return viewParameters;
-	}
-	
 	private TransformationProperties getLocalTransformationProperties(Point2D.Double center, Point2D.Double endPoint, boolean copyAndTransform, boolean previewMode) {
 		//the end point is merely recorded for the display tool to be the same size....
 		TransformationProperties properties = this.getTransformationProperties(copyAndTransform, previewMode);
@@ -460,14 +443,14 @@ public class BigBangView extends Model implements View {
 	}
 	
 	private TransformationProperties getTransformationProperties(boolean copyAndTransform, boolean previewMode) {
-		Set<DenotatorPath> notePaths;
+		Set<DenotatorPath> objectPaths;
 		if (this.selectedNotes == null) {
-			notePaths = this.displayNotes.getSelectedNodePaths();
+			objectPaths = this.displayNotes.getSelectedNodePaths();
 		} else {
-			notePaths = this.selectedNotes;
+			objectPaths = this.selectedNotes;
 		}
-		int[][] denotatorPaths = this.getXYDenotatorPaths();
-		return new TransformationProperties(notePaths, denotatorPaths, copyAndTransform, previewMode, this.inWallpaperMode);
+		List<DenotatorPath> valuePaths = this.getXYValuePaths();
+		return new TransformationProperties(objectPaths, valuePaths, copyAndTransform, previewMode, this.inWallpaperMode);
 	}
 	
 	public void addObject(Point2D.Double location) {
@@ -585,6 +568,28 @@ public class BigBangView extends Model implements View {
 	protected double getDisplayValue(double denotatorValue, int parameterIndex, int position, double zoomFactor) {
 		double displayValue = this.viewParameters.get(parameterIndex).translateDenotatorValue(denotatorValue);
 		return (displayValue*zoomFactor)+position;
+	}
+	
+	private List<DenotatorPath> getXYValuePaths() {
+		List<DenotatorPath> denotatorPaths = new ArrayList<DenotatorPath>();
+		for (int i = 0; i < 4; i++) {
+			int selectedViewParameter = this.viewParameters.getSelected(i%2);
+			denotatorPaths.add(this.displayNotes.getPathInTopDenotatorSimple(selectedViewParameter));
+		}
+		return denotatorPaths;
+	}
+	
+	private int[] getXYViewParameters(List<DenotatorPath> denotatorPaths) {
+		int[] viewParameters = new int[2];
+		List<DenotatorPath> topDenotatorValuePaths = this.displayNotes.getTopDenotatorValuePaths();
+		for (int i = 0; i <= 1; i++) {
+			for (int j = 0; j < topDenotatorValuePaths.size(); j++) {
+				if (denotatorPaths.get(i).equals(topDenotatorValuePaths.get(j))) {
+					viewParameters[i] = j;
+				}
+			}
+		}
+		return viewParameters;
 	}
 	
 	public void undo() {

@@ -19,7 +19,7 @@ public class JSynScore {
 	public JSynScore(Denotator rubatoScore, int bpm) {
 		this.notes = new ArrayList<JSynNote>();
 		
-		if (rubatoScore.getType() == Denotator.POWER) {
+		if (rubatoScore.getType() == Denotator.POWER) { //LIST too later??
 			DenotatorValueExtractor extractor = new DenotatorValueExtractor();
 			for (Denotator currentNode : ((PowerDenotator)rubatoScore).getFactors()) {
 				this.notes.add(extractor.extractValues(currentNode, bpm));

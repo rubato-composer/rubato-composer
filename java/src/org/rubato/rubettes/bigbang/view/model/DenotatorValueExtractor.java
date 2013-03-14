@@ -12,6 +12,7 @@ import org.rubato.math.module.RElement;
 import org.rubato.math.module.RRing;
 import org.rubato.math.yoneda.ColimitDenotator;
 import org.rubato.math.yoneda.Denotator;
+import org.rubato.math.yoneda.FactorDenotator;
 import org.rubato.math.yoneda.Form;
 import org.rubato.math.yoneda.LimitDenotator;
 import org.rubato.math.yoneda.PowerDenotator;
@@ -71,13 +72,14 @@ public class DenotatorValueExtractor {
 	//recursive method!!
 	//TODO: remove relation!! not very interesting anymore..
 	private DisplayObject extractDisplayObjects(Denotator currentDenotator, DisplayObject parent, DisplayObject largerObject, int relation, int satelliteLevel, int siblingNumber, DenotatorPath currentPath) throws RubatoException {
-		if (currentDenotator.getType() == Denotator.SIMPLE) {
+		int denotatorType = currentDenotator.getType();
+		if (denotatorType == Denotator.SIMPLE) {
 			SimpleDenotator currentSimple = (SimpleDenotator)currentDenotator;
 			if (largerObject == null) {
 				largerObject = this.addDisplayObject(currentSimple, parent, relation, satelliteLevel, siblingNumber, currentPath);
 			}
 			this.addSimpleValues(largerObject, currentSimple, currentPath);
-		} else if (currentDenotator.getType() == Denotator.LIMIT) {
+		} else if (denotatorType == Denotator.LIMIT) {
 			if (largerObject == null) {
 				largerObject = this.addDisplayObject(currentDenotator, parent, relation, satelliteLevel, siblingNumber, currentPath);
 			}
@@ -86,14 +88,14 @@ public class DenotatorValueExtractor {
 				Denotator currentChild = currentLimit.getFactor(i);
 				this.extractDisplayObjects(currentChild, parent, largerObject, relation, satelliteLevel, siblingNumber, currentPath.getChildPath(i));
 			}
-		} else if (currentDenotator.getType() == Denotator.COLIMIT) {
+		} else if (denotatorType == Denotator.COLIMIT) {
 			if (largerObject == null) {
 				largerObject = this.addDisplayObject(currentDenotator, parent, relation, satelliteLevel, siblingNumber, currentPath);
 			}
 			Denotator onlyChild = ((ColimitDenotator)currentDenotator).getFactor();
 			this.extractDisplayObjects(onlyChild, parent, largerObject, relation, satelliteLevel, siblingNumber, currentPath.getChildPath(0));
-		} else if (currentDenotator.getType() == Denotator.POWER) {
-			PowerDenotator currentPower = (PowerDenotator)currentDenotator;
+		} else if (denotatorType == Denotator.POWER || denotatorType == Denotator.LIST) {
+			FactorDenotator currentPower = (FactorDenotator)currentDenotator;
 			for (int i = 0; i < currentPower.getFactorCount(); i++) {
 				//call with largerObject null, since all children become independent objects
 				DisplayObject currentChild = this.extractDisplayObjects(currentPower.getFactor(i), parent, null, DenotatorPath.SATELLITE, satelliteLevel+1, i, currentPath.getChildPath(i));

@@ -61,6 +61,10 @@ public class DisplayObjectList extends TreeSet<DisplayObject> implements View {
 		this.updateTopDenotatorStandardValues();
 	}
 	
+	public List<DenotatorPath> getTopDenotatorValuePaths() {
+		return this.getTopDenotatorValuePaths();
+	}
+	
 	public DenotatorPath getPathInTopDenotatorSimple(int valueIndex) {
 		return this.topDenotatorValues.get(this.valueNames.get(valueIndex));
 	}
@@ -68,7 +72,9 @@ public class DisplayObjectList extends TreeSet<DisplayObject> implements View {
 	private void updateTopDenotatorStandardValues() {
 		this.topDenotatorStandardValues = new TreeMap<DenotatorPath,Double>();
 		for (String currentName : this.topDenotatorValues.keySet()) {
-			this.topDenotatorStandardValues.put(this.topDenotatorValues.get(currentName), this.standardValues.get(currentName));
+			if (this.standardValues.containsKey(currentName)) {
+				this.topDenotatorStandardValues.put(this.topDenotatorValues.get(currentName), this.standardValues.get(currentName));
+			}
 		}
 	}
 	

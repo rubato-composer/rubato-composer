@@ -268,7 +268,7 @@ public class BigBangScoreManager extends Model {
 	 */
 	public List<DenotatorPath> undoMoveToParent(List<DenotatorPath> actualPaths, List<DenotatorPath> oldPaths) {
 		List<Denotator> newObjects = this.score.removeObjects(actualPaths);
-		List<DenotatorPath> newPaths = this.score.addObjects(newObjects, DenotatorPath.getAnchorPowersetPaths(oldPaths));
+		List<DenotatorPath> newPaths = this.score.addObjects(newObjects, DenotatorPath.getAnchorPaths(oldPaths));
 		this.fireCompositionChange(new TreeSet<DenotatorPath>(newPaths));
 		return newPaths;
 	}
@@ -281,7 +281,7 @@ public class BigBangScoreManager extends Model {
 	 */
 	public TreeMap<DenotatorPath,DenotatorPath> flattenNotes(Set<DenotatorPath> notePaths) {
 		List<DenotatorPath> notePathsList = new ArrayList<DenotatorPath>(notePaths);
-		List<DenotatorPath> oldParentPaths = DenotatorPath.getAnchorPowersetPaths(notePathsList);
+		List<DenotatorPath> oldParentPaths = DenotatorPath.getAnchorPaths(notePathsList);
 		List<DenotatorPath> oldGrandParentPaths = DenotatorPath.getGrandAnchorPowersetPaths(notePathsList);
 		int[] powersetIndices = DenotatorPath.getPowersetIndices(notePathsList);
 		List<Denotator> notes = this.score.removeObjects(notePathsList);

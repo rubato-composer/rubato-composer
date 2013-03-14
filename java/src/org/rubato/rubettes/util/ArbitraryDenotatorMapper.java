@@ -37,14 +37,31 @@ public class ArbitraryDenotatorMapper {
 	private int domainDim, codomainDim;
 	private List<ModuleMorphism> injectionMorphisms;
 	
+	public ArbitraryDenotatorMapper(ModuleMorphism morphism, List<DenotatorPath> paths) {
+		this.paths = this.convertPaths(paths);
+		this.init(morphism);
+	}
+	
 	public ArbitraryDenotatorMapper(ModuleMorphism morphism, int[][] paths) {
-		//define morphism specific variables
-		this.morphism = morphism;
 		this.paths = paths;
+		this.init(morphism);
+	}
+	
+	//define morphism-specific variables
+	private void init(ModuleMorphism morphism) {
+		this.morphism = morphism;
 		this.domain = this.morphism.getDomain();
 		this.domainDim = this.domain.getDimension();
 		this.codomainDim = this.morphism.getCodomain().getDimension();
 		this.injectionMorphisms = this.makeInjectionMorphisms(domain);
+	}
+	
+	private int[][] convertPaths(List<DenotatorPath> paths) {
+		int[][] arrayPaths = new int[paths.size()][];
+		for (int i = 0; i < paths.size(); i++) {
+			arrayPaths[i] = paths.get(i).toIntArray();
+		}
+		return arrayPaths;
 	}
 	
 	/*

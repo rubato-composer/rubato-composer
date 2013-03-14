@@ -179,7 +179,7 @@ public class DenotatorPath implements Comparable<Object> {
 	 * @return the path of the childIndex-th child of this path, regardless wether it exists or not
 	 */
 	public DenotatorPath getChildPath(int childIndex) {
-		if (this.form.getFormCount() > childIndex || this.form.getType() == Form.POWER
+		if (this.form.getFormCount() > childIndex || this.form.getType() == Form.POWER || this.form.getType() == Form.LIST
 				|| (this.form.getType() == Form.SIMPLE && this.getSubModuleOrRing(childIndex) != null)) {
 			DenotatorPath childPath = this.clone();
 			childPath.add(childIndex);
@@ -244,7 +244,7 @@ public class DenotatorPath implements Comparable<Object> {
 	private DenotatorPath getTopPath() {
 		DenotatorPath currentPath = this;
 		Form currentParentForm = currentPath.getParentForm();
-		while(currentParentForm != null && currentParentForm.getType() != Form.POWER) {
+		while(currentParentForm != null && currentParentForm.getType() != Form.POWER && currentParentForm.getType() != Form.LIST) {
 			currentPath = currentPath.getParentPath();
 			currentParentForm = currentPath.getParentForm();
 		}
@@ -264,10 +264,10 @@ public class DenotatorPath implements Comparable<Object> {
 		return (path == null && anchorPath == null) || anchorPath.equals(path.getTopPath());
 	}
 	
-	public static List<DenotatorPath> getAnchorPowersetPaths(List<DenotatorPath> denotatorPaths) {
+	public static List<DenotatorPath> getAnchorPaths(List<DenotatorPath> denotatorPaths) {
 		List<DenotatorPath> parentPaths = new ArrayList<DenotatorPath>();
 		for (DenotatorPath currentObjectPath: denotatorPaths) {
-			parentPaths.add(currentObjectPath.getAnchorPowersetPath());
+			parentPaths.add(currentObjectPath.getAnchorPath());
 		}
 		return parentPaths;
 	}
@@ -335,7 +335,8 @@ public class DenotatorPath implements Comparable<Object> {
 		while (!pathQueue.isEmpty()) {
 			DenotatorPath currentPath = pathQueue.poll();
 			Form currentForm = currentPath.getForm();
-			if (currentForm.getType() == Form.POWER) {
+			//TODO: LIST TOO, change all names!!!
+			if (currentForm.getType() == Form.POWER || currentForm.getType() == Form.LIST) {
 				if (foundCount >= powersetIndex) {
 					return currentPath;
 				}

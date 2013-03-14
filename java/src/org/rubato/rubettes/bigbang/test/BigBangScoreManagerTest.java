@@ -24,15 +24,24 @@ import org.rubato.rubettes.util.DenotatorPath;
 
 public class BigBangScoreManagerTest extends TestCase {
 	
-	private final int[][] NODE_COORDINATE_PATHS = new int[][]{{0,0},{0,1},{0,0},{0,1}};
-	private final int[][] NOTE_COORDINATE_PATHS = new int[][]{{0},{1},{0},{1}};
-	
 	private BigBangScoreManager scoreManager;
 	private TestObjects objects;
+	private List<DenotatorPath> nodeValuePaths;
+	private List<DenotatorPath> noteValuePaths;
 	
 	protected void setUp() {
 		this.objects = new TestObjects();
 		this.scoreManager = this.objects.scoreManager;
+		this.nodeValuePaths = new ArrayList<DenotatorPath>();
+		nodeValuePaths.add(new DenotatorPath(this.objects.SOUND_NODE_FORM, new int[]{0,0}));
+		nodeValuePaths.add(new DenotatorPath(this.objects.SOUND_NODE_FORM, new int[]{0,1}));
+		nodeValuePaths.add(new DenotatorPath(this.objects.SOUND_NODE_FORM, new int[]{0,0}));
+		nodeValuePaths.add(new DenotatorPath(this.objects.SOUND_NODE_FORM, new int[]{0,1}));
+		this.noteValuePaths = new ArrayList<DenotatorPath>();
+		noteValuePaths.add(new DenotatorPath(this.objects.SOUND_NOTE_FORM, new int[]{0}));
+		noteValuePaths.add(new DenotatorPath(this.objects.SOUND_NOTE_FORM, new int[]{1}));
+		noteValuePaths.add(new DenotatorPath(this.objects.SOUND_NOTE_FORM, new int[]{0}));
+		noteValuePaths.add(new DenotatorPath(this.objects.SOUND_NOTE_FORM, new int[]{1}));
 	}
 	
 	/*TODO: adapt!!! public void testAddNote() {
@@ -65,7 +74,7 @@ public class BigBangScoreManagerTest extends TestCase {
 	
 	public void testMapNodesFlat() {
 		this.scoreManager.setComposition(this.objects.flatMacroScore);
-		BigBangTransformation translation = this.makeTranslation(-1,-2, this.NODE_COORDINATE_PATHS);
+		BigBangTransformation translation = this.makeTranslation(-1,-2, this.nodeValuePaths);
 		List<DenotatorPath> notePaths = this.makeNotePaths(new int[]{0}, new int[]{2});
 		List<DenotatorPath> newPaths = this.scoreManager.mapNodes(notePaths, translation, false);
 		TestCase.assertEquals(new DenotatorPath(this.objects.SOUND_SCORE_FORM, new int[]{0}), newPaths.get(0));
@@ -74,7 +83,7 @@ public class BigBangScoreManagerTest extends TestCase {
 	
 	public void testMapNodesFlatSequential() {
 		this.scoreManager.setComposition(this.objects.flatMacroScore);
-		BigBangTransformation translation = this.makeTranslation(3,5, this.NODE_COORDINATE_PATHS);
+		BigBangTransformation translation = this.makeTranslation(3,5, this.nodeValuePaths);
 		List<DenotatorPath> notePaths = this.makeNotePaths(new int[]{0}, new int[]{2});
 		/*List<List<LimitDenotator>> notes = this.scoreManager.getNotes(notePaths);
 		TestCase.assertTrue(notes.size() == 2);
@@ -91,7 +100,7 @@ public class BigBangScoreManagerTest extends TestCase {
 	public void testMapNodesMultiLevel() throws RubatoException {
 		this.objects.multiLevelMacroScore.appendFactor(this.objects.generator.createNodeDenotator(this.objects.note2Absolute));
 		this.scoreManager.setComposition(this.objects.multiLevelMacroScore);
-		BigBangTransformation translation = this.makeTranslation(-2, -1, this.NODE_COORDINATE_PATHS);
+		BigBangTransformation translation = this.makeTranslation(-2, -1, this.nodeValuePaths);
 		List<DenotatorPath> nodePaths = this.makeNotePaths(new int[]{1}, new int[]{0,1,0});
 		List<DenotatorPath> newPaths = new ArrayList<DenotatorPath>(this.scoreManager.mapNodes(nodePaths, translation, false));
 		TestCase.assertEquals(new DenotatorPath(this.objects.SOUND_SCORE_FORM, new int[]{0}), newPaths.get(0));
@@ -115,7 +124,7 @@ public class BigBangScoreManagerTest extends TestCase {
 		this.scoreManager.moveObjectsToParent(paths, new DenotatorPath(this.objects.SOUND_SCORE_FORM, new int[]{0}), 1);
 		this.scoreManager.moveObjectsToParent(paths, new DenotatorPath(this.objects.SOUND_SCORE_FORM, new int[]{0,0,6,0}), 0);
 		
-		BigBangTransformation translation = this.makeTranslation(-2, -1, this.NOTE_COORDINATE_PATHS);
+		BigBangTransformation translation = this.makeTranslation(-2, -1, this.noteValuePaths);
 		List<DenotatorPath> nodePaths = this.makeNotePaths(new int[]{0,0,6,0,6,0});
 		List<DenotatorPath> newPaths = this.scoreManager.mapNodes(nodePaths, translation, false);
 		TestCase.assertEquals(newPaths.get(0), new DenotatorPath(this.objects.SOUND_SCORE_FORM, new int[]{0,0,6,0,6,0}));
@@ -240,11 +249,11 @@ public class BigBangScoreManagerTest extends TestCase {
 	public void testShapeNotes() throws RubatoException {
 		this.scoreManager.setComposition(this.objects.flatMacroScore);
 		Set<DenotatorPath> paths = new TreeSet<DenotatorPath>();
-		paths.add(new DenotatorPath(this.objects.SOUND_SCORE_FORM, new int[]{0,0}));
-		paths.add(new DenotatorPath(this.objects.SOUND_SCORE_FORM, new int[]{1,0}));
-		paths.add(new DenotatorPath(this.objects.SOUND_SCORE_FORM, new int[]{2,0}));
-		int[][] elementPaths = new int[][]{{0},{1}};
-		TransformationProperties properties = new TransformationProperties(paths, elementPaths, false, false, false);
+		paths.add(new DenotatorPath(this.objects.SOUND_SCORE_FORM, new int[]{0}));
+		paths.add(new DenotatorPath(this.objects.SOUND_SCORE_FORM, new int[]{1}));
+		paths.add(new DenotatorPath(this.objects.SOUND_SCORE_FORM, new int[]{2}));
+		
+		TransformationProperties properties = new TransformationProperties(paths, this.nodeValuePaths, false, false, false);
 		TreeMap<Double,Double> shapingLocations = new TreeMap<Double,Double>();
 		shapingLocations.put(-0.3, 69.0);
 		shapingLocations.put(0.5, 71.0);
@@ -259,7 +268,7 @@ public class BigBangScoreManagerTest extends TestCase {
 		this.assertEqualNodes(expectedNote, this.scoreManager.getComposition().get(new int[]{2}));
 	}
 	
-	private BigBangTransformation makeTranslation(int x, int y, int[][] paths) {
+	private BigBangTransformation makeTranslation(int x, int y, List<DenotatorPath> paths) {
 		RMatrix identity = new RMatrix(new double[][]{{1,0},{0,1}});
 		ModuleMorphism translation = RFreeAffineMorphism.make(identity, new double[]{x, y});
 		return new BigBangTransformation(translation, paths, false, null);

@@ -26,7 +26,7 @@ public class ViewParameters extends Model {
 		this.minValues = new ArrayList<Double>();
 		this.maxValues = new ArrayList<Double>();
 		this.initParameters(invertYAxis);
-		this.setSelectedViewParameters(new int[]{0,1,2,3,4,-1});
+		this.initSelections(5);
 	}
 	
 	private void initParameters(boolean invertYAxis) {
@@ -55,6 +55,15 @@ public class ViewParameters extends Model {
 		this.selectedViewParameters[1] = newSelections[1];
 		this.updateMinAndMaxValues();
 		this.firePropertyChange(ViewController.SELECTED_VIEW_PARAMETERS, null, this.selectedViewParameters);
+	}
+	
+	//sets the first given number of view parameters diagonally
+	public void initSelections(int numberOfSelectedOnes) {
+		int[] newSelections = new int[]{-1,-1,-1,-1,-1,-1};
+		for (int i = 0; i < Math.min(numberOfSelectedOnes, 6); i++) {
+			newSelections[i] = i;
+		}
+		this.setSelectedViewParameters(newSelections);
 	}
 	
 	public void setSelectedViewParameters(int[] newSelections) {

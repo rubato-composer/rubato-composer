@@ -69,26 +69,24 @@ public class ObjectGenerator {
 	public Denotator createTopLevelObject(Map<DenotatorPath,Double> pathsWithValues) {
 		Denotator object = this.topLevelObjectForm.createDefaultDenotator();
 		for (DenotatorPath currentPath : pathsWithValues.keySet()) {
-			if (currentPath.isElementPath()) {
-				int[] simplePath = currentPath.getDenotatorSubpath().toIntArray();
-				int[] elementPath = currentPath.getElementSubpath().toIntArray();
-				if (pathsWithValues.get(currentPath) != null) {
-					object = this.replaceValue(object, simplePath, elementPath, pathsWithValues.get(currentPath));
-				}
-			} else {
-				object = this.replaceValue(object, currentPath.toIntArray(), pathsWithValues.get(currentPath));
-			}
+			Double currentValue = pathsWithValues.get(currentPath);
+			object = this.replaceValue(object, currentPath, currentValue);
 		}
 		return object;
 	}
 	
-	public Double getDoubleValue(Denotator note, int[] elementPath) {
+	public Double getDoubleValue(Denotator note, DenotatorPath valuePath) {
 		try {
-			return ((RElement)note.getElement(elementPath).cast(RRing.ring)).getValue();
+			//TODO: rewrite!!! has to be either simple or element!!!!
+			if (valuePath.isElementPath()) {
+				return ((RElement)note.getElement(valuePath.toIntArray()).cast(RRing.ring)).getValue();
+			} else if (valuePath.getForm().getType() == Form.SIMPLE) {
+				return ((RElement)((SimpleDenotator)note.get(valuePath.toIntArray())).getElement().cast(RRing.ring)).getValue();
+			}
 		} catch (RubatoException e) {
 			e.printStackTrace();
-			return null;
 		}
+		return null;
 	}
 	
 	/**
@@ -121,7 +119,7 @@ public class ObjectGenerator {
 				Form currentForm = currentDenotator.getForm();
 				if (currentForm.equals(form)) {
 					return currentSubPath;
-				} else if (currentForm.getType() != Form.SIMPLE && currentForm.getType() != Form.POWER) {
+				} else if (currentForm.getType() != Form.SIMPLE && (currentForm.getType() != Form.POWER || currentForm.getType() != Form.LIST)) {
 					for (int i = 0; i < ((FactorDenotator)currentDenotator).getFactorCount(); i++) {
 						subPathsQueue.add(currentSubPath.getChildPath(i));
 					}
@@ -141,7 +139,7 @@ public class ObjectGenerator {
 			DenotatorPath currentPath = subPathQueue.poll();
 			if (currentForm.equals(form)) {
 				return currentPath;
-			} else if (currentForm.getType() != Form.SIMPLE && currentForm.getType() != Form.POWER) {
+			} else if (currentForm.getType() != Form.SIMPLE && currentForm.getType() != Form.POWER && currentForm.getType() != Form.LIST) {
 				for (int i = 0; i < currentForm.getFormCount(); i++) {
 					subFormQueue.add(currentForm.getForm(i));
 					subPathQueue.add(currentPath.getChildPath(i));
@@ -274,7 +272,16 @@ public class ObjectGenerator {
 		}
 	}
 	
-	public Denotator replaceValue(Denotator object, int[] simplePath, double value) {
+	public Denotator replaceValue(Denotator object, DenotatorPath valuePath, double value) {
+		if (valuePath.isElementPath()) {
+			int[] simplePath = valuePath.getDenotatorSubpath().toIntArray();
+			int[] elementPath = valuePath.getElementSubpath().toIntArray();
+			return this.replaceValue(object, simplePath, elementPath, value);
+		}
+		return this.replaceValue(object, valuePath.toIntArray(), value);
+	}
+	
+	private Denotator replaceValue(Denotator object, int[] simplePath, double value) {
 		try {
 			SimpleDenotator oldSimple = (SimpleDenotator)object.get(simplePath);
 			ModuleElement newElement = new RElement(value).cast(oldSimple.getElement().getModule());
@@ -286,7 +293,7 @@ public class ObjectGenerator {
 		}
 	}
 	
-	public Denotator replaceValue(Denotator object, int[] simplePath, int[] elementPath, double value) {
+	private Denotator replaceValue(Denotator object, int[] simplePath, int[] elementPath, double value) {
 		try {
 			SimpleDenotator oldSimple = (SimpleDenotator)object.get(simplePath);
 			ModuleElement newElement = this.createModuleElement(oldSimple.getElement(), elementPath, 0, value);

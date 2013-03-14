@@ -9,7 +9,9 @@ import java.util.TreeSet;
 
 import org.rubato.base.RubatoException;
 import org.rubato.math.yoneda.Denotator;
+import org.rubato.math.yoneda.FactorDenotator;
 import org.rubato.math.yoneda.Form;
+import org.rubato.math.yoneda.ListDenotator;
 import org.rubato.math.yoneda.PowerDenotator;
 import org.rubato.rubettes.util.DenotatorPath;
 import org.rubato.rubettes.util.ObjectGenerator;
@@ -132,7 +134,7 @@ public class BigBangScore implements Cloneable {
 	}
 	
 	public List<DenotatorPath> copyObjects(List<DenotatorPath> objectPaths) {
-		List<DenotatorPath> parentPaths = DenotatorPath.getAnchorPowersetPaths(objectPaths);
+		List<DenotatorPath> parentPaths = DenotatorPath.getAnchorPaths(objectPaths);
 		List<Denotator> newObjects = new ArrayList<Denotator>();
 		for (DenotatorPath currentPath: objectPaths) {
 			newObjects.add(this.extractObject(currentPath).copy());
@@ -193,8 +195,8 @@ public class BigBangScore implements Cloneable {
 	 */
 	private Denotator internalAddObject(Denotator object, DenotatorPath powersetPath) {
 		try {
-			PowerDenotator powerset = this.getPowerset(powersetPath);
-			object = this.objectGenerator.convertDenotatorIfNecessary(object, powerset.getForm().getForms().get(0));
+			FactorDenotator powerset = this.getPowersetOrList(powersetPath);
+			object = this.objectGenerator.convertDenotatorIfNecessary(object, ((Denotator)powerset).getForm().getForms().get(0));
 			powerset.appendFactor(object);
 		} catch (RubatoException e) { e.printStackTrace(); }
 		return object;
@@ -234,8 +236,8 @@ public class BigBangScore implements Cloneable {
 		while (true) {
 			//TODO: could be optimized....
 			DenotatorPath currentPowersetPath = path.getPowersetPath(currentPowersetIndex);
-			PowerDenotator currentPowerset = this.getPowerset(currentPowersetPath);
-			int objectIndex = currentPowerset.indexOf(object);
+			FactorDenotator currentPowersetOrList = this.getPowersetOrList(currentPowersetPath);
+			int objectIndex = this.getIndexOf(currentPowersetOrList, object);
 			if (objectIndex >= 0) {
 				return currentPowersetPath.getChildPath(objectIndex);
 			}
@@ -263,10 +265,17 @@ public class BigBangScore implements Cloneable {
 	 * Finds the path of an object if it is present in the given powerset
 	 */
 	private DenotatorPath findPath(Denotator object, DenotatorPath powersetPath) {
-		PowerDenotator powerset = this.getPowerset(powersetPath);
-		int objectIndex = powerset.indexOf(object);
+		FactorDenotator powersetOrList = this.getPowersetOrList(powersetPath);
+		int objectIndex = this.getIndexOf(powersetOrList, object);
 		return powersetPath.getChildPath(objectIndex);
 		//return new DenotatorPath(this.objectGenerator.getBaseForm(), new int[]{index,0});
+	}
+	
+	private int getIndexOf(FactorDenotator powersetOrList, Denotator object) {
+		if (powersetOrList instanceof PowerDenotator) {
+			return ((PowerDenotator)powersetOrList).indexOf(object);
+		}
+		return ((ListDenotator)powersetOrList).indexOf(object);
 	}
 	
 	/*private LimitDenotator convertNoteIfNecessary(LimitDenotator note, DenotatorPath powersetPath) {
@@ -279,10 +288,11 @@ public class BigBangScore implements Cloneable {
 	
 	/*
 	 * returns the PowerDenotator at powersetPath in this score. null if it is none
+	 * TODO: well now it is kinda dumb, this method...
 	 */
-	private PowerDenotator getPowerset(DenotatorPath powersetPath) {
+	private FactorDenotator getPowersetOrList(DenotatorPath powersetPath) {
 		try {
-			return (PowerDenotator)this.score.get(powersetPath.toIntArray());
+			return (FactorDenotator)this.score.get(powersetPath.toIntArray());
 		} catch (RubatoException e) { e.printStackTrace(); }
 		return null;
 	}
