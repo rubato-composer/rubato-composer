@@ -1,5 +1,7 @@
 package org.rubato.rubettes.bigbang.model;
 
+import java.util.List;
+
 import org.rubato.math.matrix.RMatrix;
 import org.rubato.math.module.morphism.ModuleMorphism;
 import org.rubato.math.module.morphism.RFreeAffineMorphism;
@@ -8,13 +10,13 @@ import org.rubato.rubettes.util.DenotatorPath;
 public class BigBangTransformation {
 	
 	private ModuleMorphism morphism; 
-	private int[][] coordinatePaths;
+	private List<DenotatorPath> valuePaths;
 	private boolean copyAndMap; 
 	private DenotatorPath anchorNodePath;
 	
-	public BigBangTransformation(ModuleMorphism morphism, int[][] coordinatePaths, boolean copyAndMap, DenotatorPath anchorNodePath) {
+	public BigBangTransformation(ModuleMorphism morphism, List<DenotatorPath> valuePaths, boolean copyAndMap, DenotatorPath anchorNodePath) {
 		this.morphism = morphism;
-		this.coordinatePaths = coordinatePaths;
+		this.valuePaths = valuePaths;
 		this.copyAndMap = copyAndMap;
 		this.anchorNodePath = anchorNodePath;
 	}
@@ -23,8 +25,8 @@ public class BigBangTransformation {
 		return this.morphism;
 	}
 	
-	public int[][] getCoordinatePaths() {
-		return this.coordinatePaths;
+	public List<DenotatorPath> getValuePaths() {
+		return this.valuePaths;
 	}
 	
 	public void setCopyAndMap(boolean copyAndMap) {
@@ -46,7 +48,7 @@ public class BigBangTransformation {
 		double[] inverseShift = inverseMatrix.product(shift);
 		inverseShift = new double[]{-1*inverseShift[0], -1*inverseShift[1]}; 
 		ModuleMorphism inverseMorphism = RFreeAffineMorphism.make(inverseMatrix, inverseShift);
-		return new BigBangTransformation(inverseMorphism, this.coordinatePaths, this.copyAndMap, this.anchorNodePath);
+		return new BigBangTransformation(inverseMorphism, this.valuePaths, this.copyAndMap, this.anchorNodePath);
 	}
 
 }

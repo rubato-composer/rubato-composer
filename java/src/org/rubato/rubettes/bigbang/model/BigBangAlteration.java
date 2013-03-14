@@ -89,7 +89,7 @@ public class BigBangAlteration extends Model {
 			for (Denotator currentNeighbor: composition1) {
 				this.alterator.addNeighbor(currentNeighbor);
 			}
-			List<DenotatorPath> anchorPaths = DenotatorPath.getAnchorPowersetPaths(new ArrayList<DenotatorPath>(this.compositions.get(0)));
+			List<DenotatorPath> anchorPaths = DenotatorPath.getAnchorPaths(new ArrayList<DenotatorPath>(this.compositions.get(0)));
 			List<Denotator> composition0 = this.toDenotatorList(score.removeObjects(new ArrayList<DenotatorPath>(this.compositions.get(0))));
 			List<Denotator> alteredNodes = this.alterator.getSoundScoreAlteration(composition0, this.startDegree, this.endDegree, onlyModulators);
 			score.addObjects(alteredNodes, anchorPaths);

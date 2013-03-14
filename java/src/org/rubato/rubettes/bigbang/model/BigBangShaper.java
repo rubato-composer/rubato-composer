@@ -7,9 +7,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
-import org.rubato.base.RubatoException;
-import org.rubato.math.module.RElement;
-import org.rubato.math.module.RRing;
 import org.rubato.math.yoneda.Denotator;
 import org.rubato.rubettes.util.DenotatorPath;
 
@@ -21,7 +18,7 @@ public class BigBangShaper extends BigBangScoreManipulator {
 	private double shapingRange;
 	
 	public BigBangShaper(BigBangScore score, TransformationProperties properties, TreeMap<Double,Double> shapingLocations) {
-		super(score, properties.getElementPaths());
+		super(score, properties.getValuePaths());
 		this.objectPaths = new ArrayList<DenotatorPath>(properties.getNodePaths());
 		this.shapingLocations = shapingLocations;
 		this.shapingRange = 0.5;
@@ -100,12 +97,11 @@ public class BigBangShaper extends BigBangScoreManipulator {
 	
 	private Denotator shapeObject(Denotator object, Map<Denotator,Double> newObjectsAndOldYValues) {
 		Double newValue = this.getValueOfClosestLocation(object);
-		int[] elementPath = new int[]{this.coordinatePaths[1][0], 0};
-		double oldValue = this.score.objectGenerator.getDoubleValue(object, elementPath);
+		DenotatorPath valuePath = this.valuePaths.get(1);
+		double oldValue = this.score.objectGenerator.getDoubleValue(object, valuePath);
 		if (newValue != null) {
-			this.score.objectGenerator.replaceValue(object, elementPath, newValue);
+			object = this.score.objectGenerator.replaceValue(object, valuePath, newValue);
 		}
-		object = object.copy();
 		newObjectsAndOldYValues.put(object, oldValue);
 		return object;
 	}
@@ -118,25 +114,21 @@ public class BigBangShaper extends BigBangScoreManipulator {
 		}
 	}
 
-	private Double getValueOfClosestLocation(Denotator note) {
-		try {
-			int[] elementPath = new int[]{this.coordinatePaths[0][0], 0};
-			double xPosition = ((RElement)note.getElement(elementPath).cast(RRing.ring)).getValue();
-			Map<Double,Double> subMap = this.shapingLocations.subMap(xPosition-this.shapingRange, xPosition+this.shapingRange);
-			Double closestPosition = null;
-			double minDistance = Double.MAX_VALUE;
-			for (double currentPosition: subMap.keySet()) {
-				double currentDistance = Math.abs(currentPosition - xPosition);
-				if (currentDistance < minDistance) {
-					minDistance = currentDistance;
-					closestPosition = currentPosition;
-				}
+	private Double getValueOfClosestLocation(Denotator object) {
+		DenotatorPath valuePath = this.valuePaths.get(0);
+		double xPosition = this.score.objectGenerator.getDoubleValue(object, valuePath);
+		Map<Double,Double> subMap = this.shapingLocations.subMap(xPosition-this.shapingRange, xPosition+this.shapingRange);
+		Double closestPosition = null;
+		double minDistance = Double.MAX_VALUE;
+		for (double currentPosition: subMap.keySet()) {
+			double currentDistance = Math.abs(currentPosition - xPosition);
+			if (currentDistance < minDistance) {
+				minDistance = currentDistance;
+				closestPosition = currentPosition;
 			}
-			if (closestPosition != null) {
-				return subMap.get(closestPosition);
-			}
-		} catch (RubatoException e) { 
-			e.printStackTrace();
+		}
+		if (closestPosition != null) {
+			return subMap.get(closestPosition);
 		}
 		return null;
 	}

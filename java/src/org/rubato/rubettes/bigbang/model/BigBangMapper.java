@@ -7,8 +7,6 @@ import java.util.List;
 
 import org.rubato.base.RubatoException;
 import org.rubato.math.matrix.RMatrix;
-import org.rubato.math.module.RElement;
-import org.rubato.math.module.RRing;
 import org.rubato.math.module.morphism.CompositionException;
 import org.rubato.math.module.morphism.ModuleMorphism;
 import org.rubato.math.module.morphism.RFreeAffineMorphism;
@@ -23,7 +21,7 @@ public class BigBangMapper extends BigBangScoreManipulator {
 	private boolean relative;
 	
 	public BigBangMapper(BigBangScore score, BigBangTransformation transformation) {
-		super(score, transformation.getCoordinatePaths());
+		super(score, transformation.getValuePaths());
 		this.morphism = transformation.getModuleMorphism();
 		this.copyAndMap = transformation.isCopyAndMap();
 		this.relative = transformation.getAnchorNodePath() != null;
@@ -88,7 +86,7 @@ public class BigBangMapper extends BigBangScoreManipulator {
 	
 	private List<List<Denotator>> mapAndAddObjects(List<Denotator> objects, DenotatorPath anchorPath, ModuleMorphism morphism) {
 		List<Denotator> mappedObjects = new ArrayList<Denotator>();
-		ArbitraryDenotatorMapper mapper = new ArbitraryDenotatorMapper(morphism, this.coordinatePaths);
+		ArbitraryDenotatorMapper mapper = new ArbitraryDenotatorMapper(morphism, this.valuePaths);
 		//boolean modulators = objects.get(0).getForm().equals(this.score.objectGenerator.SOUND_NOTE_FORM);
 		for (int i = 0; i < objects.size(); i++) {
 			//PerformanceCheck.startTask(".map");
@@ -116,12 +114,11 @@ public class BigBangMapper extends BigBangScoreManipulator {
 		return relativeMorphism;
 	}
 	
+	//TODO: WOOOO REMOVE THIS AND MAKE OBJECT GENERATOR WORK!!!
 	private double[] extractValues(Denotator object) {
 		double v1 = 0, v2 = 0;
-		try {
-			v1 = ((RElement)object.get(this.coordinatePaths[0]).getElement(new int[]{0}).cast(RRing.ring)).getValue();
-			v2 = ((RElement)object.get(this.coordinatePaths[1]).getElement(new int[]{0}).cast(RRing.ring)).getValue();
-		} catch (RubatoException e) { e.printStackTrace(); }
+		v1 = this.score.objectGenerator.getDoubleValue(object, this.valuePaths.get(0));
+		v2 = this.score.objectGenerator.getDoubleValue(object, this.valuePaths.get(1));
 		return new double[] {v1, v2};
 	}
 
