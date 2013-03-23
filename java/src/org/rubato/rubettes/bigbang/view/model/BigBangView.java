@@ -279,10 +279,13 @@ public class BigBangView extends Model implements View {
 	}
 	
 	private void setDisplayNotes(DisplayObjectList displayNotes, List<Double> minValues, List<Double> maxValues) {
+		if (this.displayNotes == null || (displayNotes.getBaseForm() != this.displayNotes.getBaseForm())) {
+			this.viewParameters.initSelections(displayNotes.getValueNames().size()-2);
+			this.firePropertyChange(ViewController.FORM, null, displayNotes);
+		}
 		this.displayNotes = displayNotes;
 		this.viewParameters.setDenotatorMinAndMaxValues(minValues, maxValues);
 		//do not select parameters for satellite and sibling number...
-		this.viewParameters.initSelections(displayNotes.getValueNames().size()-2);
 		this.firePropertyChange(ViewController.DISPLAY_NOTES, null, this.displayNotes);
 	}
 	

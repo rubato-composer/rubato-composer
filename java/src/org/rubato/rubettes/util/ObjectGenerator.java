@@ -75,18 +75,49 @@ public class ObjectGenerator {
 		return object;
 	}
 	
-	public Double getDoubleValue(Denotator note, DenotatorPath valuePath) {
+	public Denotator createDenotator(Form form, double... values) {
+		Denotator newDenotator = form.createDefaultDenotator();
+		List<DenotatorPath> formValuePaths = new DenotatorValueFinder(form, true).getValuePathsInFoundOrder();
+		for (int i = 0; i < Math.min(values.length, formValuePaths.size()); i++) {
+			newDenotator = this.replaceValue(newDenotator, formValuePaths.get(i), values[i]);
+		}
+		return newDenotator;
+	}
+	
+	//TODO: put all of these in specialized class
+	public int getIntegerValue(Denotator denotator, int valueIndex) {
+		return (int)Math.round(this.getDoubleValue(denotator, valueIndex));
+	}
+	
+	public Double getDoubleValue(Denotator denotator, int valueIndex) {
+		DenotatorPath valuePath = new DenotatorValueFinder(denotator.getForm(), false).getValuePathsInFoundOrder().get(valueIndex);
+		return this.getDoubleValue(denotator, valuePath);
+	}
+	
+	public Double getDoubleValue(Denotator denotator, DenotatorPath valuePath) {
 		try {
-			//TODO: rewrite!!! has to be either simple or element!!!!
 			if (valuePath.isElementPath()) {
-				return ((RElement)note.getElement(valuePath.toIntArray()).cast(RRing.ring)).getValue();
+				ModuleElement topElement = ((SimpleDenotator)denotator.get(valuePath.getDenotatorSubpath().toIntArray())).getElement();
+				//have to do this like this for the possibility of ProductElements
+				return this.extractValue(topElement, valuePath.getElementSubpath().toIntArray());
 			} else if (valuePath.getForm().getType() == Form.SIMPLE) {
-				return ((RElement)((SimpleDenotator)note.get(valuePath.toIntArray())).getElement().cast(RRing.ring)).getValue();
+				return ((RElement)((SimpleDenotator)denotator.get(valuePath.toIntArray())).getElement().cast(RRing.ring)).getValue();
 			}
 		} catch (RubatoException e) {
 			e.printStackTrace();
 		}
 		return null;
+	}
+	
+	private Double extractValue(ModuleElement element, int[] elementPath) {
+		for (int i = 0; i < elementPath.length; i++) {
+			if (element instanceof ProductElement) {
+				element = ((ProductElement)element).getFactor(i);
+			} else {
+				element = element.getComponent(i);
+			}
+		}
+		return ((RElement)element.cast(RRing.ring)).getValue();
 	}
 	
 	/**
@@ -204,6 +235,7 @@ public class ObjectGenerator {
 	}
 	
 	/*
+	 * TODO: WHY NOT FIND VALUES??????
 	 * returns a list of all simples found in the lower structure of the given denotator
 	 */
 	private Map<DenotatorPath,SimpleDenotator> findSimples(Denotator object) {
