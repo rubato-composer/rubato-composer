@@ -1102,6 +1102,36 @@ public class Repository
 		registerBuiltin(soundScoreForm);
 
 		soundScoreForm.resolveReferences(this);
+		
+		// register Image form
+        SimpleForm xForm = FormFactory.makeRModuleForm("X");
+        registerBuiltin(xForm);
+        SimpleForm yForm = FormFactory.makeRModuleForm("Y");
+        registerBuiltin(yForm);
+        SimpleForm redForm = FormFactory.makeRModuleForm("Red");
+        registerBuiltin(redForm);
+        SimpleForm greenForm = FormFactory.makeRModuleForm("Green");
+        registerBuiltin(greenForm);
+        SimpleForm blueForm = FormFactory.makeRModuleForm("Blue");
+        registerBuiltin(blueForm);
+		
+		List<Form> pixelFormList = new LinkedList<Form>();
+        List<String> pixelFormLabelList = new LinkedList<String>();
+        pixelFormList.add(xForm);
+        pixelFormLabelList.add("x");
+        pixelFormList.add(yForm);
+        pixelFormLabelList.add("y");
+        pixelFormList.add(redForm);
+        pixelFormLabelList.add("red");
+        pixelFormList.add(greenForm);
+        pixelFormLabelList.add("green");
+        pixelFormList.add(blueForm);
+        pixelFormLabelList.add("blue");
+		LimitForm pixelForm = FormFactory.makeLimitForm("Pixel", pixelFormList);
+		pixelForm.setLabels(pixelFormLabelList);
+		registerBuiltin(pixelForm);
+		PowerForm imageForm = FormFactory.makePowerForm("Image", pixelForm);			
+		registerBuiltin(imageForm);
         
         // register modules
         registerBuiltinModule("Integers", ZRing.ring);

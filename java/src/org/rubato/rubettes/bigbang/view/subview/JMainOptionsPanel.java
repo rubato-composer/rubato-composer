@@ -43,7 +43,7 @@ public class JMainOptionsPanel extends JPanel implements ActionListener, View {
 			this.inputActiveCheckBox.setSelected((Boolean)event.getNewValue());
 		} else if (propertyName.equals(ViewController.MAIN_OPTIONS_VISIBLE)) {
 			this.setVisible((Boolean)event.getNewValue());
-		} else if (propertyName.equals(ViewController.DISPLAY_NOTES)) {
+		} else if (propertyName.equals(ViewController.FORM)) {
 			this.selectFormPanel.setForm(((DisplayObjectList)event.getNewValue()).getBaseForm());
 			this.revalidate();
 		}

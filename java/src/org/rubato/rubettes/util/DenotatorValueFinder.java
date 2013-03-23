@@ -14,10 +14,12 @@ import org.rubato.math.yoneda.SimpleForm;
 public class DenotatorValueFinder {
 	
 	private List<String> valueNamesInFoundOrder;
+	private List<DenotatorPath> pathsInFoundOrder;
 	private Map<String,DenotatorPath> valueNamesAndPaths;
 	
 	public DenotatorValueFinder(Form form, boolean searchThroughPowersets) {
 		this.valueNamesInFoundOrder = new ArrayList<String>();
+		this.pathsInFoundOrder = new ArrayList<DenotatorPath>();
 		this.valueNamesAndPaths = new TreeMap<String,DenotatorPath>();
 		this.findValues(form, searchThroughPowersets);
 	}
@@ -26,11 +28,16 @@ public class DenotatorValueFinder {
 		return this.valueNamesInFoundOrder;
 	}
 	
+	public List<DenotatorPath> getValuePathsInFoundOrder() {
+		return this.pathsInFoundOrder; 
+	}
+	
 	public Map<String,DenotatorPath> getValueNamesAndPaths() {
 		return this.valueNamesAndPaths;
 	}
 	
 	//TODO: implement searchThroughPowersets!!!!
+	//TODO: does not need to be public!!!!
 	public Map<String,DenotatorPath> findValues(Form form, boolean searchThroughPowersets) {
 		PriorityQueue<DenotatorPath> subPathsQueue = new PriorityQueue<DenotatorPath>();
 		subPathsQueue.add(new DenotatorPath(form));
@@ -46,7 +53,7 @@ public class DenotatorValueFinder {
 				}
 			}
 		}
-		return valueNamesAndPaths;
+		return this.valueNamesAndPaths;
 	}
 	
 	//recursively finds all values and their names
@@ -65,8 +72,9 @@ public class DenotatorValueFinder {
 			}
 		} else {
 			String currentValueName = simpleName + " " + DenotatorValueFinder.makeModuleName(currentModule, indexString);
-			valueNamesInFoundOrder.add(currentValueName);
-			valueNamesAndPaths.put(currentValueName, currentPath);
+			this.valueNamesInFoundOrder.add(currentValueName);
+			this.pathsInFoundOrder.add(currentPath);
+			this.valueNamesAndPaths.put(currentValueName, currentPath);
 		}
 	}
 	

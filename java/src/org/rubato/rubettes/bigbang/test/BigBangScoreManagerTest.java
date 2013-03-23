@@ -11,6 +11,8 @@ import junit.framework.TestCase;
 
 import org.rubato.base.RubatoException;
 import org.rubato.math.matrix.RMatrix;
+import org.rubato.math.module.ProductElement;
+import org.rubato.math.module.RElement;
 import org.rubato.math.module.morphism.ModuleMorphism;
 import org.rubato.math.module.morphism.RFreeAffineMorphism;
 import org.rubato.math.yoneda.Denotator;
@@ -26,22 +28,31 @@ public class BigBangScoreManagerTest extends TestCase {
 	
 	private BigBangScoreManager scoreManager;
 	private TestObjects objects;
-	private List<DenotatorPath> nodeValuePaths;
-	private List<DenotatorPath> noteValuePaths;
+	private List<DenotatorPath> nodeValuePaths, noteValuePaths, rationalTriplesValuePaths, realTriplesValuePaths;
 	
 	protected void setUp() {
 		this.objects = new TestObjects();
 		this.scoreManager = this.objects.scoreManager;
 		this.nodeValuePaths = new ArrayList<DenotatorPath>();
-		nodeValuePaths.add(new DenotatorPath(this.objects.SOUND_NODE_FORM, new int[]{0,0}));
-		nodeValuePaths.add(new DenotatorPath(this.objects.SOUND_NODE_FORM, new int[]{0,1}));
-		nodeValuePaths.add(new DenotatorPath(this.objects.SOUND_NODE_FORM, new int[]{0,0}));
-		nodeValuePaths.add(new DenotatorPath(this.objects.SOUND_NODE_FORM, new int[]{0,1}));
+		this.nodeValuePaths.add(new DenotatorPath(this.objects.SOUND_NODE_FORM, new int[]{0,0}));
+		this.nodeValuePaths.add(new DenotatorPath(this.objects.SOUND_NODE_FORM, new int[]{0,1}));
+		this.nodeValuePaths.add(new DenotatorPath(this.objects.SOUND_NODE_FORM, new int[]{0,0}));
+		this.nodeValuePaths.add(new DenotatorPath(this.objects.SOUND_NODE_FORM, new int[]{0,1}));
 		this.noteValuePaths = new ArrayList<DenotatorPath>();
-		noteValuePaths.add(new DenotatorPath(this.objects.SOUND_NOTE_FORM, new int[]{0}));
-		noteValuePaths.add(new DenotatorPath(this.objects.SOUND_NOTE_FORM, new int[]{1}));
-		noteValuePaths.add(new DenotatorPath(this.objects.SOUND_NOTE_FORM, new int[]{0}));
-		noteValuePaths.add(new DenotatorPath(this.objects.SOUND_NOTE_FORM, new int[]{1}));
+		this.noteValuePaths.add(new DenotatorPath(this.objects.SOUND_NOTE_FORM, new int[]{0}));
+		this.noteValuePaths.add(new DenotatorPath(this.objects.SOUND_NOTE_FORM, new int[]{1}));
+		this.noteValuePaths.add(new DenotatorPath(this.objects.SOUND_NOTE_FORM, new int[]{0}));
+		this.noteValuePaths.add(new DenotatorPath(this.objects.SOUND_NOTE_FORM, new int[]{1}));
+		this.rationalTriplesValuePaths = new ArrayList<DenotatorPath>();
+		this.rationalTriplesValuePaths.add(new DenotatorPath(this.objects.RATIONAL_TRIPLE_FORM, new int[]{1}));
+		this.rationalTriplesValuePaths.add(new DenotatorPath(this.objects.RATIONAL_TRIPLE_FORM, new int[]{2}));
+		this.rationalTriplesValuePaths.add(new DenotatorPath(this.objects.RATIONAL_TRIPLE_FORM, new int[]{1}));
+		this.rationalTriplesValuePaths.add(new DenotatorPath(this.objects.RATIONAL_TRIPLE_FORM, new int[]{2}));
+		this.realTriplesValuePaths = new ArrayList<DenotatorPath>();
+		this.realTriplesValuePaths.add(new DenotatorPath(this.objects.REAL_TRIPLE_FORM, new int[]{0}));
+		this.realTriplesValuePaths.add(new DenotatorPath(this.objects.REAL_TRIPLE_FORM, new int[]{2}));
+		this.realTriplesValuePaths.add(new DenotatorPath(this.objects.REAL_TRIPLE_FORM, new int[]{0}));
+		this.realTriplesValuePaths.add(new DenotatorPath(this.objects.REAL_TRIPLE_FORM, new int[]{2}));
 	}
 	
 	/*TODO: adapt!!! public void testAddNote() {
@@ -81,6 +92,19 @@ public class BigBangScoreManagerTest extends TestCase {
 		TestCase.assertEquals(new DenotatorPath(this.objects.SOUND_SCORE_FORM, new int[]{1}), newPaths.get(1));
 	}
 	
+	public void testMapRationalTriples() throws RubatoException {
+		this.scoreManager.setComposition(this.objects.rationalTriples);
+		BigBangTransformation translation = this.makeTranslation(-1,-2, this.rationalTriplesValuePaths);
+		List<DenotatorPath> triplesPath = new ArrayList<DenotatorPath>();
+		triplesPath.add(new DenotatorPath(this.objects.RATIONAL_TRIPLES_FORM, new int[]{1}));
+		triplesPath.add(new DenotatorPath(this.objects.RATIONAL_TRIPLES_FORM, new int[]{2}));
+		List<DenotatorPath> newPaths = this.scoreManager.mapNodes(triplesPath, translation, false);
+		TestCase.assertEquals(new DenotatorPath(this.objects.RATIONAL_TRIPLES_FORM, new int[]{0}), newPaths.get(0));
+		TestCase.assertEquals(new DenotatorPath(this.objects.RATIONAL_TRIPLES_FORM, new int[]{1}), newPaths.get(1));
+		Denotator expectedTriple = this.objects.createRationalTriple(new double[]{1,1,1});
+		TestCase.assertEquals(expectedTriple, this.scoreManager.getComposition().get(newPaths.get(0).toIntArray()));
+	}
+	
 	public void testMapNodesFlatSequential() {
 		this.scoreManager.setComposition(this.objects.flatMacroScore);
 		BigBangTransformation translation = this.makeTranslation(3,5, this.nodeValuePaths);
@@ -106,14 +130,14 @@ public class BigBangScoreManagerTest extends TestCase {
 		TestCase.assertEquals(new DenotatorPath(this.objects.SOUND_SCORE_FORM, new int[]{0}), newPaths.get(0));
 		TestCase.assertEquals(new DenotatorPath(this.objects.SOUND_SCORE_FORM, new int[]{1,1,0}), newPaths.get(1));
 		LimitDenotator expectedNode = this.objects.generator.createNodeDenotator(new double[]{-1,2,-4,0,0,0});
-		this.assertEqualNodes(expectedNode, this.scoreManager.getComposition().get(new int[]{1,1,0}));
+		this.objects.assertEqualDenotators(expectedNode, this.scoreManager.getComposition().get(new int[]{1,1,0}));
 		
 		nodePaths = this.makeNotePaths(new int[]{0}, new int[]{1,1,0});
 		newPaths = new ArrayList<DenotatorPath>(this.scoreManager.mapNodes(nodePaths, translation, false));
 		TestCase.assertEquals(newPaths.get(0), new DenotatorPath(this.objects.SOUND_SCORE_FORM, new int[]{0}));
 		TestCase.assertEquals(newPaths.get(1), new DenotatorPath(this.objects.SOUND_SCORE_FORM, new int[]{1,1,0}));
 		expectedNode = this.objects.generator.createNodeDenotator(new double[]{-3,1,-4,0,0,0});
-		this.assertEqualNodes(expectedNode, this.scoreManager.getComposition().get(new int[]{1,1,0}));
+		this.objects.assertEqualDenotators(expectedNode, this.scoreManager.getComposition().get(new int[]{1,1,0}));
 	}
 	
 	public void testMapModulators() throws RubatoException {
@@ -129,7 +153,7 @@ public class BigBangScoreManagerTest extends TestCase {
 		List<DenotatorPath> newPaths = this.scoreManager.mapNodes(nodePaths, translation, false);
 		TestCase.assertEquals(newPaths.get(0), new DenotatorPath(this.objects.SOUND_SCORE_FORM, new int[]{0,0,6,0,6,0}));
 		LimitDenotator expectedNote = this.objects.generator.createNoteDenotator(new double[]{-1,-4,5,0,1,0});
-		this.assertEqualNotes(expectedNote, this.scoreManager.getComposition().get(new int[]{0,0,6,0,6,0}));
+		this.objects.assertEqualDenotators(expectedNote, this.scoreManager.getComposition().get(new int[]{0,0,6,0,6,0}));
 	}
 	
 	public void testCopyAndMapDenotator() {
@@ -174,19 +198,19 @@ public class BigBangScoreManagerTest extends TestCase {
 		paths.add(new DenotatorPath(this.objects.SOUND_SCORE_FORM, new int[]{1,0}));
 		//build first satellite and check if it's there
 		this.scoreManager.moveObjectsToParent(paths, new DenotatorPath(this.objects.SOUND_SCORE_FORM, new int[]{0}), 0);
-		this.assertEqualNodes(this.objects.node1Relative, this.scoreManager.getComposition().get(new int[]{0,1,0}));
+		this.objects.assertEqualDenotators(this.objects.node1Relative, this.scoreManager.getComposition().get(new int[]{0,1,0}));
 		//build second satellite and check if it's there
 		TestCase.assertTrue(((PowerDenotator)this.scoreManager.getComposition().get(new int[]{0,1,0,1})).getFactorCount() == 0);
 		List<DenotatorPath> satellitePaths = this.scoreManager.moveObjectsToParent(paths, new DenotatorPath(this.objects.SOUND_SCORE_FORM, new int[]{0,1,0}), 0);
 		TestCase.assertTrue(((PowerDenotator)this.scoreManager.getComposition().get(new int[]{0,1,0,1})).getFactorCount() == 1);
-		this.assertEqualNodes(this.objects.node2Relative, this.scoreManager.getComposition().get(new int[]{0,1,0,1,0}));
+		this.objects.assertEqualDenotators(this.objects.node2Relative, this.scoreManager.getComposition().get(new int[]{0,1,0,1,0}));
 		//undo and check if original is there again
 		this.scoreManager.undoMoveToParent(new ArrayList<DenotatorPath>(satellitePaths), paths);
 		TestCase.assertTrue(((PowerDenotator)this.scoreManager.getComposition().get(new int[]{0,1,0,1})).getFactorCount() == 0);
 		TestCase.assertTrue(((PowerDenotator)this.scoreManager.getComposition()).getFactorCount() == 2);
-		this.assertEqualNodes(this.objects.node0, this.scoreManager.getComposition().get(new int[]{0}));
-		this.assertEqualNodes(this.objects.node2Absolute, this.scoreManager.getComposition().get(new int[]{1}));
-		this.assertEqualNodes(this.objects.node1Relative, this.scoreManager.getComposition().get(new int[]{0,1,0}));
+		this.objects.assertEqualDenotators(this.objects.node0, this.scoreManager.getComposition().get(new int[]{0}));
+		this.objects.assertEqualDenotators(this.objects.node2Absolute, this.scoreManager.getComposition().get(new int[]{1}));
+		this.objects.assertEqualDenotators(this.objects.node1Relative, this.scoreManager.getComposition().get(new int[]{0,1,0}));
 	}
 	
 	public void testBuildModulators() throws RubatoException {
@@ -195,28 +219,28 @@ public class BigBangScoreManagerTest extends TestCase {
 		paths.add(new DenotatorPath(this.objects.SOUND_SCORE_FORM, new int[]{1}));
 		//build first modulator and check if it's there
 		this.scoreManager.moveObjectsToParent(paths, new DenotatorPath(this.objects.SOUND_SCORE_FORM, new int[]{0}), 1);
-		this.assertEqualNotes(this.objects.note1Relative, this.scoreManager.getComposition().get(new int[]{0,0,6,0}));
+		this.objects.assertEqualDenotators(this.objects.note1Relative, this.scoreManager.getComposition().get(new int[]{0,0,6,0}));
 		//build second modulator and check if it's there
 		TestCase.assertTrue(((PowerDenotator)this.scoreManager.getComposition().get(new int[]{0,0,6,0,6})).getFactorCount() == 0);
 		List<DenotatorPath> modulatorPaths = this.scoreManager.moveObjectsToParent(paths, new DenotatorPath(this.objects.SOUND_SCORE_FORM, new int[]{0,0,6,0}), 0);
 		TestCase.assertTrue(((PowerDenotator)this.scoreManager.getComposition().get(new int[]{0,0,6,0,6})).getFactorCount() == 1);
 		Denotator addedModulator = this.scoreManager.getComposition().get(new int[]{0,0,6,0,6,0});
 		TestCase.assertEquals(this.objects.generator.SOUND_NOTE_FORM, addedModulator.getForm());
-		this.assertEqualNotes(this.objects.note2Relative, this.scoreManager.getComposition().get(new int[]{0,0,6,0,6,0}));
+		this.objects.assertEqualDenotators(this.objects.note2Relative, this.scoreManager.getComposition().get(new int[]{0,0,6,0,6,0}));
 		//undo and check if original is there again
 		this.scoreManager.undoMoveToParent(new ArrayList<DenotatorPath>(modulatorPaths), paths);
 		TestCase.assertTrue(((PowerDenotator)this.scoreManager.getComposition().get(new int[]{0,0,6,0,6})).getFactorCount() == 0);
 		TestCase.assertTrue(((PowerDenotator)this.scoreManager.getComposition()).getFactorCount() == 2);
-		this.assertEqualNodes(this.objects.node0, this.scoreManager.getComposition().get(new int[]{0}));
-		this.assertEqualNodes(this.objects.node2Absolute, this.scoreManager.getComposition().get(new int[]{1}));
-		this.assertEqualNotes(this.objects.note1Relative, this.scoreManager.getComposition().get(new int[]{0,0,6,0}));
+		this.objects.assertEqualDenotators(this.objects.node0, this.scoreManager.getComposition().get(new int[]{0}));
+		this.objects.assertEqualDenotators(this.objects.node2Absolute, this.scoreManager.getComposition().get(new int[]{1}));
+		this.objects.assertEqualDenotators(this.objects.note1Relative, this.scoreManager.getComposition().get(new int[]{0,0,6,0}));
 		//try to add a note with a modulator as a satellite
 		paths = new ArrayList<DenotatorPath>();
 		paths.add(new DenotatorPath(this.objects.SOUND_SCORE_FORM, new int[]{0,0}));
 		this.scoreManager.moveObjectsToParent(paths, new DenotatorPath(this.objects.SOUND_SCORE_FORM, new int[]{1}), 0);
-		this.assertEqualNodes(this.objects.node2Absolute, this.scoreManager.getComposition().get(new int[]{0}));
-		this.assertEqualNodes(this.objects.generator.createNodeDenotator(new double[]{-2,0,-1,0,-1,0}), this.scoreManager.getComposition().get(new int[]{0,1,0}));
-		this.assertEqualNotes(this.objects.note1Relative, this.scoreManager.getComposition().get(new int[]{0,1,0,0,6,0}));
+		this.objects.assertEqualDenotators(this.objects.node2Absolute, this.scoreManager.getComposition().get(new int[]{0}));
+		this.objects.assertEqualDenotators(this.objects.generator.createNodeDenotator(new double[]{-2,0,-1,0,-1,0}), this.scoreManager.getComposition().get(new int[]{0,1,0}));
+		this.objects.assertEqualDenotators(this.objects.note1Relative, this.scoreManager.getComposition().get(new int[]{0,1,0,0,6,0}));
 	}
 	
 	public void testFlatten() throws RubatoException {
@@ -237,13 +261,13 @@ public class BigBangScoreManagerTest extends TestCase {
 		paths.add(new DenotatorPath(this.objects.SOUND_SCORE_FORM, new int[]{0,1,0}));
 		//flatten the first path
 		Map<DenotatorPath,DenotatorPath> newAndOldPaths = this.scoreManager.flattenNotes(paths);
-		this.assertEqualNodes(this.objects.node0, this.scoreManager.getComposition().get(new int[]{0}));
-		this.assertEqualNodes(this.objects.node1Absolute, this.scoreManager.getComposition().get(new int[]{1}));
-		this.assertEqualNodes(this.objects.node2Relative, this.scoreManager.getComposition().get(new int[]{1,1,0}));
+		this.objects.assertEqualDenotators(this.objects.node0, this.scoreManager.getComposition().get(new int[]{0}));
+		this.objects.assertEqualDenotators(this.objects.node1Absolute, this.scoreManager.getComposition().get(new int[]{1}));
+		this.objects.assertEqualDenotators(this.objects.node2Relative, this.scoreManager.getComposition().get(new int[]{1,1,0}));
 		this.scoreManager.unflattenNotes(newAndOldPaths);
-		this.assertEqualNodes(this.objects.node0, this.scoreManager.getComposition().get(new int[]{0}));
-		this.assertEqualNodes(this.objects.node1Relative, this.scoreManager.getComposition().get(new int[]{0,1,0}));
-		this.assertEqualNodes(this.objects.node2Relative, this.scoreManager.getComposition().get(new int[]{0,1,0,1,0}));
+		this.objects.assertEqualDenotators(this.objects.node0, this.scoreManager.getComposition().get(new int[]{0}));
+		this.objects.assertEqualDenotators(this.objects.node1Relative, this.scoreManager.getComposition().get(new int[]{0,1,0}));
+		this.objects.assertEqualDenotators(this.objects.node2Relative, this.scoreManager.getComposition().get(new int[]{0,1,0,1,0}));
 	}
 	
 	public void testShapeNotes() throws RubatoException {
@@ -261,11 +285,62 @@ public class BigBangScoreManagerTest extends TestCase {
 		this.scoreManager.shapeNotes(properties, shapingLocations);
 		
 		LimitDenotator expectedNote = this.objects.generator.createNodeDenotator(new double[]{0,69,120,1,0,0});
-		this.assertEqualNodes(expectedNote, this.scoreManager.getComposition().get(new int[]{0}));
+		this.objects.assertEqualDenotators(expectedNote, this.scoreManager.getComposition().get(new int[]{0}));
 		expectedNote = this.objects.generator.createNodeDenotator(new double[]{1,71,116,1,0,0});
-		this.assertEqualNodes(expectedNote, this.scoreManager.getComposition().get(new int[]{1}));
+		this.objects.assertEqualDenotators(expectedNote, this.scoreManager.getComposition().get(new int[]{1}));
 		expectedNote = this.objects.generator.createNodeDenotator(new double[]{2,60,121,1,1,0});
-		this.assertEqualNodes(expectedNote, this.scoreManager.getComposition().get(new int[]{2}));
+		this.objects.assertEqualDenotators(expectedNote, this.scoreManager.getComposition().get(new int[]{2}));
+	}
+	
+	public void testShapeRationalTriples() throws RubatoException {
+		this.scoreManager.setComposition(this.objects.rationalTriples);
+		Set<DenotatorPath> paths = new TreeSet<DenotatorPath>();
+		paths.add(new DenotatorPath(this.objects.RATIONAL_TRIPLES_FORM, new int[]{0}));
+		paths.add(new DenotatorPath(this.objects.RATIONAL_TRIPLES_FORM, new int[]{1}));
+		paths.add(new DenotatorPath(this.objects.RATIONAL_TRIPLES_FORM, new int[]{2}));
+		paths.add(new DenotatorPath(this.objects.RATIONAL_TRIPLES_FORM, new int[]{3}));
+		
+		TransformationProperties properties = new TransformationProperties(paths, this.rationalTriplesValuePaths, false, false, false);
+		TreeMap<Double,Double> shapingLocations = new TreeMap<Double,Double>();
+		shapingLocations.put(0.7, 1.0);
+		shapingLocations.put(2.3, 11.0);
+		shapingLocations.put(4.1, 99.0);
+		shapingLocations.put(5.0, 0.0);
+		this.scoreManager.shapeNotes(properties, shapingLocations);
+		
+		Denotator expectedTriple = this.objects.createRationalTriple(new double[]{1,2,11});
+		this.objects.assertEqualDenotators(expectedTriple, this.scoreManager.getComposition().get(new int[]{0}));
+		expectedTriple = this.objects.createRationalTriple(new double[]{2,1,1});
+		this.objects.assertEqualDenotators(expectedTriple, this.scoreManager.getComposition().get(new int[]{1}));
+		expectedTriple = this.objects.createRationalTriple(new double[]{3,4,99});
+		this.objects.assertEqualDenotators(expectedTriple, this.scoreManager.getComposition().get(new int[]{2}));
+		expectedTriple = this.objects.createRationalTriple(new double[]{4,3,1});
+		this.objects.assertEqualDenotators(expectedTriple, this.scoreManager.getComposition().get(new int[]{3}));
+	}
+	
+	//ProductElement element1 = ProductElement.make(new RElement(1), new RElement(2), new RElement(3));
+	//ProductElement element2 = ProductElement.make(new RElement(4), new RElement(3), new RElement(1));
+	//ProductElement element3 = ProductElement.make(new RElement(2), new RElement(1), new RElement(5));
+	public void testShapeRealTriples() throws RubatoException {
+		this.scoreManager.setComposition(this.objects.realTriples);
+		Set<DenotatorPath> paths = new TreeSet<DenotatorPath>();
+		paths.add(new DenotatorPath(this.objects.REAL_TRIPLES_FORM, new int[]{0}));
+		paths.add(new DenotatorPath(this.objects.REAL_TRIPLES_FORM, new int[]{1}));
+		paths.add(new DenotatorPath(this.objects.REAL_TRIPLES_FORM, new int[]{2}));
+		
+		TransformationProperties properties = new TransformationProperties(paths, this.realTriplesValuePaths, false, false, false);
+		TreeMap<Double,Double> shapingLocations = new TreeMap<Double,Double>();
+		shapingLocations.put(1.2, 1.0);
+		shapingLocations.put(3.0, 11.0);
+		shapingLocations.put(2.1, 99.0);
+		this.scoreManager.shapeNotes(properties, shapingLocations);
+		
+		Denotator expectedTriple = this.objects.createRealTriple(new double[]{1,2,1});
+		this.objects.assertEqualDenotators(expectedTriple, this.scoreManager.getComposition().get(new int[]{0}));
+		expectedTriple = this.objects.createRealTriple(new double[]{2,1,99});
+		this.objects.assertEqualDenotators(expectedTriple, this.scoreManager.getComposition().get(new int[]{1}));
+		expectedTriple = this.objects.createRealTriple(new double[]{4,3,1});
+		this.objects.assertEqualDenotators(expectedTriple, this.scoreManager.getComposition().get(new int[]{2}));
 	}
 	
 	private BigBangTransformation makeTranslation(int x, int y, List<DenotatorPath> paths) {
@@ -280,18 +355,6 @@ public class BigBangScoreManagerTest extends TestCase {
 			notePaths.add(new DenotatorPath(this.objects.SOUND_SCORE_FORM, currentPath));
 		}
 		return notePaths;
-	}
-	
-	private void assertEqualNodes(Denotator node1, Denotator node2) throws RubatoException {
-		for (int i = 0; i < 6; i++) {
-			TestCase.assertEquals(node1.get(new int[]{0,i}).getCoordinate().getMap(), node2.get(new int[]{0,i}).getCoordinate().getMap());
-		}
-	}
-	
-	private void assertEqualNotes(Denotator note1, Denotator note2) throws RubatoException {
-		for (int i = 0; i < 6; i++) {
-			TestCase.assertEquals(note1.get(new int[]{i}).getCoordinate().getMap(), note2.get(new int[]{i}).getCoordinate().getMap());
-		}
 	}
 	
 	@SuppressWarnings("unused")

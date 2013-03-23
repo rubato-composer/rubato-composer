@@ -62,7 +62,10 @@ public final class BuiltinRubettes {
         "org.rubato.rubettes.wallpaper.WallpaperRubette",
         "org.rubato.rubettes.alteration.AlterationRubette",
         "org.rubato.rubettes.morphing.MorphingRubette",
-        "org.rubato.rubettes.bigbang.BigBangRubette"
+        "org.rubato.rubettes.bigbang.BigBangRubette",
+        "org.rubato.rubettes.image.ImageFileInRubette",
+        "org.rubato.rubettes.image.ImageFileOutRubette"
+        //"org.rubato.rubettes.image.ImageDisplayRubette"
     };
 
     

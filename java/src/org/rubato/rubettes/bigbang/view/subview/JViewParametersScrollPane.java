@@ -57,7 +57,7 @@ public class JViewParametersScrollPane extends JScrollPane implements View {
 	
 	public void modelPropertyChange(PropertyChangeEvent event) {
 		String propertyName = event.getPropertyName();
-		if (propertyName.equals(ViewController.DISPLAY_NOTES)) {
+		if (propertyName.equals(ViewController.FORM)) {
 			this.updateRowNames(((DisplayObjectList)event.getNewValue()).getValueNames());
 		} else if (propertyName.equals(ViewController.SELECTED_VIEW_PARAMETERS)) {
 			this.updateViewParameters((int[]) event.getNewValue());

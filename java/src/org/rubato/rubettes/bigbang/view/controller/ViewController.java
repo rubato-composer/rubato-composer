@@ -46,6 +46,7 @@ public class ViewController extends Controller {
 	public static final String INPUT_ACTIVE = "InputActive";
 	
 	//score manipulation - display
+	public static final String FORM = "DisplayNotes";
 	public static final String DISPLAY_NOTES = "DisplayNotes";
 	public static final String NOTE_SELECTION = "toggleNoteSelection";
 	public static final String ANCHOR_NOTE_SELECTION = "toggleAnchorNoteSelection";
