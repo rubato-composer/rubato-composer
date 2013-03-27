@@ -48,6 +48,7 @@ import org.rubato.rubettes.util.ObjectGenerator;
 public class ImageFileOutRubette extends SimpleAbstractRubette {
 	
 	private static PowerForm IMAGE_FORM = (PowerForm)Repository.systemRepository().getForm("Image");
+	private static PowerForm VS_IMAGE_FORM = (PowerForm)Repository.systemRepository().getForm("VSPixelImage");
 	
 	private File imageFile;
 	private boolean fillEmptyPixels;
@@ -77,10 +78,12 @@ public class ImageFileOutRubette extends SimpleAbstractRubette {
             this.addError("No file has been set.");
     	} else if (input == null) {
             this.addError("Input denotator is null.");
-    	} else if (!input.hasForm(ImageFileOutRubette.IMAGE_FORM)) {
-    		this.addError("Input denotator is not of form \"Image\".");
-    	} else {
+    	} else if (input.hasForm(ImageFileOutRubette.IMAGE_FORM)) {
     		this.writeImageFile(this.getBufferedImage((PowerDenotator)input));
+    	} else if (input.hasForm(ImageFileOutRubette.VS_IMAGE_FORM)) {
+    		this.writeImageFile(this.getBufferedImageFromVS((PowerDenotator)input));
+    	} else {
+    		this.addError("Input denotator is not of form \"Image\" or \"VSPixelImage\".");
     	}
     }
     
@@ -96,8 +99,34 @@ public class ImageFileOutRubette extends SimpleAbstractRubette {
     		int red = this.objectGenerator.getIntegerValue(currentPixel, 2);
     		int green = this.objectGenerator.getIntegerValue(currentPixel, 3);
     		int blue = this.objectGenerator.getIntegerValue(currentPixel, 4);
-    		int rgb = new Color(red, green, blue).getRGB();
-    		image.setRGB(x, y, rgb);
+    		int alpha = this.objectGenerator.getIntegerValue(currentPixel, 5);
+    		int rgb = new Color(red, green, blue, alpha).getRGB();
+    		image.setRGB(x, height-1-y, rgb);
+    	}
+    	return image;
+    }
+    
+    private BufferedImage getBufferedImageFromVS(PowerDenotator imageDenotator) {
+    	double[] minAndMaxX = new DenotatorAnalyzer().getMinAndMaxValue(imageDenotator, 0);
+    	double[] minAndMaxY = new DenotatorAnalyzer().getMinAndMaxValue(imageDenotator, 1);
+    	int imageWidth = (int)Math.round(minAndMaxX[1]-minAndMaxX[0]+1);
+    	int imageHeight = (int)Math.round(minAndMaxY[1]-minAndMaxY[0]+1);
+    	BufferedImage image = new BufferedImage(imageWidth, imageHeight, BufferedImage.TYPE_INT_ARGB);
+    	for (Denotator currentPixel : imageDenotator.getFactors()) {
+    		int pixelX = (int)Math.round(this.objectGenerator.getIntegerValue(currentPixel, 0)-minAndMaxX[0]);
+    		int pixelY = (int)Math.round(this.objectGenerator.getIntegerValue(currentPixel, 1)-minAndMaxY[0]);
+    		int pixelWidth = this.objectGenerator.getIntegerValue(currentPixel, 2);
+    		int pixelHeight = this.objectGenerator.getIntegerValue(currentPixel, 3);
+    		int red = this.objectGenerator.getIntegerValue(currentPixel, 4);
+    		int green = this.objectGenerator.getIntegerValue(currentPixel, 5);
+    		int blue = this.objectGenerator.getIntegerValue(currentPixel, 6);
+    		int alpha = this.objectGenerator.getIntegerValue(currentPixel, 7);
+    		int rgb = new Color(red, green, blue, alpha).getRGB();
+    		for (int x = Math.max(pixelX-(pixelWidth/2), 0); x < Math.min(pixelX+(pixelWidth/2)+pixelWidth%2, imageWidth); x++) {
+    			for (int y = Math.max(pixelY-(pixelHeight/2), 0); y < Math.min(pixelY+(pixelHeight/2)+pixelHeight%2, imageHeight); y++) {
+    				image.setRGB(x, imageHeight-1-y, rgb);
+    			}
+    		}
     	}
     	return image;
     }

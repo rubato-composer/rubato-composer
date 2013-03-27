@@ -19,12 +19,12 @@
 
 package org.rubato.base;
 
-import static org.rubato.composer.Utilities.makeTitledBorder;
+import static org.rubato.xml.XMLConstants.FALSE_VALUE;
+import static org.rubato.xml.XMLConstants.TRUE_VALUE;
 
 import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.File;
 
 import javax.swing.JCheckBox;
 import javax.swing.JComponent;
@@ -62,7 +62,7 @@ public class BooleanProperty extends RubetteProperty implements ActionListener {
     
     
     public void setValue(Object value) {
-        if (value instanceof File) {
+        if (value instanceof Boolean) {
             this.setBoolean((Boolean)value);
         }
     }
@@ -88,9 +88,10 @@ public class BooleanProperty extends RubetteProperty implements ActionListener {
         	this.propertyPanel.setBorder(makeTitledBorder("Boolean:"));
         }*/
         
-        this.booleanCheckbox = new JCheckBox(this.getName(), this.value);
+        this.booleanCheckbox = new JCheckBox();
+        this.booleanCheckbox.setSelected(this.value);
         this.booleanCheckbox.addActionListener(this);
-        this.propertyPanel.add(this.booleanCheckbox, BorderLayout.EAST);
+        this.propertyPanel.add(this.booleanCheckbox, BorderLayout.CENTER);
         
         return this.propertyPanel;
     }
@@ -118,13 +119,13 @@ public class BooleanProperty extends RubetteProperty implements ActionListener {
     
     
     public void toXML(XMLWriter writer) {
-        writer.empty(getKey(), VALUE_ATTR, value);
+        writer.empty(getKey(), VALUE_ATTR, this.value?TRUE_VALUE:FALSE_VALUE);
     }
     
-    //TODO: ADAPT!!!!!
+    
     public RubetteProperty fromXML(XMLReader reader, Element element) {
         BooleanProperty property = this.clone();
-        property.setValue(XMLReader.getStringAttribute(element, VALUE_ATTR));
+        property.setValue(XMLReader.getStringAttribute(element, VALUE_ATTR).equals(TRUE_VALUE));
         return property;
     }
 

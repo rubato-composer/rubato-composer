@@ -48,9 +48,13 @@ public class ImageFileInRubette extends SimpleAbstractRubette {
 	
 	private static Form PIXEL_FORM = Repository.systemRepository().getForm("Pixel");
 	private static PowerForm IMAGE_FORM = (PowerForm)Repository.systemRepository().getForm("Image");
+	private static Form VS_PIXEL_FORM = Repository.systemRepository().getForm("VariableSizePixel");
+	private static PowerForm VS_IMAGE_FORM = (PowerForm)Repository.systemRepository().getForm("VSPixelImage");
 	
 	private File imageFile;
+	private boolean variableSizePixels;
 	private final String imageFileKey = "imageFile";
+	private final String variableSizePixelsKey = "variableSizePixels";
 	private ObjectGenerator objectGenerator;
 	
 	private static final ImageIcon icon = Icons.loadIcon(ImageFileInRubette.class, "imagefileinicon.png");
@@ -64,6 +68,7 @@ public class ImageFileInRubette extends SimpleAbstractRubette {
         this.objectGenerator = new ObjectGenerator();
         String[] allowedExtensions = new String[]{".gif", ".png", ".jpg", ".bmp"};
         this.putProperty(new FileProperty(this.imageFileKey, "Image file", allowedExtensions, false));
+        this.putProperty(new BooleanProperty(this.variableSizePixelsKey, "Variable size pixels", false));
     }
 	
 	public void init() { }
@@ -78,22 +83,28 @@ public class ImageFileInRubette extends SimpleAbstractRubette {
     
     private Denotator getConvertedImage() {
     	BufferedImage image = this.readImageFile();
-    	System.out.println(image.getRGB(0,0) + " " + image.getWidth() + " " + image.getHeight() + " " + image.getColorModel());
     	List<Denotator> pixels = new ArrayList<Denotator>();
     	for (int x = 0; x < image.getWidth(); x++) {
     		for (int y = 0; y < image.getHeight(); y++) {
     			int rgb = image.getRGB(x, y);
     			if (rgb != 0) {
-    				Color currentColor = new Color(image.getRGB(x, y));
+    				Color currentColor = new Color(image.getRGB(x, y), true);
     				int red = currentColor.getRed();
     				int green = currentColor.getGreen();
     				int blue = currentColor.getBlue();
-    				System.out.println(currentColor.getAlpha());
-    				pixels.add(this.objectGenerator.createDenotator(ImageFileInRubette.PIXEL_FORM, x, y, red, green, blue));
+    				int alpha = currentColor.getAlpha();
+    				if (this.variableSizePixels) {
+    					pixels.add(this.objectGenerator.createDenotator(ImageFileInRubette.VS_PIXEL_FORM, x, image.getHeight()-1-y, 1, 1, red, green, blue, alpha));
+    				} else {
+    					pixels.add(this.objectGenerator.createDenotator(ImageFileInRubette.PIXEL_FORM, x, image.getHeight()-1-y, red, green, blue, alpha));
+    				}
     			}
     		}
     	}
     	try {
+    		if (this.variableSizePixels) {
+    			return new PowerDenotator(NameDenotator.make(""), ImageFileInRubette.VS_IMAGE_FORM, pixels);
+    		}
     		return new PowerDenotator(NameDenotator.make(""), ImageFileInRubette.IMAGE_FORM, pixels);
     	} catch (RubatoException e) {
     		e.printStackTrace();
@@ -119,6 +130,7 @@ public class ImageFileInRubette extends SimpleAbstractRubette {
 	public boolean applyProperties() {
         super.applyProperties();
         this.imageFile = ((FileProperty)this.getProperty(this.imageFileKey)).getFile();
+        this.variableSizePixels = ((BooleanProperty)this.getProperty(this.variableSizePixelsKey)).getBoolean();
         return true;
     }
 	

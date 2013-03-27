@@ -97,6 +97,8 @@ public abstract class SimpleAbstractRubette extends AbstractRubette {
         }
         SimpleAbstractRubette rubette = (SimpleAbstractRubette)newInstance();
         rubette.properties = newProp;
+        //had to add this, Gerard's code was buggy
+        rubette.applyProperties();
         return rubette;
     }
 

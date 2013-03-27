@@ -69,13 +69,13 @@ public class JSelectFile extends JPanel implements ActionListener {
     
     public void setFile(File file) {
         this.selectedFile = file;
-        this.updateFileChooser();
+        this.updateFileChooserAndLabel();
     }
     
     
     public void clear() {
         this.selectedFile = null;
-        this.updateFileChooser();
+        this.updateFileChooserAndLabel();
     }
     
     
@@ -93,11 +93,6 @@ public class JSelectFile extends JPanel implements ActionListener {
         }
         
         this.fileLabelField = new JLabelField();
-        /*this.fileLabelField.addMouseListener(new MouseAdapter() {
-            public void mouseClicked(MouseEvent e) {
-                this.browseFile();
-            }
-        });*/
         this.add(this.fileLabelField, BorderLayout.CENTER);
         
         Box buttonBox = Box.createHorizontalBox();
@@ -125,19 +120,26 @@ public class JSelectFile extends JPanel implements ActionListener {
         if (returnState == JFileChooser.APPROVE_OPTION) {
             this.selectedFile = this.fileChooser.getSelectedFile();
             this.currentDirectory = this.fileChooser.getCurrentDirectory();
-            try {
-                this.fileLabelField.setText(this.selectedFile.getCanonicalPath());
-            }
-            catch (IOException e) {
-                e.printStackTrace();
-            }
+            this.updateFileLabelField();
         }
         fireActionEvent();
     }
     
     
-    private void updateFileChooser() {
+    private void updateFileChooserAndLabel() {
         this.fileChooser.setSelectedFile(this.selectedFile);
+        this.updateFileLabelField();
+    }
+    
+    
+    private void updateFileLabelField() {
+    	if (this.selectedFile != null) {
+    		try {
+    			this.fileLabelField.setText(this.selectedFile.getCanonicalPath());
+    		} catch (IOException e) {
+    			e.printStackTrace();
+    		}
+    	}
     }
     
 
