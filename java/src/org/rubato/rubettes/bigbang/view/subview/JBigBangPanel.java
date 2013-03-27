@@ -14,8 +14,8 @@ import javax.swing.JPanel;
 
 import org.rubato.rubettes.bigbang.controller.BigBangController;
 import org.rubato.rubettes.bigbang.view.controller.ToggleMainOptionsAction;
-import org.rubato.rubettes.bigbang.view.controller.ToggleViewParametersAction;
 import org.rubato.rubettes.bigbang.view.controller.ViewController;
+import org.rubato.rubettes.bigbang.view.model.ViewParameters;
 import org.rubato.rubettes.bigbang.view.subview.toolbars.JLayersToolBar;
 import org.rubato.rubettes.bigbang.view.subview.toolbars.JMainToolBar;
 import org.rubato.rubettes.bigbang.view.subview.toolbars.JGraphToolBar;
@@ -25,11 +25,11 @@ public class JBigBangPanel extends JPanel {
 	private JMainOptionsPanel mainOptionsPanel;
 	private JViewParametersScrollPane viewParametersScrollPane;
 	
-	public JBigBangPanel(ViewController controller, BigBangController bbController) {
+	public JBigBangPanel(ViewController controller, BigBangController bbController, ViewParameters viewParameters) {
 		this.setLayout(new BorderLayout());
 		this.add(this.createToolBarsPanel(controller, bbController), BorderLayout.NORTH);
 		JBigBangDisplay display = new JBigBangDisplay(controller);
-		this.initMenuComponents(display, controller, bbController);
+		this.initMenuComponents(display, controller, bbController, viewParameters);
 		this.add(display, BorderLayout.CENTER);
 		this.add(this.makeButtonPanel(controller), BorderLayout.EAST);
 		new JWindowPreferencesDialog(controller, bbController);
@@ -46,12 +46,12 @@ public class JBigBangPanel extends JPanel {
 		return toolBarsPanel;
 	}
 	
-	private void initMenuComponents(JBigBangDisplay display, ViewController controller, BigBangController bbController) {
+	private void initMenuComponents(JBigBangDisplay display, ViewController controller, BigBangController bbController, ViewParameters viewParameters) {
 		display.setLayout(new FlowLayout(FlowLayout.RIGHT));
 		this.mainOptionsPanel = new JMainOptionsPanel(controller, bbController);
 		controller.addView(this.mainOptionsPanel);
 		display.add(this.mainOptionsPanel);
-		this.viewParametersScrollPane = new JViewParametersScrollPane(controller);
+		this.viewParametersScrollPane = new JViewParametersScrollPane(controller, viewParameters);
 		controller.addView(this.viewParametersScrollPane);
 		//display.add(this.viewParametersTable.getTableHeader());
 		this.mainOptionsPanel.add(this.viewParametersScrollPane, BorderLayout.SOUTH);

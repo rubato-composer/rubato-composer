@@ -96,17 +96,17 @@ public class BigBangView extends Model implements View {
 	private void initViewMVC() {
 		this.viewController = new ViewController();
 		this.viewController.addModel(this);
-		this.initVisibleInterface();
 		this.initViewParameters();
+		this.initVisibleInterface();
 		this.layerStates = new LayerStates(viewController);
-	}
-	
-	protected void initVisibleInterface() {
-		this.panel = new JBigBangPanel(this.viewController, this.controller);
 	}
 	
 	protected void initViewParameters() {
 		this.viewParameters = new ViewParameters(viewController, true);
+	}
+	
+	protected void initVisibleInterface() {
+		this.panel = new JBigBangPanel(this.viewController, this.controller, this.viewParameters);
 	}
 	
 	private void initViewParameterControls() {

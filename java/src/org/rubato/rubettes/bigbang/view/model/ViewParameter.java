@@ -138,7 +138,7 @@ public class ViewParameter {
 		if (q > 0) {
 			return (value-minValue)/(maxValue-minValue);
 		}
-		return this.defaultGoalValue;
+		return 0.0; //TODO: PREVIOUSLY: this.defaultGoalValue; WHY????
 	}
 	
 	private double mapFrom01(double value, double minValue, double maxValue) {

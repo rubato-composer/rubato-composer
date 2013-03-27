@@ -35,6 +35,7 @@ public class DisplayObject implements Comparable<Object> {
 	private boolean active;
 	
 	private float currentHue, currentOpacity;
+	private int currentRed, currentBlue, currentGreen;
 	private Color currentColor;
 	
 	//creates a DisplayObject without values. these are typically added later
@@ -164,12 +165,28 @@ public class DisplayObject implements Comparable<Object> {
 	public Color getColor() {
 		this.currentOpacity = new Float(this.display.translateValue(this.values, ViewParameters.SATURATION));
 		if (this.active) {
-			this.currentHue = new Float(this.display.translateValue(this.values, ViewParameters.HUE));
-			return Color.getHSBColor(this.currentHue, this.currentOpacity, this.getBrightness());
+			if (this.display.getViewParameters().inRGBMode()) {
+				return this.getRGBColor();
+			}
+			return this.getHueColor();
 		}
 		//70-100% of maximal brightness  
 		float brightness = 0.3f*(1-this.currentOpacity)+0.7f;
 		return Color.getHSBColor(this.currentHue, 0, brightness);
+	}
+	
+	private Color getHueColor() {
+		this.currentHue = new Float(this.display.translateValue(this.values, ViewParameters.HUE));
+		return Color.getHSBColor(this.currentHue, this.currentOpacity, this.getBrightness());
+	}
+	
+	private Color getRGBColor() {
+		//brightness comes into play here, since there is no other way to make objects darker!
+		this.currentRed = (int)Math.round(this.getBrightness()*this.display.translateValue(this.values, ViewParameters.RED));
+		this.currentGreen = (int)Math.round(this.getBrightness()*this.display.translateValue(this.values, ViewParameters.GREEN));
+		this.currentBlue = (int)Math.round(this.getBrightness()*this.display.translateValue(this.values, ViewParameters.BLUE));
+		int alpha = Math.round(this.currentOpacity);
+		return new Color(this.currentRed, this.currentGreen, this.currentBlue, alpha);
 	}
 	
 	private float getBrightness() {

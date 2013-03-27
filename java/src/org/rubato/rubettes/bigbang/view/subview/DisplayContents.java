@@ -140,6 +140,10 @@ public class DisplayContents {
 		return 0;
 	}
 	
+	public ViewParameters getViewParameters() {
+		return this.viewParameters;
+	}
+	
 	public ViewParameter getViewParameter(int i) {
 		return this.viewParameters.get(i);
 	}

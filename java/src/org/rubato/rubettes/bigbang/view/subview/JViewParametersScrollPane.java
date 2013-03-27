@@ -11,14 +11,15 @@ import javax.swing.table.TableCellRenderer;
 import org.rubato.rubettes.bigbang.view.View;
 import org.rubato.rubettes.bigbang.view.controller.ViewController;
 import org.rubato.rubettes.bigbang.view.controller.display.ViewParametersTableModelListener;
+import org.rubato.rubettes.bigbang.view.model.ViewParameters;
 
 public class JViewParametersScrollPane extends JScrollPane implements View {
 	
 	private JTable viewParametersTable;
 	private JTable rowNameTable;
 	
-	public JViewParametersScrollPane(ViewController controller) {
-		this.viewParametersTable = new JTable(new ViewParametersTableModel());
+	public JViewParametersScrollPane(ViewController controller, ViewParameters viewParameters) {
+		this.viewParametersTable = new JTable(new ViewParametersTableModel(viewParameters));
 		this.viewParametersTable.setCellSelectionEnabled(false);
 		//this.viewParametersTable.setPreferredSize(new Dimension(100, 100));
 		this.viewParametersTable.getModel().addTableModelListener(new ViewParametersTableModelListener(controller));

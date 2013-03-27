@@ -1114,6 +1114,8 @@ public class Repository
         registerBuiltin(greenForm);
         SimpleForm blueForm = FormFactory.makeRModuleForm("Blue");
         registerBuiltin(blueForm);
+        SimpleForm alphaForm = FormFactory.makeRModuleForm("Alpha");
+        registerBuiltin(alphaForm);
 		
 		List<Form> pixelFormList = new LinkedList<Form>();
         List<String> pixelFormLabelList = new LinkedList<String>();
@@ -1127,11 +1129,42 @@ public class Repository
         pixelFormLabelList.add("green");
         pixelFormList.add(blueForm);
         pixelFormLabelList.add("blue");
+        pixelFormList.add(alphaForm);
+        pixelFormLabelList.add("alpha");
 		LimitForm pixelForm = FormFactory.makeLimitForm("Pixel", pixelFormList);
 		pixelForm.setLabels(pixelFormLabelList);
 		registerBuiltin(pixelForm);
 		PowerForm imageForm = FormFactory.makePowerForm("Image", pixelForm);			
 		registerBuiltin(imageForm);
+		
+		SimpleForm widthForm = FormFactory.makeRModuleForm("Width");
+        registerBuiltin(widthForm);
+        SimpleForm heightForm = FormFactory.makeRModuleForm("Height");
+        registerBuiltin(heightForm);
+		
+		List<Form> variableSizePixelFormList = new LinkedList<Form>();
+        List<String> variableSizePixelFormLabelList = new LinkedList<String>();
+        variableSizePixelFormList.add(xForm);
+        variableSizePixelFormLabelList.add("x");
+        variableSizePixelFormList.add(yForm);
+        variableSizePixelFormLabelList.add("y");
+        variableSizePixelFormList.add(widthForm);
+        variableSizePixelFormLabelList.add("width");
+        variableSizePixelFormList.add(heightForm);
+        variableSizePixelFormLabelList.add("height");
+        variableSizePixelFormList.add(redForm);
+        variableSizePixelFormLabelList.add("red");
+        variableSizePixelFormList.add(greenForm);
+        variableSizePixelFormLabelList.add("green");
+        variableSizePixelFormList.add(blueForm);
+        variableSizePixelFormLabelList.add("blue");
+        variableSizePixelFormList.add(alphaForm);
+        variableSizePixelFormLabelList.add("alpha");
+		LimitForm variableSizePixelForm = FormFactory.makeLimitForm("VariableSizePixel", variableSizePixelFormList);
+		variableSizePixelForm.setLabels(variableSizePixelFormLabelList);
+		registerBuiltin(variableSizePixelForm);
+		PowerForm vsPixelImageForm = FormFactory.makePowerForm("VSPixelImage", variableSizePixelForm);			
+		registerBuiltin(vsPixelImageForm);
         
         // register modules
         registerBuiltinModule("Integers", ZRing.ring);

@@ -10,19 +10,19 @@ public class ViewParametersTableModel extends AbstractTableModel {
 	private int[] data;
 	private int rowCount;
 	
-	public ViewParametersTableModel() {
-		this.data = new int[ViewParameters.VIEW_PARAMETER_COUNT];
-		this.generateColumnNames();
+	public ViewParametersTableModel(ViewParameters viewParameters) {
+		this.data = new int[viewParameters.size()];
+		this.generateColumnNames(viewParameters);
 		for (int i = 0; i < this.data.length; i++) {
 			this.data[i] = -1;
 		}
 		this.rowCount = 0;
 	}
 	
-	private void generateColumnNames() {
-		this.columnNames = new String[ViewParameters.VIEW_PARAMETER_COUNT];
+	private void generateColumnNames(ViewParameters viewParameters) {
+		this.columnNames = new String[viewParameters.size()];
 		for (int i = 0; i < this.columnNames.length; i++) {
-			this.columnNames[i] = Character.toString(ViewParameters.VIEW_PARAMETER_NAMES[i].charAt(0));
+			this.columnNames[i] = Character.toString(viewParameters.getParameterNames()[i].charAt(0));
 		}
 	}
 	

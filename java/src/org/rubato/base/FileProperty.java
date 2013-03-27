@@ -22,6 +22,7 @@ package org.rubato.base;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
+import java.io.IOException;
 
 import javax.swing.JComponent;
 
@@ -97,7 +98,7 @@ public class FileProperty extends RubetteProperty implements ActionListener {
     
     public void revert() {
         this.tmpValue = value;
-        this.fileSelector.setFile(this.tmpValue);
+        this.fileSelector.setFile(this.value);
     }
     
     
@@ -107,13 +108,21 @@ public class FileProperty extends RubetteProperty implements ActionListener {
     
     
     public void toXML(XMLWriter writer) {
-        writer.empty(getKey(), VALUE_ATTR, value);
+    	String canonicalPath = "";
+    	if (this.value != null) {
+    		try {
+    			canonicalPath = this.value.getCanonicalPath(); 
+    		} catch (IOException e) {
+    			e.printStackTrace();
+    		}
+    	}
+        writer.empty(getKey(), VALUE_ATTR, writer.toRelativePath(canonicalPath));
     }
     
-    //TODO: DOES IT WORK?????
+    
     public RubetteProperty fromXML(XMLReader reader, Element element) {
         FileProperty property = this.clone();
-        property.setValue(XMLReader.getStringAttribute(element, VALUE_ATTR));
+        property.setValue(new File(reader.toAbsolutePath(XMLReader.getStringAttribute(element, VALUE_ATTR))));
         return property;
     }
 
