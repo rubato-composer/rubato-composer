@@ -50,7 +50,7 @@ public class DenotatorPath implements Comparable<Object> {
 		this.updateFormAndModule();
 	}
 	
-	private DenotatorPath(Form baseForm, List<Integer> path) {
+	public DenotatorPath(Form baseForm, List<Integer> path) {
 		this(baseForm);
 		this.indices = path;
 		this.updateFormAndModule();
@@ -99,7 +99,7 @@ public class DenotatorPath implements Comparable<Object> {
 		if (this.elementPathIndex >= 0) {
 			return this.subPath(0, this.elementPathIndex);
 		}
-		return this;
+		return this.clone();
 	}
 	
 	public DenotatorPath getElementSubpath() {
@@ -113,13 +113,19 @@ public class DenotatorPath implements Comparable<Object> {
 		return new DenotatorPath(this.baseForm, new ArrayList<Integer>(this.indices));
 	}
 	
+	public DenotatorPath replaceLast(int index) {
+		DenotatorPath path = this.getParentPath();
+		path.add(index);
+		return path;
+	}
+	
 	public DenotatorPath subPath(int fromIndex) {
 		return this.subPath(fromIndex, this.indices.size());
 	}
 	
 	public DenotatorPath subPath(int fromIndex, int toIndex) {
 		try {
-			return new DenotatorPath(this.baseForm, this.indices.subList(fromIndex, toIndex));
+			return new DenotatorPath(this.baseForm, new ArrayList<Integer>(this.indices.subList(fromIndex, toIndex)));
 		} catch (IllegalArgumentException e) {
 			return null;
 		}
@@ -170,7 +176,7 @@ public class DenotatorPath implements Comparable<Object> {
 		this.updateFormAndModule();
 	}
 	
-	private int getLastIndex() {
+	public int getLastIndex() {
 		return this.indices.get(this.indices.size()-1);
 	}
 	

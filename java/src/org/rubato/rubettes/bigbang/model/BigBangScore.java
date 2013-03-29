@@ -163,15 +163,22 @@ public class BigBangScore implements Cloneable {
 	 * @return the new paths of the added objects
 	 */
 	public List<DenotatorPath> addObjectsToParent(List<Denotator> objects, DenotatorPath parentPath, int powersetIndex) {
-		DenotatorPath childrenSetPath = parentPath.getPowersetPath(powersetIndex);
-		if (parentPath.size() > 0) {
-			objects = this.makeObjectsRelative(objects, parentPath);
+		if (parentPath != null) {
+			DenotatorPath childrenSetPath = parentPath.getPowersetPath(powersetIndex);
+			if (parentPath.size() > 0) {
+				objects = this.makeObjectsRelative(objects, parentPath);
+			}
+			for (int i = 0; i < objects.size(); i++) {
+				objects.set(i, this.internalAddObject(objects.get(i), childrenSetPath));
+			}
+			return this.findPaths(objects, childrenSetPath);
+		} else if (objects.size() == 1) {
+			this.setComposition(objects.get(0));
+			List<DenotatorPath> topPath = new ArrayList<DenotatorPath>(); 
+			topPath.add(new DenotatorPath(objects.get(0).getForm(), new int[]{}));
+			return topPath;
 		}
-		for (int i = 0; i < objects.size(); i++) {
-			objects.set(i, this.internalAddObject(objects.get(i), childrenSetPath));
-		}
-		List<DenotatorPath> newPaths = this.findPaths(objects, childrenSetPath);
-		return newPaths;
+		return null;
 	}
 	
 	public List<DenotatorPath> addObjects(List<List<Denotator>> objectLists) {
@@ -399,14 +406,16 @@ public class BigBangScore implements Cloneable {
 	 */
 	private Denotator internalRemoveObject(DenotatorPath objectPath) {
 		try {
-			int[] powersetPath = objectPath.getAnchorPowersetPath().toIntArray();
-			int objectIndex = objectPath.getObjectIndex();
-			PowerDenotator powerset = (PowerDenotator)this.score.get(powersetPath);
-			return powerset.removeFactor(objectIndex);
+			DenotatorPath powersetPath = objectPath.getAnchorPowersetPath();
+			if (powersetPath != null) {
+				int objectIndex = objectPath.getObjectIndex();
+				PowerDenotator powerset = (PowerDenotator)this.score.get(powersetPath.toIntArray());
+				return powerset.removeFactor(objectIndex);
+			}
 		} catch (RubatoException e) {
 			e.printStackTrace();
-			return null;
 		}
+		return null;
 	}
 	
 	/*??DOESNT REALLY DO ANYTHING DIFFERENT FROM THE NEXT METHOD...

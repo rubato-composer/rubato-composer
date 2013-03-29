@@ -577,7 +577,12 @@ public class BigBangView extends Model implements View {
 		List<DenotatorPath> denotatorPaths = new ArrayList<DenotatorPath>();
 		for (int i = 0; i < 4; i++) {
 			int selectedViewParameter = this.viewParameters.getSelected(i%2);
-			denotatorPaths.add(this.displayNotes.getPathInTopDenotatorSimple(selectedViewParameter));
+			//only one parameter might be selected...
+			if (selectedViewParameter >= 0) {
+				denotatorPaths.add(this.displayNotes.getPathInTopDenotatorSimple(selectedViewParameter));
+			} else {
+				denotatorPaths.add(null);
+			}
 		}
 		return denotatorPaths;
 	}

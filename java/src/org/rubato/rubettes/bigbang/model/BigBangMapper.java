@@ -27,12 +27,12 @@ public class BigBangMapper extends BigBangScoreManipulator {
 		this.relative = transformation.getAnchorNodePath() != null;
 	}
 	
-	public List<DenotatorPath> mapNodes(List<DenotatorPath> nodePaths) {
+	public List<DenotatorPath> mapObjects(List<DenotatorPath> objectPaths) {
 		//PerformanceCheck.startTask(".pre");
 		List<List<Denotator>> newObjects = new ArrayList<List<Denotator>>();
-		nodePaths = this.score.reverseSort(nodePaths);
+		objectPaths = this.score.reverseSort(objectPaths);
 		
-		Iterator<DenotatorPath> objectPathsIterator = nodePaths.iterator();
+		Iterator<DenotatorPath> objectPathsIterator = objectPaths.iterator();
 		if (objectPathsIterator.hasNext()) {
 			DenotatorPath firstOfNextSiblings = objectPathsIterator.next();
 			while (firstOfNextSiblings != null) {

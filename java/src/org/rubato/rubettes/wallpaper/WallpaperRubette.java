@@ -39,6 +39,7 @@ import org.rubato.composer.components.JStatusline;
 import org.rubato.math.module.morphism.*;
 import org.rubato.math.yoneda.*;
 import org.rubato.rubettes.util.ArbitraryDenotatorMapper;
+import org.rubato.rubettes.util.DenotatorPath;
 import org.rubato.rubettes.util.SimpleFormFinder;
 import org.rubato.xml.XMLReader;
 import org.rubato.xml.XMLWriter;
@@ -155,9 +156,17 @@ public class WallpaperRubette extends AbstractRubette implements ActionListener 
 	}
 	
 	protected PowerDenotator mapDenotator(PowerDenotator input, ModuleMorphism morphism) throws RubatoException {
-		int[][] paths = this.simpleFormFinder.pathsToArray(this.morphismsTable.getCoordinates(morphism));
+		List<DenotatorPath> paths = this.listPathsToDenotatorPaths(this.morphismsTable.getCoordinates(morphism));
 		ArbitraryDenotatorMapper mapper = new ArbitraryDenotatorMapper(morphism, paths);
 		return mapper.getMappedPowerDenotator(input);
+	}
+	
+	private List<DenotatorPath> listPathsToDenotatorPaths(List<List<Integer>> listPaths) {
+		List<DenotatorPath> denotatorPaths = new ArrayList<DenotatorPath>();
+		for (List<Integer> currentListPath : listPaths) {
+			denotatorPaths.add(new DenotatorPath(this.inputForm, currentListPath));
+		}
+		return denotatorPaths;
 	}
     
 	/**

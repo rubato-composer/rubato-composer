@@ -587,6 +587,41 @@ public abstract class EmbeddingMorphism extends ModuleMorphism {
         }
         return m;
     }
+    
+    /**
+     * Creates an embedding of a ring in a product ring, but only into one of the factors
+     * @author Florian Thalmann 2013
+     * 
+     * @param domain a ring
+     * @param codomain a product ring
+     * @param index the index of the codomain factor where the ring should be embedded
+     * @return an embedding or null if such an embedding cannot be constructed
+     */
+    public final static EmbeddingMorphism makeProductRingEmbedding(final Ring domain, final ProductRing codomain, final int index) {
+        if (domain instanceof ProductRing) {
+            return makeProductRingEmbedding((ProductRing)domain, codomain);
+        }
+        final Ring[] factors = codomain.getFactors();
+        final int len = factors.length;
+        final ModuleMorphism morphism = make(domain, factors[index]);
+        
+        return new EmbeddingMorphism(domain, codomain) {
+            public ModuleElement mapValue(ModuleElement element) {
+                RingElement r = (RingElement)element;
+                RingElement[] factors0 = new RingElement[len];
+                try {
+                    for (int i = 0; i < len; i++) {
+                        factors0[i] = factors[i].getZero();
+                    }
+                    factors0[index] = (RingElement)morphism.map(r);
+                    return ProductElement.make(factors0);
+                }
+                catch (MappingException e) {
+                    throw new AssertionError("This should never happen!");
+                }
+            }
+        };
+    }
 
     
     /**

@@ -163,7 +163,7 @@ public class BigBangScoreManager extends Model {
 		//this.updateActualScore(inPreviewMode);
 		//PerformanceCheck.startTask("map");
 		BigBangMapper mapper = new BigBangMapper(this.actualScore, transformation);
-		List<DenotatorPath> newPaths = mapper.mapNodes(nodePaths);
+		List<DenotatorPath> newPaths = mapper.mapObjects(nodePaths);
 		//PerformanceCheck.startTask("fire");
 		if (inPreviewMode) {
 			this.firePreviewCompositionChange(new TreeSet<DenotatorPath>(nodePaths), transformation.getAnchorNodePath());
