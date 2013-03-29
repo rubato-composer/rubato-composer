@@ -101,13 +101,13 @@ public class BigBangWallpaper {
 			for (int i = transformations.size()-1; i >= 0; i--) {
 				BigBangTransformation currentTransformation = transformations.get(i).inverse(); 
 				currentTransformation.setCopyAndMap(copyAndMap && i == transformations.size()-1);
-				currentPaths = new BigBangMapper(score, currentTransformation).mapNodes(currentPaths);
+				currentPaths = new BigBangMapper(score, currentTransformation).mapObjects(currentPaths);
 			}
 		} else {
 			for (int i = 0; i < transformations.size(); i++) {
 				BigBangTransformation currentTransformation = transformations.get(i); 
 				currentTransformation.setCopyAndMap(copyAndMap && i == 0);
-				currentPaths = new BigBangMapper(score, currentTransformation).mapNodes(currentPaths);
+				currentPaths = new BigBangMapper(score, currentTransformation).mapObjects(currentPaths);
 			}
 		}
 		return currentPaths;

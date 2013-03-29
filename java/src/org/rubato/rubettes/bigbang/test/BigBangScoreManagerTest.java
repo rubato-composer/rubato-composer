@@ -1,6 +1,7 @@
 package org.rubato.rubettes.bigbang.test;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -11,7 +12,9 @@ import junit.framework.TestCase;
 
 import org.rubato.base.RubatoException;
 import org.rubato.math.matrix.RMatrix;
+import org.rubato.math.module.ModuleElement;
 import org.rubato.math.module.ProductElement;
+import org.rubato.math.module.QElement;
 import org.rubato.math.module.RElement;
 import org.rubato.math.module.morphism.ModuleMorphism;
 import org.rubato.math.module.morphism.RFreeAffineMorphism;
@@ -96,13 +99,48 @@ public class BigBangScoreManagerTest extends TestCase {
 		this.scoreManager.setComposition(this.objects.rationalTriples);
 		BigBangTransformation translation = this.makeTranslation(-1,-2, this.rationalTriplesValuePaths);
 		List<DenotatorPath> triplesPath = new ArrayList<DenotatorPath>();
+		triplesPath.add(new DenotatorPath(this.objects.RATIONAL_TRIPLES_FORM, new int[]{0}));
 		triplesPath.add(new DenotatorPath(this.objects.RATIONAL_TRIPLES_FORM, new int[]{1}));
-		triplesPath.add(new DenotatorPath(this.objects.RATIONAL_TRIPLES_FORM, new int[]{2}));
+		triplesPath.add(new DenotatorPath(this.objects.RATIONAL_TRIPLES_FORM, new int[]{3}));
 		List<DenotatorPath> newPaths = this.scoreManager.mapNodes(triplesPath, translation, false);
 		TestCase.assertEquals(new DenotatorPath(this.objects.RATIONAL_TRIPLES_FORM, new int[]{0}), newPaths.get(0));
 		TestCase.assertEquals(new DenotatorPath(this.objects.RATIONAL_TRIPLES_FORM, new int[]{1}), newPaths.get(1));
+		TestCase.assertEquals(new DenotatorPath(this.objects.RATIONAL_TRIPLES_FORM, new int[]{3}), newPaths.get(2));
 		Denotator expectedTriple = this.objects.createRationalTriple(new double[]{1,1,1});
-		TestCase.assertEquals(expectedTriple, this.scoreManager.getComposition().get(newPaths.get(0).toIntArray()));
+		this.objects.assertEqualDenotators(expectedTriple, this.scoreManager.getComposition().get(newPaths.get(0).toIntArray()));
+		expectedTriple = this.objects.createRationalTriple(new double[]{2,0,3});
+		this.objects.assertEqualDenotators(expectedTriple, this.scoreManager.getComposition().get(newPaths.get(1).toIntArray()));
+		expectedTriple = this.objects.createRationalTriple(new double[]{4,2,-1});
+		this.objects.assertEqualDenotators(expectedTriple, this.scoreManager.getComposition().get(newPaths.get(2).toIntArray()));
+	}
+	
+	public void testMapRealTriples() throws RubatoException {
+		this.scoreManager.setComposition(this.objects.realTriples);
+		BigBangTransformation translation = this.makeTranslation(-2,-3, this.realTriplesValuePaths);
+		List<DenotatorPath> triplesPath = new ArrayList<DenotatorPath>();
+		triplesPath.add(new DenotatorPath(this.objects.REAL_TRIPLES_FORM, new int[]{1}));
+		triplesPath.add(new DenotatorPath(this.objects.REAL_TRIPLES_FORM, new int[]{2}));
+		List<DenotatorPath> newPaths = this.scoreManager.mapNodes(triplesPath, translation, false);
+		TestCase.assertEquals(new DenotatorPath(this.objects.REAL_TRIPLES_FORM, new int[]{0}), newPaths.get(0));
+		TestCase.assertEquals(new DenotatorPath(this.objects.REAL_TRIPLES_FORM, new int[]{2}), newPaths.get(1));
+		Denotator expectedTriple = this.objects.createRealTriple(new double[]{0,1,2});
+		this.objects.assertEqualDenotators(expectedTriple, this.scoreManager.getComposition().get(newPaths.get(0).toIntArray()));
+		expectedTriple = this.objects.createRealTriple(new double[]{2,3,-2});
+		this.objects.assertEqualDenotators(expectedTriple, this.scoreManager.getComposition().get(newPaths.get(1).toIntArray()));
+	}
+	
+	//ProductElement element1 = ProductElement.make(new RElement(1), new RElement(2), new RElement(3));
+	//ProductElement element2 = ProductElement.make(new RElement(4), new RElement(3), new RElement(1));
+	//ProductElement element3 = ProductElement.make(new RElement(2), new RElement(1), new RElement(5));
+	public void testMapRealTriple() throws RubatoException {
+		this.scoreManager.setComposition(this.objects.realTriples.getFactor(1));
+		BigBangTransformation translation = this.makeTranslation(-2,-3, this.realTriplesValuePaths);
+		List<DenotatorPath> emptyPath = new ArrayList<DenotatorPath>();
+		emptyPath.add(new DenotatorPath(this.objects.REAL_TRIPLE_FORM, new int[]{}));
+		List<DenotatorPath> newPaths = this.scoreManager.mapNodes(emptyPath, translation, false);
+		TestCase.assertEquals(new DenotatorPath(this.objects.REAL_TRIPLES_FORM, new int[]{}), newPaths.get(0));
+		Denotator expectedTriple = this.objects.createRealTriple(new double[]{0,1,2});
+		this.objects.assertEqualDenotators(expectedTriple, this.scoreManager.getComposition());
 	}
 	
 	public void testMapNodesFlatSequential() {

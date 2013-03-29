@@ -21,10 +21,13 @@ import org.rubato.math.module.RingElement;
 import org.rubato.math.module.ZElement;
 import org.rubato.math.module.morphism.CanonicalMorphism;
 import org.rubato.math.module.morphism.CompositionException;
+import org.rubato.math.module.morphism.EmbeddingMorphism;
 import org.rubato.math.module.morphism.GenericAffineMorphism;
 import org.rubato.math.module.morphism.ModuleMorphism;
+import org.rubato.math.module.morphism.ProjectionMorphism;
 import org.rubato.math.module.morphism.QFreeAffineMorphism;
 import org.rubato.math.module.morphism.RFreeAffineMorphism;
+import org.rubato.math.module.morphism.SumMorphism;
 import org.rubato.math.module.morphism.ZFreeAffineMorphism;
 import org.rubato.math.yoneda.Denotator;
 import org.rubato.math.yoneda.NameDenotator;
@@ -40,7 +43,6 @@ import org.rubato.math.yoneda.SimpleForm;
 public class ArbitraryDenotatorMapper {
 	
 	private ModuleMorphism morphism;
-	private int[][] intPaths;
 	private List<DenotatorPath> denotatorPaths;
 	private Module domain;
 	private int domainDim, codomainDim;
@@ -48,12 +50,6 @@ public class ArbitraryDenotatorMapper {
 	
 	public ArbitraryDenotatorMapper(ModuleMorphism morphism, List<DenotatorPath> paths) {
 		this.denotatorPaths = paths;
-		this.intPaths = this.convertPaths(paths);
-		this.init(morphism);
-	}
-	
-	public ArbitraryDenotatorMapper(ModuleMorphism morphism, int[][] paths) {
-		this.intPaths = paths;
 		this.init(morphism);
 	}
 	
@@ -66,14 +62,6 @@ public class ArbitraryDenotatorMapper {
 		this.injectionMorphisms = this.makeInjectionMorphisms(domain);
 	}
 	
-	private int[][] convertPaths(List<DenotatorPath> paths) {
-		int[][] arrayPaths = new int[paths.size()][];
-		for (int i = 0; i < paths.size(); i++) {
-			arrayPaths[i] = paths.get(i).toIntArray();
-		}
-		return arrayPaths;
-	}
-	
 	/*
 	 * maps the input denotator using the input morphism and respecting the paths selected
 	 * in the morphisms table. The output denotator is of the same form as the input denotator.
@@ -82,7 +70,7 @@ public class ArbitraryDenotatorMapper {
 		//prepare output
 		PowerDenotator output = new PowerDenotator(NameDenotator.make(""), input.getAddress(), input.getPowerForm(), new ArrayList<Denotator>());
 		
-		if (this.intPaths != null && this.intPaths.length == domainDim + codomainDim) {
+		if (this.denotatorPaths != null && this.denotatorPaths.size() == this.domainDim + this.codomainDim) {
 			//iterate through the coordinates of the input and add their mapping to the output
 			Iterator<Denotator> inputCoordinates = input.iterator();
 			Denotator currentCoordinate; //später allgemein!!
@@ -102,7 +90,6 @@ public class ArbitraryDenotatorMapper {
 	
 	public Denotator getMappedDenotator(Denotator denotator) throws RubatoException {
 		ModuleMorphism morphism = this.morphism.compose(this.makeInitialInjectionSum(denotator));
-		
 		return this.makeFinalProjections(denotator, morphism);
 	}
 	
@@ -112,26 +99,27 @@ public class ArbitraryDenotatorMapper {
 	 */
 	private ModuleMorphism makeInitialInjectionSum(Denotator denotator) throws RubatoException {
 		ModuleMorphism injectionSum = null;
-		for (int j = 0; j < domainDim; j++) {
-			int[] currentPath = this.intPaths[j];
+		for (int j = 0; j < this.domainDim; j++) {
+			DenotatorPath currentPath = this.denotatorPaths.get(j);
+			if (currentPath != null) {
+				ModuleMorphism currentMorphism;
+				if (currentPath.isElementPath()) {
+					currentMorphism = this.makeInitialProjection(denotator, currentPath);
+				} else {
+					currentMorphism = this.getSimpleDenotator(denotator, currentPath.toIntArray()).getModuleMorphism();
+				}
 			
-			ModuleMorphism currentMorphism;
-			if (this.denotatorPaths != null && this.denotatorPaths.get(j).isElementPath()) {
-				currentMorphism = this.makeInitialProjection(denotator, this.denotatorPaths.get(j));
-			} else {
-				currentMorphism = this.getSimpleDenotator(denotator, currentPath).getModuleMorphism();
-			}
-			
-			//give the current morphism a new codomain 
-			Module newCodomain = domain.getComponentModule(j);
-			currentMorphism = this.getCastedMorphism(currentMorphism, newCodomain);
-			//inject into domain of main morphism
-			currentMorphism = this.injectionMorphisms.get(j).compose(currentMorphism);
-			//sum all morphisms
-			if (injectionSum == null) {
-				injectionSum = currentMorphism;
-			} else {
-				injectionSum = injectionSum.sum(currentMorphism);
+				//give the current morphism a new codomain 
+				Module newCodomain = this.domain.getComponentModule(j);
+				currentMorphism = this.getCastedMorphism(currentMorphism, newCodomain);
+				//inject into domain of main morphism
+				currentMorphism = this.injectionMorphisms.get(j).compose(currentMorphism);
+				//sum all morphisms
+				if (injectionSum == null) {
+					injectionSum = currentMorphism;
+				} else {
+					injectionSum = injectionSum.sum(currentMorphism);
+				}
 			}
 		}
 		return injectionSum;
@@ -165,37 +153,63 @@ public class ArbitraryDenotatorMapper {
 			}
 			
 			//replace original coordinate by mapped coordinate 
-			int[] currentCodomainPath = this.intPaths[this.domainDim + i];
-			SimpleDenotator oldSimple;
-			Module newCodomain;
-			if (this.denotatorPaths != null && this.denotatorPaths.get(this.domainDim + i).isElementPath()) {
-				DenotatorPath currentPath = this.denotatorPaths.get(this.domainDim + i);
-				oldSimple = this.getSimpleDenotator(mappedDenotator, currentPath.getDenotatorSubpath().toIntArray());
-				newCodomain = this.getElement(oldSimple, currentPath.getElementSubpath()).getModule();
-			} else {
-				oldSimple = this.getSimpleDenotator(mappedDenotator, currentCodomainPath);
-				newCodomain = oldSimple.getModuleMorphism().getCodomain();
-			}
-			projectedM = this.getCastedMorphism(projectedM, newCodomain);
+			DenotatorPath currentCodomainPath = this.denotatorPaths.get(this.domainDim + i);
 			
-			if (this.denotatorPaths != null && this.denotatorPaths.get(this.domainDim + i).isElementPath()) {
-				ModuleMorphism finalInjection = this.makeFinalInjection(oldSimple, this.denotatorPaths.get(this.domainDim + i));
-				projectedM = finalInjection.compose(projectedM);
-				projectedM = oldSimple.getModuleMorphism().sum(projectedM);
-			}
-			
-			SimpleForm currentForm = (SimpleForm)oldSimple.getForm();
-			try {
-				Denotator currentSimpleDenotator = new SimpleDenotator(NameDenotator.make(""), currentForm, projectedM);
-				if (currentCodomainPath.length == 0) {
-					mappedDenotator = currentSimpleDenotator;
-				} else if (this.denotatorPaths != null && this.denotatorPaths.get(this.domainDim + i).isElementPath()) {
-					mappedDenotator = mappedDenotator.replace(this.denotatorPaths.get(this.domainDim + i).getElementSubpath().toIntArray(), currentSimpleDenotator);
+			if (currentCodomainPath != null) {
+				SimpleDenotator oldSimple;
+				Module newCodomain;
+				if (currentCodomainPath.isElementPath()) {
+					oldSimple = this.getSimpleDenotator(mappedDenotator, currentCodomainPath.getDenotatorSubpath().toIntArray());
+					newCodomain = this.getElement(oldSimple, currentCodomainPath.getElementSubpath()).getModule();
 				} else {
-					mappedDenotator = mappedDenotator.replace(currentCodomainPath, currentSimpleDenotator);
+					oldSimple = this.getSimpleDenotator(mappedDenotator, currentCodomainPath.toIntArray());
+					newCodomain = oldSimple.getModuleMorphism().getCodomain();
 				}
-			} catch (DomainException e) {
-				e.printStackTrace();
+				projectedM = this.getCastedMorphism(projectedM, newCodomain);
+				
+				if (currentCodomainPath.isElementPath()) {
+					//ModuleMorphism finalInjection = this.makeFinalInjection(oldSimple, this.denotatorPaths.get(this.domainDim + i));
+					int dimension = oldSimple.getElement().getModule().getDimension();
+					if (oldSimple.getElement().getModule() instanceof ProductRing) {
+						dimension = ((ProductRing)oldSimple.getElement().getModule()).getFactorCount();
+					}
+					ModuleMorphism sum = null;
+					for (int j = 0; j < dimension; j++) {
+						ModuleMorphism currentAddend;
+						if (j == currentCodomainPath.getLastIndex()) {
+							currentAddend = this.makeFinalInjection(oldSimple, currentCodomainPath).compose(projectedM);
+						} else {
+							DenotatorPath replacedPath = currentCodomainPath.replaceLast(j);
+							currentAddend = this.makeInitialProjection(mappedDenotator, replacedPath);
+							currentAddend = this.makeFinalInjection(oldSimple, replacedPath).compose(currentAddend);
+						}
+					
+						if (sum != null) {
+							sum = SumMorphism.make(sum, currentAddend);
+						} else {
+							sum = currentAddend;
+						}
+					}
+					//System.out.println(finalInjection + " " + projectedM);
+					//projectedM = finalInjection.compose(projectedM);
+					//System.out.println(finalInjection + " " + projectedM);
+					//projectedM = oldSimple.getModuleMorphism().sum(projectedM);
+					projectedM = sum;
+				}
+					
+				SimpleForm currentForm = (SimpleForm)oldSimple.getForm();
+				try {
+					Denotator currentSimpleDenotator = new SimpleDenotator(NameDenotator.make(""), currentForm, projectedM);
+					if (currentCodomainPath.size() == 0) {
+						mappedDenotator = currentSimpleDenotator;
+					} else if (this.denotatorPaths != null && this.denotatorPaths.get(this.domainDim + i).isElementPath()) {
+						mappedDenotator = mappedDenotator.replace(this.denotatorPaths.get(this.domainDim + i).getDenotatorSubpath().toIntArray(), currentSimpleDenotator);
+					} else {
+						mappedDenotator = mappedDenotator.replace(currentCodomainPath.toIntArray(), currentSimpleDenotator);
+					}
+				} catch (DomainException e) {
+					e.printStackTrace();
+				}
 			}
 		}
 		
@@ -219,7 +233,6 @@ public class ArbitraryDenotatorMapper {
 		Module currentModule = simple.getElement().getModule();
 		ModuleMorphism finalInjection = null;
 		for (int currentIndex : path.toIntArray()) {
-			System.out.println(finalInjection + " " + currentModule + " " + currentIndex);
 			ModuleMorphism currentInjection = this.makeInjectionMorphism(currentModule.getRing(), currentModule.getDimension(), currentIndex);
 			if (finalInjection != null) {
 				finalInjection = currentInjection.compose(finalInjection);
@@ -239,6 +252,7 @@ public class ArbitraryDenotatorMapper {
 	 * returns the simple denotator along the path within the specified denotator.
 	 * also handles the empty path [] in case the denotator itself is of type simple
 	 */
+	//TODO: put all these somewhere else
 	private SimpleDenotator getSimpleDenotator(Denotator denotator, int[] path) throws RubatoException {
 		if (path.length == 0){
 			return (SimpleDenotator)denotator;
@@ -262,6 +276,10 @@ public class ArbitraryDenotatorMapper {
 	}
 	
 	private ModuleMorphism makeInjectionMorphism(Ring ring, int codomainDim, int index) {
+		if (ring instanceof ProductRing) {
+			ProductRing product = (ProductRing)ring;
+			return EmbeddingMorphism.makeProductRingEmbedding(product.getFactor(index), product, index);
+		}
 		GenericAffineMorphism injection = new GenericAffineMorphism(ring, 1, codomainDim);
 		RingElement one = (RingElement)new ZElement(1).cast(ring);
 		injection.setMatrix(index, 0, one);
@@ -274,7 +292,9 @@ public class ArbitraryDenotatorMapper {
 	 */
 	private ModuleMorphism makeProjection(ModuleMorphism morphism, int codomainDim, int index) throws CompositionException {
 		ModuleMorphism projection;
-		if (morphism.getCodomain() instanceof RFreeModule) {
+		if (morphism.getCodomain() instanceof ProductRing) {
+			projection = ProjectionMorphism.make((ProductRing)morphism.getCodomain(), index);
+		} else if (morphism.getCodomain() instanceof RFreeModule) {
 			double[][] projectionMatrix = new double[1][codomainDim];
 			projectionMatrix[0][index] = 1;
 			projection = RFreeAffineMorphism.make(new RMatrix(projectionMatrix), new double[]{0});

@@ -158,9 +158,8 @@ public class SimpleFormFinder {
 		int index = this.simpleForms.indexOf(form);
 		if (index >= 0) {
 			return this.pathToArray(this.simpleFormPaths.get(index));
-		} else {
-			return null;
 		}
+		return null;
 	}
 	
 	/**
@@ -175,20 +174,8 @@ public class SimpleFormFinder {
 			List<Integer> path = new ArrayList<Integer>(this.simpleFormPaths.get(index));
 			path.add(new Integer(0));
 			return this.pathToArray(path);
-		} else {
-			return null;
 		}
-	}
-	
-	/**
-	 * Returns an array conversion of a List of List paths
-	 */
-	public int[][] pathsToArray(List<List<Integer>> paths) {
-		int[][] arrayPaths = new int[paths.size()][];
-		for (int i = 0; i < arrayPaths.length; i++) {
-			arrayPaths[i] = this.pathToArray(paths.get(i));
-		}
-		return arrayPaths;
+		return null;
 	}
 	
 	/**
