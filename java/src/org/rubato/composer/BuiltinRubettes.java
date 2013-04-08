@@ -59,6 +59,8 @@ public final class BuiltinRubettes {
         "org.rubato.rubettes.score.MelodyRubette",
         "org.rubato.rubettes.score.RhythmizeRubette",
         "org.rubato.rubettes.score.ScaleRubette",
+        "org.rubato.rubettes.score.QuantizeRubette",
+        "org.rubato.rubettes.score.LilyPondOutRubette",
         "org.rubato.rubettes.wallpaper.WallpaperRubette",
         "org.rubato.rubettes.alteration.AlterationRubette",
         "org.rubato.rubettes.morphing.MorphingRubette",

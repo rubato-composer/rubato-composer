@@ -263,7 +263,7 @@ public class BigBangScoreManagerTest extends TestCase {
 		List<DenotatorPath> modulatorPaths = this.scoreManager.moveObjectsToParent(paths, new DenotatorPath(this.objects.SOUND_SCORE_FORM, new int[]{0,0,6,0}), 0);
 		TestCase.assertTrue(((PowerDenotator)this.scoreManager.getComposition().get(new int[]{0,0,6,0,6})).getFactorCount() == 1);
 		Denotator addedModulator = this.scoreManager.getComposition().get(new int[]{0,0,6,0,6,0});
-		TestCase.assertEquals(this.objects.generator.SOUND_NOTE_FORM, addedModulator.getForm());
+		TestCase.assertEquals(this.objects.generator.getSoundNoteForm(), addedModulator.getForm());
 		this.objects.assertEqualDenotators(this.objects.note2Relative, this.scoreManager.getComposition().get(new int[]{0,0,6,0,6,0}));
 		//undo and check if original is there again
 		this.scoreManager.undoMoveToParent(new ArrayList<DenotatorPath>(modulatorPaths), paths);

@@ -11,6 +11,7 @@ import org.rubato.math.yoneda.Form;
 import org.rubato.math.yoneda.LimitDenotator;
 import org.rubato.math.yoneda.LimitForm;
 import org.rubato.math.yoneda.PowerDenotator;
+import org.rubato.math.yoneda.PowerForm;
 
 public class MacroNoteGenerator extends NoteGenerator {
 	
@@ -116,5 +117,10 @@ public class MacroNoteGenerator extends NoteGenerator {
 			return null;
 		}
 	}
+	
+	/**
+	 * Returns the MacroScore form from the system repository.
+	 */
+	public PowerForm getMacroScoreForm() { return this.macroScoreForm; }
 	
 }
