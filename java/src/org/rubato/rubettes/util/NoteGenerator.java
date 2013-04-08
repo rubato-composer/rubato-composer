@@ -417,7 +417,7 @@ public abstract class NoteGenerator {
 		}
 	}
 	
-	public Double getDoubleValue(LimitDenotator note, int[] elementPath) {
+	public Double getDoubleValue(Denotator note, int[] elementPath) {
 		try {
 			return ((RElement)note.getElement(elementPath).cast(RRing.ring)).getValue();
 		} catch (RubatoException e) {
@@ -441,7 +441,6 @@ public abstract class NoteGenerator {
 			return new SimpleDenotator(this.emptyName, form, element);
 		} catch(DomainException e) { return null; }
 	}
-	
 	
 	/**
 	 * Returns the Score form from the system repository.

@@ -20,9 +20,8 @@ import org.rubato.math.yoneda.SimpleDenotator;
 
 public class SoundNoteGenerator extends NoteGenerator {
 	
-	public final Form SOUND_SCORE_FORM = Repository.systemRepository().getForm("SoundScore");
-	public final LimitForm SOUND_NODE_FORM = (LimitForm) Repository.systemRepository().getForm("SoundNode");
-	public final LimitForm SOUND_NOTE_FORM = (LimitForm) Repository.systemRepository().getForm("SoundNote");
+	private LimitForm soundNodeForm = (LimitForm) Repository.systemRepository().getForm("SoundNode");
+	private LimitForm soundNoteForm = (LimitForm) Repository.systemRepository().getForm("SoundNote");
 	private PowerForm modulatorsForm = (PowerForm) Repository.systemRepository().getForm("Modulators");
 	public static final String[] FM_MODELS = {"Carrier only", "Double modulator", "Nested modulator"};
 	
@@ -86,7 +85,7 @@ public class SoundNoteGenerator extends NoteGenerator {
 	
 	public LimitDenotator createSpecificNodeDenotator(List<Denotator> coordinates) {
 		try {
-			return new LimitDenotator(this.emptyName, this.SOUND_NODE_FORM, coordinates);
+			return new LimitDenotator(this.emptyName, this.soundNodeForm, coordinates);
 		} catch (Exception e) {
 			e.printStackTrace();
 			return null;
@@ -115,7 +114,7 @@ public class SoundNoteGenerator extends NoteGenerator {
 				}
 			}
 			//this takes a lot of time compared to the other operations
-			return new LimitDenotator(this.emptyName, this.SOUND_NOTE_FORM, coordinates);
+			return new LimitDenotator(this.emptyName, this.soundNoteForm, coordinates);
 		} catch (RubatoException e) {
 			e.printStackTrace();
 			return null;
@@ -176,7 +175,7 @@ public class SoundNoteGenerator extends NoteGenerator {
 		coordinates.add(this.createSimpleDenotator(this.layerForm, new ZElement(0)));
 		coordinates.add(this.createEmptyModulators());
 		//this takes a lot of time compared to the other operations
-		return new LimitDenotator(this.emptyName, this.SOUND_NOTE_FORM, coordinates);
+		return new LimitDenotator(this.emptyName, this.soundNoteForm, coordinates);
 	}
 	
 	private PowerDenotator createEmptyModulators() throws RubatoException {
@@ -196,5 +195,15 @@ public class SoundNoteGenerator extends NoteGenerator {
 	public void setFMModel(String fmModel) {
 		this.fmModel = fmModel;
 	}
+	
+	/**
+	 * Returns the SoundScore form from the system repository.
+	 */
+	public PowerForm getSoundScoreForm() { return this.soundScoreForm; }
+	
+	/**
+	 * Returns the SoundNote form from the system repository.
+	 */
+	public LimitForm getSoundNoteForm() { return this.soundNoteForm; }
 
 }

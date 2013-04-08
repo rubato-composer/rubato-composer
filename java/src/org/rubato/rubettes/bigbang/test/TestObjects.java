@@ -66,7 +66,7 @@ public class TestObjects {
 	public TestObjects() {
 		this.generator = new SoundNoteGenerator();
 		this.objectGenerator = new ObjectGenerator();
-		this.score = new BigBangScore(this.generator.SOUND_SCORE_FORM);
+		this.score = new BigBangScore(this.generator.getSoundScoreForm());
 		this.scoreManager = new BigBangScoreManager(new BigBangController());
 		this.note0 = this.generator.createNoteDenotator(new double[]{0,60,120,1,0,0});
 		this.note1Absolute = this.generator.createNoteDenotator(new double[]{1,63,116,1,0,0});
@@ -96,9 +96,9 @@ public class TestObjects {
 		notes.add(this.generator.createNoteDenotator(this.NOTE1_ABSOLUTE_VALUES));
 		notes.add(this.generator.createNoteDenotator(this.NOTE0_VALUES));
 		List<DenotatorPath> parentPaths = new ArrayList<DenotatorPath>();
-		parentPaths.add(new DenotatorPath(this.generator.SOUND_SCORE_FORM, new int[]{0,0}));
-		parentPaths.add(new DenotatorPath(this.generator.SOUND_SCORE_FORM, new int[]{0,0}));
-		parentPaths.add(new DenotatorPath(this.generator.SOUND_SCORE_FORM, new int[]{0,1,0,1,0,0}));
+		parentPaths.add(new DenotatorPath(this.generator.getSoundScoreForm(), new int[]{0,0}));
+		parentPaths.add(new DenotatorPath(this.generator.getSoundScoreForm(), new int[]{0,0}));
+		parentPaths.add(new DenotatorPath(this.generator.getSoundScoreForm(), new int[]{0,1,0,1,0,0}));
 		int[] powersetIndices = new int[]{1, 1, 1};
 		this.score.addObjects(notes, parentPaths, powersetIndices);
 		
@@ -107,9 +107,9 @@ public class TestObjects {
 		notes.add(this.generator.createNoteDenotator(this.NOTE1_ABSOLUTE_VALUES));
 		notes.add(this.generator.createNoteDenotator(this.NOTE0_VALUES));
 		parentPaths = new ArrayList<DenotatorPath>();
-		parentPaths.add(new DenotatorPath(this.generator.SOUND_SCORE_FORM, new int[]{0,0,6,1}));
-		parentPaths.add(new DenotatorPath(this.generator.SOUND_SCORE_FORM, new int[]{0,1,0,0}));
-		parentPaths.add(new DenotatorPath(this.generator.SOUND_SCORE_FORM, new int[]{0,1,0,1,0,0,6,0}));
+		parentPaths.add(new DenotatorPath(this.generator.getSoundScoreForm(), new int[]{0,0,6,1}));
+		parentPaths.add(new DenotatorPath(this.generator.getSoundScoreForm(), new int[]{0,1,0,0}));
+		parentPaths.add(new DenotatorPath(this.generator.getSoundScoreForm(), new int[]{0,1,0,1,0,0,6,0}));
 		powersetIndices = new int[]{0, 1, 0};
 		this.score.addObjects(notes, parentPaths, powersetIndices);
 	}
