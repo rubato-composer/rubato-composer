@@ -4,7 +4,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.PriorityQueue;
+import java.util.Set;
 import java.util.TreeMap;
+import java.util.TreeSet;
 
 import org.rubato.base.RubatoException;
 import org.rubato.math.module.DomainException;
@@ -15,6 +17,7 @@ import org.rubato.math.module.RProperFreeElement;
 import org.rubato.math.module.RProperFreeModule;
 import org.rubato.math.module.RRing;
 import org.rubato.math.module.RingElement;
+import org.rubato.math.yoneda.ColimitDenotator;
 import org.rubato.math.yoneda.Denotator;
 import org.rubato.math.yoneda.FactorDenotator;
 import org.rubato.math.yoneda.Form;
@@ -68,9 +71,31 @@ public class ObjectGenerator {
 	
 	public Denotator createTopLevelObject(Map<DenotatorPath,Double> pathsWithValues) {
 		Denotator object = this.topLevelObjectForm.createDefaultDenotator();
+		object = this.replaceColimitsIfNecessary(object, pathsWithValues.keySet());
 		for (DenotatorPath currentPath : pathsWithValues.keySet()) {
 			Double currentValue = pathsWithValues.get(currentPath);
-			object = this.replaceValue(object, currentPath, currentValue);
+			object = this.replaceValue(object, currentPath.neutralizeColimitIndices(), currentValue);
+		}
+		return object;
+	}
+	
+	private Denotator replaceColimitsIfNecessary(Denotator object, Set<DenotatorPath> paths) {
+		try {
+			for (DenotatorPath currentPath : paths) {
+				List<DenotatorPath> currentColimitPaths = currentPath.getParentColimitPaths();
+				for (DenotatorPath currentColimitPath : currentColimitPaths) {
+					ColimitDenotator currentColimit = (ColimitDenotator)object.get(currentColimitPath.toIntArray());
+					DenotatorPath currentChildPath = currentPath.subPath(0, currentColimitPath.size()+1);
+					if (currentColimit.getIndex() != currentChildPath.getLastIndex()) {
+						Form currentChildForm = currentChildPath.getForm();
+						((ColimitDenotator)object.get(currentColimitPath.toIntArray())).setFactor(currentChildPath.getLastIndex(), currentChildForm.createDefaultDenotator());
+						//object = object.replace(currentColimitPath.toIntArray(), currentChildForm.createDefaultDenotator());
+						//object = object.replace(currentColimitPath.getChildPath(0).toIntArray(), currentChildForm.createDefaultDenotator());
+					}
+				}
+			}
+		} catch (RubatoException e) {
+			e.printStackTrace();
 		}
 		return object;
 	}

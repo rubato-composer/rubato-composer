@@ -79,15 +79,15 @@ public class ImageFileOutRubette extends SimpleAbstractRubette {
     	} else if (input == null) {
             this.addError("Input denotator is null.");
     	} else if (input.hasForm(ImageFileOutRubette.IMAGE_FORM)) {
-    		this.writeImageFile(this.getBufferedImage((PowerDenotator)input));
+    		this.writeImageFile(this.getBufferedImage((PowerDenotator)input, runInfo));
     	} else if (input.hasForm(ImageFileOutRubette.VS_IMAGE_FORM)) {
-    		this.writeImageFile(this.getBufferedImageFromVS((PowerDenotator)input));
+    		this.writeImageFile(this.getBufferedImageFromVS((PowerDenotator)input, runInfo));
     	} else {
     		this.addError("Input denotator is not of form \"Image\" or \"VSPixelImage\".");
     	}
     }
     
-    private BufferedImage getBufferedImage(PowerDenotator imageDenotator) {
+    private BufferedImage getBufferedImage(PowerDenotator imageDenotator, RunInfo runInfo) {
     	double[] minAndMaxX = new DenotatorAnalyzer().getMinAndMaxValue(imageDenotator, 0);
     	double[] minAndMaxY = new DenotatorAnalyzer().getMinAndMaxValue(imageDenotator, 1);
     	int width = (int)Math.round(minAndMaxX[1]-minAndMaxX[0]+1);
@@ -102,11 +102,14 @@ public class ImageFileOutRubette extends SimpleAbstractRubette {
     		int alpha = this.objectGenerator.getIntegerValue(currentPixel, 5);
     		int rgb = new Color(red, green, blue, alpha).getRGB();
     		image.setRGB(x, height-1-y, rgb);
+    		if (runInfo.stopped()) {
+				return null;
+			}
     	}
     	return image;
     }
     
-    private BufferedImage getBufferedImageFromVS(PowerDenotator imageDenotator) {
+    private BufferedImage getBufferedImageFromVS(PowerDenotator imageDenotator, RunInfo runInfo) {
     	double[] minAndMaxX = new DenotatorAnalyzer().getMinAndMaxValue(imageDenotator, 0);
     	double[] minAndMaxY = new DenotatorAnalyzer().getMinAndMaxValue(imageDenotator, 1);
     	int imageWidth = (int)Math.round(minAndMaxX[1]-minAndMaxX[0]+1);
@@ -125,6 +128,9 @@ public class ImageFileOutRubette extends SimpleAbstractRubette {
     		for (int x = Math.max(pixelX-(pixelWidth/2), 0); x < Math.min(pixelX+(pixelWidth/2)+pixelWidth%2, imageWidth); x++) {
     			for (int y = Math.max(pixelY-(pixelHeight/2), 0); y < Math.min(pixelY+(pixelHeight/2)+pixelHeight%2, imageHeight); y++) {
     				image.setRGB(x, imageHeight-1-y, rgb);
+    			}
+    			if (runInfo.stopped()) {
+    				return null;
     			}
     		}
     	}

@@ -77,11 +77,11 @@ public class ImageFileInRubette extends SimpleAbstractRubette {
     	if (this.imageFile == null) {
             this.addError("No file has been set.");
     	} else {
-    		this.setOutput(0, this.getConvertedImage());
+    		this.setOutput(0, this.getConvertedImage(runInfo));
     	}
     }
     
-    private Denotator getConvertedImage() {
+    private Denotator getConvertedImage(RunInfo runInfo) {
     	BufferedImage image = this.readImageFile();
     	List<Denotator> pixels = new ArrayList<Denotator>();
     	for (int x = 0; x < image.getWidth(); x++) {
@@ -98,6 +98,9 @@ public class ImageFileInRubette extends SimpleAbstractRubette {
     				} else {
     					pixels.add(this.objectGenerator.createDenotator(ImageFileInRubette.PIXEL_FORM, x, image.getHeight()-1-y, red, green, blue, alpha));
     				}
+    			}
+    			if (runInfo.stopped()) {
+    				return null;
     			}
     		}
     	}

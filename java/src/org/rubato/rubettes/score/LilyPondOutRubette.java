@@ -254,9 +254,11 @@ public class LilyPondOutRubette extends SimpleAbstractRubette {
     		"\ttitle = \"" + score.getNameString() + "\"\n" +
     		"}\n" +
     		"\n" +
-    		"\\new Voice \\with {\n" +
-    		"\t\\remove \"Note_heads_engraver\"\n" +
-    		"\t\\consists \"Completion_heads_engraver\"\n" +
+    		"\\layout {\n" +
+    		"\t\\context {\n" +
+    		"\t\t\\Voice \\remove \"Note_heads_engraver\"\n" +
+    		"\t\t\\consists \"Completion_heads_engraver\"\n" +
+    		"\t}\n" +
     		"}\n" +
     		"\n";
     }

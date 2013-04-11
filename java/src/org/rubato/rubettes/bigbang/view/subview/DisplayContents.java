@@ -162,8 +162,7 @@ public class DisplayContents {
 	
 	public double translateValue(List<Double> denotatorValues, int i) {
 		int v = this.selectedViewParameters[i];
-		if (v > -1 && v < denotatorValues.size()) {
-			//System.out.println(v+" "+this.viewParameters.get(i).translateDenotatorValue(denotatorValues[v]));
+		if (v > -1 && v < denotatorValues.size() && denotatorValues.get(v) != null) {
 			return this.viewParameters.get(i).translateDenotatorValue(denotatorValues.get(v));
 		}
 		return this.viewParameters.get(i).getDefaultValue();

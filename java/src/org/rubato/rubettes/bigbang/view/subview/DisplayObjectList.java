@@ -65,21 +65,65 @@ public class DisplayObjectList extends TreeSet<DisplayObject> implements View {
 		return this.getTopDenotatorValuePaths();
 	}
 	
-	public DenotatorPath getPathInTopDenotatorSimple(int valueIndex) {
+	public DenotatorPath getPathInTopDenotatorValues(int valueIndex) {
 		return this.topDenotatorValues.get(this.valueNames.get(valueIndex));
 	}
 	
-	private void updateTopDenotatorStandardValues() {
+	private void updateTopDenotatorStandardValues(DenotatorPath... selectedColimitValuePaths) {
 		this.topDenotatorStandardValues = new TreeMap<DenotatorPath,Double>();
 		for (String currentName : this.topDenotatorValues.keySet()) {
 			if (this.standardValues.containsKey(currentName)) {
-				this.topDenotatorStandardValues.put(this.topDenotatorValues.get(currentName), this.standardValues.get(currentName));
+				DenotatorPath currentPath = this.topDenotatorValues.get(currentName);
+				if (this.inAllowedColimitBranch(currentPath, selectedColimitValuePaths)) {
+					this.topDenotatorStandardValues.put(currentPath, this.standardValues.get(currentName));
+				}
 			}
 		}
 	}
 	
+	//rest || (int || note)
+	
 	public Map<DenotatorPath,Double> getTopDenotatorStandardValues() {
 		return this.topDenotatorStandardValues;
+	}
+	
+	/**
+	 * @return the top denotator standard values under assumption that the given value
+	 * is selected in a colimit. if it is not in a colimit, just returns the standard values
+	 */
+	public Map<DenotatorPath,Double> getTopDenotatorStandardValues(int... colimitValueIndices) {
+		DenotatorPath[] selectedColimitValuePaths = new DenotatorPath[colimitValueIndices.length];
+		for (int i = 0; i < colimitValueIndices.length; i++) {
+			selectedColimitValuePaths[i] = this.getPathInTopDenotatorValues(colimitValueIndices[i]);
+		}
+		this.updateTopDenotatorStandardValues(selectedColimitValuePaths);
+		return this.topDenotatorStandardValues;
+	}
+	
+	public boolean inAllowedColimitBranch(DenotatorPath path, DenotatorPath... selectedColimitValuePaths) {
+		for (DenotatorPath currentColimitPath : path.getParentColimitPaths()) {
+			boolean containedInSelectedPaths = false;
+			for (DenotatorPath currentSelectedPath : selectedColimitValuePaths) {
+				if (currentColimitPath.equals(currentSelectedPath.getParentPath())) {
+					containedInSelectedPaths = true;
+					if (!path.subPath(0, currentColimitPath.size()+1).equals(currentSelectedPath)) {
+						return false;
+					}
+				}
+			}
+			if (!containedInSelectedPaths) {
+				if (path.subPath(0, currentColimitPath.size()+1).getLastIndex() != 0) {
+					return false;
+				}
+			}
+		}
+		return true;
+	}
+	
+	//richter doc and boulanger doc
+	
+	public boolean inConflictingColimitPositions(int valueIndex1, int valueIndex2) {
+		return this.getPathInTopDenotatorValues(valueIndex1).inConflictingColimitPositions(this.getPathInTopDenotatorValues(valueIndex2));
 	}
 	
 	public void tempSelectNotes(Rectangle2D.Double area) {

@@ -1,8 +1,11 @@
 package org.rubato.rubettes.util;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.PriorityQueue;
+import java.util.Set;
+import java.util.TreeSet;
 
 import org.rubato.base.RubatoException;
 import org.rubato.math.module.Module;
@@ -26,7 +29,6 @@ public class DenotatorPath implements Comparable<Object> {
 	//null if not a simple form
 	private Module module;
 	private int elementPathIndex;
-	
 	
 	//necessary for cyclical forms without powersets!
 	private static final int POWERSET_SEARCH_DEPTH = 10;
@@ -107,6 +109,29 @@ public class DenotatorPath implements Comparable<Object> {
 			return this.subPath(this.elementPathIndex);
 		}
 		return null;
+	}
+	
+	public boolean inConflictingColimitPositions(DenotatorPath path) {
+		Set<DenotatorPath> thisColimits = new TreeSet<DenotatorPath>(this.getParentColimitPaths());
+		Set<DenotatorPath> pathColimits = new TreeSet<DenotatorPath>(path.getParentColimitPaths());
+		for (DenotatorPath currentColimitPath : thisColimits) {
+			if (pathColimits.contains(currentColimitPath)) {
+				if (this.subPath(0, currentColimitPath.size()+1).getLastIndex()
+						!= path.subPath(0, currentColimitPath.size()+1).getLastIndex()) {
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+	
+	public DenotatorPath neutralizeColimitIndices() {
+		DenotatorPath neutralizedPath = this.clone();
+		List<DenotatorPath> colimitPaths = this.getParentColimitPaths();
+		for (DenotatorPath currentColimitPath : colimitPaths) {
+			neutralizedPath.indices.set(currentColimitPath.size(), 0);
+		}
+		return neutralizedPath;
 	}
 	
 	public DenotatorPath clone() {
@@ -242,6 +267,19 @@ public class DenotatorPath implements Comparable<Object> {
 	 */
 	public int getObjectIndex() {
 		return this.getTopPath().getLastIndex();
+	}
+	
+	public List<DenotatorPath> getParentColimitPaths() {
+		DenotatorPath currentPath = this.clone();
+		List<DenotatorPath> parentColimitPaths = new ArrayList<DenotatorPath>();
+		while (currentPath != null) {
+			if (currentPath.getForm().getType() == Form.COLIMIT) {
+				parentColimitPaths.add(currentPath);
+			}
+			currentPath = currentPath.getParentPath();
+		}
+		Collections.reverse(parentColimitPaths);
+		return parentColimitPaths;
 	}
 	
 	/*

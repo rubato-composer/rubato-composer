@@ -190,10 +190,7 @@ public class ArbitraryDenotatorMapper {
 							sum = currentAddend;
 						}
 					}
-					//System.out.println(finalInjection + " " + projectedM);
-					//projectedM = finalInjection.compose(projectedM);
-					//System.out.println(finalInjection + " " + projectedM);
-					//projectedM = oldSimple.getModuleMorphism().sum(projectedM);
+					
 					projectedM = sum;
 				}
 					

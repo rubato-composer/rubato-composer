@@ -1,6 +1,7 @@
 package org.rubato.rubettes.bigbang.view.model;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -92,8 +93,17 @@ public class DenotatorValueExtractor {
 			if (largerObject == null) {
 				largerObject = this.addDisplayObject(currentDenotator, parent, relation, satelliteLevel, siblingNumber, currentPath);
 			}
-			Denotator onlyChild = ((ColimitDenotator)currentDenotator).getFactor();
-			this.extractDisplayObjects(onlyChild, parent, largerObject, relation, satelliteLevel, siblingNumber, currentPath.getChildPath(0));
+			ColimitDenotator currentColimit = (ColimitDenotator)currentDenotator;
+			Denotator onlyChild = currentColimit.getFactor();
+			//have to get it like this since Colimit.index is not implemented well
+			int childIndex = currentColimit.getForm().getForms().indexOf(onlyChild.getForm());
+			for (int i = 0; i < currentColimit.getForm().getFormCount(); i++) {
+				if (i == childIndex) {
+					this.extractDisplayObjects(onlyChild, parent, largerObject, relation, satelliteLevel, siblingNumber, currentPath.getChildPath(childIndex));
+				} else {
+					this.addNullValues(largerObject, currentPath.getChildPath(i));
+				}
+			}
 		} else if (denotatorType == Denotator.POWER || denotatorType == Denotator.LIST) {
 			FactorDenotator currentPower = (FactorDenotator)currentDenotator;
 			for (int i = 0; i < currentPower.getFactorCount(); i++) {
@@ -125,8 +135,15 @@ public class DenotatorValueExtractor {
 	
 	private void addSimpleValues(DisplayObject largerObject, SimpleDenotator simpleDenotator, DenotatorPath path) {
 		List<Double> objectValues = this.extractValues(simpleDenotator);
-		largerObject.addValues(simpleDenotator.getForm().getNameString(), path, objectValues);
+		largerObject.addValues(path, objectValues);
 		//TODO: a map should keep track which DOs have certain simples so that they can be found quick
+	}
+	
+	private void addNullValues(DisplayObject largerObject, DenotatorPath path) {
+		DenotatorValueFinder finder = new DenotatorValueFinder(path.getForm(), false);
+		for (DenotatorPath currentPath : finder.getValuePathsInFoundOrder()) {
+			largerObject.addValues(currentPath, Arrays.asList(new Double[]{null}));
+		}
 	}
 	
 	//TODO: REWRITE ALL JSYN-RELATED ONES!!!

@@ -543,19 +543,32 @@ public class BigBangView extends Model implements View {
 	}
 	
 	private Map<DenotatorPath,Double> getDenotatorValues(Point2D.Double location) {
-		Map<DenotatorPath,Double> denotatorValues = this.displayNotes.getTopDenotatorStandardValues();
 		int XParameterIndex = this.viewParameters.getSelected(0);
 		int YParameterIndex = this.viewParameters.getSelected(1);
-		this.replaceDenotatorValue(location.x, XParameterIndex, this.displayPosition.x, this.xZoomFactor, denotatorValues);
-		if (XParameterIndex != YParameterIndex) {
-			this.replaceDenotatorValue(location.y, YParameterIndex, this.displayPosition.y, this.yZoomFactor, denotatorValues);
+		Map<DenotatorPath,Double> denotatorValues;
+		if (this.displayNotes.inConflictingColimitPositions(XParameterIndex, YParameterIndex)) {
+			if (location.x >= this.displayPosition.y-location.y) {
+				denotatorValues = this.displayNotes.getTopDenotatorStandardValues(XParameterIndex);
+				this.replaceDenotatorValue(location.x, XParameterIndex, this.displayPosition.x, this.xZoomFactor, denotatorValues);
+			} else {
+				denotatorValues = this.displayNotes.getTopDenotatorStandardValues(YParameterIndex);
+				this.replaceDenotatorValue(location.y, YParameterIndex, this.displayPosition.y, this.yZoomFactor, denotatorValues);
+			}
+			//TODO: check if in same colimit. if they are, only draw value on closer axis
+			//make sure all competing colimit values are null!!
+		} else {
+			denotatorValues = this.displayNotes.getTopDenotatorStandardValues(XParameterIndex, YParameterIndex);
+			this.replaceDenotatorValue(location.x, XParameterIndex, this.displayPosition.x, this.xZoomFactor, denotatorValues);
+			if (XParameterIndex != YParameterIndex) {
+				this.replaceDenotatorValue(location.y, YParameterIndex, this.displayPosition.y, this.yZoomFactor, denotatorValues);
+			}
 		}
 		return denotatorValues;
 	}
 	
 	private void replaceDenotatorValue(double displayValue, int parameterIndex, int position, double zoomFactor, Map<DenotatorPath,Double> values) {
 		if (parameterIndex > -1) {
-			DenotatorPath associatedPath = this.displayNotes.getPathInTopDenotatorSimple(parameterIndex);
+			DenotatorPath associatedPath = this.displayNotes.getPathInTopDenotatorValues(parameterIndex);
 			//null happens when satellite or sibling level is selected
 			if (associatedPath != null) {
 				values.put(associatedPath, this.getDenotatorValue(displayValue, parameterIndex, position, zoomFactor));
@@ -579,7 +592,7 @@ public class BigBangView extends Model implements View {
 			int selectedViewParameter = this.viewParameters.getSelected(i%2);
 			//only one parameter might be selected...
 			if (selectedViewParameter >= 0) {
-				denotatorPaths.add(this.displayNotes.getPathInTopDenotatorSimple(selectedViewParameter));
+				denotatorPaths.add(this.displayNotes.getPathInTopDenotatorValues(selectedViewParameter));
 			} else {
 				denotatorPaths.add(null);
 			}
