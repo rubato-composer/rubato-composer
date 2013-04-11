@@ -1,7 +1,6 @@
 package org.rubato.rubettes.bigbang.test;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import junit.framework.TestCase;
@@ -10,10 +9,10 @@ import org.rubato.base.Repository;
 import org.rubato.base.RubatoException;
 import org.rubato.math.module.DomainException;
 import org.rubato.math.module.Module;
-import org.rubato.math.module.ModuleElement;
 import org.rubato.math.module.ProductElement;
-import org.rubato.math.module.QElement;
 import org.rubato.math.module.RElement;
+import org.rubato.math.yoneda.ColimitDenotator;
+import org.rubato.math.yoneda.ColimitForm;
 import org.rubato.math.yoneda.Denotator;
 import org.rubato.math.yoneda.Form;
 import org.rubato.math.yoneda.LimitDenotator;
@@ -40,6 +39,11 @@ public class TestObjects {
 	public final PowerForm RATIONAL_TRIPLES_FORM = new PowerForm(NameDenotator.make("RationalTriples"), RATIONAL_TRIPLE_FORM);
 	public final SimpleForm REAL_TRIPLE_FORM = (SimpleForm) Repository.systemRepository().getForm("RealTriple");
 	public final PowerForm REAL_TRIPLES_FORM = new PowerForm(NameDenotator.make("RealTriples"), REAL_TRIPLE_FORM);
+	public final SimpleForm REAL_FORM = (SimpleForm) Repository.systemRepository().getForm("Real");
+	public final SimpleForm INTEGER_FORM = (SimpleForm) Repository.systemRepository().getForm("Integer");
+	public final ColimitForm INTEGER_OR_REAL_FORM = (ColimitForm) Repository.systemRepository().getForm("IntegerOrReal");
+	public final PowerForm INTEGER_OR_REALS_FORM = new PowerForm(NameDenotator.make("IntegerOrReals"), INTEGER_OR_REAL_FORM);
+	
 	
 	public final double[][] ABSOLUTE = new double[][]{
 			{0,60,120,1,0,0},{1,63,116,1,0,0},{2,60,121,1,1,0}};
@@ -62,6 +66,7 @@ public class TestObjects {
 	public PowerDenotator flatMacroScore;
 	public PowerDenotator multiLevelMacroScore;
 	public PowerDenotator realTriples, rationalTriples;
+	public PowerDenotator integerOrReals;
 	
 	public TestObjects() {
 		this.generator = new SoundNoteGenerator();
@@ -84,6 +89,7 @@ public class TestObjects {
 			this.createComplexSoundScore();
 			this.createProductRingRealTriples();
 			this.createFreeRationalTriples();
+			this.createIntegerOrReals();
 		} catch (RubatoException err) {
 			err.printStackTrace();
 		}
@@ -122,22 +128,25 @@ public class TestObjects {
 		triples.add(new SimpleDenotator(NameDenotator.make(""), REAL_TRIPLE_FORM, element1));
 		triples.add(new SimpleDenotator(NameDenotator.make(""), REAL_TRIPLE_FORM, element2));
 		triples.add(new SimpleDenotator(NameDenotator.make(""), REAL_TRIPLE_FORM, element3));
-		
-		//Repository.systemRepository().register(realTriplesForm);
 		this.realTriples = new PowerDenotator(NameDenotator.make(""), REAL_TRIPLES_FORM, triples);
 	}
 	
 	private void createFreeRationalTriples() throws DomainException, RubatoException {
-		ModuleElement element1 = RATIONAL_TRIPLE_MODULE.createElement(Arrays.<ModuleElement>asList(new QElement(1), new QElement(2), new QElement(3)));
-		ModuleElement element2 = RATIONAL_TRIPLE_MODULE.createElement(Arrays.<ModuleElement>asList(new QElement(4), new QElement(3), new QElement(1)));
-		ModuleElement element3 = RATIONAL_TRIPLE_MODULE.createElement(Arrays.<ModuleElement>asList(new QElement(2), new QElement(1), new QElement(5)));
-		ModuleElement element4 = RATIONAL_TRIPLE_MODULE.createElement(Arrays.<ModuleElement>asList(new QElement(3), new QElement(4), new QElement(2)));
 		List<Denotator> triples = new ArrayList<Denotator>();
-		triples.add(new SimpleDenotator(NameDenotator.make(""), RATIONAL_TRIPLE_FORM, element1));
-		triples.add(new SimpleDenotator(NameDenotator.make(""), RATIONAL_TRIPLE_FORM, element2));
-		triples.add(new SimpleDenotator(NameDenotator.make(""), RATIONAL_TRIPLE_FORM, element3));
-		triples.add(new SimpleDenotator(NameDenotator.make(""), RATIONAL_TRIPLE_FORM, element4));
+		triples.add(this.createRationalTriple(new double[]{1, 2, 3}));
+		triples.add(this.createRationalTriple(new double[]{4, 3, 1}));
+		triples.add(this.createRationalTriple(new double[]{2, 1, 5}));
+		triples.add(this.createRationalTriple(new double[]{3, 4, 2}));
 		this.rationalTriples = new PowerDenotator(NameDenotator.make(""), RATIONAL_TRIPLES_FORM, triples);
+	}
+	
+	private void createIntegerOrReals() throws DomainException, RubatoException {
+		List<Denotator> integerOrReals = new ArrayList<Denotator>();
+		integerOrReals.add(new ColimitDenotator(NameDenotator.make(""), INTEGER_OR_REAL_FORM, 1, this.createReal(2.5)));
+		integerOrReals.add(new ColimitDenotator(NameDenotator.make(""), INTEGER_OR_REAL_FORM, 0, this.createInteger(5)));
+		integerOrReals.add(new ColimitDenotator(NameDenotator.make(""), INTEGER_OR_REAL_FORM, 1, this.createReal(3.5)));
+		integerOrReals.add(new ColimitDenotator(NameDenotator.make(""), INTEGER_OR_REAL_FORM, 0, this.createInteger(4)));
+		this.integerOrReals = new PowerDenotator(NameDenotator.make(""), INTEGER_OR_REALS_FORM, integerOrReals);
 	}
 	
 	public Denotator createRationalTriple(double[] values) {
@@ -146,6 +155,14 @@ public class TestObjects {
 	
 	public Denotator createRealTriple(double[] values) {
 		return this.objectGenerator.createDenotator(this.REAL_TRIPLE_FORM, values);
+	}
+	
+	public Denotator createInteger(int value) {
+		return this.objectGenerator.createDenotator(this.INTEGER_FORM, value);
+	}
+	
+	public Denotator createReal(double value) {
+		return this.objectGenerator.createDenotator(this.REAL_FORM, value);
 	}
 	
 	public void assertEqualDenotators(Denotator d1, Denotator d2) {

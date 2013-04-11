@@ -23,7 +23,6 @@ public class DisplayObject implements Comparable<Object> {
 	private int relation;
 	private List<DisplayObject> children;
 	private List<Double> values;
-	private List<String> valueNames;
 	private List<DenotatorPath> valuePaths;
 	private int layer;
 	private double xDiff, yDiff;
@@ -45,10 +44,9 @@ public class DisplayObject implements Comparable<Object> {
 	
 	public DisplayObject(DisplayObject parent, int relation, int satelliteLevel, int siblingNumber, int topDenotatorType, DenotatorPath topDenotatorPath, int layer) {
 		this.values = new ArrayList<Double>();
-		this.valueNames = new ArrayList<String>();
 		this.valuePaths = new ArrayList<DenotatorPath>();
-		this.addValue("Satellite Level", satelliteLevel);
-		this.addValue("Sibling number", siblingNumber);
+		this.addValue(satelliteLevel);
+		this.addValue(siblingNumber);
 		this.parent = parent;
 		this.relation = relation;
 		this.topDenotatorType = topDenotatorType;
@@ -119,22 +117,22 @@ public class DisplayObject implements Comparable<Object> {
 		this.yDiff += y;
 	}
 	
-	private void addValue(String name, double value) {
+	private void addValue(double value) {
+		//System.out.println(name+ " " + value);
 		this.values.add(value);
-		this.valueNames.add(name);
 	}
 	
-	public void addValues(String denotatorName, DenotatorPath denotatorPath, List<Double> values) {
+	public void addValues(DenotatorPath denotatorPath, List<Double> values) {
 		//keep two last values last (satellite level and sibling number)
 		int currentIndex = this.values.size()-2; 
 		for (int i = 0; i < values.size(); i++) {
+			//System.out.println(denotatorName+ " " + denotatorPath + " " + values.get(i));
 			this.values.add(currentIndex+i, values.get(i));
-			this.valueNames.add(currentIndex+i, denotatorName);
 			this.valuePaths.add(denotatorPath);
 		}
 	}
 	
-	public double getValue(int index) {
+	public Double getValue(int index) {
 		return this.values.get(index);
 	}
 	

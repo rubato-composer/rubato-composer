@@ -88,6 +88,8 @@ public final class ColimitDenotator
     public ColimitDenotator(NameDenotator name, ColimitForm form, int index, Denotator deno)
             throws RubatoException {
         super(name, form);
+        setIndex(index);
+        
         FormDiagram diagram = (FormDiagram)form.getIdentifier().getCodomainDiagram();
         
         Module address = deno.getAddress();
@@ -242,6 +244,7 @@ public final class ColimitDenotator
     protected Denotator replace(int[] path, int curpos, Denotator d)
             throws RubatoException {
         if (curpos == path.length) {
+        	//this.getForm().getForms().contains(d.getForm())
             if (d.hasForm(getForm())) {
                 Denotator res = d;
                 if (!d.getAddress().equals(getAddress())) {

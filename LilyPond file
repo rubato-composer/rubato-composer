@@ -1,0 +1,10 @@
+% Generated with Rubato Composer's LilyPondOut Rubette %
+
+\header{
+	title = ""
+}
+
+{
+	c,,,, cis,,,, d,,,, ees,,,, e,,,, f,,,, fis,,,, g,,,, aes,,,, }
+
+\version "2.16.2"  % necessary for upgrading to future LilyPond versions.
