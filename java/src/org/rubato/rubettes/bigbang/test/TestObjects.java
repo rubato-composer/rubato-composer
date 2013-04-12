@@ -157,6 +157,13 @@ public class TestObjects {
 		return this.objectGenerator.createDenotator(this.REAL_TRIPLE_FORM, values);
 	}
 	
+	public Denotator createIntegerOrReal(boolean integer, double value) throws RubatoException {
+		if (integer) {
+			return new ColimitDenotator(NameDenotator.make(""), INTEGER_OR_REAL_FORM, 0, this.createInteger((int)value));
+		}
+		return new ColimitDenotator(NameDenotator.make(""), INTEGER_OR_REAL_FORM, 1, this.createReal(value));
+	}
+	
 	public Denotator createInteger(int value) {
 		return this.objectGenerator.createDenotator(this.INTEGER_FORM, value);
 	}

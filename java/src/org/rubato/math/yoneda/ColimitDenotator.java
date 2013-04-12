@@ -268,7 +268,8 @@ public final class ColimitDenotator
         }
         else {
             int i = path[curpos];
-            if (i >= 0 && i < getFactorCount()) {
+            //florian replaced getFactorCount with getFormCount
+            if (i >= 0 && i < this.getColimitForm().getFormCount()) {
                 Denotator res = getFactor(i).replace(path, curpos+1, d);
                 return _make_unsafe(null, getAddress(), getColimitForm(), i, res);
             }
@@ -399,6 +400,7 @@ public final class ColimitDenotator
         }
         checkDenotator(d, getForm().getForm(i), getAddress());
         indexmap.setFactor(i, d);
+        setIndex(i);
     }
 
     

@@ -62,7 +62,11 @@ public class DisplayObjectList extends TreeSet<DisplayObject> implements View {
 	}
 	
 	public List<DenotatorPath> getTopDenotatorValuePaths() {
-		return this.getTopDenotatorValuePaths();
+		List<DenotatorPath> paths = new ArrayList<DenotatorPath>();
+		for (String currentValueName : this.valueNames) {
+			paths.add(this.topDenotatorValues.get(currentValueName));
+		}
+		return paths;
 	}
 	
 	public DenotatorPath getPathInTopDenotatorValues(int valueIndex) {
@@ -80,8 +84,6 @@ public class DisplayObjectList extends TreeSet<DisplayObject> implements View {
 			}
 		}
 	}
-	
-	//rest || (int || note)
 	
 	public Map<DenotatorPath,Double> getTopDenotatorStandardValues() {
 		return this.topDenotatorStandardValues;
@@ -119,8 +121,6 @@ public class DisplayObjectList extends TreeSet<DisplayObject> implements View {
 		}
 		return true;
 	}
-	
-	//richter doc and boulanger doc
 	
 	public boolean inConflictingColimitPositions(int valueIndex1, int valueIndex2) {
 		return this.getPathInTopDenotatorValues(valueIndex1).inConflictingColimitPositions(this.getPathInTopDenotatorValues(valueIndex2));

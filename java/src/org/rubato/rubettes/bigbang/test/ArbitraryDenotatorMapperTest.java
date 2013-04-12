@@ -18,20 +18,21 @@ import junit.framework.TestCase;
 public class ArbitraryDenotatorMapperTest  extends TestCase {
 	
 	private TestObjects objects;
+	private ModuleMorphism translation;
 	
 	public void setUp() {
 		this.objects = new TestObjects();
+		RMatrix identity = new RMatrix(new double[][]{{1,0},{0,1}});
+		this.translation = RFreeAffineMorphism.make(identity, new double[]{-1,-2});
 	}
 	
-	public void testGetMappedPowerDenotator() throws RubatoException {
-		RMatrix identity = new RMatrix(new double[][]{{1,0},{0,1}});
-		ModuleMorphism translation = RFreeAffineMorphism.make(identity, new double[]{-1,-2});
+	public void testMappingOfNodeDenotators() throws RubatoException {
 		List<DenotatorPath> elementPaths = new ArrayList<DenotatorPath>();
-		elementPaths.add(new DenotatorPath(this.objects.SOUND_SCORE_FORM, new int[]{0,0}));
-		elementPaths.add(new DenotatorPath(this.objects.SOUND_SCORE_FORM, new int[]{0,1}));
-		elementPaths.add(new DenotatorPath(this.objects.SOUND_SCORE_FORM, new int[]{0,0}));
-		elementPaths.add(new DenotatorPath(this.objects.SOUND_SCORE_FORM, new int[]{0,1}));
-		ArbitraryDenotatorMapper mapper = new ArbitraryDenotatorMapper(translation, elementPaths);
+		elementPaths.add(new DenotatorPath(this.objects.SOUND_NODE_FORM, new int[]{0,0}));
+		elementPaths.add(new DenotatorPath(this.objects.SOUND_NODE_FORM, new int[]{0,1}));
+		elementPaths.add(new DenotatorPath(this.objects.SOUND_NODE_FORM, new int[]{0,0}));
+		elementPaths.add(new DenotatorPath(this.objects.SOUND_NODE_FORM, new int[]{0,1}));
+		ArbitraryDenotatorMapper mapper = new ArbitraryDenotatorMapper(this.translation, elementPaths);
 		LimitDenotator node = (LimitDenotator)this.objects.multiLevelMacroScore.get(new int[]{0});
 		LimitDenotator mappedNode = (LimitDenotator)mapper.getMappedDenotator(node);
 		//check if transformed properly
@@ -42,6 +43,40 @@ public class ArbitraryDenotatorMapperTest  extends TestCase {
 		this.objects.assertEqualDenotators(mappedNode.get(new int[]{1,0,1,0}), this.objects.node2Relative);
 		//check if layer unchanged
 		TestCase.assertEquals(mappedNode.getElement(new int[]{0,5,0}), new ZElement(0));
+	}
+	
+	public void testMappingOfColimitDenotators() throws RubatoException {
+		List<DenotatorPath> valuePaths = new ArrayList<DenotatorPath>();
+		//add paths of both types of coordinates: integer and real
+		valuePaths.add(new DenotatorPath(this.objects.INTEGER_OR_REAL_FORM, new int[]{0}));
+		valuePaths.add(new DenotatorPath(this.objects.INTEGER_OR_REAL_FORM, new int[]{1}));
+		valuePaths.add(new DenotatorPath(this.objects.INTEGER_OR_REAL_FORM, new int[]{0}));
+		valuePaths.add(new DenotatorPath(this.objects.INTEGER_OR_REAL_FORM, new int[]{1}));
+		ArbitraryDenotatorMapper mapper = new ArbitraryDenotatorMapper(this.translation, valuePaths);
+		
+		//test transformation of coordinates directly
+		Denotator currentColimit = this.objects.integerOrReals.get(new int[]{0});
+		Denotator mappedColimit = mapper.getMappedDenotator(currentColimit);
+		Denotator expectedColimit = this.objects.createIntegerOrReal(true, 3);
+		this.objects.assertEqualDenotators(expectedColimit, mappedColimit);
+		currentColimit = this.objects.integerOrReals.get(new int[]{3});
+		mappedColimit = mapper.getMappedDenotator(currentColimit);
+		expectedColimit = this.objects.createIntegerOrReal(false, 1.5);
+		this.objects.assertEqualDenotators(expectedColimit, mappedColimit);
+		
+		//test transformation of powerset
+		mapper.getMappedPowerDenotator(this.objects.integerOrReals).display();
+		Denotator mappedPowerset = mapper.getMappedPowerDenotator(this.objects.integerOrReals);
+		expectedColimit = this.objects.createIntegerOrReal(true, 3);
+		this.objects.assertEqualDenotators(expectedColimit, mappedPowerset.get(new int[]{0}));
+		expectedColimit = this.objects.createIntegerOrReal(true, 4);
+		this.objects.assertEqualDenotators(expectedColimit, mappedPowerset.get(new int[]{1}));
+		expectedColimit = this.objects.createIntegerOrReal(false, 0.5);
+		this.objects.assertEqualDenotators(expectedColimit, mappedPowerset.get(new int[]{2}));
+		expectedColimit = this.objects.createIntegerOrReal(false, 1.5);
+		this.objects.assertEqualDenotators(expectedColimit, mappedPowerset.get(new int[]{3}));
+		
+		
 	}
 
 }

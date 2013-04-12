@@ -21,6 +21,7 @@ import org.rubato.math.module.RingElement;
 import org.rubato.math.module.ZElement;
 import org.rubato.math.module.morphism.CanonicalMorphism;
 import org.rubato.math.module.morphism.CompositionException;
+import org.rubato.math.module.morphism.ConstantMorphism;
 import org.rubato.math.module.morphism.EmbeddingMorphism;
 import org.rubato.math.module.morphism.GenericAffineMorphism;
 import org.rubato.math.module.morphism.ModuleMorphism;
@@ -102,23 +103,28 @@ public class ArbitraryDenotatorMapper {
 		for (int j = 0; j < this.domainDim; j++) {
 			DenotatorPath currentPath = this.denotatorPaths.get(j);
 			if (currentPath != null) {
-				ModuleMorphism currentMorphism;
+				ModuleMorphism currentMorphism = null;
 				if (currentPath.isElementPath()) {
 					currentMorphism = this.makeInitialProjection(denotator, currentPath);
 				} else {
-					currentMorphism = this.getSimpleDenotator(denotator, currentPath.toIntArray()).getModuleMorphism();
+					SimpleDenotator currentSimple = this.getSimpleDenotator(denotator, currentPath.toIntArray());
+					if (currentSimple != null) {
+						currentMorphism = currentSimple.getModuleMorphism();
+					}
 				}
-			
-				//give the current morphism a new codomain 
-				Module newCodomain = this.domain.getComponentModule(j);
-				currentMorphism = this.getCastedMorphism(currentMorphism, newCodomain);
-				//inject into domain of main morphism
-				currentMorphism = this.injectionMorphisms.get(j).compose(currentMorphism);
-				//sum all morphisms
-				if (injectionSum == null) {
-					injectionSum = currentMorphism;
-				} else {
-					injectionSum = injectionSum.sum(currentMorphism);
+				
+				if (currentMorphism != null) {
+					//give the current morphism a new codomain 
+					Module newCodomain = this.domain.getComponentModule(j);
+					currentMorphism = this.getCastedMorphism(currentMorphism, newCodomain);
+					//inject into domain of main morphism
+					currentMorphism = this.injectionMorphisms.get(j).compose(currentMorphism);
+					//sum all morphisms
+					if (injectionSum == null) {
+						injectionSum = currentMorphism;
+					} else {
+						injectionSum = injectionSum.sum(currentMorphism);
+					}
 				}
 			}
 		}
@@ -156,57 +162,70 @@ public class ArbitraryDenotatorMapper {
 			DenotatorPath currentCodomainPath = this.denotatorPaths.get(this.domainDim + i);
 			
 			if (currentCodomainPath != null) {
+				//currentCodomainPath = currentCodomainPath.neutralizeColimitIndices();
 				SimpleDenotator oldSimple;
-				Module newCodomain;
+				Module newCodomain = null;
 				if (currentCodomainPath.isElementPath()) {
 					oldSimple = this.getSimpleDenotator(mappedDenotator, currentCodomainPath.getDenotatorSubpath().toIntArray());
 					newCodomain = this.getElement(oldSimple, currentCodomainPath.getElementSubpath()).getModule();
 				} else {
 					oldSimple = this.getSimpleDenotator(mappedDenotator, currentCodomainPath.toIntArray());
-					newCodomain = oldSimple.getModuleMorphism().getCodomain();
+					if (oldSimple != null) {
+						newCodomain = oldSimple.getModuleMorphism().getCodomain();
+					}
 				}
-				projectedM = this.getCastedMorphism(projectedM, newCodomain);
 				
-				if (currentCodomainPath.isElementPath()) {
-					//ModuleMorphism finalInjection = this.makeFinalInjection(oldSimple, this.denotatorPaths.get(this.domainDim + i));
-					int dimension = oldSimple.getElement().getModule().getDimension();
-					if (oldSimple.getElement().getModule() instanceof ProductRing) {
-						dimension = ((ProductRing)oldSimple.getElement().getModule()).getFactorCount();
-					}
-					ModuleMorphism sum = null;
-					for (int j = 0; j < dimension; j++) {
-						ModuleMorphism currentAddend;
-						if (j == currentCodomainPath.getLastIndex()) {
-							currentAddend = this.makeFinalInjection(oldSimple, currentCodomainPath).compose(projectedM);
-						} else {
-							DenotatorPath replacedPath = currentCodomainPath.replaceLast(j);
-							currentAddend = this.makeInitialProjection(mappedDenotator, replacedPath);
-							currentAddend = this.makeFinalInjection(oldSimple, replacedPath).compose(currentAddend);
+				if (newCodomain != null) {
+					projectedM = this.getCastedMorphism(projectedM, newCodomain);
+					
+					if (currentCodomainPath.isElementPath()) {
+						//ModuleMorphism finalInjection = this.makeFinalInjection(oldSimple, this.denotatorPaths.get(this.domainDim + i));
+						int dimension = oldSimple.getElement().getModule().getDimension();
+						if (oldSimple.getElement().getModule() instanceof ProductRing) {
+							dimension = ((ProductRing)oldSimple.getElement().getModule()).getFactorCount();
 						}
-					
-						if (sum != null) {
-							sum = SumMorphism.make(sum, currentAddend);
-						} else {
-							sum = currentAddend;
+						ModuleMorphism sum = null;
+						for (int j = 0; j < dimension; j++) {
+							ModuleMorphism currentAddend;
+							if (j == currentCodomainPath.getLastIndex()) {
+								currentAddend = this.makeFinalInjection(oldSimple, currentCodomainPath).compose(projectedM);
+							} else {
+								DenotatorPath replacedPath = currentCodomainPath.replaceLast(j);
+								currentAddend = this.makeInitialProjection(mappedDenotator, replacedPath);
+								currentAddend = this.makeFinalInjection(oldSimple, replacedPath).compose(currentAddend);
+							}
+						
+							if (sum != null) {
+								sum = SumMorphism.make(sum, currentAddend);
+							} else {
+								sum = currentAddend;
+							}
 						}
+						
+						projectedM = sum;
 					}
-					
-					projectedM = sum;
-				}
-					
-				SimpleForm currentForm = (SimpleForm)oldSimple.getForm();
-				try {
-					Denotator currentSimpleDenotator = new SimpleDenotator(NameDenotator.make(""), currentForm, projectedM);
-					if (currentCodomainPath.size() == 0) {
-						mappedDenotator = currentSimpleDenotator;
-					} else if (this.denotatorPaths != null && this.denotatorPaths.get(this.domainDim + i).isElementPath()) {
-						mappedDenotator = mappedDenotator.replace(this.denotatorPaths.get(this.domainDim + i).getDenotatorSubpath().toIntArray(), currentSimpleDenotator);
-					} else {
-						mappedDenotator = mappedDenotator.replace(currentCodomainPath.toIntArray(), currentSimpleDenotator);
+						
+					SimpleForm currentForm = (SimpleForm)oldSimple.getForm();
+					try {
+						Denotator currentSimpleDenotator;
+						//strange that null-addressed denotator yields constantmorphism
+						if (oldSimple.getAddress().isNullModule()) {
+							currentSimpleDenotator = new SimpleDenotator(NameDenotator.make(""), currentForm, (((ConstantMorphism)projectedM).getValue()));
+						} else {
+							currentSimpleDenotator = new SimpleDenotator(NameDenotator.make(""), currentForm, projectedM);
+						}
+						if (currentCodomainPath.size() == 0) {
+							mappedDenotator = currentSimpleDenotator;
+						} else if (this.denotatorPaths != null && this.denotatorPaths.get(this.domainDim + i).isElementPath()) {
+							mappedDenotator = mappedDenotator.replace(this.denotatorPaths.get(this.domainDim + i).getDenotatorSubpath().toIntArray(), currentSimpleDenotator);
+						} else {
+							mappedDenotator = mappedDenotator.replace(currentCodomainPath.toIntArray(), currentSimpleDenotator);
+						}
+					} catch (DomainException e) {
+						e.printStackTrace();
 					}
-				} catch (DomainException e) {
-					e.printStackTrace();
 				}
+				
 			}
 		}
 		

@@ -74,7 +74,7 @@ public class ObjectGenerator {
 		object = this.replaceColimitsIfNecessary(object, pathsWithValues.keySet());
 		for (DenotatorPath currentPath : pathsWithValues.keySet()) {
 			Double currentValue = pathsWithValues.get(currentPath);
-			object = this.replaceValue(object, currentPath.neutralizeColimitIndices(), currentValue);
+			object = this.replaceValue(object, currentPath, currentValue);
 		}
 		return object;
 	}
@@ -89,7 +89,7 @@ public class ObjectGenerator {
 					if (currentColimit.getIndex() != currentChildPath.getLastIndex()) {
 						Form currentChildForm = currentChildPath.getForm();
 						((ColimitDenotator)object.get(currentColimitPath.toIntArray())).setFactor(currentChildPath.getLastIndex(), currentChildForm.createDefaultDenotator());
-						//object = object.replace(currentColimitPath.toIntArray(), currentChildForm.createDefaultDenotator());
+						//object = object.replace(currentChildPath.toIntArray(), currentChildForm.createDefaultDenotator());
 						//object = object.replace(currentColimitPath.getChildPath(0).toIntArray(), currentChildForm.createDefaultDenotator());
 					}
 				}
@@ -126,7 +126,11 @@ public class ObjectGenerator {
 				//have to do this like this for the possibility of ProductElements
 				return this.extractValue(topElement, valuePath.getElementSubpath().toIntArray());
 			} else if (valuePath.getForm().getType() == Form.SIMPLE) {
-				return ((RElement)((SimpleDenotator)denotator.get(valuePath.toIntArray())).getElement().cast(RRing.ring)).getValue();
+				SimpleDenotator simple = (SimpleDenotator)denotator.get(valuePath.toIntArray());
+				if (simple != null) {
+					return ((RElement)simple.getElement().cast(RRing.ring)).getValue();
+				}
+				return null;
 			}
 		} catch (RubatoException e) {
 			e.printStackTrace();
@@ -226,6 +230,7 @@ public class ObjectGenerator {
 	 * stays the same.
 	 */
 	public Denotator makeObjectAbsolute(Denotator object, Denotator referenceObject) {
+		System.out.println(object + " " + referenceObject);
 		Map<DenotatorPath,SimpleDenotator> objectSimples = this.findSimples(object);
 		Map<DenotatorPath,SimpleDenotator> referenceSimples = this.findSimples(referenceObject);
 		Map<DenotatorPath,SimpleDenotator> absoluteSimples = new TreeMap<DenotatorPath,SimpleDenotator>();
@@ -270,14 +275,17 @@ public class ObjectGenerator {
 		while (!subPathsQueue.isEmpty()) {
 			DenotatorPath currentSubPath = subPathsQueue.poll();
 			try {
+				object.display();
 				Denotator currentSubObject = object.get(currentSubPath.toIntArray());
-				Form currentForm = currentSubObject.getForm();
-				if (currentForm.getType() == Form.SIMPLE) {
-					simples.put(currentSubPath, (SimpleDenotator)currentSubObject);
-				//do not search farther if form is either power or list!!
-				} else if (currentForm.getType() == Form.LIMIT || currentForm.getType() == Form.COLIMIT) {
-					for (int i = 0; i < ((FactorDenotator)currentSubObject).getFactorCount(); i++) {
-						subPathsQueue.add(currentSubPath.getChildPath(i));
+				if (currentSubObject != null) {
+					Form currentForm = currentSubObject.getForm();
+					if (currentForm.getType() == Form.SIMPLE) {
+						simples.put(currentSubPath, (SimpleDenotator)currentSubObject);
+						//do not search farther if form is either power or list!!
+					} else if (currentForm.getType() == Form.LIMIT || currentForm.getType() == Form.COLIMIT) {
+						for (int i = 0; i < currentSubObject.getForm().getFormCount(); i++) {
+							subPathsQueue.add(currentSubPath.getChildPath(i));
+						}
 					}
 				}
 			} catch (RubatoException e) { e.printStackTrace(); }
