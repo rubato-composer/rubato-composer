@@ -546,22 +546,28 @@ public class BigBangView extends Model implements View {
 		int XParameterIndex = this.viewParameters.getSelected(0);
 		int YParameterIndex = this.viewParameters.getSelected(1);
 		Map<DenotatorPath,Double> denotatorValues;
-		if (this.displayNotes.inConflictingColimitPositions(XParameterIndex, YParameterIndex)) {
-			if (location.x >= this.displayPosition.y-location.y) {
-				denotatorValues = this.displayNotes.getTopDenotatorStandardValues(XParameterIndex);
-				this.replaceDenotatorValue(location.x, XParameterIndex, this.displayPosition.x, this.xZoomFactor, denotatorValues);
+		if (XParameterIndex >= 0 && YParameterIndex >= 0) {
+			if (this.displayNotes.inConflictingColimitPositions(XParameterIndex, YParameterIndex)) {
+				if (location.x >= this.displayPosition.y-location.y) {
+					denotatorValues = this.displayNotes.getTopDenotatorStandardValues(XParameterIndex);
+					this.replaceDenotatorValue(location.x, XParameterIndex, this.displayPosition.x, this.xZoomFactor, denotatorValues);
+				} else {
+					denotatorValues = this.displayNotes.getTopDenotatorStandardValues(YParameterIndex);
+					this.replaceDenotatorValue(location.y, YParameterIndex, this.displayPosition.y, this.yZoomFactor, denotatorValues);
+				}
 			} else {
-				denotatorValues = this.displayNotes.getTopDenotatorStandardValues(YParameterIndex);
-				this.replaceDenotatorValue(location.y, YParameterIndex, this.displayPosition.y, this.yZoomFactor, denotatorValues);
+				denotatorValues = this.displayNotes.getTopDenotatorStandardValues(XParameterIndex, YParameterIndex);
+				this.replaceDenotatorValue(location.x, XParameterIndex, this.displayPosition.x, this.xZoomFactor, denotatorValues);
+				if (XParameterIndex != YParameterIndex) {
+					this.replaceDenotatorValue(location.y, YParameterIndex, this.displayPosition.y, this.yZoomFactor, denotatorValues);
+				}
 			}
-			//TODO: check if in same colimit. if they are, only draw value on closer axis
-			//make sure all competing colimit values are null!!
-		} else {
-			denotatorValues = this.displayNotes.getTopDenotatorStandardValues(XParameterIndex, YParameterIndex);
+		} else if (YParameterIndex < 0) {
+			denotatorValues = this.displayNotes.getTopDenotatorStandardValues(XParameterIndex);
 			this.replaceDenotatorValue(location.x, XParameterIndex, this.displayPosition.x, this.xZoomFactor, denotatorValues);
-			if (XParameterIndex != YParameterIndex) {
-				this.replaceDenotatorValue(location.y, YParameterIndex, this.displayPosition.y, this.yZoomFactor, denotatorValues);
-			}
+		} else {
+			denotatorValues = this.displayNotes.getTopDenotatorStandardValues(YParameterIndex);
+			this.replaceDenotatorValue(location.y, YParameterIndex, this.displayPosition.y, this.yZoomFactor, denotatorValues);
 		}
 		return denotatorValues;
 	}

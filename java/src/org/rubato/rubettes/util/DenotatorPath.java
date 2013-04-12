@@ -125,15 +125,6 @@ public class DenotatorPath implements Comparable<Object> {
 		return false;
 	}
 	
-	public DenotatorPath neutralizeColimitIndices() {
-		DenotatorPath neutralizedPath = this.clone();
-		List<DenotatorPath> colimitPaths = this.getParentColimitPaths();
-		for (DenotatorPath currentColimitPath : colimitPaths) {
-			neutralizedPath.indices.set(currentColimitPath.size(), 0);
-		}
-		return neutralizedPath;
-	}
-	
 	public DenotatorPath clone() {
 		return new DenotatorPath(this.baseForm, new ArrayList<Integer>(this.indices));
 	}
