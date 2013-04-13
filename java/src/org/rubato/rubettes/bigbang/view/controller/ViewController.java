@@ -46,7 +46,7 @@ public class ViewController extends Controller {
 	public static final String INPUT_ACTIVE = "InputActive";
 	
 	//score manipulation - display
-	public static final String FORM = "DisplayNotes";
+	public static final String FORM = "Form";
 	public static final String DISPLAY_NOTES = "DisplayNotes";
 	public static final String NOTE_SELECTION = "toggleNoteSelection";
 	public static final String ANCHOR_NOTE_SELECTION = "toggleAnchorNoteSelection";
@@ -55,6 +55,8 @@ public class ViewController extends Controller {
 	public static final String CLEAR_DISPLAY_TOOL = "clearDisplayTool";
 	
 	//score manipulation - denotators
+	public static final String STANDARD_DENOTATOR_VALUES = "setStandardDenotatorValue";
+	public static final String SELECTED_COLIMIT_COORDINATE = "setSelectedColimitCoordinate";
 	public static final String ADD_OBJECT = "addObject";
 	public static final String DELETE_NOTES = "deleteSelectedNotes";
 	public static final String COPY_NOTES = "copySelectedNotesTo";
@@ -117,6 +119,14 @@ public class ViewController extends Controller {
 	
 	public void changeViewParameters(int[] newViewParameters) {
 		this.setModelProperty(ViewController.SELECTED_VIEW_PARAMETERS, newViewParameters);
+	}
+	
+	public void setStandardDenotatorValue(int index, double value) {
+		this.callModelMethod(ViewController.STANDARD_DENOTATOR_VALUES, index, value);
+	}
+	
+	public void setSelectedColimitCoordinate(int colimitIndex, int coordinateIndex) {
+		this.callModelMethod(ViewController.SELECTED_COLIMIT_COORDINATE, colimitIndex, coordinateIndex);
 	}
 	
 	public void showWindowPreferences() {

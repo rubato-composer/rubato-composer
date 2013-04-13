@@ -23,7 +23,6 @@ import org.rubato.rubettes.bigbang.view.subview.toolbars.JGraphToolBar;
 public class JBigBangPanel extends JPanel {
 	
 	private JMainOptionsPanel mainOptionsPanel;
-	private JViewParametersScrollPane viewParametersScrollPane;
 	
 	public JBigBangPanel(ViewController controller, BigBangController bbController, ViewParameters viewParameters) {
 		this.setLayout(new BorderLayout());
@@ -48,13 +47,9 @@ public class JBigBangPanel extends JPanel {
 	
 	private void initMenuComponents(JBigBangDisplay display, ViewController controller, BigBangController bbController, ViewParameters viewParameters) {
 		display.setLayout(new FlowLayout(FlowLayout.RIGHT));
-		this.mainOptionsPanel = new JMainOptionsPanel(controller, bbController);
+		this.mainOptionsPanel = new JMainOptionsPanel(controller, bbController, viewParameters);
 		controller.addView(this.mainOptionsPanel);
 		display.add(this.mainOptionsPanel);
-		this.viewParametersScrollPane = new JViewParametersScrollPane(controller, viewParameters);
-		controller.addView(this.viewParametersScrollPane);
-		//display.add(this.viewParametersTable.getTableHeader());
-		this.mainOptionsPanel.add(this.viewParametersScrollPane, BorderLayout.SOUTH);
 	}
 	
 	private JPanel makeButtonPanel(ViewController controller) {

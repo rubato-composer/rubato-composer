@@ -65,7 +65,6 @@ public class ArbitraryDenotatorMapperTest  extends TestCase {
 		this.objects.assertEqualDenotators(expectedColimit, mappedColimit);
 		
 		//test transformation of powerset
-		mapper.getMappedPowerDenotator(this.objects.integerOrReals).display();
 		Denotator mappedPowerset = mapper.getMappedPowerDenotator(this.objects.integerOrReals);
 		expectedColimit = this.objects.createIntegerOrReal(true, 3);
 		this.objects.assertEqualDenotators(expectedColimit, mappedPowerset.get(new int[]{0}));

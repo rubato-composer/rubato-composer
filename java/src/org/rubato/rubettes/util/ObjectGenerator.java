@@ -275,7 +275,6 @@ public class ObjectGenerator {
 		while (!subPathsQueue.isEmpty()) {
 			DenotatorPath currentSubPath = subPathsQueue.poll();
 			try {
-				object.display();
 				Denotator currentSubObject = object.get(currentSubPath.toIntArray());
 				if (currentSubObject != null) {
 					Form currentForm = currentSubObject.getForm();

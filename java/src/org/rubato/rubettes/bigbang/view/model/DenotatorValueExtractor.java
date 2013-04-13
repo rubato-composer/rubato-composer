@@ -3,7 +3,6 @@ package org.rubato.rubettes.bigbang.view.model;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import org.rubato.base.RubatoException;
@@ -62,12 +61,26 @@ public class DenotatorValueExtractor {
 			this.extractDisplayObjects(notification.getScore(), null, null, DenotatorPath.ANCHOR, 0, 0, new DenotatorPath(notification.getScore().getForm()));
 		} catch (RubatoException e) { e.printStackTrace(); }
 		this.layerStates.removeLayers(this.maxLayer);
-		this.displayObjects.setTopDenotatorValues(this.getTopDenotatorValues(notification.getScore().getForm()));
-		//TODO: CURRENTLY ONLY FINDS THE NAMES IN THE TOP DENOTATOR!!!!!! adjust methods!!
-		this.valueNames.add("Satellite Level");
-		this.valueNames.add("Sibling number");
-		this.displayObjects.setValueNames(this.valueNames);
+		this.setTopDenotatorParameters(notification.getScore().getForm());
 		return this.displayObjects;
+	}
+	
+	private void setTopDenotatorParameters(Form form) {
+		if (form.getType() == Form.POWER || form.getType() == Form.LIST) {
+			form = form.getForm(0);
+		}
+		DenotatorValueFinder finder = new DenotatorValueFinder(form, false);
+		this.valueNames = finder.getValueNamesInFoundOrder();
+		this.displayObjects.setTopDenotatorValues(finder.getValueNamesAndPaths());
+		this.displayObjects.setTopDenotatorColimits(finder.getColimitsFoundInOrder());
+		this.displayObjects.setTopDenotatorColimitsAndPaths(finder.getColimitFormsAndPaths());
+		//TODO: CURRENTLY ONLY FINDS THE NAMES IN THE TOP DENOTATOR!!!!!! adjust methods!!
+		if (finder.formContainsPowerset()) {
+			this.valueNames.add("Satellite Level");
+			this.valueNames.add("Sibling number");
+		}
+		this.displayObjects.setValueNames(this.valueNames);
+		this.displayObjects.setContainsPowerset(finder.formContainsPowerset());
 	}
 	
 	//recursive method!!
@@ -95,7 +108,7 @@ public class DenotatorValueExtractor {
 			}
 			ColimitDenotator currentColimit = (ColimitDenotator)currentDenotator;
 			Denotator onlyChild = currentColimit.getFactor();
-			//have to get it like this since Colimit.index is not implemented well
+			//have to get it like this since Colimit.index is not implemented well TODO: AND NOW??
 			int childIndex = currentColimit.getForm().getForms().indexOf(onlyChild.getForm());
 			for (int i = 0; i < currentColimit.getForm().getFormCount(); i++) {
 				if (i == childIndex) {
@@ -197,6 +210,7 @@ public class DenotatorValueExtractor {
 		}
 	}
 	
+	//TODO: these valueNames are currently overwritten!!! not needed anymore!!
 	private void updateMinAndMax(String simpleName, List<Double> values, List<String> moduleNames) {
 		for (int i = 0; i < values.size(); i++) {
 			String currentName = simpleName + " " + moduleNames.get(i);
@@ -221,18 +235,6 @@ public class DenotatorValueExtractor {
 		}
 		this.updateMinAndMax("", values, new ArrayList<String>());
 		return values;
-	}
-	
-	/*
-	 * TODO: only search once!!!! and standardize!!
-	 */
-	private Map<String,DenotatorPath> getTopDenotatorValues(Form form) {
-		if (form.getType() == Form.POWER || form.getType() == Form.LIST) {
-			form = form.getForm(0);
-		}
-		DenotatorValueFinder finder = new DenotatorValueFinder(form, false);
-		this.valueNames = finder.getValueNamesInFoundOrder();
-		return finder.getValueNamesAndPaths();
 	}
 	
 	public List<Double> getMinValues() {

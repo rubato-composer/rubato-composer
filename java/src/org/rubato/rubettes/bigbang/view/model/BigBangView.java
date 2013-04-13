@@ -56,6 +56,8 @@ public class BigBangView extends Model implements View {
 	private boolean mainOptionsVisible;
 	private boolean viewParametersVisible;
 	protected ViewParameters viewParameters;
+	private Map<String,Double> standardDenotatorValues;
+	private List<Integer> selectedColimitCoordinates;
 	private boolean satellitesConnected;
 	protected DisplayObjectList displayNotes;
 	private DisplayTool displayTool;
@@ -71,6 +73,8 @@ public class BigBangView extends Model implements View {
 		this.controller.addView(this);
 		this.initViewMVC();
 		this.initViewParameterControls();
+		this.initStandardDenotatorValues();
+		this.initSelectedColimitCoordinates(0);
 		this.setDisplayNotes(new DisplayObjectList(viewController, null), new ArrayList<Double>(), new ArrayList<Double>());
 		this.setSatellitesConnected(true);
 		this.setDisplayMode(new DrawingModeAdapter(viewController));
@@ -114,6 +118,21 @@ public class BigBangView extends Model implements View {
 		//this.toggleViewParametersVisible();
 		this.mainOptionsVisible = true;
 		this.toggleMainOptionsVisible();
+	}
+	
+	private void initStandardDenotatorValues() {
+		this.standardDenotatorValues = new TreeMap<String,Double>();
+		//insert some preset standard values
+		this.standardDenotatorValues.put("Pitch Q", 60.0);
+		this.standardDenotatorValues.put("Loudness Z", 120.0);
+		this.standardDenotatorValues.put("Duration R", 1.0);
+	}
+	
+	private void initSelectedColimitCoordinates(int numberOfColimits) {
+		this.selectedColimitCoordinates = new ArrayList<Integer>();
+		for (int i = 0; i < numberOfColimits; i++) {
+			this.selectedColimitCoordinates.add(0);
+		}
 	}
 	
 	public void setDisplayPosition(Point position) {
@@ -280,13 +299,41 @@ public class BigBangView extends Model implements View {
 	
 	private void setDisplayNotes(DisplayObjectList displayNotes, List<Double> minValues, List<Double> maxValues) {
 		if (this.displayNotes == null || (displayNotes.getBaseForm() != this.displayNotes.getBaseForm())) {
-			this.viewParameters.initSelections(displayNotes.getValueNames().size()-2);
+			if (displayNotes.containsPowersets()) {
+				this.viewParameters.initSelections(displayNotes.getValueNames().size()-2);
+			} else {
+				this.viewParameters.initSelections(displayNotes.getValueNames().size());
+			}
+			this.initSelectedColimitCoordinates(displayNotes.getTopDenotatorColimits().size());
 			this.firePropertyChange(ViewController.FORM, null, displayNotes);
+			this.firePropertyChange(ViewController.SELECTED_COLIMIT_COORDINATE, null, this.selectedColimitCoordinates);
 		}
 		this.displayNotes = displayNotes;
 		this.viewParameters.setDenotatorMinAndMaxValues(minValues, maxValues);
 		//do not select parameters for satellite and sibling number...
 		this.firePropertyChange(ViewController.DISPLAY_NOTES, null, this.displayNotes);
+		this.firePropertyChange(ViewController.STANDARD_DENOTATOR_VALUES, null, this.getStandardDenotatorValues());
+	}
+	
+	public void setStandardDenotatorValue(Integer index, Double value) {
+		this.standardDenotatorValues.put(this.displayNotes.getValueNames().get(index), value);
+		this.firePropertyChange(ViewController.STANDARD_DENOTATOR_VALUES, null, this.getStandardDenotatorValues());
+	}
+	
+	public List<Double> getStandardDenotatorValues() {
+		List<Double> values = new ArrayList<Double>();
+		for (String currentValueName : this.displayNotes.getValueNames()) {
+			if (this.standardDenotatorValues.containsKey(currentValueName)) {
+				values.add(this.standardDenotatorValues.get(currentValueName));
+			} else {
+				values.add(null);
+			}
+		}
+		return values;
+	}
+	
+	public void setSelectedColimitCoordinate(Integer colimitIndex, Integer coordinateIndex) {
+		this.selectedColimitCoordinates.set(colimitIndex, coordinateIndex);
 	}
 	
 	public void selectTransformation(AbstractTransformationEdit edit) {
@@ -545,28 +592,15 @@ public class BigBangView extends Model implements View {
 	private Map<DenotatorPath,Double> getDenotatorValues(Point2D.Double location) {
 		int XParameterIndex = this.viewParameters.getSelected(0);
 		int YParameterIndex = this.viewParameters.getSelected(1);
-		Map<DenotatorPath,Double> denotatorValues;
+		Map<DenotatorPath,Double> denotatorValues = this.displayNotes.getTopDenotatorStandardValues(this.standardDenotatorValues, this.selectedColimitCoordinates);
 		if (XParameterIndex >= 0 && YParameterIndex >= 0) {
-			if (this.displayNotes.inConflictingColimitPositions(XParameterIndex, YParameterIndex)) {
-				if (location.x >= this.displayPosition.y-location.y) {
-					denotatorValues = this.displayNotes.getTopDenotatorStandardValues(XParameterIndex);
-					this.replaceDenotatorValue(location.x, XParameterIndex, this.displayPosition.x, this.xZoomFactor, denotatorValues);
-				} else {
-					denotatorValues = this.displayNotes.getTopDenotatorStandardValues(YParameterIndex);
-					this.replaceDenotatorValue(location.y, YParameterIndex, this.displayPosition.y, this.yZoomFactor, denotatorValues);
-				}
-			} else {
-				denotatorValues = this.displayNotes.getTopDenotatorStandardValues(XParameterIndex, YParameterIndex);
-				this.replaceDenotatorValue(location.x, XParameterIndex, this.displayPosition.x, this.xZoomFactor, denotatorValues);
-				if (XParameterIndex != YParameterIndex) {
-					this.replaceDenotatorValue(location.y, YParameterIndex, this.displayPosition.y, this.yZoomFactor, denotatorValues);
-				}
+			this.replaceDenotatorValue(location.x, XParameterIndex, this.displayPosition.x, this.xZoomFactor, denotatorValues);
+			if (YParameterIndex != XParameterIndex) {
+				this.replaceDenotatorValue(location.y, YParameterIndex, this.displayPosition.y, this.yZoomFactor, denotatorValues);
 			}
 		} else if (YParameterIndex < 0) {
-			denotatorValues = this.displayNotes.getTopDenotatorStandardValues(XParameterIndex);
 			this.replaceDenotatorValue(location.x, XParameterIndex, this.displayPosition.x, this.xZoomFactor, denotatorValues);
 		} else {
-			denotatorValues = this.displayNotes.getTopDenotatorStandardValues(YParameterIndex);
 			this.replaceDenotatorValue(location.y, YParameterIndex, this.displayPosition.y, this.yZoomFactor, denotatorValues);
 		}
 		return denotatorValues;
@@ -576,7 +610,7 @@ public class BigBangView extends Model implements View {
 		if (parameterIndex > -1) {
 			DenotatorPath associatedPath = this.displayNotes.getPathInTopDenotatorValues(parameterIndex);
 			//null happens when satellite or sibling level is selected
-			if (associatedPath != null) {
+			if (associatedPath != null && this.displayNotes.pathInAllowedColimitBranch(associatedPath, this.selectedColimitCoordinates)) {
 				values.put(associatedPath, this.getDenotatorValue(displayValue, parameterIndex, position, zoomFactor));
 			}
 		}

@@ -8,6 +8,7 @@ import java.util.TreeMap;
 
 import org.rubato.math.module.Module;
 import org.rubato.math.module.ProductRing;
+import org.rubato.math.yoneda.ColimitForm;
 import org.rubato.math.yoneda.Form;
 import org.rubato.math.yoneda.SimpleForm;
 
@@ -16,11 +17,17 @@ public class DenotatorValueFinder {
 	private List<String> valueNamesInFoundOrder;
 	private List<DenotatorPath> pathsInFoundOrder;
 	private Map<String,DenotatorPath> valueNamesAndPaths;
+	private List<ColimitForm> colimitsFoundInOrder;
+	private Map<ColimitForm,DenotatorPath> colimitFormsAndPaths;
+	private boolean containsPowerset;
 	
 	public DenotatorValueFinder(Form form, boolean searchThroughPowersets) {
 		this.valueNamesInFoundOrder = new ArrayList<String>();
 		this.pathsInFoundOrder = new ArrayList<DenotatorPath>();
 		this.valueNamesAndPaths = new TreeMap<String,DenotatorPath>();
+		this.colimitsFoundInOrder = new ArrayList<ColimitForm>();
+		this.colimitFormsAndPaths = new TreeMap<ColimitForm,DenotatorPath>();
+		this.containsPowerset = false;
 		this.findValues(form, searchThroughPowersets);
 	}
 	
@@ -36,9 +43,20 @@ public class DenotatorValueFinder {
 		return this.valueNamesAndPaths;
 	}
 	
+	public List<ColimitForm> getColimitsFoundInOrder() {
+		return this.colimitsFoundInOrder;
+	}
+	
+	public Map<ColimitForm, DenotatorPath> getColimitFormsAndPaths() {
+		return this.colimitFormsAndPaths;
+	}
+	
+	public boolean formContainsPowerset() {
+		return this.containsPowerset;
+	}
+	
 	//TODO: implement searchThroughPowersets!!!!
-	//TODO: does not need to be public!!!!
-	public Map<String,DenotatorPath> findValues(Form form, boolean searchThroughPowersets) {
+	private Map<String,DenotatorPath> findValues(Form form, boolean searchThroughPowersets) {
 		PriorityQueue<DenotatorPath> subPathsQueue = new PriorityQueue<DenotatorPath>();
 		subPathsQueue.add(new DenotatorPath(form));
 		while (!subPathsQueue.isEmpty()) {
@@ -51,6 +69,13 @@ public class DenotatorValueFinder {
 				for (int i = 0; i < currentForm.getForms().size(); i++) {
 					subPathsQueue.add(currentPath.getChildPath(i));
 				}
+				if (currentForm.getType() == Form.COLIMIT) {
+					this.colimitsFoundInOrder.add((ColimitForm)currentForm);
+					this.colimitFormsAndPaths.put((ColimitForm)currentForm, currentPath);
+				}
+			} else if (currentForm.getType() == Form.POWER || currentForm.getType() == Form.LIST) {
+				this.containsPowerset = true;
+				//for now: do not continue through powersets or lists...
 			}
 		}
 		return this.valueNamesAndPaths;
