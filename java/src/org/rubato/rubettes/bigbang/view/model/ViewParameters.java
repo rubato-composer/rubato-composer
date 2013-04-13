@@ -34,7 +34,7 @@ public class ViewParameters extends Model {
 		this.minValues = new ArrayList<Double>();
 		this.maxValues = new ArrayList<Double>();
 		this.initParameters(invertYAxis);
-		this.initSelections(5);
+		//this.initSelections(5);
 	}
 	
 	private void initParameters(boolean invertYAxis) {

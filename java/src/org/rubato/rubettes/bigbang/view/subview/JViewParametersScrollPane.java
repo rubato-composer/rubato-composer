@@ -21,7 +21,6 @@ public class JViewParametersScrollPane extends JScrollPane implements View {
 	public JViewParametersScrollPane(ViewController controller, ViewParameters viewParameters) {
 		this.viewParametersTable = new JTable(new ViewParametersTableModel(viewParameters));
 		this.viewParametersTable.setCellSelectionEnabled(false);
-		//this.viewParametersTable.setPreferredSize(new Dimension(100, 100));
 		this.viewParametersTable.getModel().addTableModelListener(new ViewParametersTableModelListener(controller));
 		this.viewParametersTable.setDragEnabled(false);
 		this.rowNameTable = new JTable(new ViewParametersRowHeaderTableModel());
@@ -31,12 +30,10 @@ public class JViewParametersScrollPane extends JScrollPane implements View {
 		this.setViewportView(this.viewParametersTable);
 		this.setRowHeaderView(this.rowNameTable);
 		this.setCorner(JScrollPane.UPPER_LEFT_CORNER, this.rowNameTable.getTableHeader());
-		this.setPreferredSize(new Dimension(200, 100));
+		this.setPreferredSize(new Dimension(250, 100));
 		this.viewParametersTable.setPreferredScrollableViewportSize(new Dimension(10, 10));
-		//this.rowNameTable.setPreferredScrollableViewportSize(new Dimension(100, 100));
-		//this.rowNameTable.getColumnModel().getColumn(0).setPreferredWidth(50);
-		//this.setColumnHeaderView(this.viewParametersTable)
-		//this.setCorner(JScrollPane.UPPER_LEFT_CORNER, this.rowNameTable.getTableHeader());
+		this.viewParametersTable.setAutoCreateColumnsFromModel(false);
+		this.viewParametersTable.getColumnModel().getColumn(this.viewParametersTable.getColumnModel().getColumnCount()-1).setMinWidth(40);
 	}
 	
 	private void updateViewParameters(int[] newParameters) {
@@ -50,12 +47,17 @@ public class JViewParametersScrollPane extends JScrollPane implements View {
 		int maxNameWidth = 0;
 		for (int row = 0; row < rowCount; row++) {
 			TableCellRenderer renderer = this.rowNameTable.getCellRenderer(row, 0);
-			maxNameWidth = Math.max (this.rowNameTable.prepareRenderer(renderer, row, 0).getPreferredSize().width, maxNameWidth);
+			maxNameWidth = Math.max(this.rowNameTable.prepareRenderer(renderer, row, 0).getPreferredSize().width, maxNameWidth);
 		}
 		this.rowNameTable.setPreferredScrollableViewportSize(new Dimension(maxNameWidth+10, 100));
 		this.setPreferredSize(new Dimension(110+maxNameWidth, 100/6*rowCount+20));
 	}
 	
+	private void updateStandardValues(List<Double> standardValues) {
+		((ViewParametersTableModel)this.viewParametersTable.getModel()).setStandardValues(standardValues);
+	}
+	
+	@SuppressWarnings("unchecked")
 	public void modelPropertyChange(PropertyChangeEvent event) {
 		String propertyName = event.getPropertyName();
 		if (propertyName.equals(ViewController.FORM)) {
@@ -64,6 +66,8 @@ public class JViewParametersScrollPane extends JScrollPane implements View {
 			this.updateViewParameters((int[]) event.getNewValue());
 		} else if (propertyName.equals(ViewController.VIEW_PARAMETERS_VISIBLE)) {
 			this.setVisible((Boolean)event.getNewValue());
+		} else if (propertyName.equals(ViewController.STANDARD_DENOTATOR_VALUES)) {
+			this.updateStandardValues((List<Double>)event.getNewValue());
 		}
 	}
 

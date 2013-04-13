@@ -15,8 +15,13 @@ public class ViewParametersTableModelListener implements TableModelListener {
 	}
 	
 	public void tableChanged(TableModelEvent event) {
-		int[] viewParameters = ((ViewParametersTableModel)event.getSource()).getData();
-		this.controller.changeViewParameters(viewParameters);
+		ViewParametersTableModel model = (ViewParametersTableModel)event.getSource();
+		if (event.getColumn() == model.getColumnCount()-1) { 
+			double value = (Double)model.getValueAt(event.getFirstRow(), event.getColumn());
+			this.controller.setStandardDenotatorValue(event.getFirstRow(), value);
+		} else {
+			this.controller.changeViewParameters(model.getData());
+		}
 	}
 	
 }

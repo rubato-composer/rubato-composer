@@ -11,6 +11,7 @@ import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
+import org.rubato.math.yoneda.ColimitForm;
 import org.rubato.math.yoneda.Form;
 import org.rubato.rubettes.bigbang.view.View;
 import org.rubato.rubettes.bigbang.view.controller.ViewController;
@@ -23,25 +24,20 @@ public class DisplayObjectList extends TreeSet<DisplayObject> implements View {
 	
 	private Form baseForm;
 	private Map<String,DenotatorPath> topDenotatorValues;
-	private Map<DenotatorPath,Double> topDenotatorStandardValues;
-	//TODO: put them somewhere else...
-	private Map<String,Double> standardValues;
-	private Set<DisplayObject> selectedNotes;
+	private List<ColimitForm> topDenotatorColimits;
+	private Map<ColimitForm,DenotatorPath> topDenotatorColimitsAndPaths;
+	private boolean containsPowersets;
 	private List<String> valueNames;
+	private Set<DisplayObject> selectedNotes;
 	private DisplayObject selectedAnchorNote;
 	
 	public DisplayObjectList(ViewController controller, Form baseForm) {
 		controller.addView(this);
 		this.baseForm = baseForm;
+		this.topDenotatorColimits = new ArrayList<ColimitForm>();
+		this.topDenotatorColimitsAndPaths = new TreeMap<ColimitForm,DenotatorPath>();
 		this.selectedNotes = new TreeSet<DisplayObject>();
 		this.valueNames = new ArrayList<String>();
-		this.standardValues = new TreeMap<String,Double>();
-		this.standardValues.put("Onset R", 0.0);
-		this.standardValues.put("Pitch Q", 0.0);
-		this.standardValues.put("Loudness Z", 120.0);
-		this.standardValues.put("Duration R", 1.0);
-		this.standardValues.put("Voice Z", 0.0);
-		this.topDenotatorStandardValues = new TreeMap<DenotatorPath,Double>();
 	}
 	
 	public void setValueNames(List<String> valueNames) {
@@ -56,9 +52,16 @@ public class DisplayObjectList extends TreeSet<DisplayObject> implements View {
 		return this.baseForm;
 	}
 	
+	public void setContainsPowerset(boolean containsPowersets) {
+		this.containsPowersets = containsPowersets;
+	}
+	
+	public boolean containsPowersets() {
+		return this.containsPowersets;
+	}
+	
 	public void setTopDenotatorValues(Map<String,DenotatorPath> valuesNamesAndPaths) {
 		this.topDenotatorValues = valuesNamesAndPaths;
-		this.updateTopDenotatorStandardValues();
 	}
 	
 	public List<DenotatorPath> getTopDenotatorValuePaths() {
@@ -73,39 +76,53 @@ public class DisplayObjectList extends TreeSet<DisplayObject> implements View {
 		return this.topDenotatorValues.get(this.valueNames.get(valueIndex));
 	}
 	
-	private void updateTopDenotatorStandardValues(DenotatorPath... selectedColimitValuePaths) {
-		this.topDenotatorStandardValues = new TreeMap<DenotatorPath,Double>();
-		for (String currentName : this.topDenotatorValues.keySet()) {
-			if (this.standardValues.containsKey(currentName)) {
-				DenotatorPath currentPath = this.topDenotatorValues.get(currentName);
-				if (this.inAllowedColimitBranch(currentPath, selectedColimitValuePaths)) {
-					this.topDenotatorStandardValues.put(currentPath, this.standardValues.get(currentName));
-				}
-			}
-		}
+	public void setTopDenotatorColimits(List<ColimitForm> colimits) {
+		this.topDenotatorColimits = colimits;
 	}
 	
-	public Map<DenotatorPath,Double> getTopDenotatorStandardValues() {
-		return this.topDenotatorStandardValues;
+	public List<ColimitForm> getTopDenotatorColimits() {
+		return this.topDenotatorColimits;
+	}
+	
+	public void setTopDenotatorColimitsAndPaths(Map<ColimitForm,DenotatorPath> colimitsAndPaths) {
+		this.topDenotatorColimitsAndPaths = colimitsAndPaths;
+	}
+	
+	public List<DenotatorPath> getTopDenotatorColimitPaths(List<Integer> colimitCoordinates) {
+		List<DenotatorPath> colimitCoordinatePaths = new ArrayList<DenotatorPath>();
+		for (int i = 0; i < colimitCoordinates.size(); i++) {
+			int currentSelectedCoordinate = colimitCoordinates.get(i);
+			colimitCoordinatePaths.add(this.topDenotatorColimitsAndPaths.get(this.topDenotatorColimits.get(i)).getChildPath(currentSelectedCoordinate));
+		}
+		return colimitCoordinatePaths;
 	}
 	
 	/**
 	 * @return the top denotator standard values under assumption that the given value
 	 * is selected in a colimit. if it is not in a colimit, just returns the standard values
 	 */
-	public Map<DenotatorPath,Double> getTopDenotatorStandardValues(int... colimitValueIndices) {
-		DenotatorPath[] selectedColimitValuePaths = new DenotatorPath[colimitValueIndices.length];
-		for (int i = 0; i < colimitValueIndices.length; i++) {
-			selectedColimitValuePaths[i] = this.getPathInTopDenotatorValues(colimitValueIndices[i]);
+	public Map<DenotatorPath,Double> getTopDenotatorStandardValues(Map<String,Double> standardDenotatorValues, List<Integer> selectedColimitCoordinates) {
+		List<DenotatorPath> selectedColimitCoordinatePaths = this.getTopDenotatorColimitPaths(selectedColimitCoordinates);
+		Map<DenotatorPath,Double> topDenotatorStandardValues = new TreeMap<DenotatorPath,Double>();
+		for (String currentName : this.topDenotatorValues.keySet()) {
+			if (standardDenotatorValues.containsKey(currentName)) {
+				DenotatorPath currentPath = this.topDenotatorValues.get(currentName);
+				if (this.inAllowedColimitBranch(currentPath, selectedColimitCoordinatePaths)) {
+					topDenotatorStandardValues.put(currentPath, standardDenotatorValues.get(currentName));
+				}
+			}
 		}
-		this.updateTopDenotatorStandardValues(selectedColimitValuePaths);
-		return this.topDenotatorStandardValues;
+		return topDenotatorStandardValues;
 	}
 	
-	public boolean inAllowedColimitBranch(DenotatorPath path, DenotatorPath... selectedColimitValuePaths) {
+	public boolean pathInAllowedColimitBranch(DenotatorPath path, List<Integer> selectedColimitCoordinates) {
+		return this.inAllowedColimitBranch(path, this.getTopDenotatorColimitPaths(selectedColimitCoordinates));
+	}
+	
+	private boolean inAllowedColimitBranch(DenotatorPath path, List<DenotatorPath> selectedColimitCoordinatePaths) {
 		for (DenotatorPath currentColimitPath : path.getParentColimitPaths()) {
 			boolean containedInSelectedPaths = false;
-			for (DenotatorPath currentSelectedPath : selectedColimitValuePaths) {
+			for (DenotatorPath currentSelectedPath : selectedColimitCoordinatePaths) {
 				if (currentColimitPath.equals(currentSelectedPath.getParentPath())) {
 					containedInSelectedPaths = true;
 					if (!path.subPath(0, currentColimitPath.size()+1).equals(currentSelectedPath)) {
