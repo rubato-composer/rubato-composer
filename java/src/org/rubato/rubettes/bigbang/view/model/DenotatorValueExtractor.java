@@ -37,6 +37,7 @@ public class DenotatorValueExtractor {
 	private Set<DenotatorPath> selectedPaths;
 	private DenotatorPath selectedAnchor;
 	private LayerStates layerStates;
+	private DenotatorValueFinder finder;
 	
 	//TODO: REMOVE!!!
 	private final int[][] ELEMENT_PATHS = new int[][] {
@@ -49,6 +50,7 @@ public class DenotatorValueExtractor {
 	
 	public DisplayObjectList extractDisplayObjects(ViewController controller, ScoreChangedNotification notification, boolean selectObjects, LayerStates layerStates) {
 		//PerformanceCheck.startTask("extract");
+		this.initFinder(notification.getScore().getForm());
 		this.valueNames = new ArrayList<String>();
 		this.minValues = new ArrayList<Double>();
 		this.maxValues = new ArrayList<Double>();
@@ -58,72 +60,75 @@ public class DenotatorValueExtractor {
 		this.selectedAnchor = notification.getAnchorToBeSelected();
 		this.layerStates = layerStates;
 		try {
-			this.extractDisplayObjects(notification.getScore(), null, null, DenotatorPath.ANCHOR, 0, 0, new DenotatorPath(notification.getScore().getForm()));
+			this.extractDisplayObjects(notification.getScore(), null, null, DenotatorPath.ANCHOR, 0, 0, 0, new DenotatorPath(notification.getScore().getForm()));
 		} catch (RubatoException e) { e.printStackTrace(); }
+		this.setTopDenotatorParameters();
 		this.layerStates.removeLayers(this.maxLayer);
-		this.setTopDenotatorParameters(notification.getScore().getForm());
 		return this.displayObjects;
 	}
 	
-	private void setTopDenotatorParameters(Form form) {
+	private void initFinder(Form form) {
+		//TODO: FINDER CURRENTLY ONLY FINDS THE NAMES IN THE TOP DENOTATOR!!!!!! adjust methods!!
 		if (form.getType() == Form.POWER || form.getType() == Form.LIST) {
 			form = form.getForm(0);
 		}
-		DenotatorValueFinder finder = new DenotatorValueFinder(form, false);
-		this.valueNames = finder.getValueNamesInFoundOrder();
-		this.displayObjects.setTopDenotatorValues(finder.getValueNamesAndPaths());
-		this.displayObjects.setTopDenotatorColimits(finder.getColimitsFoundInOrder());
-		this.displayObjects.setTopDenotatorColimitsAndPaths(finder.getColimitFormsAndPaths());
-		//TODO: CURRENTLY ONLY FINDS THE NAMES IN THE TOP DENOTATOR!!!!!! adjust methods!!
-		if (finder.formContainsPowerset()) {
+		this.finder = new DenotatorValueFinder(form, false);
+	}
+	
+	private void setTopDenotatorParameters() {
+		this.displayObjects.setTopDenotatorValues(this.finder.getValueNamesAndPaths());
+		this.displayObjects.setTopDenotatorColimits(this.finder.getColimitsFoundInOrder());
+		this.displayObjects.setTopDenotatorColimitsAndPaths(this.finder.getColimitFormsAndPaths());
+		this.displayObjects.setContainsPowerset(this.finder.formContainsPowerset());
+		
+		this.valueNames = this.finder.getValueNamesInFoundOrder();
+		if (this.finder.formContainsPowerset()) {
 			this.valueNames.add("Satellite Level");
 			this.valueNames.add("Sibling number");
 		}
+		if (this.finder.formContainsColimit()) {
+			this.valueNames.add("Colimit index");
+		}
 		this.displayObjects.setValueNames(this.valueNames);
-		this.displayObjects.setContainsPowerset(finder.formContainsPowerset());
 	}
 	
 	//recursive method!!
 	//TODO: remove relation!! not very interesting anymore..
-	private DisplayObject extractDisplayObjects(Denotator currentDenotator, DisplayObject parent, DisplayObject largerObject, int relation, int satelliteLevel, int siblingNumber, DenotatorPath currentPath) throws RubatoException {
+	private DisplayObject extractDisplayObjects(Denotator currentDenotator, DisplayObject parent, DisplayObject largerObject, int relation, int satelliteLevel, int siblingNumber, int colimitIndex, DenotatorPath currentPath) throws RubatoException {
 		int denotatorType = currentDenotator.getType();
-		if (denotatorType == Denotator.SIMPLE) {
-			SimpleDenotator currentSimple = (SimpleDenotator)currentDenotator;
-			if (largerObject == null) {
-				largerObject = this.addDisplayObject(currentSimple, parent, relation, satelliteLevel, siblingNumber, currentPath);
-			}
-			this.addSimpleValues(largerObject, currentSimple, currentPath);
-		} else if (denotatorType == Denotator.LIMIT) {
-			if (largerObject == null) {
-				largerObject = this.addDisplayObject(currentDenotator, parent, relation, satelliteLevel, siblingNumber, currentPath);
-			}
-			LimitDenotator currentLimit = (LimitDenotator)currentDenotator;
-			for (int i = 0; i < currentLimit.getFactorCount(); i++) {
-				Denotator currentChild = currentLimit.getFactor(i);
-				this.extractDisplayObjects(currentChild, parent, largerObject, relation, satelliteLevel, siblingNumber, currentPath.getChildPath(i));
-			}
-		} else if (denotatorType == Denotator.COLIMIT) {
-			if (largerObject == null) {
-				largerObject = this.addDisplayObject(currentDenotator, parent, relation, satelliteLevel, siblingNumber, currentPath);
-			}
-			ColimitDenotator currentColimit = (ColimitDenotator)currentDenotator;
-			Denotator onlyChild = currentColimit.getFactor();
-			//have to get it like this since Colimit.index is not implemented well TODO: AND NOW??
-			int childIndex = currentColimit.getForm().getForms().indexOf(onlyChild.getForm());
-			for (int i = 0; i < currentColimit.getForm().getFormCount(); i++) {
-				if (i == childIndex) {
-					this.extractDisplayObjects(onlyChild, parent, largerObject, relation, satelliteLevel, siblingNumber, currentPath.getChildPath(childIndex));
-				} else {
-					this.addNullValues(largerObject, currentPath.getChildPath(i));
-				}
-			}
-		} else if (denotatorType == Denotator.POWER || denotatorType == Denotator.LIST) {
+		if (denotatorType == Denotator.POWER || denotatorType == Denotator.LIST) {
 			FactorDenotator currentPower = (FactorDenotator)currentDenotator;
 			for (int i = 0; i < currentPower.getFactorCount(); i++) {
 				//call with largerObject null, since all children become independent objects
-				DisplayObject currentChild = this.extractDisplayObjects(currentPower.getFactor(i), parent, null, DenotatorPath.SATELLITE, satelliteLevel+1, i, currentPath.getChildPath(i));
+				DisplayObject currentChild = this.extractDisplayObjects(currentPower.getFactor(i), parent, null, DenotatorPath.SATELLITE, satelliteLevel+1, i, colimitIndex, currentPath.getChildPath(i));
 				if (largerObject != null) {
 					largerObject.addChild(currentChild);
+				}
+			}
+		} else {
+			if (largerObject == null) {
+				largerObject = this.addDisplayObject(currentDenotator, parent, relation, satelliteLevel, siblingNumber, colimitIndex, currentPath);
+			}
+			if (denotatorType == Denotator.SIMPLE) {
+				this.addSimpleValues(largerObject, (SimpleDenotator)currentDenotator);
+			} else if (denotatorType == Denotator.LIMIT) {
+				LimitDenotator currentLimit = (LimitDenotator)currentDenotator;
+				for (int i = 0; i < currentLimit.getFactorCount(); i++) {
+					Denotator currentChild = currentLimit.getFactor(i);
+					this.extractDisplayObjects(currentChild, parent, largerObject, relation, satelliteLevel, siblingNumber, colimitIndex, currentPath.getChildPath(i));
+				}
+			} else if (denotatorType == Denotator.COLIMIT) {
+				ColimitDenotator currentColimit = (ColimitDenotator)currentDenotator;
+				Denotator onlyChild = currentColimit.getFactor();
+				int childIndex = currentColimit.getIndex();
+				largerObject.setColimitIndex(colimitIndex+childIndex);
+				colimitIndex += currentColimit.getFactorCount();
+				for (int i = 0; i < currentColimit.getForm().getFormCount(); i++) {
+					if (i == childIndex) {
+						this.extractDisplayObjects(onlyChild, parent, largerObject, relation, satelliteLevel, siblingNumber, childIndex, currentPath.getChildPath(childIndex));
+					} else {
+						this.addNullValues(largerObject, currentPath.getChildPath(i));
+					}
 				}
 			}
 		}
@@ -131,8 +136,8 @@ public class DenotatorValueExtractor {
 		return largerObject;
 	}
 	
-	private DisplayObject addDisplayObject(Denotator denotator, DisplayObject parent, int relation, int satelliteLevel, int siblingNumber, DenotatorPath path) {
-		DisplayObject displayObject = new DisplayObject(parent, relation, satelliteLevel, siblingNumber, denotator.getType(), path.clone());
+	private DisplayObject addDisplayObject(Denotator denotator, DisplayObject parent, int relation, int satelliteLevel, int siblingNumber, int colimitIndex, DenotatorPath path) {
+		DisplayObject displayObject = this.createDisplayObject(denotator, parent, relation, satelliteLevel, siblingNumber, colimitIndex, path);
 		displayObject.setVisibility(this.layerStates.get(displayObject.getLayer()));
 		this.displayObjects.add(displayObject);
 		if (this.selectObjects && this.selectedPaths != null) {
@@ -146,16 +151,28 @@ public class DenotatorValueExtractor {
 		return displayObject;
 	}
 	
-	private void addSimpleValues(DisplayObject largerObject, SimpleDenotator simpleDenotator, DenotatorPath path) {
+	private DisplayObject createDisplayObject(Denotator denotator, DisplayObject parent, int relation, int satelliteLevel, int siblingNumber, int colimitIndex, DenotatorPath path) {
+		List<Integer> structuralValues = new ArrayList<Integer>();
+		if (this.finder.formContainsPowerset()) {
+			structuralValues.add(satelliteLevel);
+			structuralValues.add(siblingNumber);
+		}
+		if (this.finder.formContainsColimit()) {
+			structuralValues.add(colimitIndex);
+		}
+		return new DisplayObject(parent, relation, denotator.getType(), structuralValues, path.clone());
+	}
+	
+	private void addSimpleValues(DisplayObject largerObject, SimpleDenotator simpleDenotator) {
 		List<Double> objectValues = this.extractValues(simpleDenotator);
-		largerObject.addValues(path, objectValues);
+		largerObject.addValues(objectValues);
 		//TODO: a map should keep track which DOs have certain simples so that they can be found quick
 	}
 	
 	private void addNullValues(DisplayObject largerObject, DenotatorPath path) {
 		DenotatorValueFinder finder = new DenotatorValueFinder(path.getForm(), false);
-		for (DenotatorPath currentPath : finder.getValuePathsInFoundOrder()) {
-			largerObject.addValues(currentPath, Arrays.asList(new Double[]{null}));
+		for (int i = 0; i < finder.getValuePathsInFoundOrder().size(); i++) {
+			largerObject.addValues(Arrays.asList(new Double[]{null}));
 		}
 	}
 	

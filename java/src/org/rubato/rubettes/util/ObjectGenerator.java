@@ -230,7 +230,6 @@ public class ObjectGenerator {
 	 * stays the same.
 	 */
 	public Denotator makeObjectAbsolute(Denotator object, Denotator referenceObject) {
-		System.out.println(object + " " + referenceObject);
 		Map<DenotatorPath,SimpleDenotator> objectSimples = this.findSimples(object);
 		Map<DenotatorPath,SimpleDenotator> referenceSimples = this.findSimples(referenceObject);
 		Map<DenotatorPath,SimpleDenotator> absoluteSimples = new TreeMap<DenotatorPath,SimpleDenotator>();

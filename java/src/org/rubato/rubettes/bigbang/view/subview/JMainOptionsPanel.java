@@ -1,7 +1,6 @@
 package org.rubato.rubettes.bigbang.view.subview;
 
 import java.awt.BorderLayout;
-import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.beans.PropertyChangeEvent;
@@ -13,6 +12,7 @@ import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.SpringLayout;
 
 import org.rubato.base.Repository;
 import org.rubato.composer.Utilities;
@@ -24,6 +24,7 @@ import org.rubato.rubettes.bigbang.view.View;
 import org.rubato.rubettes.bigbang.view.controller.ViewController;
 import org.rubato.rubettes.bigbang.view.controller.general.InputActiveAction;
 import org.rubato.rubettes.bigbang.view.model.ViewParameters;
+import org.rubato.util.SpringUtilities;
 
 public class JMainOptionsPanel extends JPanel implements ActionListener, View {
 	
@@ -68,7 +69,7 @@ public class JMainOptionsPanel extends JPanel implements ActionListener, View {
 	private void initSouthernPanel() {
 		this.colimitBoxes = new ArrayList<JComboBox>();
 		this.colimitSelectionPanel = new JPanel();
-		this.colimitSelectionPanel.setLayout(new FlowLayout());
+		this.colimitSelectionPanel.setLayout(new SpringLayout());
 		this.colimitSelectionPanel.setBorder(Utilities.makeTitledBorder("Select colimit"));
 		this.add(this.colimitSelectionPanel, BorderLayout.SOUTH);
 	}
@@ -83,12 +84,14 @@ public class JMainOptionsPanel extends JPanel implements ActionListener, View {
 			this.colimitBoxes.add(currentBox);
 			this.colimitSelectionPanel.add(currentBox);
 		}
-		
+		SpringUtilities.makeCompactGrid(this.colimitSelectionPanel, colimits.size(), 2, 0, 0, 0, 0);
 	}
 	
 	private void updateColimitBoxes(List<Integer> selectedCoordinates) {
 		for (int i = 0; i < this.colimitBoxes.size(); i++) {
-			this.colimitBoxes.get(i).setSelectedIndex(selectedCoordinates.get(i));
+			int currentIndex = selectedCoordinates.get(i);
+			this.colimitBoxes.get(i).setEnabled(currentIndex >= 0);
+			this.colimitBoxes.get(i).setSelectedIndex(currentIndex);
 		}
 	}
 

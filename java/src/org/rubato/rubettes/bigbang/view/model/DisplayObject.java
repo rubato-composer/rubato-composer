@@ -23,7 +23,7 @@ public class DisplayObject implements Comparable<Object> {
 	private int relation;
 	private List<DisplayObject> children;
 	private List<Double> values;
-	private List<DenotatorPath> valuePaths;
+	private List<Integer> structuralIndices;
 	private int layer;
 	private double xDiff, yDiff;
 	private Rectangle2D.Double rectangle;
@@ -37,22 +37,19 @@ public class DisplayObject implements Comparable<Object> {
 	private int currentRed, currentBlue, currentGreen;
 	private Color currentColor;
 	
-	//creates a DisplayObject without values. these are typically added later
-	public DisplayObject(DisplayObject parent, int relation, int satelliteLevel, int siblingNumber, int topDenotatorType, DenotatorPath topDenotatorPath) {
-		this(parent, relation, satelliteLevel, siblingNumber, topDenotatorType, topDenotatorPath, 0);
+	public DisplayObject(DisplayObject parent, int relation, int topDenotatorType, List<Integer> structuralIndices, DenotatorPath topDenotatorPath) {
+		this(parent, relation, topDenotatorType, structuralIndices, topDenotatorPath, 0);
 	}
 	
-	public DisplayObject(DisplayObject parent, int relation, int satelliteLevel, int siblingNumber, int topDenotatorType, DenotatorPath topDenotatorPath, int layer) {
+	public DisplayObject(DisplayObject parent, int relation, int topDenotatorType, List<Integer> structuralIndices, DenotatorPath topDenotatorPath, int layer) {
 		this.values = new ArrayList<Double>();
-		this.valuePaths = new ArrayList<DenotatorPath>();
-		this.addValue(satelliteLevel);
-		this.addValue(siblingNumber);
 		this.parent = parent;
 		this.relation = relation;
 		this.topDenotatorType = topDenotatorType;
 		this.topDenotatorPath = topDenotatorPath;
 		this.children = new ArrayList<DisplayObject>();
 		this.selectionVisible = true;
+		this.structuralIndices = structuralIndices;
 		this.layer = layer;
 	}
 	
@@ -78,6 +75,10 @@ public class DisplayObject implements Comparable<Object> {
 	
 	public List<DisplayObject> getChildren() {
 		return this.children;
+	}
+	
+	public void setColimitIndex(int index) {
+		this.structuralIndices.set(this.structuralIndices.size()-1, index);
 	}
 	
 	public void setLayer(int layer) {
@@ -117,22 +118,15 @@ public class DisplayObject implements Comparable<Object> {
 		this.yDiff += y;
 	}
 	
-	private void addValue(double value) {
-		//System.out.println(name+ " " + value);
-		this.values.add(value);
-	}
-	
-	public void addValues(DenotatorPath denotatorPath, List<Double> values) {
-		//keep two last values last (satellite level and sibling number)
-		int currentIndex = this.values.size()-2; 
-		for (int i = 0; i < values.size(); i++) {
-			//System.out.println(denotatorName+ " " + denotatorPath + " " + values.get(i));
-			this.values.add(currentIndex+i, values.get(i));
-			this.valuePaths.add(denotatorPath);
-		}
+	public void addValues(List<Double> values) {
+		this.values.addAll(values);
 	}
 	
 	public Double getValue(int index) {
+		if (index >= values.size()) {
+			index -= values.size();
+			return this.structuralIndices.get(index).doubleValue();
+		}
 		return this.values.get(index);
 	}
 	

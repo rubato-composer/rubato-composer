@@ -26,7 +26,7 @@ public class DisplayObjectList extends TreeSet<DisplayObject> implements View {
 	private Map<String,DenotatorPath> topDenotatorValues;
 	private List<ColimitForm> topDenotatorColimits;
 	private Map<ColimitForm,DenotatorPath> topDenotatorColimitsAndPaths;
-	private boolean containsPowersets;
+	private boolean containsPowerset;
 	private List<String> valueNames;
 	private Set<DisplayObject> selectedNotes;
 	private DisplayObject selectedAnchorNote;
@@ -52,12 +52,12 @@ public class DisplayObjectList extends TreeSet<DisplayObject> implements View {
 		return this.baseForm;
 	}
 	
-	public void setContainsPowerset(boolean containsPowersets) {
-		this.containsPowersets = containsPowersets;
+	public void setContainsPowerset(boolean containsPowerset) {
+		this.containsPowerset = containsPowerset;
 	}
 	
-	public boolean containsPowersets() {
-		return this.containsPowersets;
+	public boolean containsPowerset() {
+		return this.containsPowerset;
 	}
 	
 	public void setTopDenotatorValues(Map<String,DenotatorPath> valuesNamesAndPaths) {

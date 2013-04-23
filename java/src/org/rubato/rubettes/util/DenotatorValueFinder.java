@@ -55,6 +55,10 @@ public class DenotatorValueFinder {
 		return this.containsPowerset;
 	}
 	
+	public boolean formContainsColimit() {
+		return this.colimitsFoundInOrder.size() > 0;
+	}
+	
 	//TODO: implement searchThroughPowersets!!!!
 	private Map<String,DenotatorPath> findValues(Form form, boolean searchThroughPowersets) {
 		PriorityQueue<DenotatorPath> subPathsQueue = new PriorityQueue<DenotatorPath>();

@@ -15,6 +15,8 @@ import java.util.TreeMap;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
+import org.rubato.math.yoneda.ColimitForm;
+import org.rubato.math.yoneda.Form;
 import org.rubato.rubettes.bigbang.controller.BigBangController;
 import org.rubato.rubettes.bigbang.controller.ScoreChangedNotification;
 import org.rubato.rubettes.bigbang.model.Model;
@@ -41,6 +43,7 @@ import org.rubato.rubettes.bigbang.view.model.tools.SelectionTool;
 import org.rubato.rubettes.bigbang.view.subview.DisplayObjectList;
 import org.rubato.rubettes.bigbang.view.subview.JBigBangPanel;
 import org.rubato.rubettes.util.DenotatorPath;
+import org.rubato.rubettes.util.DenotatorValueFinder;
 
 public class BigBangView extends Model implements View {
 	
@@ -299,7 +302,7 @@ public class BigBangView extends Model implements View {
 	
 	private void setDisplayNotes(DisplayObjectList displayNotes, List<Double> minValues, List<Double> maxValues) {
 		if (this.displayNotes == null || (displayNotes.getBaseForm() != this.displayNotes.getBaseForm())) {
-			if (displayNotes.containsPowersets()) {
+			if (displayNotes.containsPowerset()) {
 				this.viewParameters.initSelections(displayNotes.getValueNames().size()-2);
 			} else {
 				this.viewParameters.initSelections(displayNotes.getValueNames().size());
@@ -333,7 +336,22 @@ public class BigBangView extends Model implements View {
 	}
 	
 	public void setSelectedColimitCoordinate(Integer colimitIndex, Integer coordinateIndex) {
-		this.selectedColimitCoordinates.set(colimitIndex, coordinateIndex);
+		List<ColimitForm> topDenotatorColimits = this.displayNotes.getTopDenotatorColimits();
+		if (coordinateIndex >= 0 && topDenotatorColimits.size() > colimitIndex && topDenotatorColimits.get(colimitIndex).getForms().size() >= coordinateIndex) {
+			this.selectedColimitCoordinates.set(colimitIndex, coordinateIndex);
+			//set all ColimitForms impossible to reach to -1
+			//TODO: does not account for forms that contain the same colimit several times
+			Form coordinateForm = topDenotatorColimits.get(colimitIndex).getForm(coordinateIndex);
+			List<ColimitForm> subColimits = new DenotatorValueFinder(coordinateForm, false).getColimitsFoundInOrder();
+			for (int i = colimitIndex+1; i < topDenotatorColimits.size(); i++) {
+				if (!subColimits.contains(topDenotatorColimits.get(i))) {
+					this.selectedColimitCoordinates.set(i, -1);
+				} else if (this.selectedColimitCoordinates.get(i) == -1) {
+					this.selectedColimitCoordinates.set(i, 0);
+				}
+			}
+			this.firePropertyChange(ViewController.SELECTED_COLIMIT_COORDINATE, null, this.selectedColimitCoordinates);
+		}
 	}
 	
 	public void selectTransformation(AbstractTransformationEdit edit) {
