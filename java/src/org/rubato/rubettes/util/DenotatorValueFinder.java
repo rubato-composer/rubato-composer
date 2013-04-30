@@ -3,7 +3,6 @@ package org.rubato.rubettes.util;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.PriorityQueue;
 import java.util.TreeMap;
 
 import org.rubato.math.module.Module;
@@ -20,6 +19,7 @@ public class DenotatorValueFinder {
 	private List<ColimitForm> colimitsFoundInOrder;
 	private Map<ColimitForm,DenotatorPath> colimitFormsAndPaths;
 	private boolean containsPowerset;
+	private final int MAX_SEARCH_DEPTH = 5;
 	
 	public DenotatorValueFinder(Form form, boolean searchThroughPowersets) {
 		this.valueNamesInFoundOrder = new ArrayList<String>();
@@ -28,7 +28,7 @@ public class DenotatorValueFinder {
 		this.colimitsFoundInOrder = new ArrayList<ColimitForm>();
 		this.colimitFormsAndPaths = new TreeMap<ColimitForm,DenotatorPath>();
 		this.containsPowerset = false;
-		this.findValues(form, searchThroughPowersets);
+		this.findValues(new DenotatorPath(form), searchThroughPowersets);
 	}
 	
 	public List<String> getValueNamesInFoundOrder() {
@@ -59,30 +59,25 @@ public class DenotatorValueFinder {
 		return this.colimitsFoundInOrder.size() > 0;
 	}
 	
-	//TODO: implement searchThroughPowersets!!!!
-	private Map<String,DenotatorPath> findValues(Form form, boolean searchThroughPowersets) {
-		PriorityQueue<DenotatorPath> subPathsQueue = new PriorityQueue<DenotatorPath>();
-		subPathsQueue.add(new DenotatorPath(form));
-		while (!subPathsQueue.isEmpty()) {
-			DenotatorPath currentPath = subPathsQueue.poll();
-			Form currentForm = currentPath.getForm();
-			if (currentForm.getType() == Form.SIMPLE) {
-				this.addValueNames(currentForm.getNameString(), ((SimpleForm)currentForm).getModule(), currentPath, "");
-			//do not search farther if form is either power or list!!
-			} else if (currentForm.getType() == Form.LIMIT || currentForm.getType() == Form.COLIMIT) {
-				for (int i = 0; i < currentForm.getForms().size(); i++) {
-					subPathsQueue.add(currentPath.getChildPath(i));
-				}
-				if (currentForm.getType() == Form.COLIMIT) {
-					this.colimitsFoundInOrder.add((ColimitForm)currentForm);
-					this.colimitFormsAndPaths.put((ColimitForm)currentForm, currentPath);
-				}
-			} else if (currentForm.getType() == Form.POWER || currentForm.getType() == Form.LIST) {
-				this.containsPowerset = true;
-				//for now: do not continue through powersets or lists...
+	//recursive depth search, has to be the same as the one in DenotatorValueExtractor...
+	private void findValues(DenotatorPath currentPath, boolean searchThroughPowersets) {
+		Form currentForm = currentPath.getForm();
+		if (currentForm.getType() == Form.SIMPLE) {
+			this.addValueNames(currentForm.getNameString(), ((SimpleForm)currentForm).getModule(), currentPath, "");
+		} else if (currentForm.getType() == Form.LIMIT || currentForm.getType() == Form.COLIMIT) {
+			if (currentForm.getType() == Form.COLIMIT) {
+				this.colimitsFoundInOrder.add((ColimitForm)currentForm);
+				this.colimitFormsAndPaths.put((ColimitForm)currentForm, currentPath);
 			}
+			for (int i = 0; i < currentForm.getForms().size(); i++) {
+				this.findValues(currentPath.getChildPath(i), searchThroughPowersets);
+			}
+		} else if (currentForm.getType() == Form.POWER || currentForm.getType() == Form.LIST) {
+			this.containsPowerset = true;
+			/*if (searchThroughPowersets) {
+				this.findValues(currentPath.getChildPath(0), searchThroughPowersets);
+			}*/
 		}
-		return this.valueNamesAndPaths;
 	}
 	
 	//recursively finds all values and their names

@@ -88,6 +88,12 @@ public class ViewController extends Controller {
 	//score manipulation - alteration
 	public static final String ALTERATION_COMPOSITION = "setAlterationComposition";
 	
+	//playback feature
+	public static final String PLAY_MODE = "togglePlayMode";
+	public static final String TEMPO = "setTempo";
+	public static final String FM_MODEL = "FMModel";
+	public static final String WAVEFORM = "Waveform";
+	
 	
 	public void changeDisplayMode(DisplayModeAdapter newMode) {
 		this.callModelMethod(ViewController.DISPLAY_MODE, newMode);
@@ -295,6 +301,22 @@ public class ViewController extends Controller {
 	
 	public List<View> getViews() {
 		return this.registeredViews;
+	}
+	
+	public void togglePlayMode() {
+		this.callModelMethod(ViewController.PLAY_MODE);
+	}
+	
+	public void setTempo(int tempo) {
+		this.callModelMethod(ViewController.TEMPO, tempo);
+	}
+	
+	public void changeFMModel(Object fmModel) {
+		this.setModelProperty(ViewController.FM_MODEL, fmModel);
+	}
+	
+	public void changeWaveform(Object waveform) {
+		this.setModelProperty(ViewController.WAVEFORM, waveform);
 	}
 
 }

@@ -92,7 +92,9 @@ public class DisplayObjectList extends TreeSet<DisplayObject> implements View {
 		List<DenotatorPath> colimitCoordinatePaths = new ArrayList<DenotatorPath>();
 		for (int i = 0; i < colimitCoordinates.size(); i++) {
 			int currentSelectedCoordinate = colimitCoordinates.get(i);
-			colimitCoordinatePaths.add(this.topDenotatorColimitsAndPaths.get(this.topDenotatorColimits.get(i)).getChildPath(currentSelectedCoordinate));
+			if (currentSelectedCoordinate >= 0) {
+				colimitCoordinatePaths.add(this.topDenotatorColimitsAndPaths.get(this.topDenotatorColimits.get(i)).getChildPath(currentSelectedCoordinate));
+			}
 		}
 		return colimitCoordinatePaths;
 	}

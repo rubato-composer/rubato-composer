@@ -4,13 +4,13 @@ import java.awt.event.ActionEvent;
 
 import javax.swing.AbstractAction;
 
-import org.rubato.rubettes.bigbang.controller.BigBangController;
+import org.rubato.rubettes.bigbang.view.controller.ViewController;
 
 public class PlayButtonAction extends AbstractAction {
 	
-	private BigBangController controller;
+	private ViewController controller;
 	
-	public PlayButtonAction(BigBangController controller) {
+	public PlayButtonAction(ViewController controller) {
 		super("Play");
 		this.controller = controller;
 	}

@@ -1,4 +1,4 @@
-package org.rubato.rubettes.bigbang.model.player;
+package org.rubato.rubettes.bigbang.view.player;
 
 import java.util.ArrayList;
 
@@ -9,6 +9,9 @@ public class JSynThreadGroup extends ArrayList<JSynThread> {
 	public boolean add(JSynThread thread) {
 		boolean added = super.add(thread);
 		thread.setGroup(this);
+		if (this.isRunning) {
+			thread.start();
+		}
 		return added;
 	}
 	

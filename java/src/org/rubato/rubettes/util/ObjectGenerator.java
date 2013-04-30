@@ -6,7 +6,6 @@ import java.util.Map;
 import java.util.PriorityQueue;
 import java.util.Set;
 import java.util.TreeMap;
-import java.util.TreeSet;
 
 import org.rubato.base.RubatoException;
 import org.rubato.math.module.DomainException;

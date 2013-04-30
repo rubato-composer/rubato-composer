@@ -31,7 +31,7 @@ public class JBigBangPanel extends JPanel {
 		this.initMenuComponents(display, controller, bbController, viewParameters);
 		this.add(display, BorderLayout.CENTER);
 		this.add(this.makeButtonPanel(controller), BorderLayout.EAST);
-		new JWindowPreferencesDialog(controller, bbController);
+		new JWindowPreferencesDialog(controller);
 		JBigBangPopupMenu popup = new JBigBangPopupMenu(controller);
 		this.setComponentPopupMenu(popup);
 	}
@@ -40,7 +40,7 @@ public class JBigBangPanel extends JPanel {
 		JPanel toolBarsPanel = new JPanel();
 		toolBarsPanel.setLayout(new GridLayout(3, 1));
 		toolBarsPanel.add(new JMainToolBar(controller, bbController));
-		toolBarsPanel.add(new JLayersToolBar(controller, bbController));
+		toolBarsPanel.add(new JLayersToolBar(controller));
 		toolBarsPanel.add(new JGraphToolBar(controller, bbController));
 		return toolBarsPanel;
 	}

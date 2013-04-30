@@ -5,10 +5,10 @@
 	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/4"/>
 	<classpathentry kind="lib" path="java/jar/core.jar"/>
 	<classpathentry kind="lib" path="java/jar/GlulogicMT.jar"/>
-	<classpathentry kind="lib" path="java/jar/jsyn_beta_160.jar"/>
 	<classpathentry kind="lib" path="java/jar/junit.jar"/>
 	<classpathentry kind="lib" path="java/jar/mt4j.jar"/>
 	<classpathentry kind="lib" path="java/jar/xercesImpl.jar"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/MT4j"/>
+	<classpathentry kind="lib" path="java/jar/jsyn-beta-16.5.14.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

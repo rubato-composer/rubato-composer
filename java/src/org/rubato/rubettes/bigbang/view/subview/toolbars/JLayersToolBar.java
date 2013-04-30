@@ -11,8 +11,6 @@ import javax.swing.JSpinner;
 import javax.swing.JToolBar;
 import javax.swing.SpinnerNumberModel;
 
-import org.rubato.rubettes.bigbang.controller.BigBangController;
-import org.rubato.rubettes.bigbang.model.player.BigBangPlayer;
 import org.rubato.rubettes.bigbang.view.View;
 import org.rubato.rubettes.bigbang.view.controller.ViewController;
 import org.rubato.rubettes.bigbang.view.controller.general.ModFilterButtonAction;
@@ -21,6 +19,7 @@ import org.rubato.rubettes.bigbang.view.controller.score.ModFilterSpinnersListen
 import org.rubato.rubettes.bigbang.view.controller.score.TempoListener;
 import org.rubato.rubettes.bigbang.view.model.LayerState;
 import org.rubato.rubettes.bigbang.view.model.LayerStates;
+import org.rubato.rubettes.bigbang.view.player.BigBangPlayer;
 
 public class JLayersToolBar extends JToolBar implements View {
 	
@@ -31,20 +30,19 @@ public class JLayersToolBar extends JToolBar implements View {
 	private List<JSpinner> modFilterSpinners;
 	private List<JLayerButton> layerButtons;
 	
-	public JLayersToolBar(ViewController controller, BigBangController bbController) {
+	public JLayersToolBar(ViewController controller) {
 		this.controller = controller;
 		controller.addView(this);
-		bbController.addView(this);
-		this.playButton = new JButton(new PlayButtonAction(bbController));
+		this.playButton = new JButton(new PlayButtonAction(controller));
 		this.add(this.playButton);
-		this.addTempoSlider(bbController);
+		this.addTempoSlider();
 		this.addModFilterButtonAndSpinners();
 		this.layerButtons = new ArrayList<JLayerButton>();
 	}
 	
-	private void addTempoSlider(BigBangController bbController) {
+	private void addTempoSlider() {
 		this.tempoSlider = new JSlider(BigBangPlayer.MIN_BPM, BigBangPlayer.MAX_BPM);
-		this.tempoSlider.addChangeListener(new TempoListener(bbController));
+		this.tempoSlider.addChangeListener(new TempoListener(this.controller));
 		this.tempoSlider.setPaintTicks(true);
 		this.tempoSlider.setPaintLabels(true);
 		this.tempoSlider.setMaximumSize(new Dimension(270, 100));
@@ -74,9 +72,9 @@ public class JLayersToolBar extends JToolBar implements View {
 		String propertyName = event.getPropertyName();
 		if (propertyName.equals(ViewController.LAYERS)) {
 			this.updateLayerButtons(event);
-		} else if (propertyName.equals(BigBangController.PLAY_MODE)) {
+		} else if (propertyName.equals(ViewController.PLAY_MODE)) {
 			this.playButton.setSelected((Boolean)event.getNewValue());
-		} else if (propertyName.equals(BigBangController.TEMPO)) {
+		} else if (propertyName.equals(ViewController.TEMPO)) {
 			this.tempoSlider.setValue((Integer)event.getNewValue());
 		} else if (propertyName.equals(ViewController.TOGGLE_MOD_FILTER)) {
 			this.modFilterButton.setSelected((Boolean)event.getNewValue());

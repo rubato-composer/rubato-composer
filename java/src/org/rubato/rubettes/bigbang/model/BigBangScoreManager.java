@@ -12,7 +12,6 @@ import org.rubato.math.yoneda.Form;
 import org.rubato.rubettes.bigbang.BigBangRubette;
 import org.rubato.rubettes.bigbang.controller.BigBangController;
 import org.rubato.rubettes.bigbang.controller.ScoreChangedNotification;
-import org.rubato.rubettes.bigbang.model.player.BigBangPlayer;
 import org.rubato.rubettes.bigbang.view.model.SelectedPaths;
 import org.rubato.rubettes.util.DenotatorPath;
 
@@ -21,26 +20,11 @@ public class BigBangScoreManager extends Model {
 	private BigBangScore score, actualScore;
 	private BigBangWallpaper wallpaper;
 	private BigBangAlteration alteration;
-	private BigBangPlayer player;
-	private boolean playingActive;
 	
 	public BigBangScoreManager(BigBangController controller) {
 		controller.addModel(this);
 		this.score = new BigBangScore(BigBangRubette.STANDARD_FORM);
 		this.alteration = new BigBangAlteration(controller);
-		this.player = new BigBangPlayer();
-		this.playingActive = false;
-		this.setTempo(BigBangPlayer.INITIAL_BPM);
-	}
-	
-	public void togglePlayMode() {
-		this.playingActive = !this.playingActive;
-		if (this.playingActive) {
-			this.playCompositionImmediately();
-		} else {
-			this.stopPlayer();
-		}
-		this.firePropertyChange(BigBangController.PLAY_MODE, null, this.playingActive);
 	}
 	
 	public void newWindowAdded(SelectedPaths paths) {
@@ -210,7 +194,7 @@ public class BigBangScoreManager extends Model {
 	public DenotatorPath addObject(TreeMap<DenotatorPath,Double> pathsWithValues) {
 		DenotatorPath newPath = this.score.addObject(pathsWithValues);
 		this.fireCompositionChange();
-		this.playNote(this.score.getObject(newPath));
+		this.firePropertyChange(BigBangController.ADD_OBJECT, null, this.score.getObject(newPath));
 		return newPath;
 	}
 	
@@ -318,67 +302,14 @@ public class BigBangScoreManager extends Model {
 	
 	private void fireCompositionChange(BigBangScore score, Set<DenotatorPath> selectedNodesPaths, DenotatorPath selectedAnchorPath, boolean playback) {
 		Denotator changedComposition = score.getLayeredComposition();
-		ScoreChangedNotification notification = new ScoreChangedNotification(changedComposition, selectedNodesPaths, selectedAnchorPath);
+		ScoreChangedNotification notification = new ScoreChangedNotification(changedComposition, selectedNodesPaths, selectedAnchorPath, playback);
 		this.firePropertyChange(BigBangController.COMPOSITION, null, notification);
-		if (playback) {
-			this.playCompositionImmediately(changedComposition);
-		}
 	}
 	
 	private void firePreviewCompositionChange(Set<DenotatorPath> selectedNodesPaths, DenotatorPath selectedAnchorPath) {
 		Denotator changedComposition = this.actualScore.getLayeredComposition();
-		ScoreChangedNotification notification = new ScoreChangedNotification(changedComposition, selectedNodesPaths, selectedAnchorPath);
+		ScoreChangedNotification notification = new ScoreChangedNotification(changedComposition, selectedNodesPaths, selectedAnchorPath, true);
 		this.firePropertyChange(BigBangController.PREVIEW, null, notification);
-		this.playComposition(changedComposition);
-	}
-	
-	private void playCompositionImmediately() {
-		if (this.actualScore != null) {
-			this.playCompositionImmediately(this.actualScore.getLayeredComposition());
-		} else {
-			this.playCompositionImmediately(this.score.getLayeredComposition());
-		}
-	}
-	
-	private void playCompositionImmediately(Denotator composition) {
-		if (this.playingActive) {
-			this.player.playCompositionImmediately(composition);
-		}
-	}
-	
-	private void playComposition(Denotator composition) {
-		if (this.playingActive) {
-			this.player.playComposition(composition);
-		}
-	}
-	
-	private void playNote(Denotator node) {
-		if (this.playingActive) {
-			this.player.playSingleNote(node);
-		}
-	}
-	
-	private void stopPlayer() {
-		this.player.stopPlaying();
-		//System.gc();
-	}
-	
-	public void setTempo(Integer tempo) {
-		this.player.setTempo(tempo);
-		if (this.playingActive) {
-			this.togglePlayMode();
-		}
-		this.firePropertyChange(BigBangController.TEMPO, null, tempo);
-	}
-	
-	public void setFMModel(String fmModel) {
-		//TODO: THINK ABOUT THIS!!! this.score.noteGenerator.setFMModel(fmModel);
-		this.firePropertyChange(BigBangController.FM_MODEL, null, fmModel);
-	}
-	
-	public void setWaveform(String waveform) {
-		this.player.setWaveform(waveform);
-		this.firePropertyChange(BigBangController.WAVEFORM, null, waveform);
 	}
 
 }

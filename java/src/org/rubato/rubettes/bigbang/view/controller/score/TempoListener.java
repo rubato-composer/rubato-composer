@@ -4,13 +4,13 @@ import javax.swing.JSlider;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
-import org.rubato.rubettes.bigbang.controller.BigBangController;
+import org.rubato.rubettes.bigbang.view.controller.ViewController;
 
 public class TempoListener implements ChangeListener {
 	
-	private BigBangController controller;
+	private ViewController controller;
 	
-	public TempoListener(BigBangController controller) {
+	public TempoListener(ViewController controller) {
 		this.controller = controller;
 	}
 	
