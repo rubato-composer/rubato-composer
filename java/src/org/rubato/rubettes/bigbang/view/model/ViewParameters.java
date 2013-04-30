@@ -117,8 +117,8 @@ public class ViewParameters extends Model {
 		this.firePropertyChange(ViewController.SELECTED_VIEW_PARAMETERS, null, this.selectedViewParameters);
 	}
 	
-	public int getSelected(int index) {
-		return this.selectedViewParameters[index];
+	public int getValueIndex(int viewParameterIndex) {
+		return this.selectedViewParameters[viewParameterIndex];
 	}
 	
 	public void setDenotatorMinAndMaxValues(List<Double> minValues, List<Double> maxValues) {

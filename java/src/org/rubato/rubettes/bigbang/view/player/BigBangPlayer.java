@@ -1,7 +1,4 @@
-package org.rubato.rubettes.bigbang.model.player;
-
-import org.rubato.math.yoneda.Denotator;
-import org.rubato.rubettes.bigbang.view.model.DenotatorValueExtractor;
+package org.rubato.rubettes.bigbang.view.player;
 
 public class BigBangPlayer extends Thread {
 	
@@ -15,7 +12,7 @@ public class BigBangPlayer extends Thread {
 	private long startingTime;
 	private JSynPlayer player;
 	
-	private Denotator composition;
+	private JSynScore score;
 	private int bpm;
 	private String waveform;
 	
@@ -32,31 +29,38 @@ public class BigBangPlayer extends Thread {
 		this.start();
 	}
 	
-	public synchronized void playCompositionImmediately(Denotator composition) {
-		this.playComposition(composition, System.currentTimeMillis());
+	public synchronized void setScore(JSynScore score) {
+		this.score = score;
+		if (this.player.isPlaying()) {
+			this.player.replaceScore(score);
+		}
 	}
 	
-	public synchronized void playComposition(Denotator composition) {
-		this.playComposition(composition, System.currentTimeMillis() + this.DELAY);
+	public boolean isPlaying() {
+		return this.isRunning;
 	}
 	
-	private synchronized void playComposition(Denotator composition, long startingTime) {
+	public synchronized void startPlaying() {
+		this.startPlaying(this.score, System.currentTimeMillis() + this.DELAY);
+	}
+	
+	private synchronized void startPlaying(JSynScore score, long startingTime) {
 		this.startingTime = startingTime;
-		this.composition = composition;
+		this.score = score;
 	}
 	
-	public synchronized void playSingleNote(Denotator node) {
-		DenotatorValueExtractor extractor = new DenotatorValueExtractor();
-		this.player.play(extractor.extractValues(node, bpm));
+	public synchronized void playObject(JSynObject object) {
+		this.player.play(object);
 	}
 	
+	//TODO: make real-time tempo change and continuing play
 	public void run() {
 		while(this.isRunning) {
 			try { Thread.sleep(100); } catch (InterruptedException e) {}
 			if (this.startingTime != 0 && System.currentTimeMillis() >= this.startingTime) {
-				if (this.composition != null) {
+				if (this.score != null) {
 					this.resetPlayer();
-					this.player.play(new JSynScore(this.composition, this.bpm));
+					this.player.play(this.score);
 				}
 			}
 		}
@@ -82,10 +86,6 @@ public class BigBangPlayer extends Thread {
 		this.stopPlaying();
 		this.waveform = waveform;
 		this.player.setWaveform(waveform);
-	}
-	
-	public String getWaveform() {
-		return this.waveform;
 	}
 
 }

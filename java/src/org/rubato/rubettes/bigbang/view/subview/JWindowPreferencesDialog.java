@@ -16,24 +16,22 @@ import javax.swing.border.Border;
 import javax.swing.border.EtchedBorder;
 
 import org.rubato.rubettes.bigbang.controller.BigBangController;
-import org.rubato.rubettes.bigbang.model.player.JSynPlayer;
 import org.rubato.rubettes.bigbang.view.View;
 import org.rubato.rubettes.bigbang.view.controller.ViewController;
 import org.rubato.rubettes.bigbang.view.model.ViewParameters;
+import org.rubato.rubettes.bigbang.view.player.JSynPlayer;
 import org.rubato.rubettes.util.SoundNoteGenerator;
 
 public class JWindowPreferencesDialog extends JDialog implements View, ItemListener {
 	
 	private ViewController controller;
-	private BigBangController bbController;
 	private JPanel viewParametersPanel;
 	private JComboBox fmModel, waveform;
 	private JCheckBox multiTouch;
 	
-	public JWindowPreferencesDialog(ViewController controller, BigBangController bbController) {
+	public JWindowPreferencesDialog(ViewController controller) {
 		this.controller = controller;
 		this.controller.addView(this);
-		this.bbController = bbController;
 		this.setTitle("Preferences");
 		this.setLayout(new BorderLayout());
 		this.initViewParametersPanel();
@@ -82,9 +80,9 @@ public class JWindowPreferencesDialog extends JDialog implements View, ItemListe
 			this.setVisible(true);
 		} else if (propertyName.equals(ViewController.VIEW_PARAMETERS)) {
 			this.updateViewParametersPanel((ViewParameters)event.getNewValue());
-		} else if (propertyName.equals(BigBangController.FM_MODEL)) {
+		} else if (propertyName.equals(ViewController.FM_MODEL)) {
 			this.fmModel.setSelectedItem(event.getNewValue());
-		} else if (propertyName.equals(BigBangController.WAVEFORM)) {
+		} else if (propertyName.equals(ViewController.WAVEFORM)) {
 			this.waveform.setSelectedItem(event.getNewValue());
 		} else if (propertyName.equals(BigBangController.MULTITOUCH)) {
 			this.multiTouch.setSelected((Boolean)event.getNewValue());
@@ -113,9 +111,9 @@ public class JWindowPreferencesDialog extends JDialog implements View, ItemListe
 	public void itemStateChanged(ItemEvent event) {
 		Object source = event.getSource();
 		if (source == this.fmModel) {
-			this.bbController.changeFMModel(this.fmModel.getSelectedItem());
+			this.controller.changeFMModel(this.fmModel.getSelectedItem());
 		} else if (source == this.waveform) {
-			this.bbController.changeWaveform(this.waveform.getSelectedItem());
+			this.controller.changeWaveform(this.waveform.getSelectedItem());
 		}/* else if (source == this.multiTouch) {
 			this.bbController.setMultiTouch(this.multiTouch.isSelected());
 		}*/

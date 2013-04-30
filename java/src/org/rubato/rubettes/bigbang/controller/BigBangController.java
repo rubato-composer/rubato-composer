@@ -19,10 +19,6 @@ public class BigBangController extends Controller {
 	public static final String GRAPH = "graph";
 	public static final String DESELECT_TRANSFORMATIONS = "deselectTransformations";
 	public static final String MODIFIED_TRANSFORMATION = "modifiedTransformation";
-	public static final String PLAY_MODE = "togglePlayMode";
-	public static final String TEMPO = "setTempo";
-	public static final String FM_MODEL = "FMModel";
-	public static final String WAVEFORM = "Waveform";
 	public static final String MULTITOUCH = "MultiTouch";
 	public static final String INPUT_ACTIVE = "InputActive";
 	public static final String FORM = "setForm";
@@ -85,22 +81,6 @@ public class BigBangController extends Controller {
 	
 	public void setForm(Form form) {
 		this.callModelMethod(BigBangController.FORM, form);
-	}
-	
-	public void togglePlayMode() {
-		this.callModelMethod(BigBangController.PLAY_MODE);
-	}
-	
-	public void setTempo(int tempo) {
-		this.callModelMethod(BigBangController.TEMPO, tempo);
-	}
-	
-	public void changeFMModel(Object fmModel) {
-		this.setModelProperty(BigBangController.FM_MODEL, fmModel);
-	}
-	
-	public void changeWaveform(Object waveform) {
-		this.setModelProperty(BigBangController.WAVEFORM, waveform);
 	}
 	
 	public void setMultiTouch(boolean multiTouch) {

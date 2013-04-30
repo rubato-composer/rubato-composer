@@ -16,6 +16,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
 import org.rubato.math.yoneda.ColimitForm;
+import org.rubato.math.yoneda.Denotator;
 import org.rubato.math.yoneda.Form;
 import org.rubato.rubettes.bigbang.controller.BigBangController;
 import org.rubato.rubettes.bigbang.controller.ScoreChangedNotification;
@@ -40,6 +41,8 @@ import org.rubato.rubettes.bigbang.view.controller.mode.TranslationModeAdapter;
 import org.rubato.rubettes.bigbang.view.controller.mode.temp.TemporaryDisplayMode;
 import org.rubato.rubettes.bigbang.view.model.tools.DisplayTool;
 import org.rubato.rubettes.bigbang.view.model.tools.SelectionTool;
+import org.rubato.rubettes.bigbang.view.player.BigBangPlayer;
+import org.rubato.rubettes.bigbang.view.player.JSynScore;
 import org.rubato.rubettes.bigbang.view.subview.DisplayObjectList;
 import org.rubato.rubettes.bigbang.view.subview.JBigBangPanel;
 import org.rubato.rubettes.util.DenotatorPath;
@@ -49,6 +52,8 @@ public class BigBangView extends Model implements View {
 	
 	private BigBangController controller;
 	protected ViewController viewController;
+	private BigBangPlayer player;
+	private boolean playingActive;
 	protected JPanel panel;
 	private LayerStates layerStates;
 	private DisplayModeAdapter displayMode;
@@ -87,6 +92,7 @@ public class BigBangView extends Model implements View {
 		this.modFilterOn = false;
 		this.modNumber = -1;
 		this.wallpaperRanges = new ArrayList<Integer>();
+		this.initBigBangPlayer();
 	}
 	
 	public void addNewWindow() {
@@ -106,6 +112,12 @@ public class BigBangView extends Model implements View {
 		this.initViewParameters();
 		this.initVisibleInterface();
 		this.layerStates = new LayerStates(viewController);
+	}
+	
+	private void initBigBangPlayer() {
+		this.player = new BigBangPlayer();
+		this.playingActive = false;
+		this.setTempo(BigBangPlayer.INITIAL_BPM);
 	}
 	
 	protected void initViewParameters() {
@@ -227,6 +239,16 @@ public class BigBangView extends Model implements View {
 		}
 	}
 	
+	public void togglePlayMode() {
+		this.playingActive = !this.playingActive;
+		if (this.playingActive) {
+			this.player.startPlaying();
+		} else {
+			this.player.stopPlaying();
+		}
+		this.firePropertyChange(ViewController.PLAY_MODE, null, this.playingActive);
+	}
+	
 	public void toggleNoteSelection(Point location) {
 		int selectedNoteCount = this.displayNotes.selectTopOrDeselectAllNotes(location);
 		this.firePropertyChange(ViewController.NOTE_SELECTION, null, selectedNoteCount);
@@ -262,11 +284,6 @@ public class BigBangView extends Model implements View {
 		this.firePropertyChange(ViewController.DISPLAY_TOOL, null, null);
 	}
 	
-	
-	public void togglePlayMode() {
-		this.controller.togglePlayMode();
-	}
-	
 	public void modelPropertyChange(PropertyChangeEvent event) {
 		String propertyName = event.getPropertyName();
 		if (propertyName.equals(BigBangController.COMPOSITION)) {
@@ -279,25 +296,29 @@ public class BigBangView extends Model implements View {
 			this.firePropertyChange(ViewController.REDO, null, event.getNewValue());
 		} else if (propertyName.equals(BigBangController.INPUT_ACTIVE)) {
 			this.firePropertyChange(ViewController.INPUT_ACTIVE, null, event.getNewValue());
+		} else if (propertyName.equals(BigBangController.ADD_OBJECT)) {
+			this.playObject((Denotator)event.getNewValue());
 		}
 	}
 	
 	private void setDisplayNotes(PropertyChangeEvent event, boolean preview) {
 		this.viewController.removeView(this.displayNotes);
 		ScoreChangedNotification notification = (ScoreChangedNotification)event.getNewValue();
-		DenotatorValueExtractor extractor = new DenotatorValueExtractor();
-		DisplayObjectList newNotes = extractor.extractDisplayObjects(viewController, notification, !preview, this.layerStates);
+		DenotatorValueExtractor extractor = new DenotatorValueExtractor(this.viewController, notification, !preview, this.layerStates);
+		DisplayObjectList newObjects = extractor.getDisplayObjects();
 		if (this.modFilterOn) {
-			newNotes.updateModulatorVisibility(this.modLevel, this.modNumber);
+			newObjects.updateModulatorVisibility(this.modLevel, this.modNumber);
 		}
 		if (preview) {
 			this.selectedNotes = notification.getNotesToBeSelected();
 			this.selectedAnchor = notification.getAnchorToBeSelected();
 		} else {
+			//TODO: WHY??
 			this.selectedNotes = null;
 			this.selectedAnchor = null;
 		}
-		this.setDisplayNotes(newNotes, extractor.getMinValues(), extractor.getMaxValues());
+		this.setDisplayNotes(newObjects, extractor.getMinValues(), extractor.getMaxValues());
+		this.updatePlayerScore(extractor.getJSynScore(), notification.playback());
 	}
 	
 	private void setDisplayNotes(DisplayObjectList displayNotes, List<Double> minValues, List<Double> maxValues) {
@@ -523,8 +544,10 @@ public class BigBangView extends Model implements View {
 	
 	public void addObject(Point2D.Double location) {
 		Map<DenotatorPath,Double> denotatorValues = this.getDenotatorValues(location);
-		//int layerIndex = this.layerStates.getSmallestActiveLayerIndex();
-		this.controller.addObject(denotatorValues);
+		//only add object if there are some screen values to be converted
+		if (denotatorValues.size() > 0) {
+			this.controller.addObject(denotatorValues);
+		}
 	}
 	
 	public void deleteSelectedNotes() {
@@ -608,25 +631,25 @@ public class BigBangView extends Model implements View {
 	}
 	
 	private Map<DenotatorPath,Double> getDenotatorValues(Point2D.Double location) {
-		int XParameterIndex = this.viewParameters.getSelected(0);
-		int YParameterIndex = this.viewParameters.getSelected(1);
+		int XValueIndex = this.viewParameters.getValueIndex(0);
+		int YValueIndex = this.viewParameters.getValueIndex(1);
 		Map<DenotatorPath,Double> denotatorValues = this.displayNotes.getTopDenotatorStandardValues(this.standardDenotatorValues, this.selectedColimitCoordinates);
-		if (XParameterIndex >= 0 && YParameterIndex >= 0) {
-			this.replaceDenotatorValue(location.x, XParameterIndex, this.displayPosition.x, this.xZoomFactor, denotatorValues);
-			if (YParameterIndex != XParameterIndex) {
-				this.replaceDenotatorValue(location.y, YParameterIndex, this.displayPosition.y, this.yZoomFactor, denotatorValues);
+		if (XValueIndex >= 0 && YValueIndex >= 0) {
+			this.replaceDenotatorValue(location.x, XValueIndex, 0, this.displayPosition.x, this.xZoomFactor, denotatorValues);
+			if (YValueIndex != XValueIndex) {
+				this.replaceDenotatorValue(location.y, YValueIndex, 1, this.displayPosition.y, this.yZoomFactor, denotatorValues);
 			}
-		} else if (YParameterIndex < 0) {
-			this.replaceDenotatorValue(location.x, XParameterIndex, this.displayPosition.x, this.xZoomFactor, denotatorValues);
+		} else if (YValueIndex < 0) {
+			this.replaceDenotatorValue(location.x, XValueIndex, 0, this.displayPosition.x, this.xZoomFactor, denotatorValues);
 		} else {
-			this.replaceDenotatorValue(location.y, YParameterIndex, this.displayPosition.y, this.yZoomFactor, denotatorValues);
+			this.replaceDenotatorValue(location.y, YValueIndex, 1, this.displayPosition.y, this.yZoomFactor, denotatorValues);
 		}
 		return denotatorValues;
 	}
 	
-	private void replaceDenotatorValue(double displayValue, int parameterIndex, int position, double zoomFactor, Map<DenotatorPath,Double> values) {
-		if (parameterIndex > -1) {
-			DenotatorPath associatedPath = this.displayNotes.getPathInTopDenotatorValues(parameterIndex);
+	private void replaceDenotatorValue(double displayValue, int valueIndex, int parameterIndex, int position, double zoomFactor, Map<DenotatorPath,Double> values) {
+		if (valueIndex > -1) {
+			DenotatorPath associatedPath = this.displayNotes.getPathInTopDenotatorValues(valueIndex);
 			//null happens when satellite or sibling level is selected
 			if (associatedPath != null && this.displayNotes.pathInAllowedColimitBranch(associatedPath, this.selectedColimitCoordinates)) {
 				values.put(associatedPath, this.getDenotatorValue(displayValue, parameterIndex, position, zoomFactor));
@@ -647,7 +670,7 @@ public class BigBangView extends Model implements View {
 	private List<DenotatorPath> getXYValuePaths() {
 		List<DenotatorPath> denotatorPaths = new ArrayList<DenotatorPath>();
 		for (int i = 0; i < 4; i++) {
-			int selectedViewParameter = this.viewParameters.getSelected(i%2);
+			int selectedViewParameter = this.viewParameters.getValueIndex(i%2);
 			//only one parameter might be selected...
 			if (selectedViewParameter >= 0) {
 				denotatorPaths.add(this.displayNotes.getPathInTopDenotatorValues(selectedViewParameter));
@@ -685,6 +708,38 @@ public class BigBangView extends Model implements View {
 	
 	public JPanel getPanel() {
 		return this.panel;
+	}
+	
+	private void updatePlayerScore(JSynScore score, boolean play) {
+		this.player.setScore(score);
+		if (play && this.playingActive && !this.player.isPlaying()) {
+			this.player.startPlaying();
+		}
+	}
+	
+	private void playObject(Denotator object) {
+		if (this.playingActive) {
+			DenotatorValueExtractor extractor = new DenotatorValueExtractor(object);
+			this.player.playObject(extractor.getJSynScore().getObjects().get(0));
+		}
+	}
+	
+	public void setTempo(Integer tempo) {
+		this.player.setTempo(tempo);
+		if (this.playingActive) {
+			this.togglePlayMode();
+		}
+		this.firePropertyChange(ViewController.TEMPO, null, tempo);
+	}
+	
+	public void setFMModel(String fmModel) {
+		//TODO: THINK ABOUT THIS!!! this.score.noteGenerator.setFMModel(fmModel);
+		this.firePropertyChange(ViewController.FM_MODEL, null, fmModel);
+	}
+	
+	public void setWaveform(String waveform) {
+		this.player.setWaveform(waveform);
+		this.firePropertyChange(ViewController.WAVEFORM, null, waveform);
 	}
 
 }

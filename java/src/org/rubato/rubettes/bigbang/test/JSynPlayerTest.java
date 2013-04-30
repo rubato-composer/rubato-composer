@@ -1,6 +1,12 @@
 package org.rubato.rubettes.bigbang.test;
 
-import org.rubato.rubettes.bigbang.model.player.BigBangPlayer;
+import org.rubato.math.yoneda.Denotator;
+import org.rubato.rubettes.bigbang.view.model.DenotatorValueExtractor;
+import org.rubato.rubettes.bigbang.view.player.BigBangPlayer;
+import org.rubato.rubettes.bigbang.view.player.JSynPlayer;
+import org.rubato.rubettes.bigbang.view.player.JSynScore;
+import org.rubato.rubettes.util.ObjectGenerator;
+import org.rubato.rubettes.util.SoundNoteGenerator;
 
 import junit.framework.TestCase;
 
@@ -13,29 +19,44 @@ public class JSynPlayerTest extends TestCase {
 		this.objects = new TestObjects();
 	}
 	
-	public void testGetLimitedValue() {
-		/*JSynPlayer player = new JSynPlayer();
-		double[][] values = new double[20][];
-		for (int i = 0; i < values.length; i++) {
-			values[i] = new double[]{i,80-i,60,5,0};
+	public void testPlayAndReplaceScore() throws InterruptedException {
+		JSynPlayer player = new JSynPlayer();
+		
+		Denotator score = new SoundNoteGenerator().createFlatSoundScore(new double[][]{{0,80,60,.5,0,0},{1,90,50,1,0,0}});
+		player.play(new DenotatorValueExtractor(score).getJSynScore());
+		for (int i = 1; i < 20; i++) {
+			Thread.sleep(100);
+			score = new SoundNoteGenerator().createFlatSoundScore(new double[][]{{0,80-i,60,1,0,0},{1,90-i,50,1,0,0}});
+			player.replaceScore(new DenotatorValueExtractor(score).getJSynScore());
 		}
-		
-		values = new double[][]{{10,80,60,20,0},{11,82,60,30,0},{13,83,60,1,0}};
-		
-		player.play(new JSynScore(values, 1000));
-		Thread.sleep(500);
-		player.stop();*/
+		Thread.sleep(1000);
+
+		player.stopPlaying();
 	}
 	
-	/*public void testPlaySingleNote() throws InterruptedException {
-		BigBangPlayer player = new BigBangPlayer();
-		player.playSingleNote(this.objects.generator.createNodeDenotator(this.objects.NOTE0_VALUES));
-		Thread.sleep(2000);
+	/*public void testGetLimitedValue() throws InterruptedException {
+		JSynPlayer player = new JSynPlayer();
+		double[][] values = new double[20][];
+		for (int i = 0; i < values.length; i++) {
+			values[i] = new double[]{i,80-i,60,5,0,0};
+		}
+		
+		//values = new double[][]{{10,80,60,20,0},{11,82,60,30,0},{13,83,60,1,0}};
+		
+		player.play(new DenotatorValueExtractor(new SoundNoteGenerator().createFlatSoundScore(values)).getJSynScore());
+		Thread.sleep(500);
+		player.stopPlaying();
+	}
+	
+	public void testPlaySingleNote() throws InterruptedException {
+		JSynPlayer player = new JSynPlayer();
+		player.play(new DenotatorValueExtractor(this.objects.generator.createNodeDenotator(this.objects.NOTE0_VALUES)).getJSynScore());
+		Thread.sleep(500);
 	}
 	
 	public void testPlayScore() throws InterruptedException {
-		BigBangPlayer player = new BigBangPlayer();
-		player.playComposition(this.objects.score.getComposition());
+		JSynPlayer player = new JSynPlayer();
+		player.play(new DenotatorValueExtractor(this.objects.score.getComposition()).getJSynScore());
 		Thread.sleep(5000);
 	}*/
 }

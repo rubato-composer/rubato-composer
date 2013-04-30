@@ -15,12 +15,11 @@ import org.rubato.math.yoneda.Denotator;
 import org.rubato.math.yoneda.FactorDenotator;
 import org.rubato.math.yoneda.Form;
 import org.rubato.math.yoneda.LimitDenotator;
-import org.rubato.math.yoneda.PowerDenotator;
 import org.rubato.math.yoneda.SimpleDenotator;
 import org.rubato.rubettes.bigbang.controller.ScoreChangedNotification;
-import org.rubato.rubettes.bigbang.model.player.JSynModulator;
-import org.rubato.rubettes.bigbang.model.player.JSynNote;
 import org.rubato.rubettes.bigbang.view.controller.ViewController;
+import org.rubato.rubettes.bigbang.view.player.JSynObject;
+import org.rubato.rubettes.bigbang.view.player.JSynScore;
 import org.rubato.rubettes.bigbang.view.subview.DisplayObjectList;
 import org.rubato.rubettes.util.DenotatorPath;
 import org.rubato.rubettes.util.DenotatorValueFinder;
@@ -32,6 +31,7 @@ public class DenotatorValueExtractor {
 	private List<String> valueNames;
 	private List<Double> minValues, maxValues;
 	private DisplayObjectList displayObjects;
+	private JSynScore jSynScore;
 	//TreeSet in future for faster searching!!!
 	private boolean selectObjects;
 	private Set<DenotatorPath> selectedPaths;
@@ -39,32 +39,41 @@ public class DenotatorValueExtractor {
 	private LayerStates layerStates;
 	private DenotatorValueFinder finder;
 	
-	//TODO: REMOVE!!!
-	private final int[][] ELEMENT_PATHS = new int[][] {
-			{0,0},{1,0},{2,0},{3,0},{4,0},{5,0}};
-	public static final int[][] DENOTATOR_PATHS = new int[][] {
-			{0},{1},{2},{3},{4},{5}};
+	//TODO: not really nice, but used this way just to get JSynScore..
+	public DenotatorValueExtractor(Denotator score) {
+		//PerformanceCheck.startTask("extract");
+		this.initFinder(score.getForm());
+		this.valueNames = new ArrayList<String>();
+		this.minValues = new ArrayList<Double>();
+		this.maxValues = new ArrayList<Double>();
+		this.displayObjects = new DisplayObjectList(new ViewController(), score.getForm());
+		this.jSynScore = new JSynScore();
+		this.selectObjects = false;
+		this.layerStates = new LayerStates(new ViewController());
+		try {
+			this.extractObjects(score, null, null, null, DenotatorPath.ANCHOR, 0, 0, 0, new DenotatorPath(score.getForm()));
+		} catch (RubatoException e) { e.printStackTrace(); }
+		this.setTopDenotatorParameters();
+		this.layerStates.removeLayers(this.maxLayer);
+	}
 	
-	
-	public DenotatorValueExtractor() {}
-	
-	public DisplayObjectList extractDisplayObjects(ViewController controller, ScoreChangedNotification notification, boolean selectObjects, LayerStates layerStates) {
+	public DenotatorValueExtractor(ViewController controller, ScoreChangedNotification notification, boolean selectObjects, LayerStates layerStates) {
 		//PerformanceCheck.startTask("extract");
 		this.initFinder(notification.getScore().getForm());
 		this.valueNames = new ArrayList<String>();
 		this.minValues = new ArrayList<Double>();
 		this.maxValues = new ArrayList<Double>();
 		this.displayObjects = new DisplayObjectList(controller, notification.getScore().getForm());
+		this.jSynScore = new JSynScore();
 		this.selectObjects = selectObjects;
 		this.selectedPaths = notification.getNotesToBeSelected();
 		this.selectedAnchor = notification.getAnchorToBeSelected();
 		this.layerStates = layerStates;
 		try {
-			this.extractDisplayObjects(notification.getScore(), null, null, DenotatorPath.ANCHOR, 0, 0, 0, new DenotatorPath(notification.getScore().getForm()));
+			this.extractObjects(notification.getScore(), null, null, null, DenotatorPath.ANCHOR, 0, 0, 0, new DenotatorPath(notification.getScore().getForm()));
 		} catch (RubatoException e) { e.printStackTrace(); }
 		this.setTopDenotatorParameters();
 		this.layerStates.removeLayers(this.maxLayer);
-		return this.displayObjects;
 	}
 	
 	private void initFinder(Form form) {
@@ -94,46 +103,43 @@ public class DenotatorValueExtractor {
 	
 	//recursive method!!
 	//TODO: remove relation!! not very interesting anymore..
-	private DisplayObject extractDisplayObjects(Denotator currentDenotator, DisplayObject parent, DisplayObject largerObject, int relation, int satelliteLevel, int siblingNumber, int colimitIndex, DenotatorPath currentPath) throws RubatoException {
+	private void extractObjects(Denotator currentDenotator, DisplayObject parent, DisplayObject currentDisplayObject, JSynObject currentJSynObject, int relation, int satelliteLevel, int siblingNumber, int colimitIndex, DenotatorPath currentPath) throws RubatoException {
 		int denotatorType = currentDenotator.getType();
 		if (denotatorType == Denotator.POWER || denotatorType == Denotator.LIST) {
 			FactorDenotator currentPower = (FactorDenotator)currentDenotator;
+			//TODO: find out if modulators and add them to JSynObject!!
 			for (int i = 0; i < currentPower.getFactorCount(); i++) {
-				//call with largerObject null, since all children become independent objects
-				DisplayObject currentChild = this.extractDisplayObjects(currentPower.getFactor(i), parent, null, DenotatorPath.SATELLITE, satelliteLevel+1, i, colimitIndex, currentPath.getChildPath(i));
-				if (largerObject != null) {
-					largerObject.addChild(currentChild);
-				}
+				//call with currentDisplayObject and currentJSynObject null, since all children become independent objects
+				this.extractObjects(currentPower.getFactor(i), parent, null, null, DenotatorPath.SATELLITE, satelliteLevel+1, i, colimitIndex, currentPath.getChildPath(i));
 			}
 		} else {
-			if (largerObject == null) {
-				largerObject = this.addDisplayObject(currentDenotator, parent, relation, satelliteLevel, siblingNumber, colimitIndex, currentPath);
+			if (currentDisplayObject == null) {
+				currentDisplayObject = this.addDisplayObject(currentDenotator, parent, relation, satelliteLevel, siblingNumber, colimitIndex, currentPath);
+				currentJSynObject = this.jSynScore.addNewObject();
 			}
 			if (denotatorType == Denotator.SIMPLE) {
-				this.addSimpleValues(largerObject, (SimpleDenotator)currentDenotator);
+				this.addSimpleValues(currentDisplayObject, currentJSynObject, (SimpleDenotator)currentDenotator);
 			} else if (denotatorType == Denotator.LIMIT) {
 				LimitDenotator currentLimit = (LimitDenotator)currentDenotator;
 				for (int i = 0; i < currentLimit.getFactorCount(); i++) {
 					Denotator currentChild = currentLimit.getFactor(i);
-					this.extractDisplayObjects(currentChild, parent, largerObject, relation, satelliteLevel, siblingNumber, colimitIndex, currentPath.getChildPath(i));
+					this.extractObjects(currentChild, parent, currentDisplayObject, currentJSynObject, relation, satelliteLevel, siblingNumber, colimitIndex, currentPath.getChildPath(i));
 				}
 			} else if (denotatorType == Denotator.COLIMIT) {
 				ColimitDenotator currentColimit = (ColimitDenotator)currentDenotator;
 				Denotator onlyChild = currentColimit.getFactor();
 				int childIndex = currentColimit.getIndex();
-				largerObject.setColimitIndex(colimitIndex+childIndex);
+				currentDisplayObject.setColimitIndex(colimitIndex+childIndex);
 				colimitIndex += currentColimit.getFactorCount();
 				for (int i = 0; i < currentColimit.getForm().getFormCount(); i++) {
 					if (i == childIndex) {
-						this.extractDisplayObjects(onlyChild, parent, largerObject, relation, satelliteLevel, siblingNumber, childIndex, currentPath.getChildPath(childIndex));
+						this.extractObjects(onlyChild, parent, currentDisplayObject, currentJSynObject, relation, satelliteLevel, siblingNumber, childIndex, currentPath.getChildPath(childIndex));
 					} else {
-						this.addNullValues(largerObject, currentPath.getChildPath(i));
+						this.addNullValues(currentDisplayObject, currentPath.getChildPath(i));
 					}
 				}
 			}
 		}
-		//largerObject may have changed, return for tracking child relationships in case of a Powerset
-		return largerObject;
 	}
 	
 	private DisplayObject addDisplayObject(Denotator denotator, DisplayObject parent, int relation, int satelliteLevel, int siblingNumber, int colimitIndex, DenotatorPath path) {
@@ -163,9 +169,10 @@ public class DenotatorValueExtractor {
 		return new DisplayObject(parent, relation, denotator.getType(), structuralValues, path.clone());
 	}
 	
-	private void addSimpleValues(DisplayObject largerObject, SimpleDenotator simpleDenotator) {
+	private void addSimpleValues(DisplayObject displayObject, JSynObject jSynObject, SimpleDenotator simpleDenotator) {
 		List<Double> objectValues = this.extractValues(simpleDenotator);
-		largerObject.addValues(objectValues);
+		displayObject.addValues(objectValues);
+		jSynObject.addValues(simpleDenotator.getForm(), objectValues); //needs to know forms!!
 		//TODO: a map should keep track which DOs have certain simples so that they can be found quick
 	}
 	
@@ -176,28 +183,7 @@ public class DenotatorValueExtractor {
 		}
 	}
 	
-	//TODO: REWRITE ALL JSYN-RELATED ONES!!!
-	public JSynNote extractValues(Denotator node, int bpm) {
-		try {
-			Denotator note = node.get(new int[]{0});
-			List<Double> noteValues = this.extractValues(note, new ArrayList<Double>());
-			JSynNote jSynNote = new JSynNote(noteValues, bpm);
-			this.extractModulators(jSynNote, note, noteValues);
-			return jSynNote;
-		} catch (RubatoException e) {
-			e.printStackTrace();
-			return null;
-		}
-	}
 	
-	public void extractModulators(JSynNote jSynNote, Denotator note, List<Double> parentValues) throws RubatoException {
-		PowerDenotator modulators = (PowerDenotator)note.get(new int[]{6});
-		for (Denotator currentModulator: modulators.getFactors()) {
-			List<Double> modulatorValues = this.extractValues(currentModulator, parentValues);
-			JSynModulator jSynMod = jSynNote.addModulator(modulatorValues);
-			this.extractModulators(jSynMod, currentModulator, modulatorValues);
-		}
-	}
 	
 	//TODO: maybe outsource, join with ObjectGenerator.createModule
 	private List<Double> extractValues(SimpleDenotator denotator) {
@@ -227,7 +213,7 @@ public class DenotatorValueExtractor {
 		}
 	}
 	
-	//TODO: these valueNames are currently overwritten!!! not needed anymore!!
+	//TODO: these valueNames are currently overwritten!!! BUT: they are needed for identification of min/max!!!
 	private void updateMinAndMax(String simpleName, List<Double> values, List<String> moduleNames) {
 		for (int i = 0; i < values.size(); i++) {
 			String currentName = simpleName + " " + moduleNames.get(i);
@@ -243,15 +229,12 @@ public class DenotatorValueExtractor {
 		}
 	}
 	
-	//TODO: get rid of this at some point
-	private List<Double> extractValues(Denotator note, List<Double> parentValues) throws RubatoException {
-		List<Double> values = new ArrayList<Double>();
-		for (int i = 0; i < 5; i++) {
-			ModuleElement e = note.getElement(this.ELEMENT_PATHS[i]).cast(RRing.ring);
-			values.add(((RElement)e).getValue() + parentValues.get(i));
-		}
-		this.updateMinAndMax("", values, new ArrayList<String>());
-		return values;
+	public DisplayObjectList getDisplayObjects() {
+		return this.displayObjects;
+	}
+	
+	public JSynScore getJSynScore() {
+		return this.jSynScore;
 	}
 	
 	public List<Double> getMinValues() {

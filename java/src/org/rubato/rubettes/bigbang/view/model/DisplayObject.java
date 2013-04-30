@@ -51,6 +51,9 @@ public class DisplayObject implements Comparable<Object> {
 		this.selectionVisible = true;
 		this.structuralIndices = structuralIndices;
 		this.layer = layer;
+		if (this.parent != null) {
+			this.parent.addChild(this);
+		}
 	}
 	
 	public void setDisplay(DisplayContents display) {
