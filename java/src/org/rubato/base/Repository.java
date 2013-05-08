@@ -1096,75 +1096,12 @@ public class Repository
 		// registration of the SoundScore form
 		formRef = new FormReference("SoundScore", Form.POWER);
 	
-		LimitForm soundNodeForm = FormFactory.makeLimitForm("SoundNode", soundNoteForm, formRef);		
+		LimitForm soundNodeForm = FormFactory.makeLimitForm("SoundNode", soundNoteForm, formRef);
 		registerBuiltin(soundNodeForm);
 		PowerForm soundScoreForm = FormFactory.makePowerForm("SoundScore", soundNodeForm);			
 		registerBuiltin(soundScoreForm);
 
 		soundScoreForm.resolveReferences(this);
-		
-		// register Image form
-        SimpleForm xForm = FormFactory.makeRModuleForm("X");
-        registerBuiltin(xForm);
-        SimpleForm yForm = FormFactory.makeRModuleForm("Y");
-        registerBuiltin(yForm);
-        SimpleForm redForm = FormFactory.makeRModuleForm("Red");
-        registerBuiltin(redForm);
-        SimpleForm greenForm = FormFactory.makeRModuleForm("Green");
-        registerBuiltin(greenForm);
-        SimpleForm blueForm = FormFactory.makeRModuleForm("Blue");
-        registerBuiltin(blueForm);
-        SimpleForm alphaForm = FormFactory.makeRModuleForm("Alpha");
-        registerBuiltin(alphaForm);
-		
-		List<Form> pixelFormList = new LinkedList<Form>();
-        List<String> pixelFormLabelList = new LinkedList<String>();
-        pixelFormList.add(xForm);
-        pixelFormLabelList.add("x");
-        pixelFormList.add(yForm);
-        pixelFormLabelList.add("y");
-        pixelFormList.add(redForm);
-        pixelFormLabelList.add("red");
-        pixelFormList.add(greenForm);
-        pixelFormLabelList.add("green");
-        pixelFormList.add(blueForm);
-        pixelFormLabelList.add("blue");
-        pixelFormList.add(alphaForm);
-        pixelFormLabelList.add("alpha");
-		LimitForm pixelForm = FormFactory.makeLimitForm("Pixel", pixelFormList);
-		pixelForm.setLabels(pixelFormLabelList);
-		registerBuiltin(pixelForm);
-		PowerForm imageForm = FormFactory.makePowerForm("Image", pixelForm);			
-		registerBuiltin(imageForm);
-		
-		SimpleForm widthForm = FormFactory.makeRModuleForm("Width");
-        registerBuiltin(widthForm);
-        SimpleForm heightForm = FormFactory.makeRModuleForm("Height");
-        registerBuiltin(heightForm);
-		
-		List<Form> variableSizePixelFormList = new LinkedList<Form>();
-        List<String> variableSizePixelFormLabelList = new LinkedList<String>();
-        variableSizePixelFormList.add(xForm);
-        variableSizePixelFormLabelList.add("x");
-        variableSizePixelFormList.add(yForm);
-        variableSizePixelFormLabelList.add("y");
-        variableSizePixelFormList.add(widthForm);
-        variableSizePixelFormLabelList.add("width");
-        variableSizePixelFormList.add(heightForm);
-        variableSizePixelFormLabelList.add("height");
-        variableSizePixelFormList.add(redForm);
-        variableSizePixelFormLabelList.add("red");
-        variableSizePixelFormList.add(greenForm);
-        variableSizePixelFormLabelList.add("green");
-        variableSizePixelFormList.add(blueForm);
-        variableSizePixelFormLabelList.add("blue");
-        variableSizePixelFormList.add(alphaForm);
-        variableSizePixelFormLabelList.add("alpha");
-		LimitForm variableSizePixelForm = FormFactory.makeLimitForm("VariableSizePixel", variableSizePixelFormList);
-		variableSizePixelForm.setLabels(variableSizePixelFormLabelList);
-		registerBuiltin(variableSizePixelForm);
-		PowerForm vsPixelImageForm = FormFactory.makePowerForm("VSPixelImage", variableSizePixelForm);			
-		registerBuiltin(vsPixelImageForm);
         
         // register modules
         registerBuiltinModule("Integers", ZRing.ring);

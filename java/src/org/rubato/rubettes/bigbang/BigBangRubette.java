@@ -13,6 +13,7 @@ import org.rubato.rubettes.bigbang.controller.BigBangController;
 import org.rubato.rubettes.bigbang.model.BigBangModel;
 import org.rubato.rubettes.bigbang.view.model.BigBangView;
 import org.rubato.rubettes.bigbang.view.model.MTBigBangView;
+import org.rubato.rubettes.util.CoolFormRegistrant;
 import org.rubato.xml.XMLReader;
 import org.rubato.xml.XMLWriter;
 import org.w3c.dom.Element;
@@ -31,7 +32,7 @@ public class BigBangRubette extends AbstractRubette {
 	 * Creates a basic BigBangRubette.
 	 */
 	public BigBangRubette() {
-		//this.initLayeredForms();
+		new CoolFormRegistrant().registerAllTheCoolStuff();
         this.setInCount(1);
         this.setOutCount(1);
         this.controller = new BigBangController();

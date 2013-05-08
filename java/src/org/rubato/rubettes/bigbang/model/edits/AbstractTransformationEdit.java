@@ -75,7 +75,7 @@ public abstract class AbstractTransformationEdit extends AbstractUndoableEdit {
 	}
 	
 	//TODO: return changes in paths!!!
-	public Map<DenotatorPath,DenotatorPath> map(Map<DenotatorPath,DenotatorPath> pathDifferences) {
+	public Map<DenotatorPath,DenotatorPath> map(Map<DenotatorPath,DenotatorPath> pathDifferences, boolean sendCompositionChange) {
 		this.properties.updateNodePaths(pathDifferences);
 		List<DenotatorPath> notePaths = new ArrayList<DenotatorPath>(this.properties.getNodePaths());
 		List<DenotatorPath> valuePaths = this.properties.getValuePaths();
@@ -86,9 +86,10 @@ public abstract class AbstractTransformationEdit extends AbstractUndoableEdit {
 		BigBangTransformation transformation = new BigBangTransformation(this.transformation, valuePaths, copyAndTransform, anchorNodePath);
 		List<DenotatorPath> resultPaths;
 		if (inWallpaperMode) {
+			//TODO: include sendCompositionChange
 			resultPaths = this.scoreManager.addWallpaperTransformation(transformation, inPreviewMode);
 		} else {
-			resultPaths = this.scoreManager.mapNodes(notePaths, transformation, inPreviewMode);
+			resultPaths = this.scoreManager.mapNodes(notePaths, transformation, inPreviewMode, sendCompositionChange);
 		}
 		if (copyAndTransform || inWallpaperMode) {
 			this.copyPaths = resultPaths;

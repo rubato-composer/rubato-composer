@@ -8,25 +8,31 @@ import org.rubato.math.yoneda.Form;
 
 public class JSynObject {
 	
-	private int onsetInTicks;
-	private double frequency;
+	private Double frequency;
 	private double amplitude;
-	private double duration;
-	private int durationInTicks;
+	private Double duration;
 	private int voice;
-	private double symbolicStart, symbolicEnd;
+	private Double onset, offset;
 	private List<JSynModulator> modulators;
 	
 	public JSynObject() {
 		this.modulators = new ArrayList<JSynModulator>();
+		//assign standard values
+		this.setOnset(0);
+		this.setFrequency(60);
+		this.setAmplitude(100);
+		this.setDuration(Double.MAX_VALUE);
+		this.setVoice(0);
 	}
 	
 	public void addValues(Form form, List<Double> values) {
 		Repository repository = Repository.systemRepository();
 		if (form == repository.getForm("Onset")) {
-			this.setOnsetFromDenotator(values.get(0));
+			this.setOnset(values.get(0));
 		} else if (form == repository.getForm("Pitch")) {
 			this.setFrequency(values.get(0));
+		} else if (form == repository.getForm("PitchClass")) {
+			this.setFrequency(60+values.get(0));
 		} else if (form == repository.getForm("Loudness")) {
 			this.setAmplitude(values.get(0));
 		} else if (form == repository.getForm("Duration")) {
@@ -36,38 +42,22 @@ public class JSynObject {
 		}
 	}
 	
-	public boolean playsAt(double symbolicStart, double symbolicEnd) {
-		boolean noIntersection = this.symbolicEnd < symbolicStart || this.symbolicStart > symbolicEnd; 
+	public boolean playsAt(double onset, double offset) {
+		boolean noIntersection = this.offset < onset || this.onset > offset; 
 		return !noIntersection;
 	}
 	
 	public void setOnset(double onset) {
-		this.symbolicStart = onset;
+		this.onset = onset;
+		//this.onsetInTicks = (int) (onset * JSynPlayer.TICKS_PER_SECOND); //(60.0 / bpm * onset * JSynPlayer.TICKS_PER_SECOND);
 	}
 	
 	public double getOnset() {
-		return this.symbolicStart;
-	}
-
-	/*public int getOnsetInTicks() {
-		return this.onsetInTicks;
-	}*/
-
-	private void setOnsetFromDenotator(double onset) {
-		this.symbolicStart = onset;
-		this.onsetInTicks = (int) (onset * JSynPlayer.TICKS_PER_SECOND); //(60.0 / bpm * onset * JSynPlayer.TICKS_PER_SECOND);
-	}
-	
-	public void setOnsetInTicks(int onset) {
-		this.onsetInTicks = onset;
-	}
-	
-	public double getSymbolicStart() {
-		return this.symbolicStart;
+		return this.onset;
 	}
 
 	public double getFrequency() {
-		return frequency;
+		return this.frequency;
 	}
 
 	private void setFrequency(double pitch) {
@@ -84,23 +74,18 @@ public class JSynObject {
 		this.amplitude = loudness/127;
 	}
 	
-	/*public int getDurationInTicks() {
-		return this.durationInTicks;
-	}*/
-	
 	public double getDuration() {
 		return this.duration;
 	}
 
 	private void setDuration(double duration) {
-		this.symbolicEnd = this.symbolicStart + duration;
-		//TODO: why was duration not corrected with TICKS_PER_SECOND???
+		this.offset = this.onset + duration;
 		this.duration = duration;//60.0 / bpm * duration;
-		this.durationInTicks = (int) (duration * JSynPlayer.TICKS_PER_SECOND);
+		//this.durationInTicks = (int) (duration * JSynPlayer.TICKS_PER_SECOND);
 	}
 	
-	public double getSymbolicEnd() {
-		return this.symbolicEnd;
+	public double getOffset() {
+		return this.offset;
 	}
 	
 	public int getVoice() {
@@ -128,7 +113,7 @@ public class JSynObject {
 	}
 	
 	public String toString() {
-		return "(" + this.symbolicStart + " " +this.frequency + " " + this.symbolicEnd + ")";
+		return "(" + this.onset + " " +this.frequency + " " + this.offset + ")";
 	}
 
 }

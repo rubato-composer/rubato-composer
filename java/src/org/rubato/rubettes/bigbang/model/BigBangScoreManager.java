@@ -142,17 +142,19 @@ public class BigBangScoreManager extends Model {
 		}
 	}
 	
-	public List<DenotatorPath> mapNodes(List<DenotatorPath> nodePaths, BigBangTransformation transformation, boolean inPreviewMode) {
+	public List<DenotatorPath> mapNodes(List<DenotatorPath> nodePaths, BigBangTransformation transformation, boolean inPreviewMode, boolean sendCompositionChange) {
 		//PerformanceCheck.startTask("prepare");
 		//this.updateActualScore(inPreviewMode);
 		//PerformanceCheck.startTask("map");
 		BigBangMapper mapper = new BigBangMapper(this.actualScore, transformation);
 		List<DenotatorPath> newPaths = mapper.mapObjects(nodePaths);
 		//PerformanceCheck.startTask("fire");
-		if (inPreviewMode) {
-			this.firePreviewCompositionChange(new TreeSet<DenotatorPath>(nodePaths), transformation.getAnchorNodePath());
-		} else {
-			this.fireCompositionChange(this.actualScore, new TreeSet<DenotatorPath>(newPaths), transformation.getAnchorNodePath(), true);
+		if (sendCompositionChange) {
+			if (inPreviewMode) {
+				this.firePreviewCompositionChange(new TreeSet<DenotatorPath>(nodePaths), transformation.getAnchorNodePath());
+			} else {
+				this.fireCompositionChange(this.actualScore, new TreeSet<DenotatorPath>(newPaths), transformation.getAnchorNodePath(), true);
+			}
 		}
 		//PerformanceCheck.startTask("draw");
 		return newPaths;

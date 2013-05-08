@@ -19,20 +19,35 @@ public class JSynPlayerTest extends TestCase {
 		this.objects = new TestObjects();
 	}
 	
-	public void testPlayAndReplaceScore() throws InterruptedException {
+	public void testMoveScoreInTime() throws InterruptedException {
 		JSynPlayer player = new JSynPlayer();
 		
-		Denotator score = new SoundNoteGenerator().createFlatSoundScore(new double[][]{{0,80,60,.5,0,0},{1,90,50,1,0,0}});
+		Denotator score = new SoundNoteGenerator().createFlatSoundScore(new double[][]{{0,80,60,1.5,0,0},{1,90,50,1,0,0}});
+		player.play(new DenotatorValueExtractor(score).getJSynScore());
+		Thread.sleep(100);
+		score = new SoundNoteGenerator().createFlatSoundScore(new double[][]{{2,80,60,1.5,0,0},{3,90,50,1,0,0}});
+		Thread.sleep(100);
+		score = new SoundNoteGenerator().createFlatSoundScore(new double[][]{{0,80,60,1.5,0,0},{1,90,50,1,0,0}});
+		player.replaceScore(new DenotatorValueExtractor(score).getJSynScore());
+		Thread.sleep(2500);
+
+		player.stopPlaying();
+	}
+	
+	/*public void testPlayAndReplaceScore() throws InterruptedException {
+		JSynPlayer player = new JSynPlayer();
+		
+		Denotator score = new SoundNoteGenerator().createFlatSoundScore(new double[][]{{0,80,60,1.5,0,0},{1,90,50,1,0,0}});
 		player.play(new DenotatorValueExtractor(score).getJSynScore());
 		for (int i = 1; i < 20; i++) {
 			Thread.sleep(100);
-			score = new SoundNoteGenerator().createFlatSoundScore(new double[][]{{0,80-i,60,1,0,0},{1,90-i,50,1,0,0}});
+			score = new SoundNoteGenerator().createFlatSoundScore(new double[][]{{0,80-i,60,1.5,0,0},{1,90-(2*i),50,1,0,0}});
 			player.replaceScore(new DenotatorValueExtractor(score).getJSynScore());
 		}
 		Thread.sleep(1000);
 
 		player.stopPlaying();
-	}
+	}*/
 	
 	/*public void testGetLimitedValue() throws InterruptedException {
 		JSynPlayer player = new JSynPlayer();
