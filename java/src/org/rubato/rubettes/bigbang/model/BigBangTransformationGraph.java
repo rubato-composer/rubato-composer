@@ -35,8 +35,10 @@ public class BigBangTransformationGraph extends ArrayList<AbstractTransformation
 			Map<DenotatorPath,DenotatorPath> pathDifferences = new TreeMap<DenotatorPath,DenotatorPath>();
 			this.get(this.size()-1).setInPreviewMode(inPreviewMode);
 			this.get(0).getScoreManager().resetFactualScore();
-			for (AbstractTransformationEdit edit: this) {
-				pathDifferences = edit.map(pathDifferences);
+			for (int i = 0; i < this.size(); i++) {
+				AbstractTransformationEdit edit = this.get(i);
+				//only preview with last one!!!!!!
+				pathDifferences = edit.map(pathDifferences, i==this.size()-1);
 			}
 		}
 	}

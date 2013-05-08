@@ -29,16 +29,21 @@ class JSynThread extends Thread {
 		this.notes.add(note);
 	}
 	
+	public JSynObject getNoteAt(double time) {
+		for (JSynObject currentObject : this.notes) {
+			if (currentObject.getOnset() <= time && currentObject.getOnset()+currentObject.getDuration() >= time) {
+				return currentObject;
+			}
+		}
+		return null;
+	}
+	
 	public void setModule(JSynModule module) {
 		this.module = module;
 	}
 	
 	public JSynModule getModule() {
 		return this.module;
-	}
-	
-	public List<JSynObject> getNotes() {
-		return this.notes;
 	}
 	
 	public int getVoice() {
@@ -60,16 +65,11 @@ class JSynThread extends Thread {
 	}
 	
 	private void adjustCurrentlyPlayingNote(JSynObject note) {
-		double remainingDuration = note.getDuration();
-		//late schedule or note change
-		if (this.player.getSynthesizer().getCurrentTime() > note.getOnset()) {
-			remainingDuration -= (this.player.getSynthesizer().getCurrentTime()-note.getOnset());
-		}
+		double remainingDuration = note.getDuration() - (this.player.getSynthesizer().getCurrentTime()-note.getOnset());
 		this.module.modifyNote(note, remainingDuration);
 	}
 
 	public void playNotes() throws InterruptedException {
-		//player.advanceTime = (int) (Synth.getTickRate() * JSynPlayer.DEFAULT_ADVANCE);
 		
 		this.noteIterator = this.notes.iterator();
 		JSynObject nextNote = this.iterateThroughPastNotesAndAdjustCurrent();

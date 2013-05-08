@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.jsyn.data.SegmentedEnvelope;
-import com.jsyn.unitgen.Add;
 import com.jsyn.unitgen.LineOut;
 import com.jsyn.unitgen.LinearRamp;
 import com.jsyn.unitgen.UnitGenerator;
@@ -15,14 +14,18 @@ import com.softsynth.shared.time.TimeStamp;
 public class JSynModule {
 	
 	private final double RAMP_DURATION = .02;
+	private final double ATTACK = 0.01;
+	private final double DECAY = 0.03;
 	
 	private JSynPlayer player;
 	private UnitOscillator carrier;
-	private LinearRamp oscSweeper;
+	private LinearRamp carFreqSweeper;
+	private LinearRamp envAmpSweeper;
 	private VariableRateMonoReader envPlayer;
 	private List<UnitGenerator> modulatorUnits;
 	private LineOut lineOut;
-	private boolean isRunning;
+	private boolean hasPlayed;
+	
 	
 	public JSynModule(JSynPlayer player) {
 		this.player = player;
@@ -31,15 +34,20 @@ public class JSynModule {
 	 	this.player.getSynthesizer().add(this.carrier = player.getSpecificOscillator());
 	 	this.modulatorUnits = new ArrayList<UnitGenerator>();
 	 	this.player.getSynthesizer().add(this.envPlayer = new VariableRateMonoReader());
-	 	this.player.getSynthesizer().add(this.oscSweeper = new LinearRamp());
+	 	this.player.getSynthesizer().add(this.carFreqSweeper = new LinearRamp());
+	 	this.player.getSynthesizer().add(this.envAmpSweeper = new LinearRamp());
 	 	this.player.getSynthesizer().add(this.lineOut = new LineOut());
 	 	
 	 	// control carrier frequency with a ramp 
-	 	this.oscSweeper.output.connect(this.carrier.frequency);
-	 	this.oscSweeper.time.set(this.RAMP_DURATION);
+	 	this.carFreqSweeper.output.connect(this.carrier.frequency);
+	 	this.carFreqSweeper.time.set(this.RAMP_DURATION);
 	 	
 	 	// control carrier amplitude with an envelope
-	 	this.envPlayer.output.connect( this.carrier.amplitude );
+	 	this.envPlayer.output.connect(this.carrier.amplitude);
+	 	
+	 	// control envelope amplitude with a ramp 
+	 	this.envAmpSweeper.output.connect(this.envPlayer.amplitude);
+	 	this.envAmpSweeper.time.set(this.RAMP_DURATION);
 
 	 	this.carrier.output.connect( 0, this.lineOut.input, 0 );
 	 	this.carrier.output.connect( 0, this.lineOut.input, 1 );
@@ -47,54 +55,57 @@ public class JSynModule {
 	 	this.start();
 	}
 	
+	public double getCarrierFrequency() {
+		return this.carFreqSweeper.input.get();
+	}
+	
 	public void playNote(JSynObject note) {
 		this.updateCarrierAndModulators(note);
-		this.queueEnvelope(note, 0.005, 0.030, note.getDuration());
+		this.queueEnvelope(note.getDuration(), note.getOnset());
+		this.hasPlayed = true;
 	}
 	
 	public void modifyNote(JSynObject note, double remainingDuration) {
 		this.updateCarrierAndModulators(note);
-		//this.queueEnvelopeWithoutAttackAndDecay(note, remainingDuration);
+		if (!this.hasPlayed) {
+			this.queueEnvelopeWithoutAttackAndDecay(remainingDuration, this.player.getSynthesizer().getCurrentTime());
+			this.hasPlayed = true;
+		}
 	}
 	
 	private void updateCarrierAndModulators(JSynObject note) {
-		//double currentFrequency = this.carrier.frequency.get();
-		//System.out.println(this.carrier +" " +currentFrequency + " " + frequency);
-		//this.oscSweeper.current.set(currentFrequency);
-		//this.oscSweeper.input.set(currentFrequency);
-		this.oscSweeper.input.set(note.getFrequency());
-		//this.carrier.frequency.set(frequency);
 		this.clearModulators();
 		this.generateModulators(note);
+		this.carFreqSweeper.input.set(note.getFrequency());
+		this.envAmpSweeper.input.set(note.getAmplitude()*this.player.getRecommendedAmplitude());
 	}
 	
-	private void queueEnvelopeWithoutAttackAndDecay(JSynObject note, double duration) {
+	private void queueEnvelopeWithoutAttackAndDecay(double duration, double onset) {
 		double[] envelopeData = {
+			this.ATTACK, 0.7,
 			duration-0.035, 0.7, // Sustain
 			0.1, 0.0 // Release
 		};
-		this.queueEnvelope(note, envelopeData);
+		this.queueEnvelope(envelopeData, onset);
 	}
 	
-	private void queueEnvelope(JSynObject note, double attack, double decay, double duration) {
+	private void queueEnvelope(double duration, double onset) {
 		double[] envelopeData = {
-		 	attack, 1.0, // Attack
-		 	decay, 0.8,  // Decay
+		 	this.ATTACK, 1.0, // Attack
+		 	this.DECAY, 0.7,  // Decay
 		 	duration-0.035, 0.7, // Sustain
 		 	0.1, 0.0 // Release
 		};
-		this.queueEnvelope(note, envelopeData);
+		this.queueEnvelope(envelopeData, onset);
 	}
 	
-	private void queueEnvelope(JSynObject note, double[] envelopeData) {
+	private void queueEnvelope(double[] envelopeData, double onset) {
 		// set envelopes amplitude which in turn controls oscillator amplitude
-		this.envPlayer.amplitude.set(note.getAmplitude()*this.player.getRecommendedAmplitude());
 		this.envPlayer.dataQueue.clear(); // clear the queue
-		//System.out.println(duration);
 		
 	 	SegmentedEnvelope envelope = new SegmentedEnvelope(envelopeData);
 		
-	 	this.envPlayer.dataQueue.queue(envelope, 0, envelope.getNumFrames(), new TimeStamp(note.getOnset()));  // queue the envelope
+	 	this.envPlayer.dataQueue.queue(envelope, 0, envelope.getNumFrames(), new TimeStamp(onset));  // queue the envelope
 	 	this.envPlayer.start();
 		//to prevent table 'too many tokens' error
 		//envelope.delete(); TODO: not happen anymore in new version??
@@ -143,26 +154,18 @@ public class JSynModule {
 		this.carrier.start();
 	 	this.envPlayer.start();
 	 	this.lineOut.start();
-	 	this.isRunning = true;
 	}
 	
 	@Override
 	protected void finalize() {
-		System.out.println("finalize!!");
+		this.envAmpSweeper.input.set(0);
+		/*try {
+			Thread.sleep((long)this.RAMP_DURATION);
+		} catch (InterruptedException e) { e.printStackTrace(); }*/
 		this.clearModulators();
-		
 		this.carrier.stop();
 		this.envPlayer.stop();
 		this.lineOut.stop();
-		
-	 	//this.carrier..delete();
-	 	//this.envPlayer.delete();
-	 	//this.lineOut.delete();
-	 	this.isRunning = false;
-	}
-	
-	public boolean isRunning() {
-		return this.isRunning;
 	}
 
 }
