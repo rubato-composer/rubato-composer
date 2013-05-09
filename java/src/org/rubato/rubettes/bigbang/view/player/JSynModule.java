@@ -73,6 +73,10 @@ public class JSynModule {
 		}
 	}
 	
+	public void mute() {
+		this.envAmpSweeper.input.set(0);
+	}
+	
 	private void updateCarrierAndModulators(JSynObject note) {
 		this.clearModulators();
 		this.generateModulators(note);

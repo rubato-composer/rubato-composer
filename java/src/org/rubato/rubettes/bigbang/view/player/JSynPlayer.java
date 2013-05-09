@@ -23,9 +23,8 @@ public class JSynPlayer {
 	
 	public static final int BASE_A4 = 440; // A4 tuning in Hz
 	public static final int SAMPLE_RATE = 44100;
-	public static final int TICKS_PER_SECOND = 689;
-	public static final int PLAYBACK_DELAY = 100; //in miliseconds
 	public static final double DEFAULT_ADVANCE = 0.05; //seconds
+	private final int MAX_NUMBER_OF_THREADS = 200;
 	
 	public static final String[] WAVEFORMS = {"Sine", "Square", "Sawtooth", "Triangle"};
 	
@@ -91,6 +90,46 @@ public class JSynPlayer {
 			this.threads = newThreads;
 		}
 		this.threads.start();
+	}
+	
+	private JSynThreadGroup generateThreads(JSynScore score) {
+		List<JSynObject> notes = score.getObjects();
+		JSynThreadGroup threads = new JSynThreadGroup();
+		if (notes.size() > 0) {
+			double firstOnset = notes.get(0).getOnset();
+			for (JSynObject currentNote : notes) {
+				//correct onset and add note to a thread TODO: think about this!!!
+				currentNote.setOnset(currentNote.getOnset()); //- firstOnset);
+				this.addNoteToConvenientThread(currentNote, threads);
+			}
+		}
+		this.removeExcessiveThreads(threads);
+		return threads;
+	}
+	
+	private void addNoteToConvenientThread(JSynObject note, JSynThreadGroup threads) {
+		double onset = note.getOnset();
+		double offset = note.getOffset();
+		double voice = note.getVoice();
+		boolean convenientThreadFound = false;
+		for (JSynThread currentThread : threads) {
+			if (currentThread.getVoice() == voice) {
+				if (!currentThread.playsAt(onset, offset)) {
+					currentThread.addNote(note);
+					convenientThreadFound = true;
+					return;
+				}
+			}
+		}
+		if (!convenientThreadFound) {
+			threads.add(new JSynThread(this, note));
+		}
+	}
+	
+	private void removeExcessiveThreads(JSynThreadGroup threads) {
+		while (threads.size() > this.MAX_NUMBER_OF_THREADS) {
+			threads.remove((int)Math.round(Math.random()*(threads.size()-1)));
+		}
 	}
 	
 	//reallocate sound modules in a way to get as few glitches as possible
@@ -182,40 +221,6 @@ public class JSynPlayer {
 	public boolean isPlaying() {
 		return this.threads.isRunning();
 	}
-	
-	private JSynThreadGroup generateThreads(JSynScore score) {
-		List<JSynObject> notes = score.getObjects();
-		JSynThreadGroup threads = new JSynThreadGroup();
-		if (notes.size() > 0) {
-			int startTickCount = JSynPlayer.PLAYBACK_DELAY;//Synth.getTickCount() + JSynPlayer.PLAYBACK_DELAY;
-			double firstOnset = notes.get(0).getOnset();
-			for (JSynObject currentNote : notes) {
-				//correct onset and add note to a thread TODO: think about this!!!
-				currentNote.setOnset(currentNote.getOnset() - firstOnset);
-				this.addNoteToConvenientThread(currentNote, threads);
-			}
-		}
-		return threads;
-	}
-	
-	private void addNoteToConvenientThread(JSynObject note, JSynThreadGroup threads) {
-		double onset = note.getOnset();
-		double offset = note.getOffset();
-		double voice = note.getVoice();
-		boolean convenientThreadFound = false;
-		for (JSynThread currentThread : threads) {
-			if (currentThread.getVoice() == voice) {
-				if (!currentThread.playsAt(onset, offset)) {
-					currentThread.addNote(note);
-					convenientThreadFound = true;
-					return;
-				}
-			}
-		}
-		if (!convenientThreadFound) {
-			threads.add(new JSynThread(this, note));
-		}
-	}
 
   /*
    * Clean up synthesis by overriding stop() method.
@@ -229,13 +234,6 @@ public class JSynPlayer {
 			
 			//System.out.println("Stopped " + this);
 		}
-	}
-	
-	public void resetModules() {
-		for (JSynModule currentModule: this.modules) {
-			//currentModule.finalize();
-		}
-		this.modules = new ArrayList<JSynModule>();
 	}
 	
 	public void setWaveform(String waveform) {

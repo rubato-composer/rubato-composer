@@ -92,7 +92,7 @@ class JSynThread extends Thread {
 					/* sleep until advanceTime BEFORE we have to play the next note */
 					this.player.getSynthesizer().sleepUntil(nextOnset  - JSynPlayer.DEFAULT_ADVANCE);
 				} else {
-					this.player.getSynthesizer().sleepUntil(nextOnset + nextNote.getDuration() + .5);
+					//TODO: ok? this.player.getSynthesizer().sleepUntil(nextOnset + nextNote.getDuration() + .5);
 					break;
 				}
 			}
@@ -121,7 +121,7 @@ class JSynThread extends Thread {
 		try {
 			this.playNotes();
 		} catch (InterruptedException e) {
-			e.printStackTrace();
+			//Thread.currentThread().interrupt();
 		}
 	}
 	

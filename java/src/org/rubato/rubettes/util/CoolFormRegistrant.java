@@ -12,12 +12,14 @@ import org.rubato.math.yoneda.SimpleForm;
 
 public class CoolFormRegistrant {
 	
+	public static final String ONSET = "Onset";
+	
 	private final Repository REPOSITORY = Repository.systemRepository();
-	private final SimpleForm ONSET = (SimpleForm)this.REPOSITORY.getForm("Onset");
-	private final SimpleForm PITCH = (SimpleForm)this.REPOSITORY.getForm("Pitch");
-	private final SimpleForm LOUDNESS = (SimpleForm)this.REPOSITORY.getForm("Loudness");
-	private final SimpleForm DURATION = (SimpleForm)this.REPOSITORY.getForm("Duration");
-	private final SimpleForm VOICE = (SimpleForm)this.REPOSITORY.getForm("Voice");
+	private final SimpleForm ONSET_FORM = (SimpleForm)this.REPOSITORY.getForm(ONSET);
+	private final SimpleForm PITCH_FORM = (SimpleForm)this.REPOSITORY.getForm("Pitch");
+	private final SimpleForm LOUDNESS_FORM = (SimpleForm)this.REPOSITORY.getForm("Loudness");
+	private final SimpleForm DURATION_FORM = (SimpleForm)this.REPOSITORY.getForm("Duration");
+	private final SimpleForm VOICE_FORM = (SimpleForm)this.REPOSITORY.getForm("Voice");
 	
 	public CoolFormRegistrant() {
 	}
@@ -31,18 +33,18 @@ public class CoolFormRegistrant {
 		//PitchClassSet
 		SimpleForm pitchClass = this.registerZnModuleForm("PitchClass", 12);
 		this.registerPowerForm("PitchClassSet", pitchClass);
-		LimitForm pitchClassNote = this.registerLimitForm("PitchClassNote", this.ONSET, pitchClass, this.LOUDNESS, this.DURATION, this.VOICE);
+		LimitForm pitchClassNote = this.registerLimitForm("PitchClassNote", this.ONSET_FORM, pitchClass, this.LOUDNESS_FORM, this.DURATION_FORM, this.VOICE_FORM);
 		this.registerPowerForm("PitchClassScore", pitchClassNote);
 		
 		//SoundSpectrum
-		LimitForm overtone = this.registerLimitForm("Overtone", this.PITCH, this.LOUDNESS);
+		LimitForm overtone = this.registerLimitForm("Overtone", this.PITCH_FORM, this.LOUDNESS_FORM);
 		this.registerPowerForm("Spectrum", overtone);
 		
 		//HarmonicSpectrum
 		SimpleForm index = this.registerZModuleForm("OvertoneIndex");
-		LimitForm harmonicOvertone = this.registerLimitForm("HarmonicOvertone", index, this.LOUDNESS);
+		LimitForm harmonicOvertone = this.registerLimitForm("HarmonicOvertone", index, this.LOUDNESS_FORM);
 		PowerForm harmonicOvertones = this.registerPowerForm("HarmonicOvertones", harmonicOvertone);
-		this.registerLimitForm("HarmonicSpectrum", this.PITCH, harmonicOvertones);
+		this.registerLimitForm("HarmonicSpectrum", this.PITCH_FORM, harmonicOvertones);
 	}
 	
 	public void registerImageForms() {

@@ -5,7 +5,6 @@ import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 
 import javax.swing.JOptionPane;
-import javax.swing.JPanel;
 
 import org.rubato.rubettes.bigbang.controller.BigBangController;	
 import org.rubato.rubettes.bigbang.view.model.tools.SelectionTool;
@@ -21,10 +20,11 @@ public class MTBigBangView extends BigBangView {
 	
 	@Override
 	protected void initVisibleInterface() {
-		this.panel = new JPanel();
+		//TODO: was JPanel, refactor later!!!
+		//this.panel = new JBigBangPanel(this.viewController, this.);
 		
 		//Create our mt4j applet
-        this.app = new MTBigBangApp(this.viewController);
+        this.app = new MTBigBangApp(this.viewController, this.player);
         this.app.frame = JOptionPane.getFrameForComponent(this.panel); //Important for registering the Windows 7 Touch input
         this.app.init();
         

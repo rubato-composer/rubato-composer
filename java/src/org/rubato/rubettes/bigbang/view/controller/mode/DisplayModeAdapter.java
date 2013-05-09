@@ -16,18 +16,17 @@ import org.rubato.rubettes.bigbang.view.controller.display.ZoomListener;
 
 public class DisplayModeAdapter implements MouseInputListener, MouseWheelListener {
 	
+	private ViewController controller;
 	protected List<MouseListener> mouseListeners;
 	protected List<MouseInputListener> mouseInputListeners;
 	protected List<MouseWheelListener> mouseWheelListeners;
 	
 	public DisplayModeAdapter(ViewController controller) {
+		this.controller = controller;
 		this.mouseListeners = new ArrayList<MouseListener>();
 		this.mouseInputListeners = new ArrayList<MouseInputListener>();
 		this.mouseWheelListeners = new ArrayList<MouseWheelListener>();
-		this.mouseWheelListeners.add(new ZoomListener(controller));
-		/*JBigBangPopupMenu popup = new JBigBangPopupMenu(controller);
-		//this.display.add(popup);
-		this.mouseListeners.add(new PopupAdapter(popup));*/
+		this.activateMouseWheel();
 	}
 	
 	public void addTo(Component component) {
@@ -88,9 +87,12 @@ public class DisplayModeAdapter implements MouseInputListener, MouseWheelListene
 	}
 
 	public void mouseDragged(MouseEvent event) {
+		//do this because of multitouch trackpad
+		this.deactivateMouseWheel();
 		for (MouseMotionListener currentAdapter: this.mouseInputListeners) {
 			currentAdapter.mouseDragged(event);
 		}
+		this.activateMouseWheel();
 	}
 
 	public void mouseMoved(MouseEvent event) {
@@ -103,6 +105,14 @@ public class DisplayModeAdapter implements MouseInputListener, MouseWheelListene
 		for (MouseWheelListener currentAdapter: this.mouseWheelListeners) {
 			currentAdapter.mouseWheelMoved(event);
 		}
+	}
+	
+	protected void activateMouseWheel() {
+		this.mouseWheelListeners.add(new ZoomListener(this.controller));
+	}
+	
+	protected void deactivateMouseWheel() {
+		this.mouseWheelListeners.remove(0);
 	}
 
 }

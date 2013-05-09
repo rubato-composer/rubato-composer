@@ -1,8 +1,13 @@
 package org.rubato.rubettes.bigbang.view.subview.multitouch;
 
+import org.rubato.rubettes.bigbang.view.player.BigBangPlayer;
 import org.rubato.rubettes.bigbang.view.subview.DisplayContents;
 
 public class MTDisplayContents extends DisplayContents {
+	
+	public MTDisplayContents(BigBangPlayer player) {
+		super(player);
+	}
 	
 	@Override
 	public double getMinVisibleX() {

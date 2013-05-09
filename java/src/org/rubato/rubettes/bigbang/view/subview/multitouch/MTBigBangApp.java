@@ -9,6 +9,7 @@ import org.rubato.rubettes.bigbang.view.controller.ViewController;
 import org.rubato.rubettes.bigbang.view.controller.mode.multitouch.MTDisplayModeAdapter;
 import org.rubato.rubettes.bigbang.view.model.ViewParameters;
 import org.rubato.rubettes.bigbang.view.model.tools.DisplayTool;
+import org.rubato.rubettes.bigbang.view.player.BigBangPlayer;
 import org.rubato.rubettes.bigbang.view.subview.DisplayContents;
 import org.rubato.rubettes.bigbang.view.subview.DisplayObjectList;
 
@@ -24,10 +25,10 @@ public class MTBigBangApp extends MTApplication implements View {
 	private int repaintNumber;
 	private MTDisplayModeAdapter modeAdapter;
 	
-	public MTBigBangApp(ViewController controller) {
+	public MTBigBangApp(ViewController controller, BigBangPlayer player) {
 		this.controller = controller;
 		this.controller.addView(this);
-		this.contents = new MTDisplayContents();
+		this.contents = new MTDisplayContents(player);
 		this.repaintNumber = 0;
 	}
 	

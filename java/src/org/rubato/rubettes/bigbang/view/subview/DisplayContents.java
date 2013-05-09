@@ -7,6 +7,8 @@ import org.rubato.rubettes.bigbang.view.model.DisplayObject;
 import org.rubato.rubettes.bigbang.view.model.ViewParameter;
 import org.rubato.rubettes.bigbang.view.model.ViewParameters;
 import org.rubato.rubettes.bigbang.view.model.tools.DisplayTool;
+import org.rubato.rubettes.bigbang.view.player.BigBangPlayer;
+import org.rubato.rubettes.util.CoolFormRegistrant;
 
 public class DisplayContents {
 	
@@ -16,12 +18,14 @@ public class DisplayContents {
 	protected DisplayObjectList notes;
 	private DisplayAxes axes;
 	private DisplayTool tool;
+	private DisplayPlaybackLine playbackLine;
 	protected int currentWidth, currentHeight;
 	protected double xZoomFactor, yZoomFactor;
 	protected int xPosition, yPosition;
 	private boolean satellitesConnected;
 	
-	public DisplayContents() {
+	public DisplayContents(BigBangPlayer player) {
+		this.playbackLine = new DisplayPlaybackLine(this, player);
 	}
 	
 	public void setNotes(DisplayObjectList notes) {
@@ -173,6 +177,7 @@ public class DisplayContents {
 		this.paintAxes(painter);
 		this.paintNotes(painter);
 		this.paintTool(painter);
+		this.paintPlaybackLine(painter);
 	}
 	
 	public void paintNotes(AbstractPainter painter) {
@@ -187,6 +192,22 @@ public class DisplayContents {
 		if (this.tool != null) {
 			this.tool.paint(painter);
 		}
+	}
+	
+	public void paintPlaybackLine(AbstractPainter painter) {
+		this.playbackLine.paint(painter);
+	}
+	
+	public int getTimeAxisIndex() {
+		//TODO: take "Onset R" from somewhere
+		int onsetValueIndex = this.notes.getValueNames().indexOf("Onset R");
+		if (onsetValueIndex != -1) {
+			int onsetParameterIndex = this.viewParameters.getFirstIndexOfValue(onsetValueIndex);
+			if (onsetParameterIndex < 2) {
+				return onsetParameterIndex;
+			}
+		}
+		return -1;
 	}
 
 }

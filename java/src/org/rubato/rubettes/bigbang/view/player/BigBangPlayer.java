@@ -37,7 +37,11 @@ public class BigBangPlayer extends Thread {
 	}
 	
 	public boolean isPlaying() {
-		return this.isRunning;
+		return this.player.isPlaying();
+	}
+	
+	public double getCurrentTime() {
+		return this.player.getSynthesizer().getCurrentTime();
 	}
 	
 	public synchronized void startPlaying() {
@@ -54,6 +58,7 @@ public class BigBangPlayer extends Thread {
 	}
 	
 	//TODO: make real-time tempo change and continuing play
+	//TODO: WHY WITH THREAD????
 	public void run() {
 		while(this.isRunning) {
 			try { Thread.sleep(100); } catch (InterruptedException e) {}

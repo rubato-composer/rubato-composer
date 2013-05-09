@@ -3,24 +3,29 @@ package org.rubato.rubettes.bigbang.view.subview;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Point;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.beans.PropertyChangeEvent;
 
 import javax.swing.JPanel;
+import javax.swing.Timer;
 
 import org.rubato.rubettes.bigbang.view.View;
 import org.rubato.rubettes.bigbang.view.controller.ViewController;
 import org.rubato.rubettes.bigbang.view.controller.mode.DisplayModeAdapter;
 import org.rubato.rubettes.bigbang.view.model.ViewParameters;
 import org.rubato.rubettes.bigbang.view.model.tools.DisplayTool;
+import org.rubato.rubettes.bigbang.view.player.BigBangPlayer;
 
 public class JBigBangDisplay extends JPanel implements View {
 	
 	private DisplayContents contents;
 	private DisplayModeAdapter modeAdapter;
+	private Timer timer;
 	
-	public JBigBangDisplay(ViewController controller) {
+	public JBigBangDisplay(ViewController controller, BigBangPlayer player) {
 		controller.addView(this);
-		this.contents = new DisplayContents();
+		this.contents = new DisplayContents(player);
 		JBigBangPopupMenu popup = new JBigBangPopupMenu(controller);
 		this.setComponentPopupMenu(popup);
 	}
@@ -35,6 +40,20 @@ public class JBigBangDisplay extends JPanel implements View {
 		}
 		this.modeAdapter = adapter;
 		this.modeAdapter.addTo(this);
+	}
+	
+	public void toggleTimedRepaint() {
+		if (this.timer != null) {
+			this.timer.stop();
+			this.timer = null;
+		} else {
+			this.timer = new Timer(250, new ActionListener() {
+				public void actionPerformed(ActionEvent evt) {
+			    	repaint();
+				}
+			});
+			this.timer.start();
+		}
 	}
 	
 	public void paintComponent(Graphics g) {
