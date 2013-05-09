@@ -121,6 +121,15 @@ public class ViewParameters extends Model {
 		return this.selectedViewParameters[viewParameterIndex];
 	}
 	
+	public int getFirstIndexOfValue(int valueIndex) {
+		for (int i = 0; i < this.selectedViewParameters.length; i++) {
+			if (this.selectedViewParameters[i] == valueIndex) {
+				return i;
+			}
+		}
+		return -1;
+	}
+	
 	public void setDenotatorMinAndMaxValues(List<Double> minValues, List<Double> maxValues) {
 		this.minValues = minValues;
 		this.maxValues = maxValues;

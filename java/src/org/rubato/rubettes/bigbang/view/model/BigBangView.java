@@ -52,9 +52,9 @@ public class BigBangView extends Model implements View {
 	
 	private BigBangController controller;
 	protected ViewController viewController;
-	private BigBangPlayer player;
+	protected BigBangPlayer player;
 	private boolean playingActive;
-	protected JPanel panel;
+	protected JBigBangPanel panel;
 	private LayerStates layerStates;
 	private DisplayModeAdapter displayMode;
 	protected Point displayPosition;
@@ -79,6 +79,7 @@ public class BigBangView extends Model implements View {
 	public BigBangView(BigBangController controller) {
 		this.controller = controller;
 		this.controller.addView(this);
+		this.initBigBangPlayer();
 		this.initViewMVC();
 		this.initViewParameterControls();
 		this.initStandardDenotatorValues();
@@ -92,7 +93,6 @@ public class BigBangView extends Model implements View {
 		this.modFilterOn = false;
 		this.modNumber = -1;
 		this.wallpaperRanges = new ArrayList<Integer>();
-		this.initBigBangPlayer();
 	}
 	
 	public void addNewWindow() {
@@ -106,6 +106,12 @@ public class BigBangView extends Model implements View {
 		this.controller.removeView(this);
 	}
 	
+	private void initBigBangPlayer() {
+		this.player = new BigBangPlayer();
+		this.playingActive = false;
+		this.setTempo(BigBangPlayer.INITIAL_BPM);
+	}
+	
 	private void initViewMVC() {
 		this.viewController = new ViewController();
 		this.viewController.addModel(this);
@@ -114,18 +120,12 @@ public class BigBangView extends Model implements View {
 		this.layerStates = new LayerStates(viewController);
 	}
 	
-	private void initBigBangPlayer() {
-		this.player = new BigBangPlayer();
-		this.playingActive = false;
-		this.setTempo(BigBangPlayer.INITIAL_BPM);
-	}
-	
 	protected void initViewParameters() {
 		this.viewParameters = new ViewParameters(viewController, true);
 	}
 	
 	protected void initVisibleInterface() {
-		this.panel = new JBigBangPanel(this.viewController, this.controller, this.viewParameters);
+		this.panel = new JBigBangPanel(this.viewController, this.controller, this.viewParameters, this.player);
 	}
 	
 	private void initViewParameterControls() {
@@ -246,6 +246,7 @@ public class BigBangView extends Model implements View {
 		} else {
 			this.player.stopPlaying();
 		}
+		this.panel.toggleTimedRepaint();
 		this.firePropertyChange(ViewController.PLAY_MODE, null, this.playingActive);
 	}
 	

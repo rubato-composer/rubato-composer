@@ -28,6 +28,9 @@ public class JSynThreadGroup extends ArrayList<JSynThread> {
 	
 	public void stop() {
 		this.isRunning = false;
+		for (JSynThread currentThread : this) {
+			currentThread.interrupt();
+		}
 	}
 
 }

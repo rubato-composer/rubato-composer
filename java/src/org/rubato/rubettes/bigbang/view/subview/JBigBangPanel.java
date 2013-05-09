@@ -16,6 +16,7 @@ import org.rubato.rubettes.bigbang.controller.BigBangController;
 import org.rubato.rubettes.bigbang.view.controller.ToggleMainOptionsAction;
 import org.rubato.rubettes.bigbang.view.controller.ViewController;
 import org.rubato.rubettes.bigbang.view.model.ViewParameters;
+import org.rubato.rubettes.bigbang.view.player.BigBangPlayer;
 import org.rubato.rubettes.bigbang.view.subview.toolbars.JLayersToolBar;
 import org.rubato.rubettes.bigbang.view.subview.toolbars.JMainToolBar;
 import org.rubato.rubettes.bigbang.view.subview.toolbars.JGraphToolBar;
@@ -23,13 +24,14 @@ import org.rubato.rubettes.bigbang.view.subview.toolbars.JGraphToolBar;
 public class JBigBangPanel extends JPanel {
 	
 	private JMainOptionsPanel mainOptionsPanel;
+	private JBigBangDisplay display;
 	
-	public JBigBangPanel(ViewController controller, BigBangController bbController, ViewParameters viewParameters) {
+	public JBigBangPanel(ViewController controller, BigBangController bbController, ViewParameters viewParameters, BigBangPlayer player) {
 		this.setLayout(new BorderLayout());
 		this.add(this.createToolBarsPanel(controller, bbController), BorderLayout.NORTH);
-		JBigBangDisplay display = new JBigBangDisplay(controller);
-		this.initMenuComponents(display, controller, bbController, viewParameters);
-		this.add(display, BorderLayout.CENTER);
+		this.display = new JBigBangDisplay(controller, player);
+		this.initMenuComponents(this.display, controller, bbController, viewParameters);
+		this.add(this.display, BorderLayout.CENTER);
 		this.add(this.makeButtonPanel(controller), BorderLayout.EAST);
 		new JWindowPreferencesDialog(controller);
 		JBigBangPopupMenu popup = new JBigBangPopupMenu(controller);
@@ -72,6 +74,10 @@ public class JBigBangPanel extends JPanel {
 		constraints.anchor = GridBagConstraints.NORTHEAST;
 		layout.setConstraints(menuButton, constraints);
 		return menuButton;
+	}
+	
+	public void toggleTimedRepaint() {
+		this.display.toggleTimedRepaint();
 	}
 
 }
