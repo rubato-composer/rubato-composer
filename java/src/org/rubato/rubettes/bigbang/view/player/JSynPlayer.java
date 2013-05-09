@@ -14,6 +14,7 @@ import com.jsyn.unitgen.SawtoothOscillator;
 import com.jsyn.unitgen.SineOscillator;
 import com.jsyn.unitgen.SquareOscillator;
 import com.jsyn.unitgen.TriangleOscillator;
+import com.jsyn.unitgen.UnitGenerator;
 import com.jsyn.unitgen.UnitOscillator;
 import com.softsynth.jsyn.SynthException;
 
@@ -32,6 +33,9 @@ public class JSynPlayer {
 	private JSynThreadGroup threads;
 	private List<JSynModule> modules;
 	private String waveform;
+	private double synthTimeAtLastTempoChange;
+	private double symbolicTimeAtLastTempoChange;
+	private double tempo; //in bpm
 	
 	public JSynPlayer() {
 		this.synth = JSyn.createSynthesizer();
@@ -39,10 +43,43 @@ public class JSynPlayer {
 		this.threads = new JSynThreadGroup();
 		this.modules = new ArrayList<JSynModule>();
 		this.setWaveform(JSynPlayer.WAVEFORMS[0]);
+		this.synthTimeAtLastTempoChange = 0;
+		this.symbolicTimeAtLastTempoChange = 0;
 	}
 	
-	public Synthesizer getSynthesizer() {
+	public void addToSynth(UnitGenerator generator) {
+		this.synth.add(generator);
+	}
+	
+	public double getCurrentSynthTime() {
+		return this.synth.getCurrentTime();
+	}
+	
+	public Synthesizer getSynth() {
 		return this.synth;
+	}
+	
+	public double getCurrentSymbolicTime() {
+		double timeSinceLastTempoChange = this.getCurrentSynthTime()-this.synthTimeAtLastTempoChange;
+		return this.symbolicTimeAtLastTempoChange+(this.convertToSymbolicDuration(timeSinceLastTempoChange));
+	}
+	
+	public double getSynthTime(double symbolicTime) {
+		double synthDuration = this.convertToSynthDuration(symbolicTime - this.getCurrentSymbolicTime());
+		return this.getCurrentSynthTime()+synthDuration;
+	}
+	
+	public double convertToSynthOnset(double symbolicOnset) {
+		double synthOnsetFromNow = this.convertToSynthDuration(symbolicOnset - this.getCurrentSymbolicTime());
+		return this.getCurrentSynthTime()+synthOnsetFromNow;
+	}
+	
+	public double convertToSynthDuration(double symbolicDuration) {
+		return symbolicDuration*60/this.tempo;
+	}
+	
+	private double convertToSymbolicDuration(double synthDuration) {
+		return synthDuration/60*this.tempo;
 	}
 
 	/*
@@ -82,6 +119,13 @@ public class JSynPlayer {
 	   }
 	}
 	
+	public void setTempo(int bpm) {
+		this.tempo = bpm;
+		this.symbolicTimeAtLastTempoChange = this.getCurrentSymbolicTime();
+		this.synthTimeAtLastTempoChange = this.synth.getCurrentTime();
+		this.threads.interrupt();
+	}
+	
 	public void replaceScore(JSynScore score) {
 		if (this.isPlaying()) {
 			this.threads.stop();
@@ -115,7 +159,7 @@ public class JSynPlayer {
 		for (JSynThread currentThread : threads) {
 			if (currentThread.getVoice() == voice) {
 				if (!currentThread.playsAt(onset, offset)) {
-					currentThread.addNote(note);
+					currentThread.addObject(note);
 					convenientThreadFound = true;
 					return;
 				}
@@ -150,7 +194,7 @@ public class JSynPlayer {
 		double currentTime = this.synth.getCurrentTime();
 		List<JSynThread> notPlayingThreads = new ArrayList<JSynThread>();
 		for (JSynThread currentThread : threads) {
-			JSynObject objectAtCurrentTime = currentThread.getNoteAt(currentTime);
+			JSynObject objectAtCurrentTime = currentThread.getObjectAt(currentTime);
 			JSynModule closestModule = null; 
 			if (objectAtCurrentTime != null) {
 				double currentFrequency = objectAtCurrentTime.getFrequency();

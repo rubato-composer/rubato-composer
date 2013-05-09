@@ -10,27 +10,27 @@ class JSynThread extends Thread {
 	private JSynThreadGroup group;
 	private JSynModule module;
 	
-	private List<JSynObject> notes;
-	private Iterator<JSynObject> noteIterator;
+	private List<JSynObject> objects;
+	private Iterator<JSynObject> objectIterator;
 	private int voice;
 	
-	public JSynThread(JSynPlayer player, JSynObject note) {
+	public JSynThread(JSynPlayer player, JSynObject object) {
 		this.player = player;
-		this.notes = new ArrayList<JSynObject>();
-		this.voice = note.getVoice();
-		this.addNote(note);
+		this.objects = new ArrayList<JSynObject>();
+		this.voice = object.getVoice();
+		this.addObject(object);
 	}
 	
 	public void setGroup(JSynThreadGroup group) {
 		this.group = group;
 	}
 	
-	public void addNote(JSynObject note) {
-		this.notes.add(note);
+	public void addObject(JSynObject object) {
+		this.objects.add(object);
 	}
 	
-	public JSynObject getNoteAt(double time) {
-		for (JSynObject currentObject : this.notes) {
+	public JSynObject getObjectAt(double time) {
+		for (JSynObject currentObject : this.objects) {
 			if (currentObject.getOnset() <= time && currentObject.getOnset()+currentObject.getDuration() >= time) {
 				return currentObject;
 			}
@@ -51,7 +51,7 @@ class JSynThread extends Thread {
 	}
 	
 	public boolean playsAt(double symbolicStart, double symbolicEnd) {
-		for (JSynObject currentNote : this.notes) {
+		for (JSynObject currentNote : this.objects) {
 			//due to ordering every following note is later
 			if (currentNote.playsAt(symbolicStart, symbolicEnd)) {
 				return true;
@@ -59,40 +59,30 @@ class JSynThread extends Thread {
 		}
 		return false;
 	}
-	
-	private void playNote(JSynObject note) {
-		 this.module.playNote(note);
-	}
-	
-	private void adjustCurrentlyPlayingNote(JSynObject note) {
-		double remainingDuration = note.getDuration() - (this.player.getSynthesizer().getCurrentTime()-note.getOnset());
-		this.module.modifyNote(note, remainingDuration);
-	}
 
 	public void playNotes() throws InterruptedException {
 		
-		this.noteIterator = this.notes.iterator();
+		this.objectIterator = this.objects.iterator();
 		JSynObject nextNote = this.iterateThroughPastNotesAndAdjustCurrent();
 		if (nextNote != null) {
 			double nextOnset = nextNote.getOnset();
 			
-			// try to start in sync
-			this.player.getSynthesizer().sleepUntil(nextNote.getOnset() - JSynPlayer.DEFAULT_ADVANCE);
+			// try to start in sync TODO: MAYBE PUT BACK TO JSYNPLAYER??
+			this.player.getSynth().sleepUntil(this.player.getSynthTime(nextNote.getOnset()) - JSynPlayer.DEFAULT_ADVANCE);
 			
 			while(this.group.isRunning()) {
 				
 				/* Play a note at the specified time. */
-				this.playNote(nextNote);
+				this.module.playOrAdjustObject(nextNote);
 				
-				if (noteIterator.hasNext()) {
-					nextNote = noteIterator.next();
+				if (objectIterator.hasNext()) {
+					nextNote = objectIterator.next();
 					
 					/* Advance nextTime by fixed amount. */
 					nextOnset = nextNote.getOnset();
 					/* sleep until advanceTime BEFORE we have to play the next note */
-					this.player.getSynthesizer().sleepUntil(nextOnset  - JSynPlayer.DEFAULT_ADVANCE);
+					this.player.getSynth().sleepUntil(this.player.getSynthTime(nextOnset) - JSynPlayer.DEFAULT_ADVANCE);
 				} else {
-					//TODO: ok? this.player.getSynthesizer().sleepUntil(nextOnset + nextNote.getDuration() + .5);
 					break;
 				}
 			}
@@ -104,14 +94,18 @@ class JSynThread extends Thread {
 	 * null if there is none.
 	 */
 	private JSynObject iterateThroughPastNotesAndAdjustCurrent() {
-		while (this.noteIterator.hasNext()) {
-			JSynObject currentNote = this.noteIterator.next();
-			if (currentNote.getOnset() < this.player.getSynthesizer().getCurrentTime()) {
-				//if a note is playing now and should be replaced by another
-				if (currentNote.getOnset()+currentNote.getDuration() > this.player.getSynthesizer().getCurrentTime()) {
-					this.adjustCurrentlyPlayingNote(currentNote);
+		boolean foundOneToAdjust = false;
+		while (this.objectIterator.hasNext()) {
+			JSynObject currentNote = this.objectIterator.next();
+			if (currentNote.getOnset() < this.player.getCurrentSymbolicTime()) {
+				this.module.playOrAdjustObject(currentNote);
+				foundOneToAdjust = true;
+			} else {
+				if (!foundOneToAdjust) {
+					this.module.mute();
 				}
-			} else return currentNote;
+				return currentNote;
+			}
 		}
 		return null;
 	}
@@ -121,13 +115,15 @@ class JSynThread extends Thread {
 		try {
 			this.playNotes();
 		} catch (InterruptedException e) {
-			//Thread.currentThread().interrupt();
+			if (this.group.isRunning()) {
+				this.run();
+			}
 		}
 	}
 	
 	public String toString() {
 		String representation = "[";
-		for (JSynObject currentNote: this.notes) {
+		for (JSynObject currentNote: this.objects) {
 			representation += currentNote.toString() + ", ";
 		}
 		representation = representation.substring(0, representation.length()-2);

@@ -46,6 +46,7 @@ public class JBigBangDisplay extends JPanel implements View {
 		if (this.timer != null) {
 			this.timer.stop();
 			this.timer = null;
+			this.repaint();
 		} else {
 			this.timer = new Timer(250, new ActionListener() {
 				public void actionPerformed(ActionEvent evt) {

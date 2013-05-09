@@ -49,7 +49,6 @@ public class JSynObject {
 	
 	public void setOnset(double onset) {
 		this.onset = onset;
-		//this.onsetInTicks = (int) (onset * JSynPlayer.TICKS_PER_SECOND); //(60.0 / bpm * onset * JSynPlayer.TICKS_PER_SECOND);
 	}
 	
 	public double getOnset() {
@@ -80,8 +79,7 @@ public class JSynObject {
 
 	private void setDuration(double duration) {
 		this.offset = this.onset + duration;
-		this.duration = duration;//60.0 / bpm * duration;
-		//this.durationInTicks = (int) (duration * JSynPlayer.TICKS_PER_SECOND);
+		this.duration = duration;
 	}
 	
 	public double getOffset() {
