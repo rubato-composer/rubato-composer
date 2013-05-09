@@ -90,6 +90,7 @@ public class BigBangView extends Model implements View {
 		//TODO:make this automatic when displaynotes loaded!!! depending on max/min and window size
 		this.setDisplayPosition(new Point(20, 560));
 		this.setZoomFactors(5.0, 5.0);
+		this.setTempo(BigBangPlayer.INITIAL_BPM);
 		this.modFilterOn = false;
 		this.modNumber = -1;
 		this.wallpaperRanges = new ArrayList<Integer>();
@@ -109,7 +110,6 @@ public class BigBangView extends Model implements View {
 	private void initBigBangPlayer() {
 		this.player = new BigBangPlayer();
 		this.playingActive = false;
-		this.setTempo(BigBangPlayer.INITIAL_BPM);
 	}
 	
 	private void initViewMVC() {
@@ -727,9 +727,6 @@ public class BigBangView extends Model implements View {
 	
 	public void setTempo(Integer tempo) {
 		this.player.setTempo(tempo);
-		if (this.playingActive) {
-			this.togglePlayMode();
-		}
 		this.firePropertyChange(ViewController.TEMPO, null, tempo);
 	}
 	

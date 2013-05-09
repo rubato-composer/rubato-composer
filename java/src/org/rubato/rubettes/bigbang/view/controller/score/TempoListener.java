@@ -16,7 +16,7 @@ public class TempoListener implements ChangeListener {
 	
 	public void stateChanged(ChangeEvent e) {
 		JSlider tempoSlider = (JSlider)e.getSource();
-		int newTempo = tempoSlider.getValue();
+		int newTempo = (int)Math.round(Math.pow(tempoSlider.getValue(), 2));
 		this.controller.setTempo(newTempo);
 	}
 

@@ -41,7 +41,7 @@ public class JLayersToolBar extends JToolBar implements View {
 	}
 	
 	private void addTempoSlider() {
-		this.tempoSlider = new JSlider(BigBangPlayer.MIN_BPM, BigBangPlayer.MAX_BPM);
+		this.tempoSlider = new JSlider(this.convertToSliderValue(BigBangPlayer.MIN_BPM), this.convertToSliderValue(BigBangPlayer.MAX_BPM));
 		this.tempoSlider.addChangeListener(new TempoListener(this.controller));
 		this.tempoSlider.setPaintTicks(true);
 		this.tempoSlider.setPaintLabels(true);
@@ -75,7 +75,7 @@ public class JLayersToolBar extends JToolBar implements View {
 		} else if (propertyName.equals(ViewController.PLAY_MODE)) {
 			this.playButton.setSelected((Boolean)event.getNewValue());
 		} else if (propertyName.equals(ViewController.TEMPO)) {
-			this.tempoSlider.setValue((Integer)event.getNewValue());
+			this.tempoSlider.setValue(this.convertToSliderValue((Integer)event.getNewValue()));
 		} else if (propertyName.equals(ViewController.TOGGLE_MOD_FILTER)) {
 			this.modFilterButton.setSelected((Boolean)event.getNewValue());
 		} else if (propertyName.equals(ViewController.MOD_FILTER_VALUES)) {
@@ -111,6 +111,10 @@ public class JLayersToolBar extends JToolBar implements View {
 			this.layerButtons.add(newButton);
 			this.add(newButton);
 		}
+	}
+	
+	private int convertToSliderValue(int value) {
+		return (int)Math.round(Math.sqrt((value)));
 	}
 
 }

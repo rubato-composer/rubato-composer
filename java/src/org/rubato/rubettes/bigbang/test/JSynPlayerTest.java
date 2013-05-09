@@ -19,7 +19,7 @@ public class JSynPlayerTest extends TestCase {
 		this.objects = new TestObjects();
 	}
 	
-	public void testMoveScoreInTime() throws InterruptedException {
+	/*public void testMoveScoreInTime() throws InterruptedException {
 		JSynPlayer player = new JSynPlayer();
 		
 		Denotator score = new SoundNoteGenerator().createFlatSoundScore(new double[][]{{0,80,60,1.5,0,0},{1,90,50,1,0,0}});
@@ -32,9 +32,9 @@ public class JSynPlayerTest extends TestCase {
 		Thread.sleep(2500);
 
 		player.stopPlaying();
-	}
+	}*/
 	
-	/*public void testPlayAndReplaceScore() throws InterruptedException {
+	public void testPlayAndReplaceScore() throws InterruptedException {
 		JSynPlayer player = new JSynPlayer();
 		
 		Denotator score = new SoundNoteGenerator().createFlatSoundScore(new double[][]{{0,80,60,1.5,0,0},{1,90,50,1,0,0}});
@@ -47,7 +47,7 @@ public class JSynPlayerTest extends TestCase {
 		Thread.sleep(1000);
 
 		player.stopPlaying();
-	}*/
+	}
 	
 	/*public void testGetLimitedValue() throws InterruptedException {
 		JSynPlayer player = new JSynPlayer();

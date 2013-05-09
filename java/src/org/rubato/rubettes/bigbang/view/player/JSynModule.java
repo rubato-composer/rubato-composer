@@ -14,8 +14,9 @@ import com.softsynth.shared.time.TimeStamp;
 public class JSynModule {
 	
 	private final double RAMP_DURATION = .02;
-	private final double ATTACK = 0.01;
+	private final double ATTACK = 0.002;
 	private final double DECAY = 0.03;
+	private final double RELEASE = 0.1;
 	
 	private JSynPlayer player;
 	private UnitOscillator carrier;
@@ -24,19 +25,18 @@ public class JSynModule {
 	private VariableRateMonoReader envPlayer;
 	private List<UnitGenerator> modulatorUnits;
 	private LineOut lineOut;
-	private boolean hasPlayed;
 	
 	
 	public JSynModule(JSynPlayer player) {
 		this.player = player;
 		
 		// Create unit generators.
-	 	this.player.getSynthesizer().add(this.carrier = player.getSpecificOscillator());
+	 	this.player.addToSynth(this.carrier = player.getSpecificOscillator());
 	 	this.modulatorUnits = new ArrayList<UnitGenerator>();
-	 	this.player.getSynthesizer().add(this.envPlayer = new VariableRateMonoReader());
-	 	this.player.getSynthesizer().add(this.carFreqSweeper = new LinearRamp());
-	 	this.player.getSynthesizer().add(this.envAmpSweeper = new LinearRamp());
-	 	this.player.getSynthesizer().add(this.lineOut = new LineOut());
+	 	this.player.addToSynth(this.envPlayer = new VariableRateMonoReader());
+	 	this.player.addToSynth(this.carFreqSweeper = new LinearRamp());
+	 	this.player.addToSynth(this.envAmpSweeper = new LinearRamp());
+	 	this.player.addToSynth(this.lineOut = new LineOut());
 	 	
 	 	// control carrier frequency with a ramp 
 	 	this.carFreqSweeper.output.connect(this.carrier.frequency);
@@ -59,17 +59,19 @@ public class JSynModule {
 		return this.carFreqSweeper.input.get();
 	}
 	
-	public void playNote(JSynObject note) {
-		this.updateCarrierAndModulators(note);
-		this.queueEnvelope(note.getDuration(), note.getOnset());
-		this.hasPlayed = true;
-	}
-	
-	public void modifyNote(JSynObject note, double remainingDuration) {
-		this.updateCarrierAndModulators(note);
-		if (!this.hasPlayed) {
-			this.queueEnvelopeWithoutAttackAndDecay(remainingDuration, this.player.getSynthesizer().getCurrentTime());
-			this.hasPlayed = true;
+	public void playOrAdjustObject(JSynObject object) {
+		this.updateCarrierAndModulators(object);
+		double currentSymbolicTime = this.player.getCurrentSymbolicTime();
+		if (object.getOnset() > currentSymbolicTime) {
+			double duration = this.player.convertToSynthDuration(object.getDuration());
+			this.queueEnvelope(duration, this.player.convertToSynthOnset(object.getOnset()));
+		} else {
+			double remainingDuration = this.player.convertToSynthDuration(object.getDuration()-(currentSymbolicTime-object.getOnset()));
+			if (remainingDuration > 0) {
+				this.queueEnvelopeWithoutAttackAndDecay(remainingDuration, this.player.getCurrentSynthTime());
+			} else {
+				this.mute();
+			}
 		}
 	}
 	
@@ -87,8 +89,8 @@ public class JSynModule {
 	private void queueEnvelopeWithoutAttackAndDecay(double duration, double onset) {
 		double[] envelopeData = {
 			this.ATTACK, 0.7,
-			duration-0.035, 0.7, // Sustain
-			0.1, 0.0 // Release
+			duration-this.ATTACK, 0.7, // Sustain
+			this.RELEASE, 0.0 // Release
 		};
 		this.queueEnvelope(envelopeData, onset);
 	}
@@ -97,8 +99,8 @@ public class JSynModule {
 		double[] envelopeData = {
 		 	this.ATTACK, 1.0, // Attack
 		 	this.DECAY, 0.7,  // Decay
-		 	duration-0.035, 0.7, // Sustain
-		 	0.1, 0.0 // Release
+		 	duration-(this.ATTACK+this.DECAY), 0.7, // Sustain
+		 	this.RELEASE, 0.0 // Release
 		};
 		this.queueEnvelope(envelopeData, onset);
 	}
