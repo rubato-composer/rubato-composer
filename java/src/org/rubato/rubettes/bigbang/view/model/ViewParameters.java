@@ -44,7 +44,7 @@ public class ViewParameters extends Model {
 		//ViewParameter opacity = new ViewParameter("opacity", false, 1, 0, 1, false);
 		//opacity.setMinAndMaxGoalValues(false, 0, 127, false);
 		if (this.rgbMode) {
-			this.parameters.add(new ViewParameter(RGB_VIEW_PARAMETER_NAMES[2], false, 127, 0, 255, false)); //alpha
+			this.parameters.add(new ViewParameter(RGB_VIEW_PARAMETER_NAMES[2], false, 200, 64, 255, false)); //alpha
 		} else {
 			this.parameters.add(new ViewParameter(HUE_VIEW_PARAMETER_NAMES[2], false, 1, 0.35, 1, false)); //saturation
 		}

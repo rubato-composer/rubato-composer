@@ -24,6 +24,7 @@ public class BigBangScoreManager extends Model {
 	public BigBangScoreManager(BigBangController controller) {
 		controller.addModel(this);
 		this.score = new BigBangScore(BigBangRubette.STANDARD_FORM);
+		this.setForm(BigBangRubette.STANDARD_FORM);
 		this.alteration = new BigBangAlteration(controller);
 	}
 	

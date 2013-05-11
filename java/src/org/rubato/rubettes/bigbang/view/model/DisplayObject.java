@@ -6,6 +6,8 @@ import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
 
 import org.rubato.rubettes.bigbang.view.subview.AbstractPainter;
 import org.rubato.rubettes.bigbang.view.subview.DisplayContents;
@@ -22,8 +24,8 @@ public class DisplayObject implements Comparable<Object> {
 	private DisplayObject parent;
 	private int relation;
 	private List<DisplayObject> children;
-	private List<Double> values;
-	private List<Integer> structuralIndices;
+	private Map<String,Double> values;
+	private List<Integer> structuralIndices; //sibling number, satellite level, colimit index, etc
 	private int layer;
 	private double xDiff, yDiff;
 	private Rectangle2D.Double rectangle;
@@ -42,7 +44,7 @@ public class DisplayObject implements Comparable<Object> {
 	}
 	
 	public DisplayObject(DisplayObject parent, int relation, int topDenotatorType, List<Integer> structuralIndices, DenotatorPath topDenotatorPath, int layer) {
-		this.values = new ArrayList<Double>();
+		this.values = new TreeMap<String,Double>();
 		this.parent = parent;
 		this.relation = relation;
 		this.topDenotatorType = topDenotatorType;
@@ -121,19 +123,34 @@ public class DisplayObject implements Comparable<Object> {
 		this.yDiff += y;
 	}
 	
-	public void addValues(List<Double> values) {
-		this.values.addAll(values);
+	public void addValues(Map<String,Double> values) {
+		this.values.putAll(values);
 	}
 	
-	public Double getValue(int index) {
+	/*public Double getValue(int index) {
 		if (index >= values.size()) {
 			index -= values.size();
 			return this.structuralIndices.get(index).doubleValue();
 		}
 		return this.values.get(index);
+	}*/
+	
+	public Double getValue(String valueName) {
+		if (valueName.equals(DenotatorValueExtractor.SATELLITE_LEVEL) || valueName.equals(DenotatorValueExtractor.COLIMIT_INDEX)) {
+			return this.structuralIndices.get(0).doubleValue();
+		} else if (valueName.equals(DenotatorValueExtractor.SIBLING_NUMBER)) {
+			return this.structuralIndices.get(1).doubleValue();
+		}
+		Double value = this.values.get(valueName);
+		if (value != null) {
+			return value;
+		} else if (this.parent != null) {
+			return this.parent.getValue(valueName);
+		}
+		return null;
 	}
 	
-	public List<Double> getValues() {
+	public Map<String,Double> getValues() {
 		return this.values;
 	}
 	

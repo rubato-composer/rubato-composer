@@ -47,8 +47,8 @@ public class MTDisplayContents extends DisplayContents {
 	
 	@Override
 	protected void updateNoteBounds() {
-		if (this.notes != null) {
-			this.notes.updateBounds(1, 1, 0, 0);
+		if (this.displayObjects != null) {
+			this.displayObjects.updateBounds(1, 1, 0, 0);
 		}
 	}
 

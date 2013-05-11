@@ -39,11 +39,13 @@ public class NoteScalingAdapter extends NoteTransformationAdapter {
 	
 	private double[] calculateScaleFactors(MouseEvent event) {
 		Point endPoint = event.getPoint();
-		double xFactor = Math.abs(endPoint.x-this.startingPoint.x)*2/((ScalingTool)this.displayTool).REFERENCE.getWidth();
+		double referenceWidth = ((ScalingTool)this.displayTool).REFERENCE.getWidth();
+		double xFactor = Math.abs(endPoint.x-this.startingPoint.x+(referenceWidth/2))*2/referenceWidth;
 		if (event.isShiftDown()) {
 			return new double[]{xFactor, xFactor};
 		}
-		double yFactor = Math.abs(endPoint.y-this.startingPoint.y)*2/((ScalingTool)this.displayTool).REFERENCE.getHeight();
+		double referenceHeight = ((ScalingTool)this.displayTool).REFERENCE.getHeight();
+		double yFactor = Math.abs((referenceHeight/2)-(endPoint.y-this.startingPoint.y))*2/referenceHeight;
 		return new double[]{xFactor, yFactor};
 	}
 

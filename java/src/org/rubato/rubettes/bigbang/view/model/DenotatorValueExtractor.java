@@ -1,9 +1,10 @@
 package org.rubato.rubettes.bigbang.view.model;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.TreeMap;
 
 import org.rubato.base.RubatoException;
 import org.rubato.math.module.ModuleElement;
@@ -27,9 +28,12 @@ import org.rubato.rubettes.util.DenotatorValueFinder;
 //TODO: deal with case that different occurences of same form have independent maxima!!!  
 public class DenotatorValueExtractor {
 	
+	public static final String SATELLITE_LEVEL = "Satellite Level";
+	public static final String SIBLING_NUMBER = "Sibling number";
+	public static final String COLIMIT_INDEX = "Colimit index";
+	
 	private int maxLayer;
-	private List<String> valueNames;
-	private List<Double> minValues, maxValues;
+	private Map<String,Double> minValues, maxValues;
 	private DisplayObjectList displayObjects;
 	private JSynScore jSynScore;
 	//TreeSet in future for faster searching!!!
@@ -39,38 +43,31 @@ public class DenotatorValueExtractor {
 	private LayerStates layerStates;
 	private DenotatorValueFinder finder;
 	
-	//TODO: not really nice, but used this way just to get JSynScore..
+	//TODO: not really nice, but used this way just to get JSynScore of independent object..
 	public DenotatorValueExtractor(Denotator score) {
 		//PerformanceCheck.startTask("extract");
-		this.initFinder(score.getForm());
-		this.valueNames = new ArrayList<String>();
-		this.minValues = new ArrayList<Double>();
-		this.maxValues = new ArrayList<Double>();
-		this.displayObjects = new DisplayObjectList(new ViewController(), score.getForm());
-		this.jSynScore = new JSynScore();
-		this.selectObjects = false;
 		this.layerStates = new LayerStates(new ViewController());
-		try {
-			this.extractObjects(score, null, null, null, DenotatorPath.ANCHOR, 0, 0, 0, new DenotatorPath(score.getForm()));
-		} catch (RubatoException e) { e.printStackTrace(); }
-		this.setTopDenotatorParameters();
-		this.layerStates.removeLayers(this.maxLayer);
+		this.initAndExtract(new ViewController(), score, false);
 	}
 	
 	public DenotatorValueExtractor(ViewController controller, ScoreChangedNotification notification, boolean selectObjects, LayerStates layerStates) {
 		//PerformanceCheck.startTask("extract");
-		this.initFinder(notification.getScore().getForm());
-		this.valueNames = new ArrayList<String>();
-		this.minValues = new ArrayList<Double>();
-		this.maxValues = new ArrayList<Double>();
-		this.displayObjects = new DisplayObjectList(controller, notification.getScore().getForm());
-		this.jSynScore = new JSynScore();
-		this.selectObjects = selectObjects;
 		this.selectedPaths = notification.getNotesToBeSelected();
 		this.selectedAnchor = notification.getAnchorToBeSelected();
 		this.layerStates = layerStates;
+		this.initAndExtract(controller, notification.getScore(), selectObjects);
+	}
+	
+	private void initAndExtract(ViewController controller, Denotator score, boolean selectObjects) {
+		Form form = score.getForm();
+		this.initFinder(form);
+		this.minValues = new TreeMap<String,Double>();
+		this.maxValues = new TreeMap<String,Double>();
+		this.displayObjects = new DisplayObjectList(controller, form);
+		this.jSynScore = new JSynScore();
+		this.selectObjects = selectObjects;
 		try {
-			this.extractObjects(notification.getScore(), null, null, null, DenotatorPath.ANCHOR, 0, 0, 0, new DenotatorPath(notification.getScore().getForm()));
+			this.extractObjects(score, null, null, null, DenotatorPath.ANCHOR, 0, 0, 0, new DenotatorPath(score.getForm()));
 		} catch (RubatoException e) { e.printStackTrace(); }
 		this.setTopDenotatorParameters();
 		this.layerStates.removeLayers(this.maxLayer);
@@ -90,15 +87,15 @@ public class DenotatorValueExtractor {
 		this.displayObjects.setTopDenotatorColimitsAndPaths(this.finder.getColimitFormsAndPaths());
 		this.displayObjects.setContainsPowerset(this.finder.formContainsPowerset());
 		
-		this.valueNames = this.finder.getValueNamesInFoundOrder();
+		List<String> valueNames = this.finder.getValueNamesInFoundOrder();
 		if (this.finder.formContainsPowerset()) {
-			this.valueNames.add("Satellite Level");
-			this.valueNames.add("Sibling number");
+			valueNames.add(DenotatorValueExtractor.SATELLITE_LEVEL);
+			valueNames.add(DenotatorValueExtractor.SIBLING_NUMBER);
 		}
 		if (this.finder.formContainsColimit()) {
-			this.valueNames.add("Colimit index");
+			valueNames.add(DenotatorValueExtractor.COLIMIT_INDEX);
 		}
-		this.displayObjects.setValueNames(this.valueNames);
+		this.displayObjects.setValueNames(valueNames);
 	}
 	
 	//recursive method!!
@@ -110,16 +107,14 @@ public class DenotatorValueExtractor {
 			//TODO: find out if modulators and add them to JSynObject!!
 			for (int i = 0; i < currentPower.getFactorCount(); i++) {
 				//call with currentDisplayObject and currentJSynObject null, since all children become independent objects
-				this.extractObjects(currentPower.getFactor(i), parent, null, null, DenotatorPath.SATELLITE, satelliteLevel+1, i, colimitIndex, currentPath.getChildPath(i));
+				this.extractObjects(currentPower.getFactor(i), currentDisplayObject, null, null, DenotatorPath.SATELLITE, satelliteLevel+1, i, colimitIndex, currentPath.getChildPath(i));
 			}
 		} else {
 			if (currentDisplayObject == null) {
 				currentDisplayObject = this.addDisplayObject(currentDenotator, parent, relation, satelliteLevel, siblingNumber, colimitIndex, currentPath);
 				currentJSynObject = this.jSynScore.addNewObject();
 			}
-			if (denotatorType == Denotator.SIMPLE) {
-				this.addSimpleValues(currentDisplayObject, currentJSynObject, (SimpleDenotator)currentDenotator);
-			} else if (denotatorType == Denotator.LIMIT) {
+			if (denotatorType == Denotator.LIMIT) {
 				LimitDenotator currentLimit = (LimitDenotator)currentDenotator;
 				for (int i = 0; i < currentLimit.getFactorCount(); i++) {
 					Denotator currentChild = currentLimit.getFactor(i);
@@ -134,10 +129,10 @@ public class DenotatorValueExtractor {
 				for (int i = 0; i < currentColimit.getForm().getFormCount(); i++) {
 					if (i == childIndex) {
 						this.extractObjects(onlyChild, parent, currentDisplayObject, currentJSynObject, relation, satelliteLevel, siblingNumber, childIndex, currentPath.getChildPath(childIndex));
-					} else {
-						this.addNullValues(currentDisplayObject, currentPath.getChildPath(i));
 					}
 				}
+			} else if (denotatorType == Denotator.SIMPLE) {
+				this.addSimpleValues(parent, currentDisplayObject, currentJSynObject, (SimpleDenotator)currentDenotator);
 			}
 		}
 	}
@@ -169,63 +164,54 @@ public class DenotatorValueExtractor {
 		return new DisplayObject(parent, relation, denotator.getType(), structuralValues, path.clone());
 	}
 	
-	private void addSimpleValues(DisplayObject displayObject, JSynObject jSynObject, SimpleDenotator simpleDenotator) {
-		List<Double> objectValues = this.extractValues(simpleDenotator);
+	private void addSimpleValues(DisplayObject parent, DisplayObject displayObject, JSynObject jSynObject, SimpleDenotator simpleDenotator) {
+		Map<String,Double> objectValues = this.extractValues(simpleDenotator, parent);
 		displayObject.addValues(objectValues);
 		jSynObject.addValues(simpleDenotator.getForm(), objectValues); //needs to know forms!!
-		//TODO: a map should keep track which DOs have certain simples so that they can be found quick
 	}
-	
-	private void addNullValues(DisplayObject largerObject, DenotatorPath path) {
-		DenotatorValueFinder finder = new DenotatorValueFinder(path.getForm(), false);
-		for (int i = 0; i < finder.getValuePathsInFoundOrder().size(); i++) {
-			largerObject.addValues(Arrays.asList(new Double[]{null}));
-		}
-	}
-	
-	
 	
 	//TODO: maybe outsource, join with ObjectGenerator.createModule
-	private List<Double> extractValues(SimpleDenotator denotator) {
-		List<Double> values = new ArrayList<Double>();
-		List<String> moduleNames = new ArrayList<String>();
-		this.extractValues(denotator.getElement(), values, moduleNames, "");
-		this.updateMinAndMax(denotator.getForm().getNameString(), values, moduleNames);
+	private Map<String,Double> extractValues(SimpleDenotator denotator, DisplayObject parent) {
+		Map<String,Double> values = new TreeMap<String,Double>();
+		String simpleName = denotator.getForm().getNameString();
+		this.extractValues(parent, simpleName, denotator.getElement(), values, "");
+		this.updateMinAndMax(values);
 		return values;
 	}
 	
-	private void extractValues(ModuleElement currentElement, List<Double> values, List<String> moduleNames, String indexString) {
+	private void extractValues(DisplayObject parent, String simpleName, ModuleElement currentElement, Map<String,Double> values, String indexString) {
 		if (currentElement instanceof ProductElement) {
 			ProductElement productElement = (ProductElement)currentElement;
 			for (int i = 0; i < productElement.getFactorCount(); i++) {
 				if (!indexString.isEmpty()) indexString += ".";
-				this.extractValues(productElement.getFactor(i), values, moduleNames, indexString+(i+1));
+				this.extractValues(parent, simpleName, productElement.getFactor(i), values, indexString+(i+1));
 			}
 		} else if (currentElement.getModule().getDimension() > 1) {
 			for (int i = 0; i < currentElement.getModule().getDimension(); i++) {
 				if (!indexString.isEmpty()) indexString += ".";
-				this.extractValues(currentElement.getComponent(i), values, moduleNames, indexString+(i+1));
+				this.extractValues(parent, simpleName, currentElement.getComponent(i), values, indexString+(i+1));
 			}
 		} else {
-			values.add(((RElement)currentElement.cast(RRing.ring)).getValue());
-			moduleNames.add(DenotatorValueFinder.makeModuleName(currentElement.getModule(), indexString));
-			//TODO: add functionality for relative def!!! could be selected somewhere in the GUI 
+			String valueName = DenotatorValueFinder.makeValueName(simpleName, currentElement.getModule(), indexString);
+			double value = ((RElement)currentElement.cast(RRing.ring)).getValue();
+			if (parent != null) {
+				Double parentValue = parent.getValue(valueName);
+				if (parentValue != null) {
+					value += parentValue;
+				}
+			}
+			values.put(valueName, value);
 		}
 	}
 	
-	//TODO: these valueNames are currently overwritten!!! BUT: they are needed for identification of min/max!!!
-	private void updateMinAndMax(String simpleName, List<Double> values, List<String> moduleNames) {
-		for (int i = 0; i < values.size(); i++) {
-			String currentName = simpleName + " " + moduleNames.get(i);
-			int nameIndex = this.valueNames.indexOf(currentName);
-			if (nameIndex < 0) {
-				this.valueNames.add(currentName);
-				nameIndex = this.valueNames.size()-1;
-				this.minValues.add(Double.MAX_VALUE);
-				this.maxValues.add(Double.MIN_VALUE);
+	private void updateMinAndMax(Map<String,Double> values) {
+		for (String currentValueName : values.keySet()) {
+			if (!this.minValues.keySet().contains(currentValueName)) {
+				this.minValues.put(currentValueName, Double.MAX_VALUE);
+				this.maxValues.put(currentValueName, -1*Double.MAX_VALUE);
 			}
-			this.minValues.set(nameIndex, Math.min(values.get(i), this.minValues.get(nameIndex)));
-			this.maxValues.set(nameIndex, Math.max(values.get(i), this.maxValues.get(nameIndex)));
+			this.minValues.put(currentValueName, Math.min(values.get(currentValueName), this.minValues.get(currentValueName)));
+			this.maxValues.put(currentValueName, Math.max(values.get(currentValueName), this.maxValues.get(currentValueName)));
 		}
 	}
 	
@@ -238,11 +224,25 @@ public class DenotatorValueExtractor {
 	}
 	
 	public List<Double> getMinValues() {
-		return this.minValues;
+		List<Double> minValues = new ArrayList<Double>();
+		for (String currentValueName : this.displayObjects.getValueNames()) {
+			Double currentValue = this.minValues.get(currentValueName);
+			if (currentValue != null) {
+				minValues.add(currentValue);
+			}
+		}
+		return minValues;
 	}
 	
 	public List<Double> getMaxValues() {
-		return this.maxValues;
+		List<Double> maxValues = new ArrayList<Double>();
+		for (String currentValueName : this.displayObjects.getValueNames()) {
+			Double currentValue = this.maxValues.get(currentValueName);
+			if (currentValue != null) {
+				maxValues.add(currentValue);
+			}
+		}
+		return maxValues;
 	}
 
 }
