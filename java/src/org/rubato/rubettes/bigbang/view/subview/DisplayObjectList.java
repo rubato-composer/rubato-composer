@@ -290,7 +290,7 @@ public class DisplayObjectList extends TreeSet<DisplayObject> implements View {
 	}
 	
 	public void updateModulatorVisibility(int modLevel, int siblingNumber) {
-		for (DisplayObject currentNote: this) {
+		/*TODO:for (DisplayObject currentNote: this) {
 			if (currentNote.getValue(5) == modLevel
 					&& (siblingNumber == -1 || currentNote.getValue(7) == siblingNumber)) {
 				currentNote.setVisibility(LayerState.active);
@@ -298,7 +298,7 @@ public class DisplayObjectList extends TreeSet<DisplayObject> implements View {
 				currentNote.setVisibility(LayerState.invisible);
 				this.deselectNote(currentNote);
 			}
-		}
+		}*/
 	}
 	
 	private void updateVisibility(LayerStates states) {

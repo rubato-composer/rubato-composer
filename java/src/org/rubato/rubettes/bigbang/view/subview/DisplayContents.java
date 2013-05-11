@@ -1,21 +1,20 @@
 package org.rubato.rubettes.bigbang.view.subview;
 
 import java.awt.Point;
-import java.util.List;
+import java.util.Map;
 
 import org.rubato.rubettes.bigbang.view.model.DisplayObject;
 import org.rubato.rubettes.bigbang.view.model.ViewParameter;
 import org.rubato.rubettes.bigbang.view.model.ViewParameters;
 import org.rubato.rubettes.bigbang.view.model.tools.DisplayTool;
 import org.rubato.rubettes.bigbang.view.player.BigBangPlayer;
-import org.rubato.rubettes.util.CoolFormRegistrant;
 
 public class DisplayContents {
 	
 	//finally merge with display!!!!
 	protected ViewParameters viewParameters;
 	private int[] selectedViewParameters;
-	protected DisplayObjectList notes;
+	protected DisplayObjectList displayObjects;
 	private DisplayAxes axes;
 	private DisplayTool tool;
 	private DisplayPlaybackLine playbackLine;
@@ -28,17 +27,17 @@ public class DisplayContents {
 		this.playbackLine = new DisplayPlaybackLine(this, player);
 	}
 	
-	public void setNotes(DisplayObjectList notes) {
-		for (DisplayObject currentNote : notes) {
+	public void setNotes(DisplayObjectList displayObjects) {
+		for (DisplayObject currentNote : displayObjects) {
 			currentNote.setDisplay(this);
 		}
-		this.notes = notes;
+		this.displayObjects = displayObjects;
 		this.updateNoteBounds();
-		this.axes = new DisplayAxes(this, notes.getValueNames());
+		this.axes = new DisplayAxes(this, displayObjects.getValueNames());
 	}
 	
 	public DisplayObjectList getDisplayObjects() {
-		return this.notes;
+		return this.displayObjects;
 	}
 	
 	public void setTool(DisplayTool tool) {
@@ -70,8 +69,8 @@ public class DisplayContents {
 	}
 	
 	protected void updateNoteBounds() {
-		if (this.notes != null) {
-			this.notes.updateBounds(this.xZoomFactor, this.yZoomFactor, this.xPosition, this.yPosition);
+		if (this.displayObjects != null) {
+			this.displayObjects.updateBounds(this.xZoomFactor, this.yZoomFactor, this.xPosition, this.yPosition);
 		}
 	}
 	
@@ -164,12 +163,15 @@ public class DisplayContents {
 		return this.satellitesConnected;
 	}
 	
-	public double translateValue(List<Double> denotatorValues, int i) {
-		int v = this.selectedViewParameters[i];
-		if (v > -1 && v < denotatorValues.size() && denotatorValues.get(v) != null) {
-			return this.viewParameters.get(i).translateDenotatorValue(denotatorValues.get(v));
+	public double translateValue(Map<String,Double> denotatorValues, int viewParameterIndex) {
+		int valueIndex = this.selectedViewParameters[viewParameterIndex];
+		if (valueIndex > -1 && valueIndex < this.displayObjects.getValueNames().size()) {
+			String valueName = this.displayObjects.getValueNames().get(valueIndex);
+			if (denotatorValues.get(valueName) != null) {
+				return this.viewParameters.get(viewParameterIndex).translateDenotatorValue(denotatorValues.get(valueName));
+			}
 		}
-		return this.viewParameters.get(i).getDefaultValue();
+		return this.viewParameters.get(viewParameterIndex).getDefaultValue();
 	}
 	
 	public void paint(AbstractPainter painter, int width, int height) {
@@ -181,7 +183,7 @@ public class DisplayContents {
 	}
 	
 	public void paintNotes(AbstractPainter painter) {
-		this.notes.paint(painter);
+		this.displayObjects.paint(painter);
 	}
 	
 	public void paintAxes(AbstractPainter painter) {
@@ -200,7 +202,7 @@ public class DisplayContents {
 	
 	public int getTimeAxisIndex() {
 		//TODO: take "Onset R" from somewhere
-		int onsetValueIndex = this.notes.getValueNames().indexOf("Onset R");
+		int onsetValueIndex = this.displayObjects.getValueNames().indexOf("Onset R");
 		if (onsetValueIndex != -1) {
 			int onsetParameterIndex = this.viewParameters.getFirstIndexOfValue(onsetValueIndex);
 			if (onsetParameterIndex < 2) {

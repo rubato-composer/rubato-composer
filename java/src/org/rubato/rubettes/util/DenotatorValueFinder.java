@@ -95,20 +95,20 @@ public class DenotatorValueFinder {
 				this.addValueNames(simpleName, currentModule.getComponentModule(i), currentPath.getChildPath(i), indexString+(i+1));
 			}
 		} else {
-			String currentValueName = simpleName + " " + DenotatorValueFinder.makeModuleName(currentModule, indexString);
+			String currentValueName = DenotatorValueFinder.makeValueName(simpleName, currentModule, indexString);
 			this.valueNamesInFoundOrder.add(currentValueName);
 			this.pathsInFoundOrder.add(currentPath);
 			this.valueNamesAndPaths.put(currentValueName, currentPath);
 		}
 	}
 	
-	public static String makeModuleName(Module module, String indexString) {
+	public static String makeValueName(String simpleName, Module module, String indexString) {
 		String moduleName = indexString;
 		if (!indexString.isEmpty()) {
 			moduleName += " ";
 		}
 		moduleName += module.toVisualString();
-		return moduleName;
+		return simpleName + " " + moduleName;
 	}
 
 }

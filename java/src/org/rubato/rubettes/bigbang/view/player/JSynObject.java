@@ -2,6 +2,7 @@ package org.rubato.rubettes.bigbang.view.player;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import org.rubato.base.Repository;
 import org.rubato.math.yoneda.Form;
@@ -25,21 +26,25 @@ public class JSynObject {
 		this.setVoice(0);
 	}
 	
-	public void addValues(Form form, List<Double> values) {
+	public void addValues(Form form, Map<String,Double> values) {
 		Repository repository = Repository.systemRepository();
 		if (form == repository.getForm("Onset")) {
-			this.setOnset(values.get(0));
+			this.setOnset(this.getSingleValue(values));
 		} else if (form == repository.getForm("Pitch")) {
-			this.setFrequency(values.get(0));
+			this.setFrequency(this.getSingleValue(values));
 		} else if (form == repository.getForm("PitchClass")) {
-			this.setFrequency(60+values.get(0));
+			this.setFrequency(60+this.getSingleValue(values));
 		} else if (form == repository.getForm("Loudness")) {
-			this.setAmplitude(values.get(0));
+			this.setAmplitude(this.getSingleValue(values));
 		} else if (form == repository.getForm("Duration")) {
-			this.setDuration(values.get(0));
+			this.setDuration(this.getSingleValue(values));
 		} else if (form == repository.getForm("Voice")) {
-			this.setVoice((int)values.get(0).doubleValue());
+			this.setVoice((int)this.getSingleValue(values));
 		}
+	}
+	
+	private double getSingleValue(Map<String,Double> values) {
+		return values.values().iterator().next();
 	}
 	
 	public boolean playsAt(double onset, double offset) {
@@ -99,7 +104,7 @@ public class JSynObject {
 	}
 	
 	//TODO: won't work!!
-	public JSynModulator addModulator(Form form, List<Double> values) {
+	public JSynModulator addModulator(Form form, Map<String,Double> values) {
 		JSynModulator modulator = new JSynModulator(); 
 		modulator.addValues(form, values);
 		this.modulators.add(modulator);
