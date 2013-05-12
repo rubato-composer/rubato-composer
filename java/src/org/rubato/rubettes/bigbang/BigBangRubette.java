@@ -21,7 +21,7 @@ import org.w3c.dom.Element;
 public class BigBangRubette extends AbstractRubette {
 	
 	public static final boolean IS_MULTITOUCH = false;
-	public static final Form STANDARD_FORM = Repository.systemRepository().getForm("SoundScore");
+	public static final Form STANDARD_FORM = Repository.systemRepository().getForm("Score");
 	
 	//ban model from here!?
 	private BigBangModel model;
