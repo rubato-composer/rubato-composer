@@ -9,7 +9,8 @@ import javax.swing.undo.AbstractUndoableEdit;
 import org.rubato.math.yoneda.Denotator;
 import org.rubato.math.yoneda.Form;
 import org.rubato.rubettes.bigbang.controller.BigBangController;
-import org.rubato.rubettes.bigbang.model.edits.AddObjectEdit;
+import org.rubato.rubettes.bigbang.model.edits.AbstractOperationEdit;
+import org.rubato.rubettes.bigbang.model.edits.AddObjectsEdit;
 import org.rubato.rubettes.bigbang.model.edits.AddWallpaperDimensionEdit;
 import org.rubato.rubettes.bigbang.model.edits.AffineTransformationEdit;
 import org.rubato.rubettes.bigbang.model.edits.CopyObjectsEdit;
@@ -69,7 +70,12 @@ public class BigBangModel extends Model {
 	}
 	
 	public void addObject(TreeMap<DenotatorPath,Double> pathsWithValues) {
-		this.undoRedoModel.postEdit(new AddObjectEdit(this.scoreManager, pathsWithValues));
+		AbstractOperationEdit lastEdit = this.undoRedoModel.getLastEdit();
+		if (lastEdit != null && lastEdit instanceof AddObjectsEdit) {
+			((AddObjectsEdit) lastEdit).addObject(pathsWithValues);
+		} else {
+			this.undoRedoModel.postEdit(new AddObjectsEdit(this.scoreManager, pathsWithValues));
+		}
 	}
 	
 	public void deleteObjects(ArrayList<DenotatorPath> objectPaths) {
@@ -113,7 +119,7 @@ public class BigBangModel extends Model {
 	}
 	
 	private void doTransformation(TransformationProperties properties, AbstractUndoableEdit edit) {
-		if (!properties.inPreviewMode() && !properties.getNodePaths().isEmpty()) {
+		if (!properties.inPreviewMode() && !properties.getObjectPaths().isEmpty()) {
 			this.undoRedoModel.postEdit(edit);
 		} else {
 			this.undoRedoModel.previewTransformationAtEnd(edit);

@@ -8,6 +8,7 @@ import javax.swing.undo.UndoableEditSupport;
 
 import org.rubato.rubettes.bigbang.controller.BigBangController;
 import org.rubato.rubettes.bigbang.controller.Controller;
+import org.rubato.rubettes.bigbang.model.edits.AbstractOperationEdit;
 import org.rubato.rubettes.bigbang.model.edits.AbstractTransformationEdit;
 import org.rubato.rubettes.bigbang.view.model.SelectedPaths;
 
@@ -15,8 +16,8 @@ public class UndoRedoModel extends Model {
 	
 	private UndoManager undoManager;
 	private UndoableEditSupport undoSupport;
-	private BigBangTransformationGraph transformations;
-	private List<AbstractTransformationEdit> undoneTransformations;
+	private BigBangTransformationGraph operations;
+	private List<AbstractOperationEdit> undoneOperations;
 	
 	public UndoRedoModel(Controller controller) {
 		controller.addModel(this);
@@ -25,42 +26,49 @@ public class UndoRedoModel extends Model {
 		this.undoSupport.addUndoableEditListener(new UndoAdaptor(this.undoManager));
 		this.reset();
 		this.firePropertyChange(BigBangController.UNDO, null, this.undoManager);
-		this.firePropertyChange(BigBangController.GRAPH, null, this.transformations);
+		this.firePropertyChange(BigBangController.GRAPH, null, this.operations);
 	}
 	
 	public void newWindowAdded(@SuppressWarnings("unused") SelectedPaths paths) {
-		this.firePropertyChange(BigBangController.GRAPH, null, this.transformations);
+		this.firePropertyChange(BigBangController.GRAPH, null, this.operations);
 	}
 	
 	public void undo() {
 		//try {
 		//this.undoManager.undo();
-		this.undoneTransformations.add(this.transformations.removeLast());
+		this.undoneOperations.add(this.operations.removeLast());
 		//} catch (Exception e) { e.printStackTrace(); }
 		this.firePropertyChange(BigBangController.UNDO, null, this.undoManager);
-		this.firePropertyChange(BigBangController.GRAPH, null, this.transformations);
+		this.firePropertyChange(BigBangController.GRAPH, null, this.operations);
 	}
 	
 	public void redo() {
 		//this.undoManager.redo();
-		this.transformations.add(this.undoneTransformations.remove(this.undoneTransformations.size()-1));
+		this.operations.add(this.undoneOperations.remove(this.undoneOperations.size()-1));
 		this.firePropertyChange(BigBangController.REDO, null, this.undoManager);
-		this.firePropertyChange(BigBangController.GRAPH, null, this.transformations);
+		this.firePropertyChange(BigBangController.GRAPH, null, this.operations);
 	}
 	
 	public void previewTransformationAtEnd(AbstractUndoableEdit edit) {
-		if (edit instanceof AbstractTransformationEdit) {
-			this.transformations.previewTransformationAtEnd((AbstractTransformationEdit)edit);
+		if (edit instanceof AbstractOperationEdit) {
+			this.operations.previewTransformationAtEnd((AbstractTransformationEdit)edit);
 		}
 	}
 	
 	public void postEdit(AbstractUndoableEdit edit) {
 		//this.undoSupport.postEdit(edit);
-		if (edit instanceof AbstractTransformationEdit) {
-			this.transformations.add((AbstractTransformationEdit)edit);
+		if (edit instanceof AbstractOperationEdit) {
+			this.operations.add((AbstractOperationEdit)edit);
 		}
 		this.firePropertyChange(BigBangController.UNDO, null, this.undoManager);
-		this.firePropertyChange(BigBangController.GRAPH, null, this.transformations);
+		this.firePropertyChange(BigBangController.GRAPH, null, this.operations);
+	}
+	
+	public AbstractOperationEdit getLastEdit() {
+		if (this.operations.size() > 0) {
+			return this.operations.get(this.operations.size()-1);
+		}
+		return null;
 	}
 	
 	public void deselectTransformations() {
@@ -68,12 +76,12 @@ public class UndoRedoModel extends Model {
 	}
 	
 	public void modifiedTransformation(Boolean inPreviewMode) {
-		this.transformations.updateScore(inPreviewMode);
+		this.operations.updateScore(inPreviewMode);
 	}
 	
 	public void reset() {
 		this.undoManager.discardAllEdits();
-		this.transformations = new BigBangTransformationGraph();
+		this.operations = new BigBangTransformationGraph();
 		this.deselectTransformations();
 	}
 

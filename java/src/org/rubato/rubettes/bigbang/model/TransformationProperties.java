@@ -8,7 +8,7 @@ import org.rubato.rubettes.util.DenotatorPath;
 
 public class TransformationProperties {
 	
-	private Set<DenotatorPath> nodePaths;
+	private Set<DenotatorPath> objectPaths;
 	private DenotatorPath anchorNodePath;
 	private List<DenotatorPath> valuePaths;
 	private boolean copyAndTransform;
@@ -18,7 +18,7 @@ public class TransformationProperties {
 	private boolean inWallpaperMode;
 	
 	public TransformationProperties(Set<DenotatorPath> nodePaths, List<DenotatorPath> valuePaths, boolean copyAndTransform, boolean inPreviewMode, boolean inWallpaperMode) {
-		this.nodePaths = nodePaths;
+		this.objectPaths = nodePaths;
 		this.valuePaths = valuePaths;
 		this.copyAndTransform = copyAndTransform;
 		this.inPreviewMode = inPreviewMode;
@@ -26,21 +26,21 @@ public class TransformationProperties {
 	}
 	
 	public void setNodePaths(Set<DenotatorPath> nodePaths) {
-		this.nodePaths = nodePaths;
+		this.objectPaths = nodePaths;
 	}
 	
 	public void updateNodePaths(Map<DenotatorPath,DenotatorPath> pathDifferences) {
 		for (DenotatorPath currentPath : pathDifferences.keySet()) {
-			if (this.nodePaths.contains(currentPath)) {
+			if (this.objectPaths.contains(currentPath)) {
 				DenotatorPath newPath = pathDifferences.get(currentPath);
-				this.nodePaths.add(newPath);
-				this.nodePaths.remove(currentPath);
+				this.objectPaths.add(newPath);
+				this.objectPaths.remove(currentPath);
 			}
 		}
 	}
 	
-	public Set<DenotatorPath> getNodePaths() {
-		return this.nodePaths;
+	public Set<DenotatorPath> getObjectPaths() {
+		return this.objectPaths;
 	}
 	
 	public List<DenotatorPath> getValuePaths() {

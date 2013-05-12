@@ -5,8 +5,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
-import javax.swing.undo.AbstractUndoableEdit;
-
 import org.rubato.math.matrix.RMatrix;
 import org.rubato.math.module.morphism.CompositionException;
 import org.rubato.math.module.morphism.ModuleMorphism;
@@ -16,16 +14,14 @@ import org.rubato.rubettes.bigbang.model.BigBangTransformation;
 import org.rubato.rubettes.bigbang.model.TransformationProperties;
 import org.rubato.rubettes.util.DenotatorPath;
 
-public abstract class AbstractTransformationEdit extends AbstractUndoableEdit {
+public abstract class AbstractTransformationEdit extends AbstractOperationEdit {
 	
-	private BigBangScoreManager scoreManager;
 	protected TransformationProperties properties;
-	private List<DenotatorPath> copyPaths;
 	private List<DenotatorPath> previousResultPaths;
 	private ModuleMorphism transformation;
 	
 	public AbstractTransformationEdit(BigBangScoreManager scoreManager, TransformationProperties properties) {
-		this.scoreManager = scoreManager;
+		super(scoreManager);
 		this.properties = properties;
 	}
 	
@@ -39,22 +35,6 @@ public abstract class AbstractTransformationEdit extends AbstractUndoableEdit {
 	public void setInPreviewMode(boolean inPreviewMode) {
 		this.properties.setInPreviewMode(inPreviewMode);
 	}
-	
-	/*public void redo() {
-		super.redo();
-		this.map();
-	}
-	
-	public void undo() {
-		//REMOVE ALL UNDO METHODS
-		super.undo();
-		if (this.properties.copyAndTransform()) {
-			this.score.removeNotes(this.copyPaths);
-		}
-		if (this.properties.inWallpaperMode()) {
-			this.score.removeLastWallpaperTransformation();
-		}
-	}*/
 	
 	protected void initTransformation(RMatrix matrix, double[] shift) {
 		List<RMatrix> matrices = new ArrayList<RMatrix>();
@@ -74,10 +54,14 @@ public abstract class AbstractTransformationEdit extends AbstractUndoableEdit {
 		this.transformation = morphism;
 	}
 	
+	public Map<DenotatorPath,DenotatorPath> execute(Map<DenotatorPath,DenotatorPath> pathDifferences, boolean sendCompositionChange) {
+		return this.map(pathDifferences, sendCompositionChange);
+	}
+	
 	//TODO: return changes in paths!!!
 	public Map<DenotatorPath,DenotatorPath> map(Map<DenotatorPath,DenotatorPath> pathDifferences, boolean sendCompositionChange) {
 		this.properties.updateNodePaths(pathDifferences);
-		List<DenotatorPath> notePaths = new ArrayList<DenotatorPath>(this.properties.getNodePaths());
+		List<DenotatorPath> notePaths = new ArrayList<DenotatorPath>(this.properties.getObjectPaths());
 		List<DenotatorPath> valuePaths = this.properties.getValuePaths();
 		DenotatorPath anchorNodePath = this.properties.getAnchorNodePath();
 		boolean inPreviewMode = this.properties.inPreviewMode();
@@ -89,10 +73,10 @@ public abstract class AbstractTransformationEdit extends AbstractUndoableEdit {
 			//TODO: include sendCompositionChange
 			resultPaths = this.scoreManager.addWallpaperTransformation(transformation, inPreviewMode);
 		} else {
-			resultPaths = this.scoreManager.mapNodes(notePaths, transformation, inPreviewMode, sendCompositionChange);
+			resultPaths = this.scoreManager.mapObjects(notePaths, transformation, inPreviewMode, sendCompositionChange);
 		}
 		if (copyAndTransform || inWallpaperMode) {
-			this.copyPaths = resultPaths;
+			//this.copyPaths = resultPaths;
 		} else {
 			//WOW not at all compatible with dynamic score mapping!!
 			//this.properties.setNodePaths(resultPaths);
@@ -117,16 +101,8 @@ public abstract class AbstractTransformationEdit extends AbstractUndoableEdit {
 		return pathDifferences;
 	}
 	
-	public BigBangScoreManager getScoreManager() {
-		return this.scoreManager;
-	}
-	
 	public List<DenotatorPath> getValuePaths() {
 		return this.properties.getValuePaths();
-	}
-	
-	public String toString() {
-		return this.getPresentationName();
 	}
 	
 	@Override

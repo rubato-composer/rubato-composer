@@ -4,16 +4,17 @@ import java.util.ArrayList;
 import java.util.Map;
 import java.util.TreeMap;
 
+import org.rubato.rubettes.bigbang.model.edits.AbstractOperationEdit;
 import org.rubato.rubettes.bigbang.model.edits.AbstractTransformationEdit;
 import org.rubato.rubettes.util.DenotatorPath;
 
-public class BigBangTransformationGraph extends ArrayList<AbstractTransformationEdit> {
+public class BigBangTransformationGraph extends ArrayList<AbstractOperationEdit> {
 	
 	public BigBangTransformationGraph() {
 	}
 	
 	@Override
-	public boolean add(AbstractTransformationEdit edit) {
+	public boolean add(AbstractOperationEdit edit) {
 		return this.add(edit, false);
 	}
 	
@@ -22,7 +23,7 @@ public class BigBangTransformationGraph extends ArrayList<AbstractTransformation
 		this.removeLastWithoutUpdate();
 	}
 	
-	private boolean add(AbstractTransformationEdit edit, boolean inPreviewMode) {
+	private boolean add(AbstractOperationEdit edit, boolean inPreviewMode) {
 		boolean added = super.add(edit);
 		if (added) {
 			this.updateScore(inPreviewMode);
@@ -34,22 +35,22 @@ public class BigBangTransformationGraph extends ArrayList<AbstractTransformation
 		if (this.size()>0) {
 			Map<DenotatorPath,DenotatorPath> pathDifferences = new TreeMap<DenotatorPath,DenotatorPath>();
 			this.get(this.size()-1).setInPreviewMode(inPreviewMode);
-			this.get(0).getScoreManager().resetFactualScore();
+			this.get(0).getScoreManager().initPreviewScore();
 			for (int i = 0; i < this.size(); i++) {
-				AbstractTransformationEdit edit = this.get(i);
-				//only preview with last one!!!!!!
-				pathDifferences = edit.map(pathDifferences, i==this.size()-1);
+				AbstractOperationEdit edit = this.get(i);
+				//only send composition change with last one!!!!!!
+				pathDifferences = edit.execute(pathDifferences, i==this.size()-1);
 			}
 		}
 	}
 	
-	public AbstractTransformationEdit removeLast() {
-		AbstractTransformationEdit removed = this.removeLastWithoutUpdate();
+	public AbstractOperationEdit removeLast() {
+		AbstractOperationEdit removed = this.removeLastWithoutUpdate();
 		this.updateScore(false);
 		return removed;
 	}
 	
-	private AbstractTransformationEdit removeLastWithoutUpdate() {
+	private AbstractOperationEdit removeLastWithoutUpdate() {
 		return super.remove(this.size()-1);
 	}
 
