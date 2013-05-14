@@ -75,13 +75,13 @@ public class BigBangScore implements Cloneable {
 	 * @param layerIndex the layer on which it is to be added
 	 * @return the new path of the object
 	 */
-	public DenotatorPath addObject(Map<DenotatorPath,Double> pathsWithValues) {
-		DenotatorPath topPowersetPath = this.objectGenerator.getTopPowersetPath();
-		Denotator newObject = this.objectGenerator.createTopLevelObject(pathsWithValues);
-		if (topPowersetPath != null) {
-			return this.addObject(newObject, topPowersetPath);
+	public DenotatorPath addObject(DenotatorPath powersetPath, Map<DenotatorPath,Double> pathsWithValues) {
+		if (powersetPath != null) {
+			Denotator newObject = this.objectGenerator.createObject(powersetPath.getChildPath(0).getForm(), pathsWithValues);
+			return this.addObject(newObject, powersetPath);
 		}
-		//no powerset to add it in, so replace the whole score
+		//no powerset specified to add it in, try to replace the whole score
+		Denotator newObject = this.objectGenerator.createObject(this.score.getForm(), pathsWithValues);
 		this.setComposition(newObject);
 		return new DenotatorPath(this.score.getForm());
 	}
@@ -369,7 +369,7 @@ public class BigBangScore implements Cloneable {
 		
 		while (objectPathsIterator.hasNext()) {
 			currentObjectPath = objectPathsIterator.next();
-			if (currentObjectPath.isChildOf(parentPath)) {
+			if (currentObjectPath.isSatelliteOf(parentPath)) {
 				currentSiblings.add(this.getObject(currentObjectPath, remove));
 			} else {
 				absoluteObjects.addAll(this.makeObjectsAbsolute(currentSiblings, parentPath));

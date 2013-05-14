@@ -15,9 +15,7 @@ import java.util.TreeMap;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
-import org.rubato.math.yoneda.ColimitForm;
 import org.rubato.math.yoneda.Denotator;
-import org.rubato.math.yoneda.Form;
 import org.rubato.rubettes.bigbang.controller.BigBangController;
 import org.rubato.rubettes.bigbang.controller.ScoreChangedNotification;
 import org.rubato.rubettes.bigbang.model.Model;
@@ -46,7 +44,6 @@ import org.rubato.rubettes.bigbang.view.player.JSynScore;
 import org.rubato.rubettes.bigbang.view.subview.DisplayObjectList;
 import org.rubato.rubettes.bigbang.view.subview.JBigBangPanel;
 import org.rubato.rubettes.util.DenotatorPath;
-import org.rubato.rubettes.util.DenotatorValueFinder;
 
 public class BigBangView extends Model implements View {
 	
@@ -65,7 +62,6 @@ public class BigBangView extends Model implements View {
 	private boolean viewParametersVisible;
 	protected ViewParameters viewParameters;
 	private Map<String,Double> standardDenotatorValues;
-	private List<Integer> selectedColimitCoordinates;
 	private boolean satellitesConnected;
 	protected DisplayObjectList displayNotes;
 	private DisplayTool displayTool;
@@ -83,7 +79,6 @@ public class BigBangView extends Model implements View {
 		this.initViewMVC();
 		this.initViewParameterControls();
 		this.initStandardDenotatorValues();
-		this.initSelectedColimitCoordinates(0);
 		this.setDisplayNotes(new DisplayObjectList(viewController, null), new ArrayList<Double>(), new ArrayList<Double>());
 		this.setSatellitesConnected(true);
 		this.setDisplayMode(new DrawingModeAdapter(viewController));
@@ -141,13 +136,6 @@ public class BigBangView extends Model implements View {
 		this.standardDenotatorValues.put("Pitch Q", 60.0);
 		this.standardDenotatorValues.put("Loudness Z", 120.0);
 		this.standardDenotatorValues.put("Duration R", 1.0);
-	}
-	
-	private void initSelectedColimitCoordinates(int numberOfColimits) {
-		this.selectedColimitCoordinates = new ArrayList<Integer>();
-		for (int i = 0; i < numberOfColimits; i++) {
-			this.selectedColimitCoordinates.add(0);
-		}
 	}
 	
 	public void setDisplayPosition(Point position) {
@@ -329,9 +317,12 @@ public class BigBangView extends Model implements View {
 			} else {
 				this.viewParameters.initSelections(displayNotes.getValueNames().size());
 			}
-			this.initSelectedColimitCoordinates(displayNotes.getTopDenotatorColimits().size());
 			this.firePropertyChange(ViewController.FORM, null, displayNotes);
-			this.firePropertyChange(ViewController.SELECTED_COLIMIT_COORDINATE, null, this.selectedColimitCoordinates);
+			this.firePropertyChange(ViewController.SELECTED_COLIMIT_COORDINATE, null, displayNotes.getSelectedColimitCoordinates());
+		} else {
+			//TODO: dumb, make displaynotes permanent so they keep these values
+			displayNotes.setSelectedObject(this.displayNotes.getSelectedObject());
+			displayNotes.setSelectedColimitCoordinates(this.displayNotes.getSelectedColimitCoordinates());
 		}
 		this.displayNotes = displayNotes;
 		this.viewParameters.setDenotatorMinAndMaxValues(minValues, maxValues);
@@ -357,23 +348,15 @@ public class BigBangView extends Model implements View {
 		return values;
 	}
 	
+	public void setSelectedObject(Integer objectIndex) {
+		this.displayNotes.setSelectedObject(objectIndex);
+		this.firePropertyChange(ViewController.SELECTED_OBJECT, null, objectIndex);
+		//TODO: update selectable colimits!!!!!!!
+	}
+	
 	public void setSelectedColimitCoordinate(Integer colimitIndex, Integer coordinateIndex) {
-		List<ColimitForm> topDenotatorColimits = this.displayNotes.getTopDenotatorColimits();
-		if (coordinateIndex >= 0 && topDenotatorColimits.size() > colimitIndex && topDenotatorColimits.get(colimitIndex).getForms().size() >= coordinateIndex) {
-			this.selectedColimitCoordinates.set(colimitIndex, coordinateIndex);
-			//set all ColimitForms impossible to reach to -1
-			//TODO: does not account for forms that contain the same colimit several times
-			Form coordinateForm = topDenotatorColimits.get(colimitIndex).getForm(coordinateIndex);
-			List<ColimitForm> subColimits = new DenotatorValueFinder(coordinateForm, false).getColimitsFoundInOrder();
-			for (int i = colimitIndex+1; i < topDenotatorColimits.size(); i++) {
-				if (!subColimits.contains(topDenotatorColimits.get(i))) {
-					this.selectedColimitCoordinates.set(i, -1);
-				} else if (this.selectedColimitCoordinates.get(i) == -1) {
-					this.selectedColimitCoordinates.set(i, 0);
-				}
-			}
-			this.firePropertyChange(ViewController.SELECTED_COLIMIT_COORDINATE, null, this.selectedColimitCoordinates);
-		}
+		this.displayNotes.setSelectedColimitCoordinate(colimitIndex, coordinateIndex);
+		this.firePropertyChange(ViewController.SELECTED_COLIMIT_COORDINATE, null, this.displayNotes.getSelectedColimitCoordinates());
 	}
 	
 	public void selectTransformation(AbstractTransformationEdit edit) {
@@ -544,10 +527,16 @@ public class BigBangView extends Model implements View {
 	}
 	
 	public void addObject(Point2D.Double location) {
-		Map<DenotatorPath,Double> denotatorValues = this.getDenotatorValues(location);
+		Map<DenotatorPath,Double> objectValues = this.displayNotes.getObjectStandardValues(this.standardDenotatorValues);
+		DenotatorPath objectPowersetPath = this.editDenotatorValuesAndReturnPowerset(location, objectValues);
+		
 		//only add object if there are some screen values to be converted
-		if (denotatorValues.size() > 0) {
-			this.controller.addObject(denotatorValues);
+		if (!objectValues.isEmpty()) {
+			if (objectPowersetPath != null) {
+				this.controller.addObject(objectValues, objectPowersetPath);
+			} else {
+				this.controller.addObject(objectValues);
+			}
 		}
 	}
 	
@@ -631,10 +620,10 @@ public class BigBangView extends Model implements View {
 		return new double[] {xValue, yValue};
 	}
 	
-	private Map<DenotatorPath,Double> getDenotatorValues(Point2D.Double location) {
+	private DenotatorPath editDenotatorValuesAndReturnPowerset(Point2D.Double location, Map<DenotatorPath,Double> denotatorValues) {
+		DenotatorPath powersetPath = this.displayNotes.getSelectedObjectPath().getParentPath();
 		int XValueIndex = this.viewParameters.getValueIndex(0);
 		int YValueIndex = this.viewParameters.getValueIndex(1);
-		Map<DenotatorPath,Double> denotatorValues = this.displayNotes.getTopDenotatorStandardValues(this.standardDenotatorValues, this.selectedColimitCoordinates);
 		if (XValueIndex >= 0 && YValueIndex >= 0) {
 			this.replaceDenotatorValue(location.x, XValueIndex, 0, this.displayPosition.x, this.xZoomFactor, denotatorValues);
 			if (YValueIndex != XValueIndex) {
@@ -645,14 +634,15 @@ public class BigBangView extends Model implements View {
 		} else {
 			this.replaceDenotatorValue(location.y, YValueIndex, 1, this.displayPosition.y, this.yZoomFactor, denotatorValues);
 		}
-		return denotatorValues;
+		//TODO: at time it's only first powerset path. find best one from screen position
+		return powersetPath;
 	}
 	
 	private void replaceDenotatorValue(double displayValue, int valueIndex, int parameterIndex, int position, double zoomFactor, Map<DenotatorPath,Double> values) {
 		if (valueIndex > -1) {
-			DenotatorPath associatedPath = this.displayNotes.getPathInTopDenotatorValues(valueIndex);
+			DenotatorPath associatedPath = this.displayNotes.getObjectValuePathAt(valueIndex);
 			//null happens when satellite or sibling level is selected
-			if (associatedPath != null && this.displayNotes.pathInAllowedColimitBranch(associatedPath, this.selectedColimitCoordinates)) {
+			if (associatedPath != null && this.displayNotes.pathInAllowedColimitBranch(associatedPath)) {
 				values.put(associatedPath, this.getDenotatorValue(displayValue, parameterIndex, position, zoomFactor));
 			}
 		}
@@ -674,7 +664,7 @@ public class BigBangView extends Model implements View {
 			int selectedViewParameter = this.viewParameters.getValueIndex(i%2);
 			//only one parameter might be selected...
 			if (selectedViewParameter >= 0) {
-				denotatorPaths.add(this.displayNotes.getPathInTopDenotatorValues(selectedViewParameter));
+				denotatorPaths.add(this.displayNotes.getObjectValuePathAt(selectedViewParameter));
 			} else {
 				denotatorPaths.add(null);
 			}
@@ -684,7 +674,7 @@ public class BigBangView extends Model implements View {
 	
 	private int[] getXYViewParameters(List<DenotatorPath> denotatorPaths) {
 		int[] viewParameters = new int[2];
-		List<DenotatorPath> topDenotatorValuePaths = this.displayNotes.getTopDenotatorValuePaths();
+		List<DenotatorPath> topDenotatorValuePaths = this.displayNotes.getValuePaths();
 		for (int i = 0; i <= 1; i++) {
 			for (int j = 0; j < topDenotatorValuePaths.size(); j++) {
 				if (denotatorPaths.get(i).equals(topDenotatorValuePaths.get(j))) {

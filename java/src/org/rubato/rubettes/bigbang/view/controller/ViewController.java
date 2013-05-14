@@ -56,6 +56,7 @@ public class ViewController extends Controller {
 	
 	//score manipulation - denotators
 	public static final String STANDARD_DENOTATOR_VALUES = "setStandardDenotatorValue";
+	public static final String SELECTED_OBJECT = "setSelectedObject";
 	public static final String SELECTED_COLIMIT_COORDINATE = "setSelectedColimitCoordinate";
 	public static final String ADD_OBJECT = "addObject";
 	public static final String DELETE_NOTES = "deleteSelectedNotes";
@@ -129,6 +130,10 @@ public class ViewController extends Controller {
 	
 	public void setStandardDenotatorValue(int index, double value) {
 		this.callModelMethod(ViewController.STANDARD_DENOTATOR_VALUES, index, value);
+	}
+	
+	public void setSelectedPowerset(int objectIndex) {
+		this.callModelMethod(ViewController.SELECTED_OBJECT, objectIndex);
 	}
 	
 	public void setSelectedColimitCoordinate(int colimitIndex, int coordinateIndex) {

@@ -1,7 +1,6 @@
 package org.rubato.rubettes.bigbang.model;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -183,10 +182,10 @@ public class BigBangScoreManager extends Model {
 		
 	}
 	
-	public DenotatorPath addObject(TreeMap<DenotatorPath,Double> pathsWithValues) {
-		DenotatorPath newPath = this.previewScore.addObject(pathsWithValues);
+	public DenotatorPath addObject(DenotatorPath powersetPath, TreeMap<DenotatorPath,Double> pathsWithValues) {
+		DenotatorPath newPath = this.previewScore.addObject(powersetPath, pathsWithValues);
 		//this.fireCompositionChange();
-		this.firePreviewCompositionChange(new TreeSet<DenotatorPath>(Arrays.asList(newPath)), null);
+		this.firePreviewCompositionChange(null, null);
 		this.firePropertyChange(BigBangController.ADD_OBJECT, null, this.score.getObject(newPath));
 		return newPath;
 	}

@@ -61,7 +61,7 @@ public class DenotatorPathTest extends TestCase {
 		TestCase.assertEquals(parentPaths.get(0), this.satellitePath.getAnchorPath());
 		TestCase.assertEquals(new DenotatorPath(this.objects.SOUND_SCORE_FORM, new int[]{2,1,3,1,5,1}), this.satellitePath.getFirstPowersetPath());
 		TestCase.assertEquals(new DenotatorPath(this.objects.SOUND_SCORE_FORM, new int[]{2,1,3,1,5,0,6}), this.satellitePath.getPowersetPath(1));
-		TestCase.assertTrue(this.satellitePath.isChildOf(parentPaths.get(0)));
+		TestCase.assertTrue(this.satellitePath.isSatelliteOf(parentPaths.get(0)));
 	}
 	
 	public void testModulatorPath() {
@@ -81,7 +81,7 @@ public class DenotatorPathTest extends TestCase {
 		TestCase.assertEquals(parentPaths, this.modulatorPath.getAnchorPaths());
 		TestCase.assertEquals(parentPaths.get(0), this.modulatorPath.getAnchorPath());
 		TestCase.assertEquals(new DenotatorPath(this.objects.SOUND_SCORE_FORM, new int[]{2,1,6,0,6,3,6,2,6}), this.modulatorPath.getFirstPowersetPath());
-		TestCase.assertTrue(this.modulatorPath.isChildOf(parentPaths.get(0)));
+		TestCase.assertTrue(this.modulatorPath.isSatelliteOf(parentPaths.get(0)));
 	}
 	
 	public void testGetChild() {

@@ -75,17 +75,18 @@ public class DenotatorValueExtractor {
 	
 	private void initFinder(Form form) {
 		//TODO: FINDER CURRENTLY ONLY FINDS THE NAMES IN THE TOP DENOTATOR!!!!!! adjust methods!!
-		if (form.getType() == Form.POWER || form.getType() == Form.LIST) {
+		/*if (form.getType() == Form.POWER || form.getType() == Form.LIST) {
 			form = form.getForm(0);
-		}
-		this.finder = new DenotatorValueFinder(form, false);
+		}*/
+		this.finder = new DenotatorValueFinder(form, true);
 	}
 	
 	private void setTopDenotatorParameters() {
-		this.displayObjects.setTopDenotatorValues(this.finder.getValueNamesAndPaths());
-		this.displayObjects.setTopDenotatorColimits(this.finder.getColimitsFoundInOrder());
-		this.displayObjects.setTopDenotatorColimitsAndPaths(this.finder.getColimitFormsAndPaths());
-		this.displayObjects.setContainsPowerset(this.finder.formContainsPowerset());
+		this.displayObjects.setValueNamesAndPaths(this.finder.getValueNamesAndPaths());
+		this.displayObjects.setObjects(this.finder.getObjectsInFoundOrder());
+		this.displayObjects.setObjectsAndPaths(this.finder.getObjectsAndPaths());
+		this.displayObjects.setTopDenotatorColimits(this.finder.getColimitsInFoundOrder());
+		this.displayObjects.setTopDenotatorColimitsAndPaths(this.finder.getColimitsAndPaths());
 		
 		List<String> valueNames = this.finder.getValueNamesInFoundOrder();
 		if (this.finder.formContainsPowerset()) {

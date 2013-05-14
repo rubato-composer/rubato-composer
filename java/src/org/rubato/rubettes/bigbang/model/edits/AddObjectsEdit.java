@@ -10,18 +10,29 @@ import org.rubato.rubettes.util.DenotatorPath;
 
 public class AddObjectsEdit extends AbstractOperationEdit {
 	
+	private DenotatorPath powersetPath;
 	private List<TreeMap<DenotatorPath,Double>> pathsWithValues;
 	private DenotatorPath objectPath;
 	
-	public AddObjectsEdit(BigBangScoreManager scoreManager, TreeMap<DenotatorPath,Double> pathsWithValues) {
+	public AddObjectsEdit(BigBangScoreManager scoreManager, DenotatorPath powersetPath, TreeMap<DenotatorPath,Double> pathsWithValues) {
 		super(scoreManager);
+		this.powersetPath = powersetPath;
 		this.pathsWithValues = new ArrayList<TreeMap<DenotatorPath,Double>>();
 		this.pathsWithValues.add(pathsWithValues);
 		//this.execute();
 	}
 	
+	public DenotatorPath getPowersetPath() {
+		return this.powersetPath;
+	}
+	
 	public void addObject(TreeMap<DenotatorPath,Double> pathsWithValues) {
-		this.pathsWithValues.add(pathsWithValues);
+		if (this.powersetPath != null) {
+			this.pathsWithValues.add(pathsWithValues);
+		} else {
+			//no powerset, so replace object..
+			this.pathsWithValues.set(0, pathsWithValues);
+		}
 	}
 	
 	public void setInPreviewMode(boolean inPreviewMode) {
@@ -33,7 +44,7 @@ public class AddObjectsEdit extends AbstractOperationEdit {
 	
 	public Map<DenotatorPath,DenotatorPath> execute(Map<DenotatorPath,DenotatorPath> pathDifferences, boolean sendCompositionChange) {
 		for (TreeMap<DenotatorPath,Double> currentValues : this.pathsWithValues) {
-			this.objectPath = this.scoreManager.addObject(currentValues);
+			this.objectPath = this.scoreManager.addObject(this.powersetPath, currentValues);
 		}
 		//TODO: think about this!!!!!
 		//pathDifferences.put(null, this.objectPath);
@@ -51,7 +62,10 @@ public class AddObjectsEdit extends AbstractOperationEdit {
 	}*/
 	
 	public String getPresentationName() {
-		return "Add Objects";
+		if (this.powersetPath == null) {
+			return "Add " + this.scoreManager.getComposition().getForm().getNameString();
+		}
+		return "Add " + this.powersetPath.getForm().getForm(0).getNameString();
 	}
 
 }

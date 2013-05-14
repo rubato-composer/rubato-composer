@@ -91,6 +91,10 @@ public class BigBangController extends Controller {
 		this.callModelMethod(BigBangController.ADD_OBJECT, denotatorValues);
 	}
 	
+	public void addObject(Map<DenotatorPath,Double> denotatorValues, DenotatorPath powersetPath) {
+		this.callModelMethod(BigBangController.ADD_OBJECT, denotatorValues, powersetPath);
+	}
+	
 	public void deleteNotes(List<DenotatorPath> nodePaths) {
 		this.callModelMethod(BigBangController.DELETE_NOTES, nodePaths);
 	}
