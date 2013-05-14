@@ -17,7 +17,6 @@ public class BigBangController extends Controller {
 	public static final String REDO = "redo";
 	public static final String POST_EDIT = "postEdit";
 	public static final String GRAPH = "graph";
-	public static final String DESELECT_TRANSFORMATIONS = "deselectTransformations";
 	public static final String MODIFIED_TRANSFORMATION = "modifiedTransformation";
 	public static final String MULTITOUCH = "MultiTouch";
 	public static final String INPUT_ACTIVE = "InputActive";
@@ -65,10 +64,6 @@ public class BigBangController extends Controller {
 	
 	public void redo() {
 		this.callModelMethod(BigBangController.REDO);
-	}
-	
-	public void deselectTransformations() {
-		this.callModelMethod(BigBangController.DESELECT_TRANSFORMATIONS);
 	}
 	
 	public void modifiedTransformation(boolean inPreviewMode) {

@@ -55,7 +55,6 @@ public class ObjectGenerator {
 	public Denotator createObject(Form form, Map<DenotatorPath,Double> pathsWithValues) {
 		Denotator object = form.createDefaultDenotator();
 		object = this.replaceColimitsIfNecessary(object, pathsWithValues.keySet());
-		System.out.println(form + " " + pathsWithValues);
 		
 		for (DenotatorPath currentPath : pathsWithValues.keySet()) {
 			Double currentValue = pathsWithValues.get(currentPath);

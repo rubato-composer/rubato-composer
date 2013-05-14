@@ -127,14 +127,6 @@ public class DisplayObject implements Comparable<Object> {
 		this.values.putAll(values);
 	}
 	
-	/*public Double getValue(int index) {
-		if (index >= values.size()) {
-			index -= values.size();
-			return this.structuralIndices.get(index).doubleValue();
-		}
-		return this.values.get(index);
-	}*/
-	
 	public Double getValue(String valueName) {
 		if (valueName.equals(DenotatorValueExtractor.SATELLITE_LEVEL) || valueName.equals(DenotatorValueExtractor.COLIMIT_INDEX)) {
 			return this.structuralIndices.get(0).doubleValue();
@@ -150,32 +142,28 @@ public class DisplayObject implements Comparable<Object> {
 		return null;
 	}
 	
-	public Map<String,Double> getValues() {
-		return this.values;
-	}
-	
 	private double getX(double xZoomFactor, int xPosition) {
-		double x = this.display.translateValue(this.values, ViewParameters.X);
+		double x = this.display.translateValue(this, ViewParameters.X);
 		return (xZoomFactor*(x+this.xDiff))+xPosition;
 	}
 	
 	private double getY(double yZoomFactor) {
-		double y = this.display.translateValue(this.values, ViewParameters.Y);
+		double y = this.display.translateValue(this, ViewParameters.Y);
 		return yZoomFactor*(y+this.yDiff);
 	}
 	
 	private double getWidth(double xZoomFactor) {
-		double width = this.display.translateValue(this.values, ViewParameters.WIDTH);
+		double width = this.display.translateValue(this, ViewParameters.WIDTH);
 		return xZoomFactor*width;
 	}
 	
 	private double getHeight(double yZoomFactor) {
-		double height = this.display.translateValue(this.values, ViewParameters.HEIGHT);
+		double height = this.display.translateValue(this, ViewParameters.HEIGHT);
 		return yZoomFactor*height;
 	}
 	
 	public Color getColor() {
-		this.currentOpacity = new Float(this.display.translateValue(this.values, ViewParameters.SATURATION));
+		this.currentOpacity = new Float(this.display.translateValue(this, ViewParameters.SATURATION));
 		if (this.active) {
 			if (this.display.getViewParameters().inRGBMode()) {
 				return this.getRGBColor();
@@ -188,15 +176,15 @@ public class DisplayObject implements Comparable<Object> {
 	}
 	
 	private Color getHueColor() {
-		this.currentHue = new Float(this.display.translateValue(this.values, ViewParameters.HUE));
+		this.currentHue = new Float(this.display.translateValue(this, ViewParameters.HUE));
 		return Color.getHSBColor(this.currentHue, this.currentOpacity, this.getBrightness());
 	}
 	
 	private Color getRGBColor() {
 		//brightness comes into play here, since there is no other way to make objects darker!
-		this.currentRed = (int)Math.round(this.getBrightness()*this.display.translateValue(this.values, ViewParameters.RED));
-		this.currentGreen = (int)Math.round(this.getBrightness()*this.display.translateValue(this.values, ViewParameters.GREEN));
-		this.currentBlue = (int)Math.round(this.getBrightness()*this.display.translateValue(this.values, ViewParameters.BLUE));
+		this.currentRed = (int)Math.round(this.getBrightness()*this.display.translateValue(this, ViewParameters.RED));
+		this.currentGreen = (int)Math.round(this.getBrightness()*this.display.translateValue(this, ViewParameters.GREEN));
+		this.currentBlue = (int)Math.round(this.getBrightness()*this.display.translateValue(this, ViewParameters.BLUE));
 		int alpha = Math.round(this.currentOpacity);
 		return new Color(this.currentRed, this.currentGreen, this.currentBlue, alpha);
 	}
@@ -237,11 +225,11 @@ public class DisplayObject implements Comparable<Object> {
 	
 	public void paintConnectors(AbstractPainter painter, double parentX, double parentY, int relation) {
 		if (this.visible) {
-			if (relation == DenotatorPath.SATELLITE) {
+			/*if (relation == DenotatorPath.SATELLITE) {
 				painter.setColor(Color.black);
-			} else {
+			} else {*/
 				painter.setColor(this.getColor());
-			}
+			//}
 			painter.drawLine((float)parentX, (float)parentY, (float)this.center.x, (float)this.center.y);
 		}
 	}

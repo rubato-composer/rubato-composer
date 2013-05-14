@@ -528,7 +528,7 @@ public class BigBangView extends Model implements View {
 	
 	public void addObject(Point2D.Double location) {
 		Map<DenotatorPath,Double> objectValues = this.displayNotes.getObjectStandardValues(this.standardDenotatorValues);
-		DenotatorPath objectPowersetPath = this.editDenotatorValuesAndReturnPowerset(location, objectValues);
+		DenotatorPath objectPowersetPath = this.editObjectValuesAndFindClosestPowerset(location, objectValues);
 		
 		//only add object if there are some screen values to be converted
 		if (!objectValues.isEmpty()) {
@@ -620,32 +620,36 @@ public class BigBangView extends Model implements View {
 		return new double[] {xValue, yValue};
 	}
 	
-	private DenotatorPath editDenotatorValuesAndReturnPowerset(Point2D.Double location, Map<DenotatorPath,Double> denotatorValues) {
-		DenotatorPath powersetPath = this.displayNotes.getSelectedObjectPath().getParentPath();
+	private DenotatorPath editObjectValuesAndFindClosestPowerset(Point2D.Double location, Map<DenotatorPath,Double> denotatorValues) {
+		DenotatorPath closestPowersetPath = this.displayNotes.getSelectedObjectPath().getParentPath();
 		int XValueIndex = this.viewParameters.getValueIndex(0);
 		int YValueIndex = this.viewParameters.getValueIndex(1);
 		if (XValueIndex >= 0 && YValueIndex >= 0) {
-			this.replaceDenotatorValue(location.x, XValueIndex, 0, this.displayPosition.x, this.xZoomFactor, denotatorValues);
+			closestPowersetPath = this.replaceDenotatorValue(location.x, XValueIndex, 0, this.displayPosition.x, this.xZoomFactor, denotatorValues, closestPowersetPath);
 			if (YValueIndex != XValueIndex) {
-				this.replaceDenotatorValue(location.y, YValueIndex, 1, this.displayPosition.y, this.yZoomFactor, denotatorValues);
+				closestPowersetPath = this.replaceDenotatorValue(location.y, YValueIndex, 1, this.displayPosition.y, this.yZoomFactor, denotatorValues, closestPowersetPath);
 			}
 		} else if (YValueIndex < 0) {
-			this.replaceDenotatorValue(location.x, XValueIndex, 0, this.displayPosition.x, this.xZoomFactor, denotatorValues);
+			closestPowersetPath = this.replaceDenotatorValue(location.x, XValueIndex, 0, this.displayPosition.x, this.xZoomFactor, denotatorValues, closestPowersetPath);
 		} else {
-			this.replaceDenotatorValue(location.y, YValueIndex, 1, this.displayPosition.y, this.yZoomFactor, denotatorValues);
+			closestPowersetPath = this.replaceDenotatorValue(location.y, YValueIndex, 1, this.displayPosition.y, this.yZoomFactor, denotatorValues, closestPowersetPath);
 		}
-		//TODO: at time it's only first powerset path. find best one from screen position
-		return powersetPath;
+		return closestPowersetPath;
 	}
 	
-	private void replaceDenotatorValue(double displayValue, int valueIndex, int parameterIndex, int position, double zoomFactor, Map<DenotatorPath,Double> values) {
+	private DenotatorPath replaceDenotatorValue(double displayValue, int valueIndex, int parameterIndex, int position, double zoomFactor, Map<DenotatorPath,Double> values, DenotatorPath closestPowersetPath) {
 		if (valueIndex > -1) {
 			DenotatorPath associatedPath = this.displayNotes.getObjectValuePathAt(valueIndex);
-			//null happens when satellite or sibling level is selected
-			if (associatedPath != null && this.displayNotes.pathInAllowedColimitBranch(associatedPath)) {
-				values.put(associatedPath, this.getDenotatorValue(displayValue, parameterIndex, position, zoomFactor));
+			double denotatorValue = this.getDenotatorValue(displayValue, parameterIndex, position, zoomFactor);
+			//null happens when parent value, or satellite or sibling level is selected
+			if (associatedPath == null) {
+				DisplayObject closestObject = this.displayNotes.getClosestObject(valueIndex, denotatorValue);
+				return closestObject.getTopDenotatorPath().getDescendantPathAccordingTo(closestPowersetPath);
+			} else if (this.displayNotes.pathInAllowedColimitBranch(associatedPath)) {
+				values.put(associatedPath, denotatorValue);
 			}
 		}
+		return closestPowersetPath;
 	}
 	
 	protected double getDenotatorValue(double displayValue, int parameterIndex, int position, double zoomFactor) {

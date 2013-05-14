@@ -163,12 +163,12 @@ public class DisplayContents {
 		return this.satellitesConnected;
 	}
 	
-	public double translateValue(Map<String,Double> denotatorValues, int viewParameterIndex) {
+	public double translateValue(DisplayObject object, int viewParameterIndex) {
 		int valueIndex = this.selectedViewParameters[viewParameterIndex];
 		if (valueIndex > -1 && valueIndex < this.displayObjects.getValueNames().size()) {
-			String valueName = this.displayObjects.getValueNames().get(valueIndex);
-			if (denotatorValues.get(valueName) != null) {
-				return this.viewParameters.get(viewParameterIndex).translateDenotatorValue(denotatorValues.get(valueName));
+			Double denotatorValue = object.getValue(this.displayObjects.getValueNames().get(valueIndex));
+			if (denotatorValue != null) {
+				return this.viewParameters.get(viewParameterIndex).translateDenotatorValue(denotatorValue);
 			}
 		}
 		return this.viewParameters.get(viewParameterIndex).getDefaultValue();

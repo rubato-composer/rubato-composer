@@ -79,7 +79,7 @@ public class BigBangModel extends Model {
 		if (lastEdit != null && lastEdit instanceof AddObjectsEdit) {
 			AddObjectsEdit addEdit = (AddObjectsEdit) lastEdit;
 			if ((powersetPath == null && addEdit.getPowersetPath() == null)
-					|| powersetPath.equals(addEdit.getPowersetPath())) {
+					|| powersetPath.equalsExceptForPowersetIndices(addEdit.getPowersetPath())) {
 				addEdit.addObject(pathsWithValues);
 				this.undoRedoModel.modifiedOperation(false);
 				return;
