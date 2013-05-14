@@ -148,6 +148,18 @@ public class DenotatorPath implements Comparable<Object> {
 	}
 	
 	/**
+	 * @return a descendant path of this path that ends with whatever modelPath has that this does not 
+	 * can be used to create specific powerset paths from an abstract one
+	 */
+	public DenotatorPath getDescendantPathAccordingTo(DenotatorPath modelPath) {
+		DenotatorPath descendantPath = this.clone();
+		for (int i = this.size(); i < modelPath.size(); i++) {
+			descendantPath.add(modelPath.indices.get(i));
+		}
+		return descendantPath;
+	}
+	
+	/**
 	 * New implementation, where all shorter paths and there the paths having smaller last
 	 * indices are smaller.
 	 */
@@ -174,6 +186,22 @@ public class DenotatorPath implements Comparable<Object> {
 			return false;
 		}
 		return this.indices.equals(((DenotatorPath)object).indices);
+	}
+	
+	public boolean equalsExceptForPowersetIndices(Object object) {
+		if (object == null || !(object instanceof DenotatorPath) || ((DenotatorPath)object).size() != this.size()) {
+			return false;
+		}
+		DenotatorPath other = (DenotatorPath)object;
+		for (int i = 0; i < this.indices.size(); i++) {
+			Form currentForm = this.subPath(0, i+1).getForm();
+			if (currentForm.getType() != Form.POWER && currentForm.getType() != Form.LIST) {
+				if (this.indices.get(i) != other.indices.get(i)) {
+					return false;
+				}
+			}
+		}
+		return true;
 	}
 	
 	/**
@@ -299,8 +327,20 @@ public class DenotatorPath implements Comparable<Object> {
 		return (path == null && anchorPath == null) || anchorPath.equals(path.getTopPath());
 	}
 	
-	public boolean isDescendantOf(DenotatorPath path) {
-		return this.size() > path.size() && this.subPath(0, path.size()).equals(path);
+	public boolean isPartOfSameObjectAs(DenotatorPath path) {
+		if (this.size() >= path.size()) {
+			if (this.subPath(0, path.size()).equals(path)) {
+				for (int i = path.size()+1; i < this.size(); i++) {
+					if (this.subPath(0, i).getForm().getType() == Form.POWER) {
+						return false;
+					}
+				}
+				return true;
+			}
+		} else {
+			return path.isPartOfSameObjectAs(this);
+		}
+		return false;
 	}
 	
 	/*public DenotatorPath getMinimalCommonParentPath(DenotatorPath path) {

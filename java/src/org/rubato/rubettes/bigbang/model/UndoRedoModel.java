@@ -71,10 +71,6 @@ public class UndoRedoModel extends Model {
 		return null;
 	}
 	
-	public void deselectTransformations() {
-		this.firePropertyChange(BigBangController.DESELECT_TRANSFORMATIONS, null, null);
-	}
-	
 	public void modifiedOperation(Boolean inPreviewMode) {
 		this.operations.updateScore(inPreviewMode);
 	}
@@ -82,7 +78,7 @@ public class UndoRedoModel extends Model {
 	public void reset() {
 		this.undoManager.discardAllEdits();
 		this.operations = new BigBangTransformationGraph();
-		this.deselectTransformations();
+		this.firePropertyChange(BigBangController.GRAPH, null, this.operations);
 	}
 
 }

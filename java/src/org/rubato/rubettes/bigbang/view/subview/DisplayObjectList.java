@@ -126,6 +126,26 @@ public class DisplayObjectList extends TreeSet<DisplayObject> implements View {
 		return this.valueNamesAndPaths.get(this.valueNames.get(valueIndex));
 	}
 	
+	public DisplayObject getClosestObject(int valueIndex, double value) {
+		String valueName = this.valueNames.get(valueIndex);
+		DenotatorPath valuePath = this.getPathOfValueAt(valueIndex);
+		DisplayObject closestObject = null;
+		double shortestDistance = Double.MAX_VALUE;
+		if (this.selectedObject > 0) {
+			for (DisplayObject currentObject : this) {
+				if (currentObject.getTopDenotatorPath().size() < valuePath.size()) {
+					double currentDistance = Math.abs(currentObject.getValue(valueName)-value);
+					if (currentDistance < shortestDistance) {
+						shortestDistance = currentDistance;
+						closestObject = currentObject;
+					}
+				}
+			}
+			return closestObject;
+		}
+		return null;
+	}
+	
 	public void setObjects(List<Form> objects) {
 		this.objects = objects;
 	}
@@ -177,7 +197,7 @@ public class DisplayObjectList extends TreeSet<DisplayObject> implements View {
 		List<DenotatorPath> selectedColimitCoordinatePaths = this.getTopDenotatorColimitPaths(this.selectedColimitCoordinates);
 		for (String currentName : this.valueNamesAndPaths.keySet()) {
 			DenotatorPath currentPath = this.valueNamesAndPaths.get(currentName);
-			if (currentPath.isDescendantOf(selectedObjectPath) && standardDenotatorValues.containsKey(currentName)) {
+			if (currentPath.isPartOfSameObjectAs(selectedObjectPath) && standardDenotatorValues.containsKey(currentName)) {
 				if (this.inAllowedColimitBranch(currentPath, selectedColimitCoordinatePaths)) {
 					objectStandardValues.put(this.getObjectValueSubPath(currentPath), standardDenotatorValues.get(currentName));
 				}

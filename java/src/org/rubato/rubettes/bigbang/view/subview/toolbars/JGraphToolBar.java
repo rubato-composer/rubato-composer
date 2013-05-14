@@ -37,8 +37,6 @@ public class JGraphToolBar extends JToolBar implements View {
 		} else if (propertyName.equals(ViewController.SELECT_TRANSFORMATION)) {
 			AbstractTransformationEdit transformation = (AbstractTransformationEdit)event.getNewValue();
 			this.selectTransformation(transformation);
-		} else if (propertyName.equals(BigBangController.DESELECT_TRANSFORMATIONS)) {
-			this.selectTransformation(null);
 		}
 	}
 	
