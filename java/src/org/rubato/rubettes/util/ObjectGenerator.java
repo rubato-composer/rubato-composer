@@ -30,8 +30,6 @@ import org.rubato.math.yoneda.SimpleDenotator;
 public class ObjectGenerator {
 	
 	private Form baseForm;
-	private DenotatorPath topPowersetPath;
-	private Form topLevelObjectForm;
 	
 	public Denotator createEmptyScore() {
 		return this.baseForm.createDefaultDenotator();
@@ -40,7 +38,6 @@ public class ObjectGenerator {
 	public boolean setBaseForm(Form baseForm) {
 		if (this.isValid(baseForm)) {
 			this.baseForm = baseForm;
-			this.calculateTopPowersetPathAndForm();
 			return true;
 		}
 		return false;
@@ -55,22 +52,11 @@ public class ObjectGenerator {
 		return true;
 	}
 	
-	public DenotatorPath getTopPowersetPath() {
-		return this.topPowersetPath;
-	}
-	
-	private void calculateTopPowersetPathAndForm() {
-		this.topPowersetPath = new DenotatorPath(this.baseForm).getFirstPowersetPath();
-		if (this.topPowersetPath != null) {
-			this.topLevelObjectForm = this.topPowersetPath.getForm().getForm(0);
-		} else {
-			this.topLevelObjectForm = this.baseForm;
-		}
-	}
-	
-	public Denotator createTopLevelObject(Map<DenotatorPath,Double> pathsWithValues) {
-		Denotator object = this.topLevelObjectForm.createDefaultDenotator();
+	public Denotator createObject(Form form, Map<DenotatorPath,Double> pathsWithValues) {
+		Denotator object = form.createDefaultDenotator();
 		object = this.replaceColimitsIfNecessary(object, pathsWithValues.keySet());
+		System.out.println(form + " " + pathsWithValues);
+		
 		for (DenotatorPath currentPath : pathsWithValues.keySet()) {
 			Double currentValue = pathsWithValues.get(currentPath);
 			object = this.replaceValue(object, currentPath, currentValue);
@@ -346,25 +332,25 @@ public class ObjectGenerator {
 	private Denotator replaceValue(Denotator object, int[] simplePath, double value) {
 		try {
 			SimpleDenotator oldSimple = (SimpleDenotator)object.get(simplePath);
-			ModuleElement newElement = new RElement(value).cast(oldSimple.getElement().getModule());
-			SimpleDenotator newSimple = new SimpleDenotator(NameDenotator.make(""), oldSimple.getSimpleForm(), newElement);
-			return object.replace(simplePath, newSimple);
-		} catch (RubatoException e) {
-			e.printStackTrace();
-			return object;
-		}
+			if (oldSimple != null) {
+				ModuleElement newElement = new RElement(value).cast(oldSimple.getElement().getModule());
+				SimpleDenotator newSimple = new SimpleDenotator(NameDenotator.make(""), oldSimple.getSimpleForm(), newElement);
+				return object.replace(simplePath, newSimple);
+			}
+		} catch (RubatoException e) { }
+		return object;
 	}
 	
 	private Denotator replaceValue(Denotator object, int[] simplePath, int[] elementPath, double value) {
 		try {
 			SimpleDenotator oldSimple = (SimpleDenotator)object.get(simplePath);
-			ModuleElement newElement = this.createModuleElement(oldSimple.getElement(), elementPath, 0, value);
-			SimpleDenotator newSimple = new SimpleDenotator(NameDenotator.make(""), oldSimple.getSimpleForm(), newElement);
-			return object.replace(simplePath, newSimple);
-		} catch (RubatoException e) {
-			e.printStackTrace();
-			return object;
-		}
+			if (oldSimple != null) {
+				ModuleElement newElement = this.createModuleElement(oldSimple.getElement(), elementPath, 0, value);
+				SimpleDenotator newSimple = new SimpleDenotator(NameDenotator.make(""), oldSimple.getSimpleForm(), newElement);
+				return object.replace(simplePath, newSimple);
+			}
+		} catch (RubatoException e) { }
+		return object;
 	}
 	
 	//TODO: fix things with current position!!!!!

@@ -19,25 +19,75 @@ import org.rubato.rubettes.bigbang.view.model.DisplayObject;
 import org.rubato.rubettes.bigbang.view.model.LayerState;
 import org.rubato.rubettes.bigbang.view.model.LayerStates;
 import org.rubato.rubettes.util.DenotatorPath;
+import org.rubato.rubettes.util.DenotatorValueFinder;
 
 public class DisplayObjectList extends TreeSet<DisplayObject> implements View {
 	
 	private Form baseForm;
-	private Map<String,DenotatorPath> topDenotatorValues;
+	private int selectedObject;
+	private List<Integer> selectedColimitCoordinates;
+	private List<Form> objects;
+	private Map<Form,DenotatorPath> objectsAndPaths;
+	//TODO: make objectcolimits!!!!!
 	private List<ColimitForm> topDenotatorColimits;
 	private Map<ColimitForm,DenotatorPath> topDenotatorColimitsAndPaths;
-	private boolean containsPowerset;
 	private List<String> valueNames;
+	private Map<String,DenotatorPath> valueNamesAndPaths;
 	private Set<DisplayObject> selectedNotes;
 	private DisplayObject selectedAnchorNote;
 	
 	public DisplayObjectList(ViewController controller, Form baseForm) {
 		controller.addView(this);
 		this.baseForm = baseForm;
+		this.objects = new ArrayList<Form>();
+		this.objectsAndPaths = new TreeMap<Form,DenotatorPath>();
 		this.topDenotatorColimits = new ArrayList<ColimitForm>();
 		this.topDenotatorColimitsAndPaths = new TreeMap<ColimitForm,DenotatorPath>();
 		this.selectedNotes = new TreeSet<DisplayObject>();
 		this.valueNames = new ArrayList<String>();
+		this.valueNamesAndPaths = new TreeMap<String,DenotatorPath>();
+		this.initSelectedColimitCoordinates(0);
+	}
+	
+	private void initSelectedColimitCoordinates(int numberOfColimits) {
+		this.selectedColimitCoordinates = new ArrayList<Integer>();
+		for (int i = 0; i < numberOfColimits; i++) {
+			this.selectedColimitCoordinates.add(0);
+		}
+	}
+	
+	public void setSelectedObject(int selectedObject) {
+		this.selectedObject = selectedObject;
+	}
+	
+	public int getSelectedObject() {
+		return this.selectedObject;
+	}
+	
+	public void setSelectedColimitCoordinates(List<Integer> selectedColimitCoordinates) {
+		this.selectedColimitCoordinates = selectedColimitCoordinates;
+	}
+	
+	public List<Integer> getSelectedColimitCoordinates() {
+		return this.selectedColimitCoordinates;
+	}
+	
+	public void setSelectedColimitCoordinate(Integer colimitIndex, Integer coordinateIndex) {
+		List<ColimitForm> topDenotatorColimits = this.getTopDenotatorColimits();
+		if (coordinateIndex >= 0 && topDenotatorColimits.size() > colimitIndex && topDenotatorColimits.get(colimitIndex).getForms().size() >= coordinateIndex) {
+			this.selectedColimitCoordinates.set(colimitIndex, coordinateIndex);
+			//set all ColimitForms impossible to reach to -1
+			//TODO: does not account for forms that contain the same colimit several times
+			Form coordinateForm = topDenotatorColimits.get(colimitIndex).getForm(coordinateIndex);
+			List<ColimitForm> subColimits = new DenotatorValueFinder(coordinateForm, false).getColimitsInFoundOrder();
+			for (int i = colimitIndex+1; i < topDenotatorColimits.size(); i++) {
+				if (!subColimits.contains(topDenotatorColimits.get(i))) {
+					this.selectedColimitCoordinates.set(i, -1);
+				} else if (this.selectedColimitCoordinates.get(i) == -1) {
+					this.selectedColimitCoordinates.set(i, 0);
+				}
+			}
+		}
 	}
 	
 	public void setValueNames(List<String> valueNames) {
@@ -52,32 +102,49 @@ public class DisplayObjectList extends TreeSet<DisplayObject> implements View {
 		return this.baseForm;
 	}
 	
-	public void setContainsPowerset(boolean containsPowerset) {
-		this.containsPowerset = containsPowerset;
-	}
-	
 	public boolean containsPowerset() {
-		return this.containsPowerset;
+		return this.objects.size() > 1;
 	}
 	
-	public void setTopDenotatorValues(Map<String,DenotatorPath> valuesNamesAndPaths) {
-		this.topDenotatorValues = valuesNamesAndPaths;
+	public void setValueNamesAndPaths(Map<String,DenotatorPath> valuesNamesAndPaths) {
+		this.valueNamesAndPaths = valuesNamesAndPaths;
 	}
 	
-	public List<DenotatorPath> getTopDenotatorValuePaths() {
+	public List<DenotatorPath> getValuePaths() {
 		List<DenotatorPath> paths = new ArrayList<DenotatorPath>();
 		for (String currentValueName : this.valueNames) {
-			paths.add(this.topDenotatorValues.get(currentValueName));
+			paths.add(this.valueNamesAndPaths.get(currentValueName));
 		}
 		return paths;
 	}
 	
-	public DenotatorPath getPathInTopDenotatorValues(int valueIndex) {
-		return this.topDenotatorValues.get(this.valueNames.get(valueIndex));
+	public DenotatorPath getObjectValuePathAt(int valueIndex) {
+		return this.getObjectValueSubPath(this.getPathOfValueAt(valueIndex));
+	}
+	
+	private DenotatorPath getPathOfValueAt(int valueIndex) {
+		return this.valueNamesAndPaths.get(this.valueNames.get(valueIndex));
+	}
+	
+	public void setObjects(List<Form> objects) {
+		this.objects = objects;
+	}
+	
+	public void setObjectsAndPaths(Map<Form,DenotatorPath> objectsAndPaths) {
+		this.objectsAndPaths = objectsAndPaths;
+	}
+	
+	public List<Form> getObjects() {
+		return this.objects;
+	}
+	
+	public DenotatorPath getSelectedObjectPath() {
+		return this.objectsAndPaths.get(this.objects.get(this.selectedObject));
 	}
 	
 	public void setTopDenotatorColimits(List<ColimitForm> colimits) {
 		this.topDenotatorColimits = colimits;
+		this.initSelectedColimitCoordinates(colimits.size());
 	}
 	
 	public List<ColimitForm> getTopDenotatorColimits() {
@@ -100,25 +167,32 @@ public class DisplayObjectList extends TreeSet<DisplayObject> implements View {
 	}
 	
 	/**
+	 * TODO: IS NOT NECESSARILY TOP DENOTATOR ANYMORE!!!!
 	 * @return the top denotator standard values under assumption that the given value
 	 * is selected in a colimit. if it is not in a colimit, just returns the standard values
 	 */
-	public Map<DenotatorPath,Double> getTopDenotatorStandardValues(Map<String,Double> standardDenotatorValues, List<Integer> selectedColimitCoordinates) {
-		List<DenotatorPath> selectedColimitCoordinatePaths = this.getTopDenotatorColimitPaths(selectedColimitCoordinates);
-		Map<DenotatorPath,Double> topDenotatorStandardValues = new TreeMap<DenotatorPath,Double>();
-		for (String currentName : this.topDenotatorValues.keySet()) {
-			if (standardDenotatorValues.containsKey(currentName)) {
-				DenotatorPath currentPath = this.topDenotatorValues.get(currentName);
+	public Map<DenotatorPath,Double> getObjectStandardValues(Map<String,Double> standardDenotatorValues) {
+		DenotatorPath selectedObjectPath = this.getSelectedObjectPath();
+		Map<DenotatorPath,Double> objectStandardValues = new TreeMap<DenotatorPath,Double>();
+		List<DenotatorPath> selectedColimitCoordinatePaths = this.getTopDenotatorColimitPaths(this.selectedColimitCoordinates);
+		for (String currentName : this.valueNamesAndPaths.keySet()) {
+			DenotatorPath currentPath = this.valueNamesAndPaths.get(currentName);
+			if (currentPath.isDescendantOf(selectedObjectPath) && standardDenotatorValues.containsKey(currentName)) {
 				if (this.inAllowedColimitBranch(currentPath, selectedColimitCoordinatePaths)) {
-					topDenotatorStandardValues.put(currentPath, standardDenotatorValues.get(currentName));
+					objectStandardValues.put(this.getObjectValueSubPath(currentPath), standardDenotatorValues.get(currentName));
 				}
 			}
 		}
-		return topDenotatorStandardValues;
+		return objectStandardValues;
 	}
 	
-	public boolean pathInAllowedColimitBranch(DenotatorPath path, List<Integer> selectedColimitCoordinates) {
-		return this.inAllowedColimitBranch(path, this.getTopDenotatorColimitPaths(selectedColimitCoordinates));
+	private DenotatorPath getObjectValueSubPath(DenotatorPath valuePath) {
+		DenotatorPath selectedObjectPath = this.getSelectedObjectPath();
+		return valuePath.subPath(selectedObjectPath.size());
+	}
+	
+	public boolean pathInAllowedColimitBranch(DenotatorPath path) {
+		return this.inAllowedColimitBranch(path, this.getTopDenotatorColimitPaths(this.selectedColimitCoordinates));
 	}
 	
 	private boolean inAllowedColimitBranch(DenotatorPath path, List<DenotatorPath> selectedColimitCoordinatePaths) {
@@ -142,7 +216,7 @@ public class DisplayObjectList extends TreeSet<DisplayObject> implements View {
 	}
 	
 	public boolean inConflictingColimitPositions(int valueIndex1, int valueIndex2) {
-		return this.getPathInTopDenotatorValues(valueIndex1).inConflictingColimitPositions(this.getPathInTopDenotatorValues(valueIndex2));
+		return this.getPathOfValueAt(valueIndex1).inConflictingColimitPositions(this.getPathOfValueAt(valueIndex2));
 	}
 	
 	public void tempSelectNotes(Rectangle2D.Double area) {

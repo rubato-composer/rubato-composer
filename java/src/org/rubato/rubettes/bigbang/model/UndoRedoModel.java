@@ -75,7 +75,7 @@ public class UndoRedoModel extends Model {
 		this.firePropertyChange(BigBangController.DESELECT_TRANSFORMATIONS, null, null);
 	}
 	
-	public void modifiedTransformation(Boolean inPreviewMode) {
+	public void modifiedOperation(Boolean inPreviewMode) {
 		this.operations.updateScore(inPreviewMode);
 	}
 	

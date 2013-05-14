@@ -276,7 +276,7 @@ public class DenotatorPath implements Comparable<Object> {
 	/*
 	 * @return the top path of this connected object, meaning the path at which it appears in a powerset above
 	 */
-	private DenotatorPath getTopPath() {
+	public DenotatorPath getTopPath() {
 		DenotatorPath currentPath = this;
 		Form currentParentForm = currentPath.getParentForm();
 		while(currentParentForm != null && currentParentForm.getType() != Form.POWER && currentParentForm.getType() != Form.LIST) {
@@ -294,10 +294,28 @@ public class DenotatorPath implements Comparable<Object> {
 		return null;
 	}
 	
-	public boolean isChildOf(DenotatorPath path) {
+	public boolean isSatelliteOf(DenotatorPath path) {
 		DenotatorPath anchorPath = this.getTopPath().getAnchorPath();
 		return (path == null && anchorPath == null) || anchorPath.equals(path.getTopPath());
 	}
+	
+	public boolean isDescendantOf(DenotatorPath path) {
+		return this.size() > path.size() && this.subPath(0, path.size()).equals(path);
+	}
+	
+	/*public DenotatorPath getMinimalCommonParentPath(DenotatorPath path) {
+		if (path != null) {
+			DenotatorPath minimalCommonParentPath = new DenotatorPath(this.baseForm);
+			for (int i = 0; i < Math.min(this.size(), path.size()); i++) {
+				Integer currentIndex = this.indices.get(i);
+				if (currentIndex.equals(path.indices.get(i))) {
+					minimalCommonParentPath.add(currentIndex);
+				} else break;
+			}
+			return minimalCommonParentPath;
+		}
+		return null;
+	}*/
 	
 	public static List<DenotatorPath> getAnchorPaths(List<DenotatorPath> denotatorPaths) {
 		List<DenotatorPath> parentPaths = new ArrayList<DenotatorPath>();

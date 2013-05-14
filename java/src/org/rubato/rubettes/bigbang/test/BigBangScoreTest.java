@@ -24,13 +24,14 @@ public class BigBangScoreTest extends TestCase {
 	}
 	
 	public void testAddNote() throws RubatoException {
-		DenotatorPath nodePath = this.score.addObject(this.generateNodeValueMap(this.objects.NOTE0_VALUES));
+		DenotatorPath topLevelPath = new DenotatorPath(this.objects.SOUND_SCORE_FORM);
+		DenotatorPath nodePath = this.score.addObject(topLevelPath, this.generateNodeValueMap(this.objects.NOTE0_VALUES));
 		TestCase.assertEquals(new DenotatorPath(this.objects.SOUND_SCORE_FORM, new int[]{0}), nodePath);
 		this.assertEqualNodes(this.objects.node0, this.score.getObject(new DenotatorPath(this.objects.SOUND_SCORE_FORM, new int[]{0})));
-		nodePath = this.score.addObject(this.generateNodeValueMap(this.objects.NOTE2_ABSOLUTE_VALUES));
+		nodePath = this.score.addObject(topLevelPath, this.generateNodeValueMap(this.objects.NOTE2_ABSOLUTE_VALUES));
 		TestCase.assertEquals(new DenotatorPath(this.objects.SOUND_SCORE_FORM, new int[]{1}), nodePath);
 		this.assertEqualNodes(this.objects.node2Absolute, this.score.getObject(new DenotatorPath(this.objects.SOUND_SCORE_FORM, new int[]{1})));
-		nodePath = this.score.addObject(this.generateNodeValueMap(this.objects.NOTE1_ABSOLUTE_VALUES));
+		nodePath = this.score.addObject(topLevelPath, this.generateNodeValueMap(this.objects.NOTE1_ABSOLUTE_VALUES));
 		TestCase.assertEquals(new DenotatorPath(this.objects.SOUND_SCORE_FORM, new int[]{1}), nodePath);
 		this.assertEqualNodes(this.objects.node1Absolute, this.score.getObject(new DenotatorPath(this.objects.SOUND_SCORE_FORM, new int[]{1})));
 		PowerDenotator composition = (PowerDenotator)this.score.getComposition();

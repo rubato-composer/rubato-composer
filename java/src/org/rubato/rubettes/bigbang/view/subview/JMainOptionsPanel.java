@@ -33,7 +33,8 @@ public class JMainOptionsPanel extends JPanel implements ActionListener, View {
 	private JCheckBox inputActiveCheckBox;
 	private JSelectForm selectFormPanel;
 	private JViewParametersScrollPane viewParametersScrollPane;
-	private JPanel colimitSelectionPanel;
+	private JPanel drawingOptionsPanel;
+	private JComboBox objectBox;
 	private List<JComboBox> colimitBoxes;
 	
 	public JMainOptionsPanel(ViewController controller, BigBangController bigBangController, ViewParameters viewParameters) {
@@ -68,23 +69,38 @@ public class JMainOptionsPanel extends JPanel implements ActionListener, View {
 	
 	private void initSouthernPanel() {
 		this.colimitBoxes = new ArrayList<JComboBox>();
-		this.colimitSelectionPanel = new JPanel();
-		this.colimitSelectionPanel.setLayout(new SpringLayout());
-		this.colimitSelectionPanel.setBorder(Utilities.makeTitledBorder("Select colimit"));
-		this.add(this.colimitSelectionPanel, BorderLayout.SOUTH);
+		this.drawingOptionsPanel = new JPanel();
+		this.drawingOptionsPanel.setLayout(new SpringLayout());
+		this.drawingOptionsPanel.setBorder(Utilities.makeTitledBorder("Drawing options"));
+		this.add(this.drawingOptionsPanel, BorderLayout.SOUTH);
 	}
 	
-	private void initColimitBoxes(List<ColimitForm> colimits) {
+	private void initDrawingOptionsPanel(List<Form> objects, List<ColimitForm> colimits) {
+		this.drawingOptionsPanel.removeAll();
+		int numberOfBoxes = 0;
+		
+		if (!objects.isEmpty()) {
+			Vector<String> objectNames = new Vector<String>();
+			for (Form currentObjectForm : objects) {
+				objectNames.add(currentObjectForm.getNameString());
+			}
+			this.objectBox = new JComboBox(objectNames);
+			this.objectBox.addActionListener(this);
+			this.drawingOptionsPanel.add(new JLabel("Object"));
+			this.drawingOptionsPanel.add(this.objectBox);
+			numberOfBoxes++;
+		}
+		
 		this.colimitBoxes.clear();
-		this.colimitSelectionPanel.removeAll();
 		for (ColimitForm currentColimit : colimits) {
-			this.colimitSelectionPanel.add(new JLabel(currentColimit.getNameString()));
+			this.drawingOptionsPanel.add(new JLabel(currentColimit.getNameString()));
 			JComboBox currentBox = new JComboBox(new Vector<Form>(currentColimit.getForms()));
 			currentBox.addActionListener(this);
 			this.colimitBoxes.add(currentBox);
-			this.colimitSelectionPanel.add(currentBox);
+			this.drawingOptionsPanel.add(currentBox);
+			numberOfBoxes++;
 		}
-		SpringUtilities.makeCompactGrid(this.colimitSelectionPanel, colimits.size(), 2, 0, 0, 0, 0);
+		SpringUtilities.makeCompactGrid(this.drawingOptionsPanel, numberOfBoxes, 2, 0, 0, 0, 0);
 	}
 	
 	private void updateColimitBoxes(List<Integer> selectedCoordinates) {
@@ -103,9 +119,12 @@ public class JMainOptionsPanel extends JPanel implements ActionListener, View {
 		} else if (propertyName.equals(ViewController.MAIN_OPTIONS_VISIBLE)) {
 			this.setVisible((Boolean)event.getNewValue());
 		} else if (propertyName.equals(ViewController.FORM)) {
-			this.selectFormPanel.setForm(((DisplayObjectList)event.getNewValue()).getBaseForm());
-			this.initColimitBoxes(((DisplayObjectList)event.getNewValue()).getTopDenotatorColimits());
+			DisplayObjectList displayObjects = (DisplayObjectList)event.getNewValue();
+			this.selectFormPanel.setForm(displayObjects.getBaseForm());
+			this.initDrawingOptionsPanel(displayObjects.getObjects(), displayObjects.getTopDenotatorColimits());
 			this.revalidate();
+		} else if (propertyName.equals(ViewController.SELECTED_OBJECT)) {
+			this.objectBox.setSelectedIndex((Integer)event.getNewValue());
 		} else if (propertyName.equals(ViewController.SELECTED_COLIMIT_COORDINATE)) {
 			this.updateColimitBoxes(((List<Integer>)event.getNewValue()));
 		}
@@ -114,6 +133,8 @@ public class JMainOptionsPanel extends JPanel implements ActionListener, View {
 	public void actionPerformed(ActionEvent event) {
 		if (event.getSource().equals(this.selectFormPanel)) {
 			this.bigBangController.setForm(this.selectFormPanel.getForm());
+		} else if (this.objectBox.equals(event.getSource())) {
+			this.viewController.setSelectedPowerset(this.objectBox.getSelectedIndex());
 		} else if (this.colimitBoxes.contains(event.getSource())) {
 			JComboBox colimitBox = (JComboBox)event.getSource();
 			int colimitIndex = this.colimitBoxes.indexOf(colimitBox);
