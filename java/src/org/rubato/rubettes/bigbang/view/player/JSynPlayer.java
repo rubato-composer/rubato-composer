@@ -93,6 +93,7 @@ public class JSynPlayer {
 		}
 		
 		this.threads = this.generateThreads(score);
+		System.out.println("play!");
 		this.allocateModules(this.threads);
 			
 		this.threads.start();
@@ -140,10 +141,8 @@ public class JSynPlayer {
 		List<JSynObject> notes = score.getObjects();
 		JSynThreadGroup threads = new JSynThreadGroup();
 		if (notes.size() > 0) {
-			double firstOnset = notes.get(0).getOnset();
 			for (JSynObject currentNote : notes) {
-				//correct onset and add note to a thread TODO: think about this!!!
-				currentNote.setOnset(currentNote.getOnset()); //- firstOnset);
+				currentNote.setOnset(currentNote.getOnset());
 				this.addNoteToConvenientThread(currentNote, threads);
 			}
 		}
@@ -195,16 +194,19 @@ public class JSynPlayer {
 		List<JSynThread> notPlayingThreads = new ArrayList<JSynThread>();
 		for (JSynThread currentThread : threads) {
 			JSynObject objectAtCurrentTime = currentThread.getObjectAt(currentTime);
-			JSynModule closestModule = null; 
+			JSynModule closestModule = null;
+			//System.out.println(remainingModules);
 			if (objectAtCurrentTime != null) {
 				double currentFrequency = objectAtCurrentTime.getFrequency();
 				closestModule = this.getModuleWithClosestFrequency(currentFrequency, remainingModules);
 				if (closestModule != null) {
 					currentThread.setModule(closestModule);
+					//System.out.println(currentFrequency + " " + closestModule.getCarrierFrequency());
 				} else {
 					JSynModule newModule = new JSynModule(this);
 					this.modules.add(newModule);
 					currentThread.setModule(newModule);
+					//System.out.println(currentFrequency + " new module");
 				}
 			} else {
 				notPlayingThreads.add(currentThread);

@@ -80,7 +80,7 @@ public class BigBangScoreManagerTest extends TestCase {
 		notes.add(this.objects.node1Absolute);
 		notes.add(this.objects.node2Absolute);
 		notes.add(this.objects.node0);
-		List<DenotatorPath> satellitePaths = this.scoreManager.addObjects(notes, anchorPaths);
+		List<DenotatorPath> satellitePaths = this.scoreManager.addObjects(notes, anchorPaths, false);
 		TestCase.assertEquals(new DenotatorPath(this.objects.SOUND_SCORE_FORM, new int[]{1}), satellitePaths.get(0));
 		TestCase.assertEquals(new DenotatorPath(this.objects.SOUND_SCORE_FORM, new int[]{0,1,1}), satellitePaths.get(1));
 		TestCase.assertEquals(new DenotatorPath(this.objects.SOUND_SCORE_FORM, new int[]{0,1,0,1,0}), satellitePaths.get(2));

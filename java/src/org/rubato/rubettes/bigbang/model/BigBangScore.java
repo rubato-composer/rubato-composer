@@ -32,8 +32,12 @@ public class BigBangScore implements Cloneable {
 		return clone;
 	}
 	
-	public boolean setForm(Form form) {
-		return this.resetScore(form);
+	public boolean setForm(Form baseForm) {
+		return this.resetScore(baseForm);
+	}
+	
+	public boolean resetScore() {
+		return this.resetScore(this.objectGenerator.getBaseForm());
 	}
 	
 	private boolean resetScore(Form baseForm) {

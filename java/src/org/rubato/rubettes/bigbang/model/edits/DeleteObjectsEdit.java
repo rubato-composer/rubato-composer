@@ -33,7 +33,7 @@ public class DeleteObjectsEdit extends AbstractUndoableEdit {
 	public void undo() {
 		super.undo();
 		List<DenotatorPath> oldAnchorPaths = DenotatorPath.getAnchorPaths(this.objectPaths);
-		this.objectPaths = this.score.addObjects(this.objects, oldAnchorPaths);
+		this.objectPaths = this.score.addObjects(this.objects, oldAnchorPaths, false);
 	}
 	
 	public String getPresentationName() {

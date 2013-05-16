@@ -35,7 +35,7 @@ public class BigBangTransformationGraph extends ArrayList<AbstractOperationEdit>
 		if (this.size()>0) {
 			Map<DenotatorPath,DenotatorPath> pathDifferences = new TreeMap<DenotatorPath,DenotatorPath>();
 			this.get(this.size()-1).setInPreviewMode(inPreviewMode);
-			this.get(0).getScoreManager().initPreviewScore();
+			this.get(0).getScoreManager().resetScore();
 			for (int i = 0; i < this.size(); i++) {
 				AbstractOperationEdit edit = this.get(i);
 				//only send composition change with last one!!!!!!

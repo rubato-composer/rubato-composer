@@ -21,7 +21,7 @@ import org.rubato.rubettes.bigbang.model.edits.MoveNotesEdit;
 import org.rubato.rubettes.bigbang.model.edits.ReflectionEdit;
 import org.rubato.rubettes.bigbang.model.edits.RemoveNotesFromCarrierEdit;
 import org.rubato.rubettes.bigbang.model.edits.RotationEdit;
-import org.rubato.rubettes.bigbang.model.edits.SatelliteBuildingEdit;
+import org.rubato.rubettes.bigbang.model.edits.BuildSatellitesEdit;
 import org.rubato.rubettes.bigbang.model.edits.ScalingEdit;
 import org.rubato.rubettes.bigbang.model.edits.ShapingEdit;
 import org.rubato.rubettes.bigbang.model.edits.ShearingEdit;
@@ -137,7 +137,7 @@ public class BigBangModel extends Model {
 	}
 	
 	public void buildSatellites(TreeSet<DenotatorPath> nodePaths, DenotatorPath parentNotePath) {
-		this.undoRedoModel.postEdit(new SatelliteBuildingEdit(this.scoreManager, nodePaths, parentNotePath));
+		this.undoRedoModel.postEdit(new BuildSatellitesEdit(this.scoreManager, nodePaths, parentNotePath));
 	}
 	
 	public void flattenNotes(TreeSet<DenotatorPath> nodePaths) {

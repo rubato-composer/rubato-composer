@@ -67,7 +67,7 @@ public class DenotatorValueExtractor {
 		this.jSynScore = new JSynScore();
 		this.selectObjects = selectObjects;
 		try {
-			this.extractObjects(score, null, null, null, DenotatorPath.ANCHOR, 0, 0, 0, new DenotatorPath(score.getForm()));
+			this.extractObjects(score, null, null, null, null, DenotatorPath.ANCHOR, 0, 0, 0, new DenotatorPath(score.getForm()));
 		} catch (RubatoException e) { e.printStackTrace(); }
 		this.setTopDenotatorParameters();
 		this.layerStates.removeLayers(this.maxLayer);
@@ -87,9 +87,10 @@ public class DenotatorValueExtractor {
 		this.displayObjects.setObjectsAndPaths(this.finder.getObjectsAndPaths());
 		this.displayObjects.setTopDenotatorColimits(this.finder.getColimitsInFoundOrder());
 		this.displayObjects.setTopDenotatorColimitsAndPaths(this.finder.getColimitsAndPaths());
+		this.displayObjects.setAllowsForSatellites(this.finder.formAllowsForSatellites());
 		
 		List<String> valueNames = this.finder.getValueNamesInFoundOrder();
-		if (this.finder.formContainsPowerset()) {
+		if (this.finder.formAllowsForSatellites()) {
 			valueNames.add(DenotatorValueExtractor.SATELLITE_LEVEL);
 			valueNames.add(DenotatorValueExtractor.SIBLING_NUMBER);
 		}
@@ -101,39 +102,39 @@ public class DenotatorValueExtractor {
 	
 	//recursive method!!
 	//TODO: remove relation!! not very interesting anymore..
-	private void extractObjects(Denotator currentDenotator, DisplayObject parent, DisplayObject currentDisplayObject, JSynObject currentJSynObject, int relation, int satelliteLevel, int siblingNumber, int colimitIndex, DenotatorPath currentPath) throws RubatoException {
+	private void extractObjects(Denotator currentDenotator, DisplayObject parentDO, DisplayObject currentDO, JSynObject parentJSO, JSynObject currentJSO, int relation, int satelliteLevel, int siblingNumber, int colimitIndex, DenotatorPath currentPath) throws RubatoException {
 		int denotatorType = currentDenotator.getType();
 		if (denotatorType == Denotator.POWER || denotatorType == Denotator.LIST) {
 			FactorDenotator currentPower = (FactorDenotator)currentDenotator;
 			//TODO: find out if modulators and add them to JSynObject!!
 			for (int i = 0; i < currentPower.getFactorCount(); i++) {
 				//call with currentDisplayObject and currentJSynObject null, since all children become independent objects
-				this.extractObjects(currentPower.getFactor(i), currentDisplayObject, null, null, DenotatorPath.SATELLITE, satelliteLevel+1, i, colimitIndex, currentPath.getChildPath(i));
+				this.extractObjects(currentPower.getFactor(i), currentDO, null, currentJSO, null, DenotatorPath.SATELLITE, satelliteLevel+1, i, colimitIndex, currentPath.getChildPath(i));
 			}
 		} else {
-			if (currentDisplayObject == null) {
-				currentDisplayObject = this.addDisplayObject(currentDenotator, parent, relation, satelliteLevel, siblingNumber, colimitIndex, currentPath);
-				currentJSynObject = this.jSynScore.addNewObject();
+			if (currentDO == null) {
+				currentDO = this.addDisplayObject(currentDenotator, parentDO, relation, satelliteLevel, siblingNumber, colimitIndex, currentPath);
+				currentJSO = this.jSynScore.addNewObject(parentJSO);
 			}
 			if (denotatorType == Denotator.LIMIT) {
 				LimitDenotator currentLimit = (LimitDenotator)currentDenotator;
 				for (int i = 0; i < currentLimit.getFactorCount(); i++) {
 					Denotator currentChild = currentLimit.getFactor(i);
-					this.extractObjects(currentChild, parent, currentDisplayObject, currentJSynObject, relation, satelliteLevel, siblingNumber, colimitIndex, currentPath.getChildPath(i));
+					this.extractObjects(currentChild, parentDO, currentDO, parentJSO, currentJSO, relation, satelliteLevel, siblingNumber, colimitIndex, currentPath.getChildPath(i));
 				}
 			} else if (denotatorType == Denotator.COLIMIT) {
 				ColimitDenotator currentColimit = (ColimitDenotator)currentDenotator;
 				Denotator onlyChild = currentColimit.getFactor();
 				int childIndex = currentColimit.getIndex();
-				currentDisplayObject.setColimitIndex(colimitIndex+childIndex);
+				currentDO.setColimitIndex(colimitIndex+childIndex);
 				colimitIndex += currentColimit.getFactorCount();
 				for (int i = 0; i < currentColimit.getForm().getFormCount(); i++) {
 					if (i == childIndex) {
-						this.extractObjects(onlyChild, parent, currentDisplayObject, currentJSynObject, relation, satelliteLevel, siblingNumber, childIndex, currentPath.getChildPath(childIndex));
+						this.extractObjects(onlyChild, parentDO, currentDO, parentJSO, currentJSO, relation, satelliteLevel, siblingNumber, childIndex, currentPath.getChildPath(childIndex));
 					}
 				}
 			} else if (denotatorType == Denotator.SIMPLE) {
-				this.addSimpleValues(parent, currentDisplayObject, currentJSynObject, (SimpleDenotator)currentDenotator);
+				this.addSimpleValues(parentDO, currentDO, currentJSO, (SimpleDenotator)currentDenotator);
 			}
 		}
 	}
@@ -155,7 +156,7 @@ public class DenotatorValueExtractor {
 	
 	private DisplayObject createDisplayObject(Denotator denotator, DisplayObject parent, int relation, int satelliteLevel, int siblingNumber, int colimitIndex, DenotatorPath path) {
 		List<Integer> structuralValues = new ArrayList<Integer>();
-		if (this.finder.formContainsPowerset()) {
+		if (this.finder.formAllowsForSatellites()) {
 			structuralValues.add(satelliteLevel);
 			structuralValues.add(siblingNumber);
 		}
@@ -165,8 +166,8 @@ public class DenotatorValueExtractor {
 		return new DisplayObject(parent, relation, denotator.getType(), structuralValues, path.clone());
 	}
 	
-	private void addSimpleValues(DisplayObject parent, DisplayObject displayObject, JSynObject jSynObject, SimpleDenotator simpleDenotator) {
-		Map<String,Double> objectValues = this.extractValues(simpleDenotator, parent);
+	private void addSimpleValues(DisplayObject parentDO, DisplayObject displayObject, JSynObject jSynObject, SimpleDenotator simpleDenotator) {
+		Map<String,Double> objectValues = this.extractValues(simpleDenotator, parentDO);
 		displayObject.addValues(objectValues);
 		jSynObject.addValues(simpleDenotator.getForm(), objectValues); //needs to know forms!!
 	}

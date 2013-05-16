@@ -9,15 +9,18 @@ import org.rubato.math.yoneda.Form;
 
 public class JSynObject {
 	
+	private JSynObject parent;
 	private Double frequency;
 	private double amplitude;
 	private Double duration;
 	private int voice;
 	private Double onset, offset;
-	private List<JSynModulator> modulators;
+	private List<JSynObject> modulators;
 	
-	public JSynObject() {
-		this.modulators = new ArrayList<JSynModulator>();
+	public JSynObject(JSynObject parent) {
+		this.parent = parent;
+		//TODO: modulators will just be children!!!!
+		this.modulators = new ArrayList<JSynObject>();
 		//assign standard values
 		this.setOnset(0);
 		this.setFrequency(60);
@@ -34,6 +37,10 @@ public class JSynObject {
 			this.setFrequency(this.getSingleValue(values));
 		} else if (form == repository.getForm("PitchClass")) {
 			this.setFrequency(60+this.getSingleValue(values));
+		} else if (form == repository.getForm("OvertoneIndex")) {
+			if (this.parent != null) {
+				this.setOvertoneFrequency(this.parent.getFrequency(), (int)this.getSingleValue(values));
+			}
 		} else if (form == repository.getForm("Loudness")) {
 			this.setAmplitude(this.getSingleValue(values));
 		} else if (form == repository.getForm("Duration")) {
@@ -66,6 +73,14 @@ public class JSynObject {
 
 	private void setFrequency(double pitch) {
 		this.frequency = this.midiToFrequency(pitch);
+	}
+	
+	private void setOvertoneFrequency(double baseFrequency, int overtoneIndex) {
+		this.frequency = baseFrequency;
+		while (overtoneIndex > 0) {
+			this.frequency = this.frequency*(overtoneIndex+1)/overtoneIndex;
+			overtoneIndex--;
+		}
 	}
 
 	public double getAmplitude() {
@@ -104,14 +119,14 @@ public class JSynObject {
 	}
 	
 	//TODO: won't work!!
-	public JSynModulator addModulator(Form form, Map<String,Double> values) {
-		JSynModulator modulator = new JSynModulator(); 
+	public JSynObject addModulator(Form form, Map<String,Double> values) {
+		JSynObject modulator = new JSynObject(this); 
 		modulator.addValues(form, values);
 		this.modulators.add(modulator);
 		return modulator;
 	}
 	
-	public List<JSynModulator> getModulators() {
+	public List<JSynObject> getModulators() {
 		return this.modulators;
 	}
 	

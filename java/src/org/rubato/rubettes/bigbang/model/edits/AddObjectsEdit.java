@@ -12,7 +12,7 @@ public class AddObjectsEdit extends AbstractOperationEdit {
 	
 	private DenotatorPath powersetPath;
 	private List<TreeMap<DenotatorPath,Double>> pathsWithValues;
-	private DenotatorPath objectPath;
+	private List<DenotatorPath> objectPaths;
 	
 	public AddObjectsEdit(BigBangScoreManager scoreManager, DenotatorPath powersetPath, TreeMap<DenotatorPath,Double> pathsWithValues) {
 		super(scoreManager);
@@ -39,13 +39,8 @@ public class AddObjectsEdit extends AbstractOperationEdit {
 		//do nothing for now
 	}
 	
-	public void previewTransformationAtEnd(AbstractTransformationEdit edit) {
-	}
-	
-	public Map<DenotatorPath,DenotatorPath> execute(Map<DenotatorPath,DenotatorPath> pathDifferences, boolean sendCompositionChange) {
-		for (TreeMap<DenotatorPath,Double> currentValues : this.pathsWithValues) {
-			this.objectPath = this.scoreManager.addObject(this.powersetPath, currentValues);
-		}
+	public Map<DenotatorPath,DenotatorPath> execute(Map<DenotatorPath,DenotatorPath> pathDifferences, boolean fireCompositionChange) {
+		this.objectPaths = this.scoreManager.addObjects(this.powersetPath, this.pathsWithValues, fireCompositionChange);
 		//TODO: think about this!!!!!
 		//pathDifferences.put(null, this.objectPath);
 		return pathDifferences;
