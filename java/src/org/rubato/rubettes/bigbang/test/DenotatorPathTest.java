@@ -90,5 +90,11 @@ public class DenotatorPathTest extends TestCase {
 		//of course, within a modulator, the only powerset is the one of its modulators!!
 		TestCase.assertEquals(new DenotatorPath(this.objects.SOUND_SCORE_FORM, new int[]{2,1,6,0,6,3,6,2,6,4}), this.modulatorPath.getSatellitePath(4,0));
 	}
+	
+	public void testGetPowersetPath() {
+		DenotatorPath node = new DenotatorPath(this.objects.SOUND_SCORE_FORM, new int[]{2});
+		TestCase.assertEquals(new DenotatorPath(this.objects.SOUND_SCORE_FORM, new int[]{2,1}), node.getPowersetPath(0));
+		TestCase.assertEquals(new DenotatorPath(this.objects.SOUND_SCORE_FORM, new int[]{2,0,6}), node.getPowersetPath(1));
+	}
 
 }

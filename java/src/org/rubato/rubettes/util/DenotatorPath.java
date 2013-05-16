@@ -141,7 +141,8 @@ public class DenotatorPath implements Comparable<Object> {
 	
 	public DenotatorPath subPath(int fromIndex, int toIndex) {
 		try {
-			return new DenotatorPath(this.baseForm, new ArrayList<Integer>(this.indices.subList(fromIndex, toIndex)));
+			Form subForm = new DenotatorPath(this.baseForm, this.indices.subList(0, fromIndex)).getForm();
+			return new DenotatorPath(subForm, new ArrayList<Integer>(this.indices.subList(fromIndex, toIndex)));
 		} catch (IllegalArgumentException e) {
 			return null;
 		}
@@ -301,7 +302,7 @@ public class DenotatorPath implements Comparable<Object> {
 		return parentColimitPaths;
 	}
 	
-	/*
+	/**
 	 * @return the top path of this connected object, meaning the path at which it appears in a powerset above
 	 */
 	public DenotatorPath getTopPath() {

@@ -286,7 +286,8 @@ public class BigBangView extends Model implements View {
 		} else if (propertyName.equals(BigBangController.INPUT_ACTIVE)) {
 			this.firePropertyChange(ViewController.INPUT_ACTIVE, null, event.getNewValue());
 		} else if (propertyName.equals(BigBangController.ADD_OBJECT)) {
-			this.playObject((Denotator)event.getNewValue());
+			//not every sounding object makes sense to be played alone (e.g. modulator, or overtone)
+			//this.playObject((Denotator)event.getNewValue());
 		}
 	}
 	
@@ -312,7 +313,7 @@ public class BigBangView extends Model implements View {
 	
 	private void setDisplayNotes(DisplayObjectList displayNotes, List<Double> minValues, List<Double> maxValues) {
 		if (this.displayNotes == null || (displayNotes.getBaseForm() != this.displayNotes.getBaseForm())) {
-			if (displayNotes.containsPowerset()) {
+			if (displayNotes.allowsForSatellites()) {
 				this.viewParameters.initSelections(displayNotes.getValueNames().size()-2);
 			} else {
 				this.viewParameters.initSelections(displayNotes.getValueNames().size());
@@ -712,12 +713,13 @@ public class BigBangView extends Model implements View {
 		}
 	}
 	
-	private void playObject(Denotator object) {
+	//not every sounding object makes sense to be played alone (e.g. modulator, or overtone)
+	/*private void playObject(Denotator object) {
 		if (this.playingActive) {
 			DenotatorValueExtractor extractor = new DenotatorValueExtractor(object);
 			this.player.playObject(extractor.getJSynScore().getObjects().get(0));
 		}
-	}
+	}*/
 	
 	public void setTempo(Integer tempo) {
 		this.player.setTempo(tempo);

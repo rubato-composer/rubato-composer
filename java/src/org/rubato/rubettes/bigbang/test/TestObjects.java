@@ -24,6 +24,7 @@ import org.rubato.math.yoneda.SimpleForm;
 import org.rubato.rubettes.bigbang.controller.BigBangController;
 import org.rubato.rubettes.bigbang.model.BigBangScore;
 import org.rubato.rubettes.bigbang.model.BigBangScoreManager;
+import org.rubato.rubettes.util.CoolFormRegistrant;
 import org.rubato.rubettes.util.DenotatorPath;
 import org.rubato.rubettes.util.DenotatorValueFinder;
 import org.rubato.rubettes.util.ObjectGenerator;
@@ -34,6 +35,8 @@ public class TestObjects {
 	public final Form SOUND_SCORE_FORM = Repository.systemRepository().getForm("SoundScore");
 	public final Form SOUND_NODE_FORM = Repository.systemRepository().getForm("SoundNode");
 	public final Form SOUND_NOTE_FORM = Repository.systemRepository().getForm("SoundNote");
+	public final Form MACRO_SCORE_FORM = Repository.systemRepository().getForm("MacroScore");
+	public final Form HARMONIC_SPECTRUM_FORM = Repository.systemRepository().getForm("HarmonicSpectrum");
 	public final Module RATIONAL_TRIPLE_MODULE = Repository.systemRepository().getModule("Triples of rationals"); 
 	public final SimpleForm RATIONAL_TRIPLE_FORM = new SimpleForm(NameDenotator.make("RationalTriple"), RATIONAL_TRIPLE_MODULE);
 	public final PowerForm RATIONAL_TRIPLES_FORM = new PowerForm(NameDenotator.make("RationalTriples"), RATIONAL_TRIPLE_FORM);
@@ -69,6 +72,7 @@ public class TestObjects {
 	public PowerDenotator integerOrReals;
 	
 	public TestObjects() {
+		new CoolFormRegistrant().registerAllTheCoolStuff();
 		this.generator = new SoundNoteGenerator();
 		this.objectGenerator = new ObjectGenerator();
 		this.score = new BigBangScore(this.generator.getSoundScoreForm());

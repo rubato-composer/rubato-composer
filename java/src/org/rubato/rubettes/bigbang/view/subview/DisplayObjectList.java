@@ -28,6 +28,7 @@ public class DisplayObjectList extends TreeSet<DisplayObject> implements View {
 	private List<Integer> selectedColimitCoordinates;
 	private List<Form> objects;
 	private Map<Form,DenotatorPath> objectsAndPaths;
+	private boolean allowsForSatellites;
 	//TODO: make objectcolimits!!!!!
 	private List<ColimitForm> topDenotatorColimits;
 	private Map<ColimitForm,DenotatorPath> topDenotatorColimitsAndPaths;
@@ -102,8 +103,12 @@ public class DisplayObjectList extends TreeSet<DisplayObject> implements View {
 		return this.baseForm;
 	}
 	
-	public boolean containsPowerset() {
-		return this.objects.size() > 1;
+	public void setAllowsForSatellites(boolean allowsForSatellites) {
+		this.allowsForSatellites = allowsForSatellites;
+	}
+	
+	public boolean allowsForSatellites() {
+		return this.allowsForSatellites;
 	}
 	
 	public void setValueNamesAndPaths(Map<String,DenotatorPath> valuesNamesAndPaths) {

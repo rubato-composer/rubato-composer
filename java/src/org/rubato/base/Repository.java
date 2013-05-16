@@ -1053,9 +1053,6 @@ public class Repository
         
         // Karim's registration of the MacroScore forms
         FormReference formRef = new FormReference("MacroScore", Form.POWER);
-        
-        SimpleForm layerForm = FormFactory.makeZModuleForm("Layer");
-		registerBuiltin(layerForm);
 	
 		LimitForm nodeForm = FormFactory.makeLimitForm("Knot", noteForm, formRef);		
 		registerBuiltin(nodeForm);
@@ -1065,6 +1062,9 @@ public class Repository
 		macroScoreForm.resolveReferences(this);
 		
 		// registration of the SoundNote form
+		SimpleForm layerForm = FormFactory.makeZModuleForm("Layer");
+		registerBuiltin(layerForm);
+		
 		formRef = new FormReference("Modulators", Form.POWER);
 		
 		List<Form> soundNoteFormList = new LinkedList<Form>();

@@ -17,7 +17,7 @@ import org.rubato.rubettes.util.DenotatorPath;
 
 public class BigBangScoreManager extends Model {
 	
-	private BigBangScore score, previewScore;
+	private BigBangScore score;
 	private BigBangWallpaper wallpaper;
 	private BigBangAlteration alteration;
 	
@@ -38,19 +38,19 @@ public class BigBangScoreManager extends Model {
 		this.fireCompositionChange(this.score, null, null, false);
 	}
 	
+	public void resetScore() {
+		this.score.resetScore();
+	}
+	
 	public boolean setComposition(Denotator newComposition) {
 		boolean valid = this.score.setComposition(newComposition);
 		if (valid) {
 			this.fireCompositionChange();
-			this.initPreviewScore();
 		}
 		return valid;
 	}
 	
 	public Denotator getComposition() {
-		if (this.previewScore != null) {
-			return this.previewScore.getComposition();
-		}
 		return this.score.getComposition();
 	}
 	
@@ -81,20 +81,19 @@ public class BigBangScoreManager extends Model {
 	
 	private List<DenotatorPath> createWallpaper(boolean inPreviewMode, boolean selectMotif) {
 		List<DenotatorPath> motifPaths = this.wallpaper.getMotif();
-		this.initPreviewScore();
-		List<List<Denotator>> motifNodes = this.previewScore.extractObjects(motifPaths);
+		List<List<Denotator>> motifNodes = this.score.extractObjects(motifPaths);
 		//CREATE ACTUAL WALLPAPER (to be selected when wallpaper finished)
-		this.wallpaper.applyTo(this.previewScore);
+		this.wallpaper.applyTo(this.score);
 		DenotatorPath lastAnchorPath = this.wallpaper.getLastAnchorPath();
-		List<DenotatorPath> newMotifPaths = this.previewScore.addObjects(motifNodes);
+		List<DenotatorPath> newMotifPaths = this.score.addObjects(motifNodes);
 		if (inPreviewMode) {
 			if (selectMotif) {
-				this.fireCompositionChange(this.previewScore, new TreeSet<DenotatorPath>(newMotifPaths), lastAnchorPath, true);
+				this.fireCompositionChange(this.score, new TreeSet<DenotatorPath>(newMotifPaths), lastAnchorPath, true);
 			} else {
 				this.firePreviewCompositionChange(new TreeSet<DenotatorPath>(newMotifPaths), lastAnchorPath);
 			}
 		} else {
-			this.fireCompositionChange(this.previewScore, new TreeSet<DenotatorPath>(newMotifPaths), lastAnchorPath, true);
+			this.fireCompositionChange(this.score, new TreeSet<DenotatorPath>(newMotifPaths), lastAnchorPath, true);
 		}
 		return newMotifPaths;
 	}
@@ -131,49 +130,43 @@ public class BigBangScoreManager extends Model {
 	}
 	
 	private void alter(boolean inPreviewMode) {
-		this.initPreviewScore();
 		//List<DenotatorPath> composition0Paths = new ArrayList<DenotatorPath>(this.alteration.getComposition(0));
 		//List<List<LimitDenotator>> composition0Nodes = this.actualScore.extractNodes(composition0Paths);
-		this.alteration.alter(this.previewScore);
+		this.alteration.alter(this.score);
 		//List<DenotatorPath> newComposition0Paths = this.actualScore.findPaths(composition0Nodes);
 		if (inPreviewMode) {
 			this.firePreviewCompositionChange(new TreeSet<DenotatorPath>(), null);
 		} else {
-			this.fireCompositionChange(this.previewScore, new TreeSet<DenotatorPath>(), null, true);
+			this.fireCompositionChange(this.score, new TreeSet<DenotatorPath>(), null, true);
 		}
 	}
 	
-	public List<DenotatorPath> mapObjects(List<DenotatorPath> objectPaths, BigBangTransformation transformation, boolean inPreviewMode, boolean sendCompositionChange) {
+	public List<DenotatorPath> mapObjects(List<DenotatorPath> objectPaths, BigBangTransformation transformation, boolean inPreviewMode, boolean fireCompositionChange) {
 		//PerformanceCheck.startTask("prepare");
 		//this.updateActualScore(inPreviewMode);
 		//PerformanceCheck.startTask("map");
-		BigBangMapper mapper = new BigBangMapper(this.previewScore, transformation);
+		BigBangMapper mapper = new BigBangMapper(this.score, transformation);
 		List<DenotatorPath> newPaths = mapper.mapObjects(objectPaths);
 		//PerformanceCheck.startTask("fire");
-		if (sendCompositionChange) {
+		if (fireCompositionChange) {
 			if (inPreviewMode) {
 				this.firePreviewCompositionChange(new TreeSet<DenotatorPath>(objectPaths), transformation.getAnchorNodePath());
 			} else {
-				this.fireCompositionChange(this.previewScore, new TreeSet<DenotatorPath>(newPaths), transformation.getAnchorNodePath(), true);
+				this.fireCompositionChange(this.score, new TreeSet<DenotatorPath>(newPaths), transformation.getAnchorNodePath(), true);
 			}
 		}
 		//PerformanceCheck.startTask("draw");
 		return newPaths;
 	}
 	
-	public void initPreviewScore() {
-		this.previewScore = (BigBangScore) this.score.clone();
-	}
-	
 	public Map<DenotatorPath,Double> shapeNotes(TransformationProperties properties, TreeMap<Double,Double> shapingLocations) {
-		this.initPreviewScore();
-		BigBangShaper shaper = new BigBangShaper(this.previewScore, properties, shapingLocations);
+		BigBangShaper shaper = new BigBangShaper(this.score, properties, shapingLocations);
 		Map<DenotatorPath,Double> newPathsAndOldYValues = shaper.shapeObjects();
 		
 		if (properties.inPreviewMode()) {
 			this.firePreviewCompositionChange(new TreeSet<DenotatorPath>(properties.getObjectPaths()), null);
 		} else {
-			this.fireCompositionChange(this.previewScore, newPathsAndOldYValues.keySet(), null, true);
+			this.fireCompositionChange(this.score, newPathsAndOldYValues.keySet(), null, true);
 		}
 		return newPathsAndOldYValues;
 	}
@@ -182,17 +175,26 @@ public class BigBangScoreManager extends Model {
 		
 	}
 	
-	public DenotatorPath addObject(DenotatorPath powersetPath, TreeMap<DenotatorPath,Double> pathsWithValues) {
-		DenotatorPath newPath = this.previewScore.addObject(powersetPath, pathsWithValues);
-		//this.fireCompositionChange();
-		this.firePreviewCompositionChange(null, null);
-		this.firePropertyChange(BigBangController.ADD_OBJECT, null, this.score.getObject(newPath));
-		return newPath;
+	public List<DenotatorPath> addObjects(DenotatorPath powersetPath, List<TreeMap<DenotatorPath,Double>> pathsWithValues, boolean fireCompositionChange) {
+		List<DenotatorPath> newPaths = new ArrayList<DenotatorPath>();
+		for (TreeMap<DenotatorPath,Double> currentPathsWithValues : pathsWithValues) {
+			//TODO: paths probably not right, use addObjects! refactor entire thing upon refactoring wallpaper etc
+			newPaths.add(this.score.addObject(powersetPath, currentPathsWithValues));
+		}
+		
+		if (fireCompositionChange) {
+			this.firePreviewCompositionChange(null, null);
+			//this.firePropertyChange(BigBangController.ADD_OBJECT, null, this.score.getObject(newPath));
+		}
+		return newPaths;
 	}
 	
-	public List<DenotatorPath> addObjects(List<Denotator> objects, List<DenotatorPath> parentPaths) {
+	//TODO: remove, only used in tests...
+	public List<DenotatorPath> addObjects(List<Denotator> objects, List<DenotatorPath> parentPaths, boolean fireCompositionChange) {
 		List<DenotatorPath> newPaths = this.score.addObjects(objects, parentPaths);
-		this.fireCompositionChange(new TreeSet<DenotatorPath>(newPaths));
+		if (fireCompositionChange) {
+			this.fireCompositionChange(new TreeSet<DenotatorPath>(newPaths));
+		}
 		return newPaths;
 	}
 	
@@ -288,8 +290,8 @@ public class BigBangScoreManager extends Model {
 	}
 	
 	private void fireCompositionChange(Set<DenotatorPath> selectedNodesPaths) {
-		this.initPreviewScore();
-		this.fireCompositionChange(this.previewScore, selectedNodesPaths, null, false);
+		//this.initPreviewScore();
+		this.fireCompositionChange(this.score, selectedNodesPaths, null, false);
 	}
 	
 	private void fireCompositionChange(BigBangScore score, Set<DenotatorPath> selectedNodesPaths, DenotatorPath selectedAnchorPath, boolean playback) {
@@ -299,7 +301,7 @@ public class BigBangScoreManager extends Model {
 	}
 	
 	private void firePreviewCompositionChange(Set<DenotatorPath> selectedNodesPaths, DenotatorPath selectedAnchorPath) {
-		Denotator changedComposition = this.previewScore.getLayeredComposition();
+		Denotator changedComposition = this.score.getLayeredComposition();
 		ScoreChangedNotification notification = new ScoreChangedNotification(changedComposition, selectedNodesPaths, selectedAnchorPath, true);
 		this.firePropertyChange(BigBangController.PREVIEW, null, notification);
 	}

@@ -22,6 +22,7 @@ public class DenotatorValueFinder {
 	//objects are the top-level denotator (if it is not a powerset) as well as elements of powersets
 	private List<Form> objectsInFoundOrder;
 	private Map<Form,DenotatorPath> objectsAndPaths;
+	private boolean allowsForSatellites;
 	private final int MAX_SEARCH_DEPTH = 10;
 	
 	public DenotatorValueFinder(Form form, boolean searchThroughPowersets) {
@@ -32,6 +33,7 @@ public class DenotatorValueFinder {
 		this.colimitsAndPaths = new TreeMap<ColimitForm,DenotatorPath>();
 		this.objectsInFoundOrder = new ArrayList<Form>();
 		this.objectsAndPaths = new TreeMap<Form,DenotatorPath>();
+		this.allowsForSatellites = false;
 		this.findValues(new DenotatorPath(form), searchThroughPowersets, 0);
 	}
 	
@@ -63,8 +65,8 @@ public class DenotatorValueFinder {
 		return this.colimitsAndPaths;
 	}
 	
-	public boolean formContainsPowerset() {
-		return this.objectsInFoundOrder.size() > 1;
+	public boolean formAllowsForSatellites() {
+		return this.allowsForSatellites;
 	}
 	
 	public boolean formContainsColimit() {
@@ -96,20 +98,17 @@ public class DenotatorValueFinder {
 					this.objectsInFoundOrder.add(childForm);
 					this.objectsAndPaths.put(childForm, childPath);
 				}
+				if (currentSearchDepth > 0) {
+					//TODO: actually, this should check if there are simples in the top object. otherwise they are
+					//technically not satellites...
+					this.allowsForSatellites = true;
+				}
 				if (searchThroughPowersets) {
 					this.findValues(childPath, searchThroughPowersets, currentSearchDepth+1);
 				}
 			}
 		}
 	}
-	
-	/*public Form getMinimalCommonParent(Set<DenotatorPath> paths) {
-		DenotatorPath minimalCommonParentPath = null;
-		for (DenotatorPath currentPath : paths) {
-			minimalCommonParentPath = currentPath.getMinimalCommonParentPath(minimalCommonParentPath);
-		}
-		return minimalCommonParentPath.getTopPath().getForm();
-	}*/
 	
 	//recursively finds all values and their names
 	private void addValueNames(String simpleName, Module currentModule, DenotatorPath currentPath, String indexString) {
@@ -127,9 +126,11 @@ public class DenotatorValueFinder {
 			}
 		} else {
 			String currentValueName = DenotatorValueFinder.makeValueName(simpleName, currentModule, indexString);
-			this.valueNamesInFoundOrder.add(currentValueName);
-			this.pathsInFoundOrder.add(currentPath);
-			this.valueNamesAndPaths.put(currentValueName, currentPath);
+			if (!this.valueNamesInFoundOrder.contains(currentValueName)) {
+				this.valueNamesInFoundOrder.add(currentValueName);
+				this.pathsInFoundOrder.add(currentPath);
+				this.valueNamesAndPaths.put(currentValueName, currentPath);
+			}
 		}
 	}
 	

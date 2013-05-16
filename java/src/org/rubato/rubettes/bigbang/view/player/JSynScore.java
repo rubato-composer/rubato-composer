@@ -19,8 +19,8 @@ public class JSynScore {
 	/*
 	 * Adds a new object to this score and returns it so that it can be edited
 	 */
-	public JSynObject addNewObject() {
-		JSynObject object = new JSynObject();
+	public JSynObject addNewObject(JSynObject parent) {
+		JSynObject object = new JSynObject(parent);
 		this.objects.add(object);
 		return object;
 	}
