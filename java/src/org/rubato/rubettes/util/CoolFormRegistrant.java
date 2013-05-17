@@ -6,6 +6,7 @@ import java.util.List;
 import org.rubato.base.Repository;
 import org.rubato.logeo.FormFactory;
 import org.rubato.math.yoneda.Form;
+import org.rubato.math.yoneda.FormReference;
 import org.rubato.math.yoneda.LimitForm;
 import org.rubato.math.yoneda.PowerForm;
 import org.rubato.math.yoneda.SimpleForm;
@@ -14,37 +15,62 @@ public class CoolFormRegistrant {
 	
 	public static final String ONSET = "Onset";
 	
-	private final Repository REPOSITORY = Repository.systemRepository();
-	private final SimpleForm ONSET_FORM = (SimpleForm)this.REPOSITORY.getForm(ONSET);
-	private final SimpleForm PITCH_FORM = (SimpleForm)this.REPOSITORY.getForm("Pitch");
-	private final SimpleForm LOUDNESS_FORM = (SimpleForm)this.REPOSITORY.getForm("Loudness");
-	private final SimpleForm DURATION_FORM = (SimpleForm)this.REPOSITORY.getForm("Duration");
-	private final SimpleForm VOICE_FORM = (SimpleForm)this.REPOSITORY.getForm("Voice");
+	public static final Repository REPOSITORY = Repository.systemRepository();
+	public static final SimpleForm ONSET_FORM = (SimpleForm)REPOSITORY.getForm("Onset");
+	public static final SimpleForm PITCH_FORM = (SimpleForm)REPOSITORY.getForm("Pitch");
+	public static final SimpleForm LOUDNESS_FORM = (SimpleForm)REPOSITORY.getForm("Loudness");
+	public static final SimpleForm DURATION_FORM = (SimpleForm)REPOSITORY.getForm("Duration");
+	public static final SimpleForm VOICE_FORM = (SimpleForm)REPOSITORY.getForm("Voice");
+	
+	public static SimpleForm PITCH_CLASS_FORM;
+	public static SimpleForm OVERTONE_INDEX_FORM;
+	public static LimitForm FM_NODE_FORM;
 	
 	public CoolFormRegistrant() {
 	}
 	
 	public void registerAllTheCoolStuff() {
-		this.registerImageForms();
-		this.registerMusicForms();
+		if (Repository.systemRepository().getForm("HarmonicSpectrum") == null) {
+			this.registerImageForms();
+			this.registerMusicForms();
+		}
 	}
 	
 	public void registerMusicForms() {
 		//PitchClassSet
-		SimpleForm pitchClass = this.registerZnModuleForm("PitchClass", 12);
-		this.registerPowerForm("PitchClassSet", pitchClass);
-		LimitForm pitchClassNote = this.registerLimitForm("PitchClassNote", this.ONSET_FORM, pitchClass, this.LOUDNESS_FORM, this.DURATION_FORM, this.VOICE_FORM);
+		PITCH_CLASS_FORM = this.registerZnModuleForm("PitchClass", 12);
+		this.registerPowerForm("PitchClassSet", PITCH_CLASS_FORM);
+		LimitForm pitchClassNote = this.registerLimitForm("PitchClassNote", ONSET_FORM, PITCH_CLASS_FORM, LOUDNESS_FORM, DURATION_FORM, VOICE_FORM);
 		this.registerPowerForm("PitchClassScore", pitchClassNote);
 		
 		//SoundSpectrum
-		LimitForm overtone = this.registerLimitForm("Overtone", this.PITCH_FORM, this.LOUDNESS_FORM);
-		this.registerPowerForm("Spectrum", overtone);
+		LimitForm partial = this.registerLimitForm("Partial", LOUDNESS_FORM, PITCH_FORM);
+		this.registerPowerForm("Spectrum", partial);
 		
 		//HarmonicSpectrum
-		SimpleForm index = this.registerZModuleForm("OvertoneIndex");
-		LimitForm harmonicOvertone = this.registerLimitForm("HarmonicOvertone", index, this.LOUDNESS_FORM);
+		OVERTONE_INDEX_FORM = this.registerZModuleForm("OvertoneIndex");
+		LimitForm harmonicOvertone = this.registerLimitForm("HarmonicOvertone", OVERTONE_INDEX_FORM, LOUDNESS_FORM);
 		PowerForm harmonicOvertones = this.registerPowerForm("HarmonicOvertones", harmonicOvertone);
-		this.registerLimitForm("HarmonicSpectrum", this.PITCH_FORM, harmonicOvertones);
+		this.registerLimitForm("HarmonicSpectrum", PITCH_FORM, harmonicOvertones);
+		
+		//FM
+		Form fmSet = new FormReference("FMSet", Form.POWER);
+		FM_NODE_FORM = this.registerLimitForm("FMNode", partial, fmSet);
+		fmSet = this.registerPowerForm("FMSet", FM_NODE_FORM);
+		fmSet.resolveReferences(REPOSITORY);
+		
+		//SoundNote
+		SimpleForm layer = this.registerZModuleForm("Layer");
+		Form modulators = new FormReference("Modulators", Form.POWER);
+		LimitForm soundNote = this.registerLimitForm("SoundNote", ONSET_FORM, PITCH_FORM, LOUDNESS_FORM, DURATION_FORM, VOICE_FORM, layer, modulators);
+		modulators = this.registerPowerForm("Modulators", soundNote);
+		modulators.resolveReferences(REPOSITORY);
+		
+		//SoundScore
+		Form soundScore = new FormReference("SoundScore", Form.POWER);
+		LimitForm soundNode = this.registerLimitForm("SoundNode", soundNote, soundScore);
+		soundScore = this.registerPowerForm("SoundScore", soundNode);
+		soundScore.resolveReferences(REPOSITORY);
 	}
 	
 	public void registerImageForms() {
@@ -92,7 +118,7 @@ public class CoolFormRegistrant {
 	}
 	
 	private Form register(Form form) {
-		return this.REPOSITORY.register(form);
+		return REPOSITORY.register(form);
 	}
 
 }

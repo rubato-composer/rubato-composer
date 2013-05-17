@@ -1060,48 +1060,6 @@ public class Repository
 		registerBuiltin(macroScoreForm);
 
 		macroScoreForm.resolveReferences(this);
-		
-		// registration of the SoundNote form
-		SimpleForm layerForm = FormFactory.makeZModuleForm("Layer");
-		registerBuiltin(layerForm);
-		
-		formRef = new FormReference("Modulators", Form.POWER);
-		
-		List<Form> soundNoteFormList = new LinkedList<Form>();
-        List<String> soundNoteFormLabelList = new LinkedList<String>();
-        soundNoteFormList.add(onsetForm);
-        soundNoteFormLabelList.add("onset");
-        soundNoteFormList.add(pitchForm);
-        soundNoteFormLabelList.add("pitch");
-        soundNoteFormList.add(loudnessForm);
-        soundNoteFormLabelList.add("loudness");
-        soundNoteFormList.add(durationForm);
-        soundNoteFormLabelList.add("duration");
-        soundNoteFormList.add(voiceForm);
-        soundNoteFormLabelList.add("voice");
-        //Layer now is a coordinate of a note!!!!
-        soundNoteFormList.add(layerForm);
-        soundNoteFormLabelList.add("layer");
-        soundNoteFormList.add(formRef);
-        soundNoteFormLabelList.add("modulators");
-        LimitForm soundNoteForm = FormFactory.makeLimitForm("SoundNote", soundNoteFormList);
-        soundNoteForm.setLabels(soundNoteFormLabelList);
-        registerBuiltin(soundNoteForm);
-        
-        PowerForm modulatorsForm = FormFactory.makePowerForm("Modulators", soundNoteForm);			
-		registerBuiltin(modulatorsForm);
-		
-		modulatorsForm.resolveReferences(this);
-		
-		// registration of the SoundScore form
-		formRef = new FormReference("SoundScore", Form.POWER);
-	
-		LimitForm soundNodeForm = FormFactory.makeLimitForm("SoundNode", soundNoteForm, formRef);
-		registerBuiltin(soundNodeForm);
-		PowerForm soundScoreForm = FormFactory.makePowerForm("SoundScore", soundNodeForm);			
-		registerBuiltin(soundScoreForm);
-
-		soundScoreForm.resolveReferences(this);
         
         // register modules
         registerBuiltinModule("Integers", ZRing.ring);

@@ -60,25 +60,17 @@ public class DenotatorValueExtractor {
 	
 	private void initAndExtract(ViewController controller, Denotator score, boolean selectObjects) {
 		Form form = score.getForm();
-		this.initFinder(form);
+		this.finder = new DenotatorValueFinder(form, true);
 		this.minValues = new TreeMap<String,Double>();
 		this.maxValues = new TreeMap<String,Double>();
 		this.displayObjects = new DisplayObjectList(controller, form);
 		this.jSynScore = new JSynScore();
 		this.selectObjects = selectObjects;
 		try {
-			this.extractObjects(score, null, null, null, null, DenotatorPath.ANCHOR, 0, 0, 0, new DenotatorPath(score.getForm()));
+			this.extractObjects(score, null, null, null, null, 0, 0, 0, new DenotatorPath(score.getForm()));
 		} catch (RubatoException e) { e.printStackTrace(); }
 		this.setTopDenotatorParameters();
 		this.layerStates.removeLayers(this.maxLayer);
-	}
-	
-	private void initFinder(Form form) {
-		//TODO: FINDER CURRENTLY ONLY FINDS THE NAMES IN THE TOP DENOTATOR!!!!!! adjust methods!!
-		/*if (form.getType() == Form.POWER || form.getType() == Form.LIST) {
-			form = form.getForm(0);
-		}*/
-		this.finder = new DenotatorValueFinder(form, true);
 	}
 	
 	private void setTopDenotatorParameters() {
@@ -102,25 +94,25 @@ public class DenotatorValueExtractor {
 	
 	//recursive method!!
 	//TODO: remove relation!! not very interesting anymore..
-	private void extractObjects(Denotator currentDenotator, DisplayObject parentDO, DisplayObject currentDO, JSynObject parentJSO, JSynObject currentJSO, int relation, int satelliteLevel, int siblingNumber, int colimitIndex, DenotatorPath currentPath) throws RubatoException {
+	private void extractObjects(Denotator currentDenotator, DisplayObject parentDO, DisplayObject currentDO, JSynObject parentJSO, JSynObject currentJSO, int satelliteLevel, int siblingNumber, int colimitIndex, DenotatorPath currentPath) throws RubatoException {
 		int denotatorType = currentDenotator.getType();
 		if (denotatorType == Denotator.POWER || denotatorType == Denotator.LIST) {
 			FactorDenotator currentPower = (FactorDenotator)currentDenotator;
 			//TODO: find out if modulators and add them to JSynObject!!
 			for (int i = 0; i < currentPower.getFactorCount(); i++) {
 				//call with currentDisplayObject and currentJSynObject null, since all children become independent objects
-				this.extractObjects(currentPower.getFactor(i), currentDO, null, currentJSO, null, DenotatorPath.SATELLITE, satelliteLevel+1, i, colimitIndex, currentPath.getChildPath(i));
+				this.extractObjects(currentPower.getFactor(i), currentDO, null, currentJSO, null, satelliteLevel+1, i, colimitIndex, currentPath.getChildPath(i));
 			}
 		} else {
 			if (currentDO == null) {
-				currentDO = this.addDisplayObject(currentDenotator, parentDO, relation, satelliteLevel, siblingNumber, colimitIndex, currentPath);
-				currentJSO = this.jSynScore.addNewObject(parentJSO);
+				currentDO = this.addDisplayObject(currentDenotator, parentDO, satelliteLevel, siblingNumber, colimitIndex, currentPath);
+				currentJSO = this.jSynScore.addNewObject(parentJSO, currentDenotator.getForm());
 			}
 			if (denotatorType == Denotator.LIMIT) {
 				LimitDenotator currentLimit = (LimitDenotator)currentDenotator;
 				for (int i = 0; i < currentLimit.getFactorCount(); i++) {
 					Denotator currentChild = currentLimit.getFactor(i);
-					this.extractObjects(currentChild, parentDO, currentDO, parentJSO, currentJSO, relation, satelliteLevel, siblingNumber, colimitIndex, currentPath.getChildPath(i));
+					this.extractObjects(currentChild, parentDO, currentDO, parentJSO, currentJSO, satelliteLevel, siblingNumber, colimitIndex, currentPath.getChildPath(i));
 				}
 			} else if (denotatorType == Denotator.COLIMIT) {
 				ColimitDenotator currentColimit = (ColimitDenotator)currentDenotator;
@@ -130,7 +122,7 @@ public class DenotatorValueExtractor {
 				colimitIndex += currentColimit.getFactorCount();
 				for (int i = 0; i < currentColimit.getForm().getFormCount(); i++) {
 					if (i == childIndex) {
-						this.extractObjects(onlyChild, parentDO, currentDO, parentJSO, currentJSO, relation, satelliteLevel, siblingNumber, childIndex, currentPath.getChildPath(childIndex));
+						this.extractObjects(onlyChild, parentDO, currentDO, parentJSO, currentJSO, satelliteLevel, siblingNumber, childIndex, currentPath.getChildPath(childIndex));
 					}
 				}
 			} else if (denotatorType == Denotator.SIMPLE) {
@@ -139,8 +131,8 @@ public class DenotatorValueExtractor {
 		}
 	}
 	
-	private DisplayObject addDisplayObject(Denotator denotator, DisplayObject parent, int relation, int satelliteLevel, int siblingNumber, int colimitIndex, DenotatorPath path) {
-		DisplayObject displayObject = this.createDisplayObject(denotator, parent, relation, satelliteLevel, siblingNumber, colimitIndex, path);
+	private DisplayObject addDisplayObject(Denotator denotator, DisplayObject parent, int satelliteLevel, int siblingNumber, int colimitIndex, DenotatorPath path) {
+		DisplayObject displayObject = this.createDisplayObject(denotator, parent, satelliteLevel, siblingNumber, colimitIndex, path);
 		displayObject.setVisibility(this.layerStates.get(displayObject.getLayer()));
 		this.displayObjects.add(displayObject);
 		if (this.selectObjects && this.selectedPaths != null) {
@@ -154,7 +146,7 @@ public class DenotatorValueExtractor {
 		return displayObject;
 	}
 	
-	private DisplayObject createDisplayObject(Denotator denotator, DisplayObject parent, int relation, int satelliteLevel, int siblingNumber, int colimitIndex, DenotatorPath path) {
+	private DisplayObject createDisplayObject(Denotator denotator, DisplayObject parent, int satelliteLevel, int siblingNumber, int colimitIndex, DenotatorPath path) {
 		List<Integer> structuralValues = new ArrayList<Integer>();
 		if (this.finder.formAllowsForSatellites()) {
 			structuralValues.add(satelliteLevel);
@@ -163,7 +155,7 @@ public class DenotatorValueExtractor {
 		if (this.finder.formContainsColimit()) {
 			structuralValues.add(colimitIndex);
 		}
-		return new DisplayObject(parent, relation, denotator.getType(), structuralValues, path.clone());
+		return new DisplayObject(parent, denotator.getType(), structuralValues, path.clone());
 	}
 	
 	private void addSimpleValues(DisplayObject parentDO, DisplayObject displayObject, JSynObject jSynObject, SimpleDenotator simpleDenotator) {

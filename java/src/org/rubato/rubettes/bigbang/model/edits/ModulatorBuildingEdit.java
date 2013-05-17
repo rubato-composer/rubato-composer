@@ -24,7 +24,7 @@ public class ModulatorBuildingEdit extends AbstractUndoableEdit {
 	}
 	
 	public void execute() {
-		this.newModulatorPaths = this.scoreLayers.moveObjectsToParent(this.oldModulatorPaths, this.carrierPath, 1);
+		this.newModulatorPaths = this.scoreLayers.moveObjectsToParent(this.oldModulatorPaths, this.carrierPath, 1, false);
 	}
 	
 	public void redo() {

@@ -32,7 +32,7 @@ public class CopyObjectsEdit extends AbstractUndoableEdit {
 	
 	public void undo() {
 		super.undo();
-		this.score.removeObjects(new TreeSet<DenotatorPath>(this.copyPaths));
+		this.score.removeObjects(new TreeSet<DenotatorPath>(this.copyPaths), false);
 	}
 	
 	public String getPresentationName() {

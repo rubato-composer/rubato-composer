@@ -32,11 +32,8 @@ import org.rubato.rubettes.util.SoundNoteGenerator;
 
 public class TestObjects {
 	
-	public final Form SOUND_SCORE_FORM = Repository.systemRepository().getForm("SoundScore");
-	public final Form SOUND_NODE_FORM = Repository.systemRepository().getForm("SoundNode");
-	public final Form SOUND_NOTE_FORM = Repository.systemRepository().getForm("SoundNote");
+	public final Form SOUND_SCORE_FORM, SOUND_NODE_FORM, SOUND_NOTE_FORM, HARMONIC_SPECTRUM_FORM;
 	public final Form MACRO_SCORE_FORM = Repository.systemRepository().getForm("MacroScore");
-	public final Form HARMONIC_SPECTRUM_FORM = Repository.systemRepository().getForm("HarmonicSpectrum");
 	public final Module RATIONAL_TRIPLE_MODULE = Repository.systemRepository().getModule("Triples of rationals"); 
 	public final SimpleForm RATIONAL_TRIPLE_FORM = new SimpleForm(NameDenotator.make("RationalTriple"), RATIONAL_TRIPLE_MODULE);
 	public final PowerForm RATIONAL_TRIPLES_FORM = new PowerForm(NameDenotator.make("RationalTriples"), RATIONAL_TRIPLE_FORM);
@@ -73,6 +70,10 @@ public class TestObjects {
 	
 	public TestObjects() {
 		new CoolFormRegistrant().registerAllTheCoolStuff();
+		this.HARMONIC_SPECTRUM_FORM = Repository.systemRepository().getForm("HarmonicSpectrum");
+		this.SOUND_SCORE_FORM = Repository.systemRepository().getForm("SoundScore");
+		this.SOUND_NODE_FORM = Repository.systemRepository().getForm("SoundNode");
+		this.SOUND_NOTE_FORM = Repository.systemRepository().getForm("SoundNote");
 		this.generator = new SoundNoteGenerator();
 		this.objectGenerator = new ObjectGenerator();
 		this.score = new BigBangScore(this.generator.getSoundScoreForm());

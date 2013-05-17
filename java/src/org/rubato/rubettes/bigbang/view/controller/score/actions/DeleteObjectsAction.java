@@ -6,16 +6,16 @@ import javax.swing.AbstractAction;
 
 import org.rubato.rubettes.bigbang.view.controller.ViewController;
 
-public class NoteDeletionAction extends AbstractAction {
+public class DeleteObjectsAction extends AbstractAction {
 	
 	private ViewController controller;
 	
-	public NoteDeletionAction(ViewController controller) {
+	public DeleteObjectsAction(ViewController controller) {
 		this.controller = controller;
 	}
 	
 	public void actionPerformed(ActionEvent event) {
-		this.controller.deleteSelectedNotes();
+		this.controller.deleteSelectedObjects();
 	}
 
 }

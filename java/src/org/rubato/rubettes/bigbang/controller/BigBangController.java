@@ -22,9 +22,8 @@ public class BigBangController extends Controller {
 	public static final String INPUT_ACTIVE = "InputActive";
 	public static final String FORM = "setForm";
 	public static final String COMPOSITION = "Composition";
-	public static final String PREVIEW = "Preview";
 	public static final String ADD_OBJECT = "addObject";
-	public static final String DELETE_NOTES = "deleteNotes";
+	public static final String DELETE_OBJECTS = "deleteObjects";
 	public static final String COPY_NOTES = "copyNotes";
 	public static final String MOVE_NOTES = "moveNotes";
 	public static final String TRANSLATE_NOTES = "translateNotes";
@@ -90,8 +89,8 @@ public class BigBangController extends Controller {
 		this.callModelMethod(BigBangController.ADD_OBJECT, denotatorValues, powersetPath);
 	}
 	
-	public void deleteNotes(List<DenotatorPath> nodePaths) {
-		this.callModelMethod(BigBangController.DELETE_NOTES, nodePaths);
+	public void deleteObjects(List<DenotatorPath> paths) {
+		this.callModelMethod(BigBangController.DELETE_OBJECTS, paths);
 	}
 	
 	public void copyNotes(Set<DenotatorPath> nodePaths, int layerIndex) {

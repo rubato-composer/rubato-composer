@@ -59,7 +59,7 @@ public class ViewController extends Controller {
 	public static final String SELECTED_OBJECT = "setSelectedObject";
 	public static final String SELECTED_COLIMIT_COORDINATE = "setSelectedColimitCoordinate";
 	public static final String ADD_OBJECT = "addObject";
-	public static final String DELETE_NOTES = "deleteSelectedNotes";
+	public static final String DELETE_OBJECTS = "deleteSelectedObjects";
 	public static final String COPY_NOTES = "copySelectedNotesTo";
 	public static final String COPY_NOTES_NEW = "copySelectedNotesToNewLayer";
 	public static final String MOVE_NOTES = "moveSelectedNotesTo";
@@ -232,8 +232,8 @@ public class ViewController extends Controller {
 		this.callModelMethod(ViewController.ADD_OBJECT, location);
 	}
 	
-	public void deleteSelectedNotes() {
-		this.callModelMethod(ViewController.DELETE_NOTES);
+	public void deleteSelectedObjects() {
+		this.callModelMethod(ViewController.DELETE_OBJECTS);
 	}
 	
 	public void copySelectedNotesTo(int layerIndex) {

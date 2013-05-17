@@ -93,7 +93,6 @@ public class JSynPlayer {
 		}
 		
 		this.threads = this.generateThreads(score);
-		System.out.println("play!");
 		this.allocateModules(this.threads);
 			
 		this.threads.start();

@@ -89,7 +89,7 @@ public class DenotatorValueExtractorTest extends TestCase {
 	
 	private DisplayObjectList extractDisplayObjects(Denotator denotator) {
 		Set<DenotatorPath> noPaths = new TreeSet<DenotatorPath>();
-		ScoreChangedNotification notification = new ScoreChangedNotification(denotator, noPaths, new DenotatorPath(denotator.getForm()), false);
+		ScoreChangedNotification notification = new ScoreChangedNotification(denotator, noPaths, new DenotatorPath(denotator.getForm()), false, false);
 		this.extractor = new DenotatorValueExtractor(this.viewController, notification, false, new LayerStates(this.viewController));
 		return this.extractor.getDisplayObjects();
 	}

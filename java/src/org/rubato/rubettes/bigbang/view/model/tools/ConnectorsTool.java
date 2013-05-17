@@ -7,11 +7,9 @@ import org.rubato.rubettes.bigbang.view.subview.DisplayObjectList;
 
 public class ConnectorsTool extends DisplayTool {
 
-	private int relation;
 	private Point point;
 	
-	public ConnectorsTool(int relation) {
-		this.relation = relation;
+	public ConnectorsTool() {
 	}
 
 	public void setPoint(Point point) {
@@ -22,7 +20,7 @@ public class ConnectorsTool extends DisplayTool {
 	public void paint(AbstractPainter painter) {
 		if (this.display != null && this.point != null) {
 			DisplayObjectList notes = this.display.getDisplayObjects();
-			notes.paintSelectedNotesConnectors(painter, this.point.x, this.point.y, this.relation);
+			notes.paintSelectedNotesConnectors(painter, this.point.x, this.point.y);
 			notes.paintSelectedNotes(painter);
 		}
 	}

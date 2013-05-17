@@ -21,8 +21,8 @@ public class BuildSatellitesEdit extends AbstractOperationEdit {
 	}
 	
 	@Override
-	public Map<DenotatorPath,DenotatorPath> execute(Map<DenotatorPath, DenotatorPath> pathDifferences, boolean sendCompositionChange) {
-		this.newSatellitePaths = this.scoreManager.moveObjectsToParent(this.oldSatellitePaths, this.anchorPath, 0);
+	public Map<DenotatorPath,DenotatorPath> execute(Map<DenotatorPath, DenotatorPath> pathDifferences, boolean fireCompositionChange) {
+		this.newSatellitePaths = this.scoreManager.moveObjectsToParent(this.oldSatellitePaths, this.anchorPath, 0, fireCompositionChange);
 		return pathDifferences;
 	}
 	

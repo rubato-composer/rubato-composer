@@ -373,7 +373,7 @@ public class DisplayObjectList extends TreeSet<DisplayObject> implements View {
 		return null;
 	}
 	
-	public Set<DenotatorPath> getSelectedNodePaths() {
+	public Set<DenotatorPath> getSelectedObjectPaths() {
 		TreeSet<DenotatorPath> objectPaths = new TreeSet<DenotatorPath>();
 		for (DisplayObject currentObject : this.selectedNotes) {
 			//nodePaths.add(new DenotatorPath(currentNote.getOriginalPath()));
@@ -427,9 +427,9 @@ public class DisplayObjectList extends TreeSet<DisplayObject> implements View {
 		this.paintSelectedAnchorNote(painter);
 	}
 	
-	public void paintSelectedNotesConnectors(AbstractPainter painter, int parentX, int parentY, int relation) {
+	public void paintSelectedNotesConnectors(AbstractPainter painter, int parentX, int parentY) {
 		for (DisplayObject currentNote : this.selectedNotes) {
-			currentNote.paintConnectors(painter, parentX, parentY, relation);
+			currentNote.paintConnectors(painter, parentX, parentY);
 		}
 	}
 	

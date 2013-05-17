@@ -22,7 +22,7 @@ import org.rubato.rubettes.bigbang.view.controller.score.actions.CopyToNewLayerA
 import org.rubato.rubettes.bigbang.view.controller.score.actions.FlattenAction;
 import org.rubato.rubettes.bigbang.view.controller.score.actions.MoveToLayerAction;
 import org.rubato.rubettes.bigbang.view.controller.score.actions.MoveToNewLayerAction;
-import org.rubato.rubettes.bigbang.view.controller.score.actions.NoteDeletionAction;
+import org.rubato.rubettes.bigbang.view.controller.score.actions.DeleteObjectsAction;
 import org.rubato.rubettes.bigbang.view.controller.score.actions.ShowWindowPreferencesAction;
 import org.rubato.rubettes.bigbang.view.model.LayerStates;
 
@@ -62,7 +62,7 @@ public class JBigBangPopupMenu extends JPopupMenu implements View {
 		this.redoItem = this.createShortcutItem("Redo", KeyEvent.VK_Y, new RedoAction(this.controller));
 		this.copyToMenu = this.createJLayerMenu("Copy To", new CopyToNewLayerAction(this.controller));
 		this.moveToMenu = this.createJLayerMenu("Move To", new MoveToNewLayerAction(this.controller));
-		this.deleteItem = this.createKeyItem("Delete", new NoteDeletionAction(this.controller), KeyEvent.VK_BACK_SPACE, KeyEvent.VK_DELETE);
+		this.deleteItem = this.createKeyItem("Delete", new DeleteObjectsAction(this.controller), KeyEvent.VK_BACK_SPACE, KeyEvent.VK_DELETE);
 		this.buildSatellitesItem = this.createShortcutItem("Build Satellites", KeyEvent.VK_PERIOD, new BuildSatellitesAction(this.controller));
 		this.flattenItem = this.createShortcutItem("Flatten", KeyEvent.VK_COMMA, new FlattenAction(this.controller));
 		//this.buildModulatorItem = this.createShortcutItem("Build Modulators", KeyEvent.VK_M, new BuildModulatorsAction(this.controller));
