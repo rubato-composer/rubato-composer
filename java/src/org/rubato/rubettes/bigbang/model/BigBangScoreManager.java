@@ -29,13 +29,13 @@ public class BigBangScoreManager extends Model {
 	}
 	
 	public void newWindowAdded(SelectedPaths paths) {
-		this.fireCompositionChange(this.score, paths.getNodePaths(), paths.getAnchorPath(), false);
+		this.fireCompositionChange(paths.getNodePaths(), paths.getAnchorPath(), false);
 		this.alteration.fireState();
 	}
 	
 	public void setForm(Form form) {
 		this.score.setForm(form);
-		this.fireCompositionChange(this.score, null, null, false);
+		this.fireCompositionChange(null, null, false);
 	}
 	
 	public void resetScore() {
@@ -88,12 +88,12 @@ public class BigBangScoreManager extends Model {
 		List<DenotatorPath> newMotifPaths = this.score.addObjects(motifNodes);
 		if (inPreviewMode) {
 			if (selectMotif) {
-				this.fireCompositionChange(this.score, new TreeSet<DenotatorPath>(newMotifPaths), lastAnchorPath, true);
+				this.fireCompositionChange(new TreeSet<DenotatorPath>(newMotifPaths), lastAnchorPath, true);
 			} else {
 				this.firePreviewCompositionChange(new TreeSet<DenotatorPath>(newMotifPaths), lastAnchorPath);
 			}
 		} else {
-			this.fireCompositionChange(this.score, new TreeSet<DenotatorPath>(newMotifPaths), lastAnchorPath, true);
+			this.fireCompositionChange(new TreeSet<DenotatorPath>(newMotifPaths), lastAnchorPath, true);
 		}
 		return newMotifPaths;
 	}
@@ -110,7 +110,7 @@ public class BigBangScoreManager extends Model {
 	public void fireAlterationComposition(Integer index) {
 		this.alteration.resetDegrees();
 		Set<DenotatorPath> selectedNodesPaths = this.alteration.getComposition(index);
-		this.fireCompositionChange(this.score, selectedNodesPaths, null, true);
+		this.fireCompositionChange(selectedNodesPaths, null, true);
 		this.firePropertyChange(BigBangController.FIRE_ALTERATION_COMPOSITION, null, index);
 	}
 	
@@ -137,7 +137,7 @@ public class BigBangScoreManager extends Model {
 		if (inPreviewMode) {
 			this.firePreviewCompositionChange(new TreeSet<DenotatorPath>(), null);
 		} else {
-			this.fireCompositionChange(this.score, new TreeSet<DenotatorPath>(), null, true);
+			this.fireCompositionChange(new TreeSet<DenotatorPath>(), null, true);
 		}
 	}
 	
@@ -152,7 +152,7 @@ public class BigBangScoreManager extends Model {
 			if (inPreviewMode) {
 				this.firePreviewCompositionChange(new TreeSet<DenotatorPath>(objectPaths), transformation.getAnchorNodePath());
 			} else {
-				this.fireCompositionChange(this.score, new TreeSet<DenotatorPath>(newPaths), transformation.getAnchorNodePath(), true);
+				this.fireCompositionChange(new TreeSet<DenotatorPath>(newPaths), transformation.getAnchorNodePath(), true);
 			}
 		}
 		//PerformanceCheck.startTask("draw");
@@ -166,7 +166,7 @@ public class BigBangScoreManager extends Model {
 		if (properties.inPreviewMode()) {
 			this.firePreviewCompositionChange(new TreeSet<DenotatorPath>(properties.getObjectPaths()), null);
 		} else {
-			this.fireCompositionChange(this.score, newPathsAndOldYValues.keySet(), null, true);
+			this.fireCompositionChange(newPathsAndOldYValues.keySet(), null, true);
 		}
 		return newPathsAndOldYValues;
 	}
@@ -202,9 +202,11 @@ public class BigBangScoreManager extends Model {
 	 * 
 	 * @param nodePaths the list of node paths has to be sorted from small to big
 	 */
-	public List<Denotator> removeObjects(Set<DenotatorPath> objectPaths) {
+	public List<Denotator> removeObjects(Set<DenotatorPath> objectPaths, boolean fireCompositionChange) {
 		List<Denotator> removedObjects = this.score.removeObjects(new ArrayList<DenotatorPath>(objectPaths));
-		this.fireCompositionChange();
+		if (fireCompositionChange) {
+			this.fireCompositionChange();
+		}
 		return removedObjects;
 	}
 	
@@ -232,9 +234,11 @@ public class BigBangScoreManager extends Model {
 		return new TreeSet<DenotatorPath>(newPaths);
 	}*/
 	
-	public List<DenotatorPath> moveObjectsToParent(List<DenotatorPath> objectPaths, DenotatorPath parentPath, int powersetIndex) {
+	public List<DenotatorPath> moveObjectsToParent(List<DenotatorPath> objectPaths, DenotatorPath parentPath, int powersetIndex, boolean fireCompositionChange) {
 		List<DenotatorPath> newPaths = this.score.moveObjectsToParent(objectPaths, parentPath, powersetIndex);
-		this.fireCompositionChange(new TreeSet<DenotatorPath>(newPaths));
+		if (fireCompositionChange) {
+			this.fireCompositionChange(new TreeSet<DenotatorPath>(newPaths));
+		}
 		return newPaths;
 	}
 	
@@ -290,20 +294,21 @@ public class BigBangScoreManager extends Model {
 	}
 	
 	private void fireCompositionChange(Set<DenotatorPath> selectedNodesPaths) {
-		//this.initPreviewScore();
-		this.fireCompositionChange(this.score, selectedNodesPaths, null, false);
-	}
-	
-	private void fireCompositionChange(BigBangScore score, Set<DenotatorPath> selectedNodesPaths, DenotatorPath selectedAnchorPath, boolean playback) {
-		Denotator changedComposition = score.getLayeredComposition();
-		ScoreChangedNotification notification = new ScoreChangedNotification(changedComposition, selectedNodesPaths, selectedAnchorPath, playback);
-		this.firePropertyChange(BigBangController.COMPOSITION, null, notification);
+		this.fireCompositionChange(selectedNodesPaths, null, false);
 	}
 	
 	private void firePreviewCompositionChange(Set<DenotatorPath> selectedNodesPaths, DenotatorPath selectedAnchorPath) {
+		this.fireCompositionChange(selectedNodesPaths, selectedAnchorPath, true, true);
+	}
+	
+	private void fireCompositionChange(Set<DenotatorPath> selectedNodesPaths, DenotatorPath selectedAnchorPath, boolean playback) {
+		this.fireCompositionChange(selectedNodesPaths, selectedAnchorPath, false, playback);
+	}
+	
+	private void fireCompositionChange(Set<DenotatorPath> selectedNodesPaths, DenotatorPath selectedAnchorPath, boolean preview, boolean playback) {
 		Denotator changedComposition = this.score.getLayeredComposition();
-		ScoreChangedNotification notification = new ScoreChangedNotification(changedComposition, selectedNodesPaths, selectedAnchorPath, true);
-		this.firePropertyChange(BigBangController.PREVIEW, null, notification);
+		ScoreChangedNotification notification = new ScoreChangedNotification(changedComposition, selectedNodesPaths, selectedAnchorPath, preview, playback);
+		this.firePropertyChange(BigBangController.COMPOSITION, null, notification);
 	}
 
 }

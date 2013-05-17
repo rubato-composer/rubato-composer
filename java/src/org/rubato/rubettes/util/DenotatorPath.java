@@ -17,8 +17,6 @@ import org.rubato.math.yoneda.SimpleForm;
  * Just interesting for comparing paths denoting coordinates of the same denotator,
  * i.e. same size and only last index deferring.
  * @author flo
- *
- * TODO: calculate form, module etc when path is made and altered!!!!
  */
 public class DenotatorPath implements Comparable<Object> {
 	
@@ -29,14 +27,6 @@ public class DenotatorPath implements Comparable<Object> {
 	//null if not a simple form
 	private Module module;
 	private int elementPathIndex;
-	
-	//necessary for cyclical forms without powersets!
-	private static final int POWERSET_SEARCH_DEPTH = 10;
-	
-	//TODO: REMOVE AT SOME POINT!!! constants designating the three possible note functions (carriers are either anchor or satellite...)
-	public static final int ANCHOR = 0;
-	public static final int SATELLITE = 1;
-	public static final int MODULATOR = 2;
 	
 	public DenotatorPath(Form baseForm) {
 		this.baseForm = baseForm;

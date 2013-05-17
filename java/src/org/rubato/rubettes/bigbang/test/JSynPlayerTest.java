@@ -1,12 +1,11 @@
 package org.rubato.rubettes.bigbang.test;
 
-import org.rubato.math.yoneda.Denotator;
-import org.rubato.rubettes.bigbang.view.model.DenotatorValueExtractor;
-import org.rubato.rubettes.bigbang.view.player.BigBangPlayer;
 import org.rubato.rubettes.bigbang.view.player.JSynPlayer;
-import org.rubato.rubettes.bigbang.view.player.JSynScore;
-import org.rubato.rubettes.util.ObjectGenerator;
-import org.rubato.rubettes.util.SoundNoteGenerator;
+import org.rubato.rubettes.bigbang.view.player.SmoothOscillator;
+
+import com.jsyn.Synthesizer;
+import com.jsyn.devices.AudioDeviceManager;
+import com.jsyn.unitgen.LineOut;
 
 import junit.framework.TestCase;
 
@@ -17,6 +16,37 @@ public class JSynPlayerTest extends TestCase {
 	
 	protected void setUp() {
 		this.objects = new TestObjects();
+	}
+	
+	public void testSmoothOscillator() throws InterruptedException {
+		JSynPlayer player = new JSynPlayer();
+		Synthesizer synth = player.getSynth();
+		synth.start(JSynPlayer.SAMPLE_RATE, AudioDeviceManager.USE_DEFAULT_DEVICE, 2, AudioDeviceManager.USE_DEFAULT_DEVICE, 2);
+		LineOut lineOut = new LineOut();
+		player.addToSynth(lineOut);
+		
+		SmoothOscillator carrier = new SmoothOscillator(player);
+		carrier.getOutput().connect(0, lineOut.input, 0);
+	 	carrier.getOutput().connect(0, lineOut.input, 1);
+	 	carrier.setFrequency(2000);
+		carrier.setAmplitude(0.2);
+		
+		SmoothOscillator modulator = new SmoothOscillator(player);
+		modulator.setFrequency(2);
+		modulator.setAmplitude(100);
+		carrier.addModulator(modulator);
+		
+		lineOut.start();
+		carrier.queueEnvelope(1, player.getCurrentSynthTime());
+		modulator.queueEnvelope(1, player.getCurrentSynthTime());
+		synth.sleepFor(0.5);
+		carrier.setFrequency(1000);
+		carrier.setAmplitude(0.5);
+		modulator.setFrequency(10);
+		
+		synth.sleepFor(0.5);
+		lineOut.stop();
+		synth.sleepFor(0.5);
 	}
 	
 	/*public void testMoveScoreInTime() throws InterruptedException {

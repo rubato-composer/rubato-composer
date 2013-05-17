@@ -10,7 +10,6 @@ import org.rubato.rubettes.bigbang.view.controller.mode.temp.TemporaryDisplayMod
 import org.rubato.rubettes.bigbang.view.model.DisplayObject;
 import org.rubato.rubettes.bigbang.view.model.tools.ConnectorsTool;
 import org.rubato.rubettes.bigbang.view.subview.JBigBangDisplay;
-import org.rubato.rubettes.util.DenotatorPath;
 
 public class BuildSatellitesAdapter extends MouseInputAdapter {
 	
@@ -21,7 +20,7 @@ public class BuildSatellitesAdapter extends MouseInputAdapter {
 	public BuildSatellitesAdapter(ViewController controller, TemporaryDisplayMode mode) {
 		this.controller = controller;
 		this.mode = mode;
-		this.satellitesTool = new ConnectorsTool(DenotatorPath.SATELLITE);
+		this.satellitesTool = new ConnectorsTool();
 	}
 	
 	public void mouseClicked(MouseEvent event) {

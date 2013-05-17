@@ -15,7 +15,7 @@ import org.rubato.rubettes.bigbang.model.edits.AddWallpaperDimensionEdit;
 import org.rubato.rubettes.bigbang.model.edits.AffineTransformationEdit;
 import org.rubato.rubettes.bigbang.model.edits.CopyObjectsEdit;
 import org.rubato.rubettes.bigbang.model.edits.DeleteObjectsEdit;
-import org.rubato.rubettes.bigbang.model.edits.FlattenNotesEdit;
+import org.rubato.rubettes.bigbang.model.edits.FlattenEdit;
 import org.rubato.rubettes.bigbang.model.edits.ModulatorBuildingEdit;
 import org.rubato.rubettes.bigbang.model.edits.MoveNotesEdit;
 import org.rubato.rubettes.bigbang.model.edits.ReflectionEdit;
@@ -141,7 +141,7 @@ public class BigBangModel extends Model {
 	}
 	
 	public void flattenNotes(TreeSet<DenotatorPath> nodePaths) {
-		this.undoRedoModel.postEdit(new FlattenNotesEdit(this.scoreManager, nodePaths));
+		this.undoRedoModel.postEdit(new FlattenEdit(this.scoreManager, nodePaths));
 	}
 	
 	public void buildModulators(TreeSet<DenotatorPath> nodePaths, DenotatorPath carrierNotePath) {

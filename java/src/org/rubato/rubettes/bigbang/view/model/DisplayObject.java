@@ -22,7 +22,6 @@ public class DisplayObject implements Comparable<Object> {
 	private DenotatorPath topDenotatorPath;
 	private DisplayContents display;
 	private DisplayObject parent;
-	private int relation;
 	private List<DisplayObject> children;
 	private Map<String,Double> values;
 	private List<Integer> structuralIndices; //sibling number, satellite level, colimit index, etc
@@ -39,14 +38,13 @@ public class DisplayObject implements Comparable<Object> {
 	private int currentRed, currentBlue, currentGreen;
 	private Color currentColor;
 	
-	public DisplayObject(DisplayObject parent, int relation, int topDenotatorType, List<Integer> structuralIndices, DenotatorPath topDenotatorPath) {
-		this(parent, relation, topDenotatorType, structuralIndices, topDenotatorPath, 0);
+	public DisplayObject(DisplayObject parent, int topDenotatorType, List<Integer> structuralIndices, DenotatorPath topDenotatorPath) {
+		this(parent, topDenotatorType, structuralIndices, topDenotatorPath, 0);
 	}
 	
-	public DisplayObject(DisplayObject parent, int relation, int topDenotatorType, List<Integer> structuralIndices, DenotatorPath topDenotatorPath, int layer) {
+	public DisplayObject(DisplayObject parent, int topDenotatorType, List<Integer> structuralIndices, DenotatorPath topDenotatorPath, int layer) {
 		this.values = new TreeMap<String,Double>();
 		this.parent = parent;
-		this.relation = relation;
 		this.topDenotatorType = topDenotatorType;
 		this.topDenotatorPath = topDenotatorPath;
 		this.children = new ArrayList<DisplayObject>();
@@ -217,13 +215,13 @@ public class DisplayObject implements Comparable<Object> {
 			if (this.display.satellitesConnected() && this.parent != null) {
 				//System.out.println(this.parent.getCenter());
 				if (this.parent.visible) {
-					this.paintConnectors(painter, this.parent.getCenter().x, this.parent.getCenter().y, this.relation);
+					this.paintConnectors(painter, this.parent.getCenter().x, this.parent.getCenter().y);
 				}
 			}
 		}
 	}
 	
-	public void paintConnectors(AbstractPainter painter, double parentX, double parentY, int relation) {
+	public void paintConnectors(AbstractPainter painter, double parentX, double parentY) {
 		if (this.visible) {
 			/*if (relation == DenotatorPath.SATELLITE) {
 				painter.setColor(Color.black);

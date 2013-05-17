@@ -4,8 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import org.rubato.base.Repository;
 import org.rubato.math.yoneda.Form;
+import org.rubato.rubettes.util.CoolFormRegistrant;
 
 public class JSynObject {
 	
@@ -30,22 +30,21 @@ public class JSynObject {
 	}
 	
 	public void addValues(Form form, Map<String,Double> values) {
-		Repository repository = Repository.systemRepository();
-		if (form == repository.getForm("Onset")) {
+		if (form == CoolFormRegistrant.ONSET_FORM) {
 			this.setOnset(this.getSingleValue(values));
-		} else if (form == repository.getForm("Pitch")) {
+		} else if (form == CoolFormRegistrant.PITCH_FORM) {
 			this.setFrequency(this.getSingleValue(values));
-		} else if (form == repository.getForm("PitchClass")) {
+		} else if (form == CoolFormRegistrant.PITCH_CLASS_FORM) {
 			this.setFrequency(60+this.getSingleValue(values));
-		} else if (form == repository.getForm("OvertoneIndex")) {
+		} else if (form == CoolFormRegistrant.OVERTONE_INDEX_FORM) {
 			if (this.parent != null) {
 				this.setOvertoneFrequency(this.parent.getFrequency(), (int)this.getSingleValue(values));
 			}
-		} else if (form == repository.getForm("Loudness")) {
+		} else if (form == CoolFormRegistrant.LOUDNESS_FORM) {
 			this.setAmplitude(this.getSingleValue(values));
-		} else if (form == repository.getForm("Duration")) {
+		} else if (form == CoolFormRegistrant.DURATION_FORM) {
 			this.setDuration(this.getSingleValue(values));
-		} else if (form == repository.getForm("Voice")) {
+		} else if (form == CoolFormRegistrant.VOICE_FORM) {
 			this.setVoice((int)this.getSingleValue(values));
 		}
 	}
@@ -118,10 +117,8 @@ public class JSynObject {
 		return JSynPlayer.BASE_A4*Math.pow(2, (midiPitch-57)/12);
 	}
 	
-	//TODO: won't work!!
-	public JSynObject addModulator(Form form, Map<String,Double> values) {
+	public JSynObject addModulator() {
 		JSynObject modulator = new JSynObject(this); 
-		modulator.addValues(form, values);
 		this.modulators.add(modulator);
 		return modulator;
 	}

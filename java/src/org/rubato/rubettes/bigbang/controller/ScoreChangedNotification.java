@@ -12,12 +12,14 @@ public class ScoreChangedNotification {
 	private Denotator score;
 	private Set<DenotatorPath> notesToBeSelected;
 	private DenotatorPath anchorToBeSelected;
+	private boolean preview;
 	private boolean playback;
 	
-	public ScoreChangedNotification(Denotator score, Set<DenotatorPath> notesToBeSelected, DenotatorPath anchorToBeSelected, boolean playback) {
+	public ScoreChangedNotification(Denotator score, Set<DenotatorPath> notesToBeSelected, DenotatorPath anchorToBeSelected, boolean preview, boolean playback) {
 		this.score = score;
 		this.notesToBeSelected = notesToBeSelected;
 		this.anchorToBeSelected = anchorToBeSelected;
+		this.preview = preview;
 		this.playback = playback;
 	}
 	
@@ -36,6 +38,10 @@ public class ScoreChangedNotification {
 	
 	public DenotatorPath getAnchorToBeSelected() {
 		return this.anchorToBeSelected;
+	}
+	
+	public boolean preview() {
+		return this.preview;
 	}
 	
 	public boolean playback() {

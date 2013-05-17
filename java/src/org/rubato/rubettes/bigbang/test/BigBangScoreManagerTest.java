@@ -183,8 +183,8 @@ public class BigBangScoreManagerTest extends TestCase {
 		List<DenotatorPath> paths = new ArrayList<DenotatorPath>();
 		paths.add(new DenotatorPath(this.objects.SOUND_SCORE_FORM, new int[]{1}));
 		//build modulator structure
-		this.scoreManager.moveObjectsToParent(paths, new DenotatorPath(this.objects.SOUND_SCORE_FORM, new int[]{0}), 1);
-		this.scoreManager.moveObjectsToParent(paths, new DenotatorPath(this.objects.SOUND_SCORE_FORM, new int[]{0,0,6,0}), 0);
+		this.scoreManager.moveObjectsToParent(paths, new DenotatorPath(this.objects.SOUND_SCORE_FORM, new int[]{0}), 1, false);
+		this.scoreManager.moveObjectsToParent(paths, new DenotatorPath(this.objects.SOUND_SCORE_FORM, new int[]{0,0,6,0}), 0, false);
 		
 		BigBangTransformation translation = this.makeTranslation(-2, -1, this.noteValuePaths);
 		List<DenotatorPath> nodePaths = this.makeNotePaths(new int[]{0,0,6,0,6,0});
@@ -235,11 +235,11 @@ public class BigBangScoreManagerTest extends TestCase {
 		List<DenotatorPath> paths = new ArrayList<DenotatorPath>();
 		paths.add(new DenotatorPath(this.objects.SOUND_SCORE_FORM, new int[]{1,0}));
 		//build first satellite and check if it's there
-		this.scoreManager.moveObjectsToParent(paths, new DenotatorPath(this.objects.SOUND_SCORE_FORM, new int[]{0}), 0);
+		this.scoreManager.moveObjectsToParent(paths, new DenotatorPath(this.objects.SOUND_SCORE_FORM, new int[]{0}), 0, false);
 		this.objects.assertEqualDenotators(this.objects.node1Relative, this.scoreManager.getComposition().get(new int[]{0,1,0}));
 		//build second satellite and check if it's there
 		TestCase.assertTrue(((PowerDenotator)this.scoreManager.getComposition().get(new int[]{0,1,0,1})).getFactorCount() == 0);
-		List<DenotatorPath> satellitePaths = this.scoreManager.moveObjectsToParent(paths, new DenotatorPath(this.objects.SOUND_SCORE_FORM, new int[]{0,1,0}), 0);
+		List<DenotatorPath> satellitePaths = this.scoreManager.moveObjectsToParent(paths, new DenotatorPath(this.objects.SOUND_SCORE_FORM, new int[]{0,1,0}), 0, false);
 		TestCase.assertTrue(((PowerDenotator)this.scoreManager.getComposition().get(new int[]{0,1,0,1})).getFactorCount() == 1);
 		this.objects.assertEqualDenotators(this.objects.node2Relative, this.scoreManager.getComposition().get(new int[]{0,1,0,1,0}));
 		//undo and check if original is there again
@@ -256,11 +256,11 @@ public class BigBangScoreManagerTest extends TestCase {
 		List<DenotatorPath> paths = new ArrayList<DenotatorPath>();
 		paths.add(new DenotatorPath(this.objects.SOUND_SCORE_FORM, new int[]{1}));
 		//build first modulator and check if it's there
-		this.scoreManager.moveObjectsToParent(paths, new DenotatorPath(this.objects.SOUND_SCORE_FORM, new int[]{0}), 1);
+		this.scoreManager.moveObjectsToParent(paths, new DenotatorPath(this.objects.SOUND_SCORE_FORM, new int[]{0}), 1, false);
 		this.objects.assertEqualDenotators(this.objects.note1Relative, this.scoreManager.getComposition().get(new int[]{0,0,6,0}));
 		//build second modulator and check if it's there
 		TestCase.assertTrue(((PowerDenotator)this.scoreManager.getComposition().get(new int[]{0,0,6,0,6})).getFactorCount() == 0);
-		List<DenotatorPath> modulatorPaths = this.scoreManager.moveObjectsToParent(paths, new DenotatorPath(this.objects.SOUND_SCORE_FORM, new int[]{0,0,6,0}), 0);
+		List<DenotatorPath> modulatorPaths = this.scoreManager.moveObjectsToParent(paths, new DenotatorPath(this.objects.SOUND_SCORE_FORM, new int[]{0,0,6,0}), 0, false);
 		TestCase.assertTrue(((PowerDenotator)this.scoreManager.getComposition().get(new int[]{0,0,6,0,6})).getFactorCount() == 1);
 		Denotator addedModulator = this.scoreManager.getComposition().get(new int[]{0,0,6,0,6,0});
 		TestCase.assertEquals(this.objects.generator.getSoundNoteForm(), addedModulator.getForm());
@@ -275,7 +275,7 @@ public class BigBangScoreManagerTest extends TestCase {
 		//try to add a note with a modulator as a satellite
 		paths = new ArrayList<DenotatorPath>();
 		paths.add(new DenotatorPath(this.objects.SOUND_SCORE_FORM, new int[]{0,0}));
-		this.scoreManager.moveObjectsToParent(paths, new DenotatorPath(this.objects.SOUND_SCORE_FORM, new int[]{1}), 0);
+		this.scoreManager.moveObjectsToParent(paths, new DenotatorPath(this.objects.SOUND_SCORE_FORM, new int[]{1}), 0, false);
 		this.objects.assertEqualDenotators(this.objects.node2Absolute, this.scoreManager.getComposition().get(new int[]{0}));
 		this.objects.assertEqualDenotators(this.objects.generator.createNodeDenotator(new double[]{-2,0,-1,0,-1,0}), this.scoreManager.getComposition().get(new int[]{0,1,0}));
 		this.objects.assertEqualDenotators(this.objects.note1Relative, this.scoreManager.getComposition().get(new int[]{0,1,0,0,6,0}));
