@@ -176,11 +176,11 @@ public class BigBangScoreManager extends Model {
 	}
 	
 	public List<DenotatorPath> addObjects(DenotatorPath powersetPath, List<TreeMap<DenotatorPath,Double>> pathsWithValues, boolean fireCompositionChange) {
-		List<DenotatorPath> newPaths = new ArrayList<DenotatorPath>();
-		for (TreeMap<DenotatorPath,Double> currentPathsWithValues : pathsWithValues) {
+		List<DenotatorPath> newPaths = this.score.addObjects(powersetPath, pathsWithValues);
+		/*for (TreeMap<DenotatorPath,Double> currentPathsWithValues : pathsWithValues) {
 			//TODO: paths probably not right, use addObjects! refactor entire thing upon refactoring wallpaper etc
-			newPaths.add(this.score.addObject(powersetPath, currentPathsWithValues));
-		}
+			//newPaths.add(this.score.addObject(powersetPath, currentPathsWithValues));
+		}*/
 		
 		if (fireCompositionChange) {
 			this.firePreviewCompositionChange(null, null);

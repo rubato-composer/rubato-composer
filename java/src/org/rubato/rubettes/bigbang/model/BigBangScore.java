@@ -5,6 +5,7 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 import java.util.TreeSet;
 
 import org.rubato.base.RubatoException;
@@ -82,6 +83,7 @@ public class BigBangScore implements Cloneable {
 	public DenotatorPath addObject(DenotatorPath powersetPath, Map<DenotatorPath,Double> pathsWithValues) {
 		if (powersetPath != null) {
 			Denotator newObject = this.objectGenerator.createObject(powersetPath.getChildPath(0).getForm(), pathsWithValues);
+			
 			return this.addObject(newObject, powersetPath);
 		}
 		//no powerset specified to add it in, try to replace the whole score
@@ -93,6 +95,20 @@ public class BigBangScore implements Cloneable {
 	private DenotatorPath addObject(Denotator object, DenotatorPath powersetPath) {
 		object = this.internalAddObject(object, powersetPath);
 		return this.findPath(object, powersetPath);
+	}
+	
+	public List<DenotatorPath> addObjects(DenotatorPath powersetPath, List<TreeMap<DenotatorPath,Double>> pathsWithValues) {
+		List<Denotator> newObjects = new ArrayList<Denotator>();
+		Form objectForm;
+		if (powersetPath != null) {
+			objectForm = powersetPath.getChildPath(0).getForm();
+		} else {
+			objectForm = this.score.getForm();
+		}
+		for (TreeMap<DenotatorPath,Double> currentPathsWithValues : pathsWithValues) {
+			newObjects.add(this.objectGenerator.createObject(objectForm, currentPathsWithValues));
+		}
+		return this.addObjectsToParent(newObjects, powersetPath);
 	}
 	
 	/**
@@ -167,16 +183,29 @@ public class BigBangScore implements Cloneable {
 	 * @return the new paths of the added objects
 	 */
 	public List<DenotatorPath> addObjectsToParent(List<Denotator> objects, DenotatorPath parentPath, int powersetIndex) {
-		if (parentPath != null) {
-			DenotatorPath childrenSetPath = parentPath.getPowersetPath(powersetIndex);
-			if (parentPath.size() > 0) {
-				objects = this.makeObjectsRelative(objects, parentPath);
-			}
-			for (int i = 0; i < objects.size(); i++) {
-				objects.set(i, this.internalAddObject(objects.get(i), childrenSetPath));
-			}
-			return this.findPaths(objects, childrenSetPath);
-		} else if (objects.size() == 1) {
+		return this.addObjectsToParent(objects, parentPath, parentPath.getPowersetPath(powersetIndex));
+	}
+	
+	public List<DenotatorPath> addObjectsToParent(List<Denotator> objects, DenotatorPath powersetPath) {
+		if (powersetPath != null) {
+			return this.addObjectsToParent(objects, powersetPath.getTopPath(), powersetPath);
+		}
+		return this.setComposition(objects);
+	}
+	
+	public List<DenotatorPath> addObjectsToParent(List<Denotator> objects, DenotatorPath parentPath, DenotatorPath powersetPath) {
+		//if (parentPath.size() > 0) {
+			objects = this.makeObjectsRelative(objects, parentPath);
+		//}
+		for (int i = 0; i < objects.size(); i++) {
+			objects.set(i, this.internalAddObject(objects.get(i), powersetPath));
+		}
+		return this.findPaths(objects, powersetPath);
+	}
+	
+	//TODO: so bad, really gotta refactor it all
+	public List<DenotatorPath> setComposition(List<Denotator> objects) {
+		if (objects.size() == 1) {
 			this.setComposition(objects.get(0));
 			List<DenotatorPath> topPath = new ArrayList<DenotatorPath>(); 
 			topPath.add(new DenotatorPath(objects.get(0).getForm(), new int[]{}));
