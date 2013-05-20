@@ -637,14 +637,16 @@ public class BigBangView extends Model implements View {
 	
 	private DenotatorPath replaceDenotatorValue(double displayValue, int valueIndex, int parameterIndex, int position, double zoomFactor, Map<DenotatorPath,Double> values, DenotatorPath closestPowersetPath) {
 		if (valueIndex > -1) {
-			DenotatorPath associatedPath = this.displayNotes.getObjectValuePathAt(valueIndex);
 			double denotatorValue = this.getDenotatorValue(displayValue, parameterIndex, position, zoomFactor);
+			DenotatorPath associatedPath = this.displayNotes.getObjectValuePathAt(valueIndex);
 			//null happens when parent value, or satellite or sibling level is selected
-			if (associatedPath == null) {
-				DisplayObject closestObject = this.displayNotes.getClosestObject(valueIndex, denotatorValue);
-				return closestObject.getTopDenotatorPath().getDescendantPathAccordingTo(closestPowersetPath);
-			} else if (this.displayNotes.pathInAllowedColimitBranch(associatedPath)) {
+			if (associatedPath != null && this.displayNotes.pathInAllowedColimitBranch(associatedPath)) {
 				values.put(associatedPath, denotatorValue);
+			}
+			//TODO: really find closest, not just closest of last dimension...
+			DisplayObject closestObject = this.displayNotes.getClosestObject(valueIndex, denotatorValue, closestPowersetPath);
+			if (closestObject != null) {
+				return closestObject.getTopDenotatorPath().getDescendantPathAccordingTo(closestPowersetPath);
 			}
 		}
 		return closestPowersetPath;

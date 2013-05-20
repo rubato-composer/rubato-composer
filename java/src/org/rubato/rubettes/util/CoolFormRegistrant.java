@@ -25,6 +25,7 @@ public class CoolFormRegistrant {
 	public static SimpleForm PITCH_CLASS_FORM;
 	public static SimpleForm OVERTONE_INDEX_FORM;
 	public static LimitForm FM_NODE_FORM;
+	public static LimitForm SOUND_NOTE_FORM;
 	
 	public CoolFormRegistrant() {
 	}
@@ -62,13 +63,13 @@ public class CoolFormRegistrant {
 		//SoundNote
 		SimpleForm layer = this.registerZModuleForm("Layer");
 		Form modulators = new FormReference("Modulators", Form.POWER);
-		LimitForm soundNote = this.registerLimitForm("SoundNote", ONSET_FORM, PITCH_FORM, LOUDNESS_FORM, DURATION_FORM, VOICE_FORM, layer, modulators);
-		modulators = this.registerPowerForm("Modulators", soundNote);
+		SOUND_NOTE_FORM = this.registerLimitForm("SoundNote", ONSET_FORM, PITCH_FORM, LOUDNESS_FORM, DURATION_FORM, VOICE_FORM, layer, modulators);
+		modulators = this.registerPowerForm("Modulators", SOUND_NOTE_FORM);
 		modulators.resolveReferences(REPOSITORY);
 		
 		//SoundScore
 		Form soundScore = new FormReference("SoundScore", Form.POWER);
-		LimitForm soundNode = this.registerLimitForm("SoundNode", soundNote, soundScore);
+		LimitForm soundNode = this.registerLimitForm("SoundNode", SOUND_NOTE_FORM, soundScore);
 		soundScore = this.registerPowerForm("SoundScore", soundNode);
 		soundScore.resolveReferences(REPOSITORY);
 	}

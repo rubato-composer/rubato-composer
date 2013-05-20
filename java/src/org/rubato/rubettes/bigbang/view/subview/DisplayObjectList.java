@@ -33,6 +33,7 @@ public class DisplayObjectList extends TreeSet<DisplayObject> implements View {
 	private List<ColimitForm> topDenotatorColimits;
 	private Map<ColimitForm,DenotatorPath> topDenotatorColimitsAndPaths;
 	private List<String> valueNames;
+	//TODO: paths not used anymore!!! since they can be different in every object!!! refactor
 	private Map<String,DenotatorPath> valueNamesAndPaths;
 	private Set<DisplayObject> selectedNotes;
 	private DisplayObject selectedAnchorNote;
@@ -124,25 +125,29 @@ public class DisplayObjectList extends TreeSet<DisplayObject> implements View {
 	}
 	
 	public DenotatorPath getObjectValuePathAt(int valueIndex) {
-		return this.getObjectValueSubPath(this.getPathOfValueAt(valueIndex));
+		return this.getObjectValueSubPath(this.valueNames.get(valueIndex));
 	}
 	
 	private DenotatorPath getPathOfValueAt(int valueIndex) {
 		return this.valueNamesAndPaths.get(this.valueNames.get(valueIndex));
 	}
 	
-	public DisplayObject getClosestObject(int valueIndex, double value) {
+	public DisplayObject getClosestObject(int valueIndex, double value, DenotatorPath powersetPath) {
 		String valueName = this.valueNames.get(valueIndex);
 		DenotatorPath valuePath = this.getPathOfValueAt(valueIndex);
 		DisplayObject closestObject = null;
 		double shortestDistance = Double.MAX_VALUE;
 		if (this.selectedObject > 0) {
 			for (DisplayObject currentObject : this) {
-				if (currentObject.getTopDenotatorPath().size() < valuePath.size()) {
-					double currentDistance = Math.abs(currentObject.getValue(valueName)-value);
-					if (currentDistance < shortestDistance) {
-						shortestDistance = currentDistance;
-						closestObject = currentObject;
+				//has to be same type of object. TODO: lenghth of course is not the deciding thing!!!!
+				if (currentObject.getTopDenotatorPath().size() == powersetPath.getTopPath().size()) {
+					Double currentValue = currentObject.getValue(valueName);
+					if (currentValue != null) {
+						double currentDistance = Math.abs(currentValue-value);
+						if (currentDistance < shortestDistance) {
+							shortestDistance = currentDistance;
+							closestObject = currentObject;
+						}
 					}
 				}
 			}
@@ -192,7 +197,6 @@ public class DisplayObjectList extends TreeSet<DisplayObject> implements View {
 	}
 	
 	/**
-	 * TODO: IS NOT NECESSARILY TOP DENOTATOR ANYMORE!!!!
 	 * @return the top denotator standard values under assumption that the given value
 	 * is selected in a colimit. if it is not in a colimit, just returns the standard values
 	 */
@@ -201,19 +205,29 @@ public class DisplayObjectList extends TreeSet<DisplayObject> implements View {
 		Map<DenotatorPath,Double> objectStandardValues = new TreeMap<DenotatorPath,Double>();
 		List<DenotatorPath> selectedColimitCoordinatePaths = this.getTopDenotatorColimitPaths(this.selectedColimitCoordinates);
 		for (String currentName : this.valueNamesAndPaths.keySet()) {
-			DenotatorPath currentPath = this.valueNamesAndPaths.get(currentName);
+			if (standardDenotatorValues.containsKey(currentName)) {
+				//if (this.inAllowedColimitBranch(currentPath, selectedColimitCoordinatePaths)) {
+				DenotatorPath valuePath = this.getObjectValueSubPath(currentName);
+				if (valuePath != null) {
+					objectStandardValues.put(valuePath, standardDenotatorValues.get(currentName));
+				}
+				//}
+			}
+			/*DenotatorPath currentPath = this.valueNamesAndPaths.get(currentName);
 			if (currentPath.isPartOfSameObjectAs(selectedObjectPath) && standardDenotatorValues.containsKey(currentName)) {
 				if (this.inAllowedColimitBranch(currentPath, selectedColimitCoordinatePaths)) {
-					objectStandardValues.put(this.getObjectValueSubPath(currentPath), standardDenotatorValues.get(currentName));
+					objectStandardValues.put(this.getObjectValueSubPath(currentName), standardDenotatorValues.get(currentName));
+					System.out.println(currentName + " " + this.getObjectValueSubPath(currentName) + " " + standardDenotatorValues.get(currentName));
 				}
-			}
+			}*/
 		}
 		return objectStandardValues;
 	}
 	
-	private DenotatorPath getObjectValueSubPath(DenotatorPath valuePath) {
+	private DenotatorPath getObjectValueSubPath(String valueName) {
 		DenotatorPath selectedObjectPath = this.getSelectedObjectPath();
-		return valuePath.subPath(selectedObjectPath.size());
+		DenotatorPath objectValuePath = new DenotatorValueFinder(selectedObjectPath.getForm(), true).getValueNamesAndPaths().get(valueName);
+		return objectValuePath;
 	}
 	
 	public boolean pathInAllowedColimitBranch(DenotatorPath path) {

@@ -23,7 +23,7 @@ public class JSynScore {
 	 * Adds a new object to this score and returns it so that it can be edited
 	 */
 	public JSynObject addNewObject(JSynObject parent, Form form) {
-		if (form.equals(CoolFormRegistrant.FM_NODE_FORM)) { //TODO:also check for soundscore modulators
+		if (form.equals(CoolFormRegistrant.FM_NODE_FORM) || form.equals(CoolFormRegistrant.SOUND_NOTE_FORM)) {
 			if (parent != null) {
 				return parent.addModulator();
 			}
