@@ -16,15 +16,17 @@ import org.rubato.math.yoneda.ListDenotator;
 import org.rubato.math.yoneda.PowerDenotator;
 import org.rubato.rubettes.util.DenotatorPath;
 import org.rubato.rubettes.util.ObjectGenerator;
+import org.rubato.rubettes.util.SoundNoteGenerator;
 
 public class BigBangScore implements Cloneable {
 	
 	protected ObjectGenerator objectGenerator;
 	protected Denotator score;
+	protected Denotator initialComposition;
 	
 	public BigBangScore(Form baseForm) {
 		this.objectGenerator = new ObjectGenerator();
-		this.resetScore(baseForm);
+		this.setForm(baseForm);
 	}
 	
 	public Object clone() {
@@ -34,31 +36,39 @@ public class BigBangScore implements Cloneable {
 	}
 	
 	public boolean setForm(Form baseForm) {
-		return this.resetScore(baseForm);
-	}
-	
-	public boolean resetScore() {
-		return this.resetScore(this.objectGenerator.getBaseForm());
-	}
-	
-	private boolean resetScore(Form baseForm) {
 		boolean validForm = this.objectGenerator.setBaseForm(baseForm);
 		if (validForm) {
-			this.setComposition(this.objectGenerator.createEmptyScore());
+			this.setInitialComposition(this.objectGenerator.createEmptyScore());
 		}
 		return validForm;
 	}
 	
+	public void resetScore() {
+		this.score = this.initialComposition.copy();
+	}
+	
 	/**
-	 * @return true if newComposition is of an allowed form type
+	 * @return true if newComposition is of an allowed form type TODO: refactor and make more general!!
 	 */
-	public boolean setComposition(Denotator newComposition) {
-		if (newComposition != null && this.objectGenerator.setBaseForm(newComposition.getForm())) {
+	public boolean setInitialComposition(Denotator initialComposition) {
+		if (initialComposition != null && this.objectGenerator.formIsSoundScoreCompatible(initialComposition.getForm())) {
+			initialComposition = new SoundNoteGenerator().convertScore(initialComposition);
+			this.initialComposition = initialComposition;
+			this.resetScore();
+			return true;
+		} else if (initialComposition != null && this.objectGenerator.setBaseForm(initialComposition.getForm())) {
 			//this.score = this.noteGenerator.convertScore(newComposition);
-			this.score = newComposition;
+			this.initialComposition = initialComposition;
+			this.resetScore();
 			return true;
 		}
 		return false;
+	}
+	
+	public void setScore(Denotator score) {
+		if (score.getForm().equals(this.score.getForm())) {
+			this.score = score;
+		}
 	}
 	
 	public Denotator getLayeredComposition() {
@@ -88,7 +98,7 @@ public class BigBangScore implements Cloneable {
 		}
 		//no powerset specified to add it in, try to replace the whole score
 		Denotator newObject = this.objectGenerator.createObject(this.score.getForm(), pathsWithValues);
-		this.setComposition(newObject);
+		this.setScore(newObject);
 		return new DenotatorPath(this.score.getForm());
 	}
 	
@@ -172,18 +182,22 @@ public class BigBangScore implements Cloneable {
 	 * @return
 	 */
 	public List<DenotatorPath> moveObjectsToParent(List<DenotatorPath> objectPaths, DenotatorPath parentPath, int powersetIndex) {
-		Denotator parentObject = this.extractObject(parentPath);
+		//System.out.println(objectPaths+ " "+parentPath + " " +powersetIndex);
+		List<Denotator> parentObjects = this.extractObjects(parentPath);
 		List<Denotator> newNotes = this.removeObjects(objectPaths);
-		DenotatorPath newParentPath = this.findPath(parentObject, parentPath.getAnchorPowersetPath());
+		DenotatorPath newParentPath = this.findPath(parentObjects);
 		return this.addObjectsToParent(newNotes, newParentPath, powersetIndex);
-	} 
+	}
 	
 	/**
 	 * adds the given objects to the powersetIndex-th powerset of the object at parentPath
 	 * @return the new paths of the added objects
 	 */
 	public List<DenotatorPath> addObjectsToParent(List<Denotator> objects, DenotatorPath parentPath, int powersetIndex) {
-		return this.addObjectsToParent(objects, parentPath, parentPath.getPowersetPath(powersetIndex));
+		if (parentPath != null) {
+			return this.addObjectsToParent(objects, parentPath, parentPath.getPowersetPath(powersetIndex));
+		}
+		return this.setComposition(objects); 
 	}
 	
 	public List<DenotatorPath> addObjectsToParent(List<Denotator> objects, DenotatorPath powersetPath) {
@@ -204,9 +218,9 @@ public class BigBangScore implements Cloneable {
 	}
 	
 	//TODO: so bad, really gotta refactor it all
-	public List<DenotatorPath> setComposition(List<Denotator> objects) {
+	private List<DenotatorPath> setComposition(List<Denotator> objects) {
 		if (objects.size() == 1) {
-			this.setComposition(objects.get(0));
+			this.setScore(objects.get(0));
 			List<DenotatorPath> topPath = new ArrayList<DenotatorPath>(); 
 			topPath.add(new DenotatorPath(objects.get(0).getForm(), new int[]{}));
 			return topPath;
@@ -303,8 +317,10 @@ public class BigBangScore implements Cloneable {
 	
 	/*
 	 * Finds the path of an object if it is present in the given powerset
+	 * TODO these should not really be used anymore, if possible
 	 */
 	private DenotatorPath findPath(Denotator object, DenotatorPath powersetPath) {
+		//System.out.println(object+ " "+powersetPath);
 		FactorDenotator powersetOrList = this.getPowersetOrList(powersetPath);
 		int objectIndex = this.getIndexOf(powersetOrList, object);
 		return powersetPath.getChildPath(objectIndex);

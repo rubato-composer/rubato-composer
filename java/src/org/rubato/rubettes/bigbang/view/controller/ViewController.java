@@ -252,8 +252,8 @@ public class ViewController extends Controller {
 		this.callModelMethod(ViewController.MOVE_NOTES_NEW);
 	}
 	
-	public void addSelectedNotesAsSatellitesTo(DisplayObject parentNote) {
-		this.callModelMethod(ViewController.SATELLITE_NOTES, parentNote);
+	public void addSelectedNotesAsSatellitesTo(DisplayObject parentNote, int powersetIndex) {
+		this.callModelMethod(ViewController.SATELLITE_NOTES, parentNote, powersetIndex);
 	}
 	
 	public void flattenSelectedNotes() {

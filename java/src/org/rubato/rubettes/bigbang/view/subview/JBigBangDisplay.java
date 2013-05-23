@@ -70,6 +70,7 @@ public class JBigBangDisplay extends JPanel implements View {
 		String propertyName = event.getPropertyName();
 		if (propertyName.equals(ViewController.DISPLAY_MODE)) {
 			this.setModeAdapter((DisplayModeAdapter)event.getNewValue());
+			this.repaint();
 		} else if (propertyName.equals(ViewController.VIEW_PARAMETERS)) {
 			this.contents.setViewParameters((ViewParameters)event.getNewValue());
 			this.repaint();

@@ -112,7 +112,9 @@ public class DisplayModeAdapter implements MouseInputListener, MouseWheelListene
 	}
 	
 	protected void deactivateMouseWheel() {
-		this.mouseWheelListeners.remove(0);
+		if (this.mouseWheelListeners.size() > 0) {
+			this.mouseWheelListeners.remove(0);
+		}
 	}
 
 }

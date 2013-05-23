@@ -101,7 +101,7 @@ public class TestObjects {
 	}
 	
 	private void createComplexSoundScore() {
-		this.score.setComposition(this.multiLevelMacroScore.copy());
+		this.score.setInitialComposition(this.multiLevelMacroScore.copy());
 		List<Denotator> notes = new ArrayList<Denotator>();
 		notes.add(this.generator.createNoteDenotator(this.NOTE2_ABSOLUTE_VALUES));
 		notes.add(this.generator.createNoteDenotator(this.NOTE1_ABSOLUTE_VALUES));

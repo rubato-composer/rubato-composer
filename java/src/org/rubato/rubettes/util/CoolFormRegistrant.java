@@ -23,6 +23,9 @@ public class CoolFormRegistrant {
 	public static final SimpleForm VOICE_FORM = (SimpleForm)REPOSITORY.getForm("Voice");
 	
 	public static SimpleForm PITCH_CLASS_FORM;
+	public static SimpleForm CHROMATIC_PITCH_FORM;
+	public static SimpleForm QUALITY_FORM;
+	public static SimpleForm BEAT_CLASS_FORM;
 	public static SimpleForm OVERTONE_INDEX_FORM;
 	public static LimitForm FM_NODE_FORM;
 	public static LimitForm SOUND_NOTE_FORM;
@@ -33,17 +36,31 @@ public class CoolFormRegistrant {
 	public void registerAllTheCoolStuff() {
 		if (Repository.systemRepository().getForm("HarmonicSpectrum") == null) {
 			this.registerImageForms();
-			this.registerMusicForms();
+			this.registerMusicTheoryForms();
+			this.registerSoundForms();
 		}
 	}
 	
-	public void registerMusicForms() {
-		//PitchClassSet
+	public void registerMusicTheoryForms() {
+		//PitchClass
 		PITCH_CLASS_FORM = this.registerZnModuleForm("PitchClass", 12);
 		this.registerPowerForm("PitchClassSet", PITCH_CLASS_FORM);
 		LimitForm pitchClassNote = this.registerLimitForm("PitchClassNote", ONSET_FORM, PITCH_CLASS_FORM, LOUDNESS_FORM, DURATION_FORM, VOICE_FORM);
 		this.registerPowerForm("PitchClassScore", pitchClassNote);
 		
+		//Triad
+		CHROMATIC_PITCH_FORM = this.registerZModuleForm("ChromaticPitch");
+		QUALITY_FORM = this.registerZnModuleForm("TriadQuality", 4);
+		LimitForm triad = this.registerLimitForm("Triad", CHROMATIC_PITCH_FORM, QUALITY_FORM);
+		this.registerPowerForm("Triads", triad);
+		
+		//BeatClass
+		BEAT_CLASS_FORM = this.registerZnModuleForm("BeatClass", 16);
+		LimitForm beatclassNote = this.registerLimitForm("BeatClassNote", BEAT_CLASS_FORM, PITCH_FORM, LOUDNESS_FORM, DURATION_FORM, VOICE_FORM);
+		this.registerPowerForm("BeatClassScore", beatclassNote);
+	}
+	
+	public void registerSoundForms() {
 		//SoundSpectrum
 		LimitForm partial = this.registerLimitForm("Partial", LOUDNESS_FORM, PITCH_FORM);
 		this.registerPowerForm("Spectrum", partial);

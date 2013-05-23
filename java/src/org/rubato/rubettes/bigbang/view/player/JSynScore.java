@@ -32,5 +32,9 @@ public class JSynScore {
 		this.objects.add(object);
 		return object;
 	}
+	
+	public String toString() {
+		return this.objects.toString();
+	}
 
 }

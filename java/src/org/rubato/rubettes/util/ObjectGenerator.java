@@ -47,6 +47,17 @@ public class ObjectGenerator {
 		return this.baseForm;
 	}
 	
+	//TODO: extend!!!
+	public boolean formIsSoundScoreCompatible(Form form) {
+		SoundNoteGenerator generator = new SoundNoteGenerator();
+		return generator.soundScoreForm != null && this.baseForm.equals(generator.soundScoreForm) && this.isScoreForm(form);
+	}
+	
+	private boolean isScoreForm(Form form) {
+		SoundNoteGenerator generator = new SoundNoteGenerator();
+		return form.equals(generator.soundScoreForm) || form.equals(generator.scoreForm) || form.equals(generator.macroScoreForm);
+	}
+	
 	private boolean isValid(Form baseForm) {
 		//TODO: do not accept strange forms!! e.g. ones without simples
 		return true;

@@ -129,8 +129,8 @@ public class BigBangController extends Controller {
 		this.callModelMethod(BigBangController.AFFINE_TRANSFORM_NOTES, properties, shift, angle, scaleFactors);
 	}
 	
-	public void buildSatellites(Set<DenotatorPath> satelliteNodePaths, DenotatorPath anchorNodePath) {
-		this.callModelMethod(BigBangController.SATELLITE_NOTES, satelliteNodePaths, anchorNodePath);
+	public void buildSatellites(Set<DenotatorPath> satelliteNodePaths, DenotatorPath anchorNodePath, int powersetIndex) {
+		this.callModelMethod(BigBangController.SATELLITE_NOTES, satelliteNodePaths, anchorNodePath, powersetIndex);
 	}
 	
 	public void flattenNotes(Set<DenotatorPath> satelliteNodePaths) {

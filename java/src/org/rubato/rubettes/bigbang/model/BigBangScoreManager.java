@@ -9,6 +9,7 @@ import java.util.TreeSet;
 
 import org.rubato.math.yoneda.Denotator;
 import org.rubato.math.yoneda.Form;
+import org.rubato.math.yoneda.PowerDenotator;
 import org.rubato.rubettes.bigbang.BigBangRubette;
 import org.rubato.rubettes.bigbang.controller.BigBangController;
 import org.rubato.rubettes.bigbang.controller.ScoreChangedNotification;
@@ -42,8 +43,8 @@ public class BigBangScoreManager extends Model {
 		this.score.resetScore();
 	}
 	
-	public boolean setComposition(Denotator newComposition) {
-		boolean valid = this.score.setComposition(newComposition);
+	public boolean setInitialComposition(Denotator newComposition) {
+		boolean valid = this.score.setInitialComposition(newComposition);
 		if (valid) {
 			this.fireCompositionChange();
 		}

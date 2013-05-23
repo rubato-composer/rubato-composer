@@ -50,7 +50,8 @@ public class SmoothOscillator {
 	 	this.modulators = new ArrayList<SmoothOscillator>();
 	}
 	
-	public void addModulator(SmoothOscillator modulator) {
+	public void addModulator() {
+		SmoothOscillator modulator = new SmoothOscillator(this.player);
 		Add newAddUnit = new Add();
 		this.player.addToSynth(newAddUnit);
 		newAddUnit.output.connect(this.currentAddUnit.inputB);

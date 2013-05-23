@@ -33,7 +33,7 @@ public class BigBangRubette extends AbstractRubette {
 	 */
 	public BigBangRubette() {
 		new CoolFormRegistrant().registerAllTheCoolStuff();
-        this.setInCount(1);
+		this.setInCount(1);
         this.setOutCount(1);
         this.controller = new BigBangController();
         if (BigBangRubette.IS_MULTITOUCH) {
@@ -71,6 +71,8 @@ public class BigBangRubette extends AbstractRubette {
 
 	@Override
 	public void run(RunInfo runInfo) {
+		//TODO: SHOULD REALLY NOT HAVE TO BE HERE. PUT BACK TO REPOSITORY
+		new CoolFormRegistrant().registerAllTheCoolStuff();
 		Denotator output = this.model.getComposition();
 		if (this.model.isInputActive()) {
 			this.verifyAndSetInput();
@@ -80,7 +82,7 @@ public class BigBangRubette extends AbstractRubette {
 	
 	private void verifyAndSetInput() {
 		Denotator input = this.getInput(0);
-		if (!this.model.setComposition(input)) {
+		if (!this.model.setInitialComposition(input)) {
 			this.addError("Input denotator not of a valid form.");
 		}
 	}

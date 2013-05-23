@@ -31,10 +31,10 @@ public class JSynPlayerTest extends TestCase {
 	 	carrier.setFrequency(2000);
 		carrier.setAmplitude(0.2);
 		
-		SmoothOscillator modulator = new SmoothOscillator(player);
+		carrier.addModulator();
+		SmoothOscillator modulator = carrier.getModulators().get(0);
 		modulator.setFrequency(2);
 		modulator.setAmplitude(100);
-		carrier.addModulator(modulator);
 		
 		lineOut.start();
 		carrier.queueEnvelope(1, player.getCurrentSynthTime());
