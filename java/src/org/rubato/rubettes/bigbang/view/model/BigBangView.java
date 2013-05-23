@@ -573,10 +573,10 @@ public class BigBangView extends Model implements View {
 		}
 	}
 	
-	public void addSelectedNotesAsSatellitesTo(DisplayObject parentNote) {
+	public void addSelectedNotesAsSatellitesTo(DisplayObject parentNote, Integer powersetIndex) {
 		Set<DenotatorPath> satelliteNodePaths = this.displayNotes.getSelectedObjectPaths();
 		DenotatorPath parentNodePath = parentNote.getTopDenotatorPath();
-		this.controller.buildSatellites(satelliteNodePaths, parentNodePath);
+		this.controller.buildSatellites(satelliteNodePaths, parentNodePath, powersetIndex);
 	}
 	
 	public void flattenSelectedNotes() {

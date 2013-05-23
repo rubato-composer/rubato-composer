@@ -60,9 +60,9 @@ public class BigBangModel extends Model {
 		this.firePropertyChange(BigBangController.MULTITOUCH, null, this.multiTouch);
 	}
 	
-	public boolean setComposition(Denotator newComposition) {
+	public boolean setInitialComposition(Denotator newComposition) {
 		this.undoRedoModel.reset();
-		return this.scoreManager.setComposition(newComposition);
+		return this.scoreManager.setInitialComposition(newComposition);
 	}
 	
 	public Denotator getComposition() {
@@ -136,8 +136,8 @@ public class BigBangModel extends Model {
 		}
 	}
 	
-	public void buildSatellites(TreeSet<DenotatorPath> nodePaths, DenotatorPath parentNotePath) {
-		this.undoRedoModel.postEdit(new BuildSatellitesEdit(this.scoreManager, nodePaths, parentNotePath));
+	public void buildSatellites(TreeSet<DenotatorPath> nodePaths, DenotatorPath parentNotePath, Integer powersetIndex) {
+		this.undoRedoModel.postEdit(new BuildSatellitesEdit(this.scoreManager, nodePaths, parentNotePath, powersetIndex));
 	}
 	
 	public void flattenNotes(TreeSet<DenotatorPath> nodePaths) {

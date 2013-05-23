@@ -1,5 +1,6 @@
 package org.rubato.rubettes.bigbang.view.player;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import com.jsyn.unitgen.LineOut;
@@ -7,37 +8,50 @@ import com.jsyn.unitgen.LineOut;
 public class JSynModule {
 	
 	private JSynPlayer player;
-	private SmoothOscillator carrier;
+	private List<SmoothOscillator> carriers;
 	private LineOut lineOut;
 	
 	
 	public JSynModule(JSynPlayer player) {
 		this.player = player;
-		
-		// Create unit generators.
-	 	this.carrier = new SmoothOscillator(player);
 	 	//TODO: why one line out PER module????
 	 	this.player.addToSynth(this.lineOut = new LineOut());
-
-	 	this.carrier.getOutput().connect( 0, this.lineOut.input, 0 );
-	 	this.carrier.getOutput().connect( 0, this.lineOut.input, 1 );
-	 	
+	 	this.carriers = new ArrayList<SmoothOscillator>();
+	 	this.addCarrier();
 	 	this.start();
 	}
 	
-	public double getCarrierFrequency() {
-		return this.carrier.getFrequency();
+	private void addCarrier() {
+		SmoothOscillator newCarrier = new SmoothOscillator(this.player);
+		newCarrier.getOutput().connect(0, this.lineOut.input, 0);
+		newCarrier.getOutput().connect(0, this.lineOut.input, 1);
+		this.carriers.add(newCarrier);
+	}
+	
+	public double getMainCarrierFrequency() {
+		return this.carriers.get(0).getFrequency();
 	}
 	
 	public void playOrAdjustObject(JSynObject object) {
-		this.playOrAdjustObject(this.carrier, object, 1);
+		this.playOrAdjustObject(object, 1);
+	}
+	
+	private void playOrAdjustObject(JSynObject object, int modulatorAmplitudeFactor) {
+		for (int i = 0; i < object.getFrequencies().size(); i++) {
+			double currentFrequency = object.getFrequencies().get(i);
+			if (this.carriers.size() <= i) {
+				this.addCarrier();
+			}
+			this.playOrAdjustObject(this.carriers.get(i), object, currentFrequency, modulatorAmplitudeFactor);
+		}
 	}
 	
 	//recursive method
-	private void playOrAdjustObject(SmoothOscillator oscillator, JSynObject object, int modulatorAmplitudeFactor) {
+	private void playOrAdjustObject(SmoothOscillator oscillator, JSynObject object, double frequency, int modulatorAmplitudeFactor) {
 		//adjust frequency and amplitude
-		oscillator.setFrequency(object.getFrequency());
+		oscillator.setFrequency(frequency);
 		oscillator.setAmplitude(object.getAmplitude()*this.player.getRecommendedAmplitude()*modulatorAmplitudeFactor);
+		System.out.println(oscillator + " " +object + " " + frequency + " " + modulatorAmplitudeFactor);
 		//adjust or schedule time
 		double currentSymbolicTime = this.player.getCurrentSymbolicTime();
 		if (object.getOnset() > currentSymbolicTime) {
@@ -55,17 +69,20 @@ public class JSynModule {
 		List<JSynObject> modulatorObjects = object.getModulators();
 		List<SmoothOscillator> modulators = oscillator.getModulators();
 		for (int i = 0; i < modulatorObjects.size(); i++) {
+			JSynObject currentModulator = modulatorObjects.get(i);
 			if (modulators.size() <= i) {
-				SmoothOscillator modulator = new SmoothOscillator(this.player);
-				oscillator.addModulator(modulator);
+				oscillator.addModulator();
 			}
-			this.playOrAdjustObject(modulators.get(i), modulatorObjects.get(i), 2000);
+			//TODO: one modulator may have several frequencies! go through all
+			this.playOrAdjustObject(modulators.get(i), currentModulator, currentModulator.getMainFrequency(), 2000);
 		}
 		//TODO: remove exceeding ones!!!!
 	}
 	
 	public void mute() {
-		this.carrier.mute();
+		for (SmoothOscillator currentCarrier : this.carriers) {
+			currentCarrier.mute();
+		}
 	}
 	
 	private void start() {

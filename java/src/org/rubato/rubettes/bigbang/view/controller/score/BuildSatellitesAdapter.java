@@ -16,18 +16,20 @@ public class BuildSatellitesAdapter extends MouseInputAdapter {
 	private ViewController controller;
 	private TemporaryDisplayMode mode;
 	private ConnectorsTool satellitesTool;
+	private int powerset;
 	
-	public BuildSatellitesAdapter(ViewController controller, TemporaryDisplayMode mode) {
+	public BuildSatellitesAdapter(ViewController controller, TemporaryDisplayMode mode, int powerset) {
 		this.controller = controller;
 		this.mode = mode;
 		this.satellitesTool = new ConnectorsTool();
+		this.powerset = powerset;
 	}
 	
 	public void mouseClicked(MouseEvent event) {
 		Point location = event.getPoint();
 		DisplayObject noteInLocation = ((JBigBangDisplay)event.getSource()).getContents().getDisplayObjects().getNoteAt(location);
 		if (noteInLocation != null) {
-			this.controller.addSelectedNotesAsSatellitesTo(noteInLocation);
+			this.controller.addSelectedNotesAsSatellitesTo(noteInLocation, this.powerset);
 			this.mode.goBackToPreviousMode();
 		}
 	}

@@ -92,6 +92,7 @@ public class JSynPlayer {
 			this.threads.stop();
 		}
 		
+		System.out.println(score);
 		this.threads = this.generateThreads(score);
 		this.allocateModules(this.threads);
 			
@@ -180,7 +181,7 @@ public class JSynPlayer {
 		//order all voices by their distance from one of the module's playing pitch
 		TreeMap<Double,List<JSynModule>> remainingModules = new TreeMap<Double,List<JSynModule>>();
 		for (JSynModule currentModule : this.modules) {
-			double currentFrequency = currentModule.getCarrierFrequency();
+			double currentFrequency = currentModule.getMainCarrierFrequency();
 			if (remainingModules.keySet().contains(currentFrequency)) {
 				remainingModules.get(currentFrequency).add(currentModule);
 			} else {
@@ -196,7 +197,7 @@ public class JSynPlayer {
 			JSynModule closestModule = null;
 			//System.out.println(remainingModules);
 			if (objectAtCurrentTime != null) {
-				double currentFrequency = objectAtCurrentTime.getFrequency();
+				double currentFrequency = objectAtCurrentTime.getMainFrequency();
 				closestModule = this.getModuleWithClosestFrequency(currentFrequency, remainingModules);
 				if (closestModule != null) {
 					currentThread.setModule(closestModule);
@@ -299,9 +300,9 @@ public class JSynPlayer {
 	
 	public double getRecommendedAmplitude() {
 		if (this.waveform.equals(JSynPlayer.WAVEFORMS[0]) || this.waveform.equals(JSynPlayer.WAVEFORMS[3])) {
-			return 0.1;
+			return 0.3;
 		}
-		return 0.05;
+		return 0.15;
 	}
 
 }

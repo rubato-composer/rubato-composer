@@ -5,9 +5,9 @@ import org.rubato.rubettes.bigbang.view.controller.score.BuildSatellitesAdapter;
 
 public class BuildSatellitesMode extends TemporaryDisplayMode {
 
-	public BuildSatellitesMode(ViewController controller) {
+	public BuildSatellitesMode(ViewController controller, int powersetIndex) {
 		super(controller);
-		this.mouseInputListeners.add(new BuildSatellitesAdapter(controller, this));
+		this.mouseInputListeners.add(new BuildSatellitesAdapter(controller, this, powersetIndex));
 	}
 
 }

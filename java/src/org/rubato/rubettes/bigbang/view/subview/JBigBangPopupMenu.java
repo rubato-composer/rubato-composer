@@ -3,6 +3,7 @@ package org.rubato.rubettes.bigbang.view.subview;
 import java.awt.Toolkit;
 import java.awt.event.KeyEvent;
 import java.beans.PropertyChangeEvent;
+import java.util.List;
 
 import javax.swing.Action;
 import javax.swing.JMenu;
@@ -12,6 +13,7 @@ import javax.swing.JSeparator;
 import javax.swing.KeyStroke;
 import javax.swing.undo.UndoManager;
 
+import org.rubato.math.yoneda.Form;
 import org.rubato.rubettes.bigbang.view.View;
 import org.rubato.rubettes.bigbang.view.controller.ViewController;
 import org.rubato.rubettes.bigbang.view.controller.general.RedoAction;
@@ -34,7 +36,7 @@ public class JBigBangPopupMenu extends JPopupMenu implements View {
 	private JMenu copyToMenu;
 	private JMenu moveToMenu;
 	private JMenuItem deleteItem;
-	private JMenuItem buildSatellitesItem;
+	private JMenu buildSatellitesMenu;
 	private JMenuItem flattenItem;
 	private boolean satellitesAllowed;
 	private ViewController controller;
@@ -49,7 +51,7 @@ public class JBigBangPopupMenu extends JPopupMenu implements View {
 	    this.add(this.copyToMenu);
 	    this.add(this.moveToMenu);
 	    this.add(this.deleteItem);
-	    this.add(this.buildSatellitesItem);
+	    this.add(this.buildSatellitesMenu);
 	    this.add(this.flattenItem);
 	    //this.add(this.buildModulatorItem);
 	    //this.add(this.removeModulatorItem);
@@ -63,7 +65,7 @@ public class JBigBangPopupMenu extends JPopupMenu implements View {
 		this.copyToMenu = this.createJLayerMenu("Copy To", new CopyToNewLayerAction(this.controller));
 		this.moveToMenu = this.createJLayerMenu("Move To", new MoveToNewLayerAction(this.controller));
 		this.deleteItem = this.createKeyItem("Delete", new DeleteObjectsAction(this.controller), KeyEvent.VK_BACK_SPACE, KeyEvent.VK_DELETE);
-		this.buildSatellitesItem = this.createShortcutItem("Build Satellites", KeyEvent.VK_PERIOD, new BuildSatellitesAction(this.controller));
+		this.buildSatellitesMenu = new JMenu("Build Satellites");
 		this.flattenItem = this.createShortcutItem("Flatten", KeyEvent.VK_COMMA, new FlattenAction(this.controller));
 		//this.buildModulatorItem = this.createShortcutItem("Build Modulators", KeyEvent.VK_M, new BuildModulatorsAction(this.controller));
 		//this.removeModulatorItem = this.createShortcutItem("Disconnect Modulators", KeyEvent.VK_R, new RemoveModulatorsAction(this.controller));
@@ -103,7 +105,9 @@ public class JBigBangPopupMenu extends JPopupMenu implements View {
 	public void modelPropertyChange(PropertyChangeEvent event) {
 		String propertyName = event.getPropertyName();
 		if (propertyName.equals(ViewController.FORM)) {
-			this.allowSatelliteItems(((DisplayObjectList)event.getNewValue()).allowsForSatellites());
+			DisplayObjectList displayObjects = (DisplayObjectList)event.getNewValue();
+			this.allowSatelliteItems(displayObjects.allowsForSatellites());
+			this.updateSatelliteMenu(displayObjects.getObjects());
 		} else if (propertyName.equals(ViewController.UNDO)) {
 			this.updateUndoRedoItems(event);
 		} else if (propertyName.equals(ViewController.REDO)) {
@@ -123,10 +127,18 @@ public class JBigBangPopupMenu extends JPopupMenu implements View {
 		this.redoItem.setEnabled(manager.canRedo());
 	}
 	
+	private void updateSatelliteMenu(List<Form> satelliteObjectForms) {
+		this.buildSatellitesMenu.removeAll();
+		for (int i = 0; i < satelliteObjectForms.size(); i++) {
+			Form currentObjectForm = satelliteObjectForms.get(i);
+			this.buildSatellitesMenu.add(new JMenuItem(new BuildSatellitesAction(this.controller, currentObjectForm.getNameString(), i))); 
+		}
+	}
+	
 	private void enableEditItems(boolean enabled) {
 		this.deleteItem.setEnabled(enabled);
 		if (this.satellitesAllowed || enabled == false) {
-			this.buildSatellitesItem.setEnabled(enabled);
+			this.buildSatellitesMenu.setEnabled(enabled);
 			this.flattenItem.setEnabled(enabled);
 		}
 	}

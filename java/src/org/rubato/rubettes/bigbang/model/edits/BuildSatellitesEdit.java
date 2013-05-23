@@ -13,16 +13,18 @@ public class BuildSatellitesEdit extends AbstractOperationEdit {
 	private List<DenotatorPath> oldSatellitePaths;
 	private DenotatorPath anchorPath;
 	private List<DenotatorPath> newSatellitePaths;
+	private int powersetIndex;
 	
-	public BuildSatellitesEdit(BigBangScoreManager scoreManager, TreeSet<DenotatorPath> oldSatellitePaths, DenotatorPath anchorPath) {
+	public BuildSatellitesEdit(BigBangScoreManager scoreManager, TreeSet<DenotatorPath> oldSatellitePaths, DenotatorPath anchorPath, int powersetIndex) {
 		super(scoreManager);
 		this.oldSatellitePaths = new ArrayList<DenotatorPath>(oldSatellitePaths);
 		this.anchorPath = anchorPath;
+		this.powersetIndex = powersetIndex;
 	}
 	
 	@Override
 	public Map<DenotatorPath,DenotatorPath> execute(Map<DenotatorPath, DenotatorPath> pathDifferences, boolean fireCompositionChange) {
-		this.newSatellitePaths = this.scoreManager.moveObjectsToParent(this.oldSatellitePaths, this.anchorPath, 0, fireCompositionChange);
+		this.newSatellitePaths = this.scoreManager.moveObjectsToParent(this.oldSatellitePaths, this.anchorPath, this.powersetIndex, fireCompositionChange);
 		return pathDifferences;
 	}
 	

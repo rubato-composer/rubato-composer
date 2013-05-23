@@ -10,7 +10,8 @@ import org.rubato.rubettes.util.CoolFormRegistrant;
 public class JSynObject {
 	
 	private JSynObject parent;
-	private Double frequency;
+	private List<Double> intervalStructure;
+	private List<Double> frequencies;
 	private double amplitude;
 	private Double duration;
 	private int voice;
@@ -30,22 +31,26 @@ public class JSynObject {
 	}
 	
 	public void addValues(Form form, Map<String,Double> values) {
-		if (form == CoolFormRegistrant.ONSET_FORM) {
+		if (form.equals(CoolFormRegistrant.ONSET_FORM)) {
 			this.setOnset(this.getSingleValue(values));
-		} else if (form == CoolFormRegistrant.PITCH_FORM) {
-			this.setFrequency(this.getSingleValue(values));
-		} else if (form == CoolFormRegistrant.PITCH_CLASS_FORM) {
-			this.setFrequency(60+this.getSingleValue(values));
-		} else if (form == CoolFormRegistrant.OVERTONE_INDEX_FORM) {
+		} else if (form.equals(CoolFormRegistrant.PITCH_FORM)) {
+			this.setPitch(this.getSingleValue(values));
+		} else if (form.equals(CoolFormRegistrant.CHROMATIC_PITCH_FORM)) {
+			this.setPitch(this.getSingleValue(values));
+		} else if (form.equals(CoolFormRegistrant.PITCH_CLASS_FORM)) {
+			this.setPitch(60+this.getSingleValue(values));
+		} else if (form.equals(CoolFormRegistrant.OVERTONE_INDEX_FORM)) {
 			if (this.parent != null) {
-				this.setOvertoneFrequency(this.parent.getFrequency(), (int)this.getSingleValue(values));
+				this.setOvertoneFrequency(this.parent.getFrequencies().get(0), (int)this.getSingleValue(values));
 			}
-		} else if (form == CoolFormRegistrant.LOUDNESS_FORM) {
+		} else if (form.equals(CoolFormRegistrant.LOUDNESS_FORM)) {
 			this.setAmplitude(this.getSingleValue(values));
-		} else if (form == CoolFormRegistrant.DURATION_FORM) {
+		} else if (form.equals(CoolFormRegistrant.DURATION_FORM)) {
 			this.setDuration(this.getSingleValue(values));
-		} else if (form == CoolFormRegistrant.VOICE_FORM) {
+		} else if (form.equals(CoolFormRegistrant.VOICE_FORM)) {
 			this.setVoice((int)this.getSingleValue(values));
+		} else if (form.equals(CoolFormRegistrant.QUALITY_FORM)) {
+			this.setTriadQuality((int)this.getSingleValue(values));
 		}
 	}
 	
@@ -65,21 +70,67 @@ public class JSynObject {
 	public double getOnset() {
 		return this.onset;
 	}
-
-	public double getFrequency() {
-		return this.frequency;
+	
+	public double getMainFrequency() {
+		return this.frequencies.get(0);
 	}
 
-	private void setFrequency(double pitch) {
-		this.frequency = this.midiToFrequency(pitch);
+	public List<Double> getFrequencies() {
+		return this.frequencies;
+	}
+
+	private void setPitch(double pitch) {
+		this.setFrequency(this.midiToFrequency(pitch));
+	}
+	
+	private void setTriadQuality(int quality) {
+		if (quality < 2) {
+			this.addInterval(3);
+		} else {
+			this.addInterval(4);
+		}
+		if (quality % 2 == 0) {
+			this.addInterval(3);
+		} else {
+			this.addInterval(4);
+		}
+		this.updateFrequencies();
+	}
+	
+	private void addInterval(double interval) {
+		if (this.intervalStructure == null) {
+			this.intervalStructure = new ArrayList<Double>();
+		}
+		this.intervalStructure.add(interval);
+	}
+	
+	private void setFrequency(double frequency) {
+		this.frequencies = new ArrayList<Double>(); 
+		this.frequencies.add(frequency);
+		this.updateFrequencies();
+	}
+	
+	private void addFrequency(double frequency) {
+		this.frequencies.add(frequency);
+	}
+	
+	private void updateFrequencies() {
+		if (this.intervalStructure != null) {
+			double currentFrequency = this.frequencies.get(0);
+			for (double currentInterval : this.intervalStructure) {
+				currentFrequency = currentFrequency*this.intervalToRatio(currentInterval);
+				this.addFrequency(currentFrequency);
+			}
+		}
 	}
 	
 	private void setOvertoneFrequency(double baseFrequency, int overtoneIndex) {
-		this.frequency = baseFrequency;
+		double overtoneFrequency = baseFrequency;
 		while (overtoneIndex > 0) {
-			this.frequency = this.frequency*(overtoneIndex+1)/overtoneIndex;
+			overtoneFrequency = overtoneFrequency*(overtoneIndex+1)/overtoneIndex;
 			overtoneIndex--;
 		}
+		this.setFrequency(overtoneFrequency);
 	}
 
 	public double getAmplitude() {
@@ -117,6 +168,10 @@ public class JSynObject {
 		return JSynPlayer.BASE_A4*Math.pow(2, (midiPitch-57)/12);
 	}
 	
+	private double intervalToRatio(double interval) {
+		return Math.pow(Math.sqrt(Math.sqrt(Math.cbrt(2))), interval); //12th root of two
+	}
+	
 	public JSynObject addModulator() {
 		JSynObject modulator = new JSynObject(this); 
 		this.modulators.add(modulator);
@@ -128,7 +183,7 @@ public class JSynObject {
 	}
 	
 	public String toString() {
-		return "(" + this.onset + " " +this.frequency + " " + this.offset + ")";
+		return "(" + this.onset + " " + this.frequencies + " " + this.offset + ")";
 	}
 
 }

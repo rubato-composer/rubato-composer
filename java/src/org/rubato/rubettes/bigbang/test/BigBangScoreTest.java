@@ -40,7 +40,7 @@ public class BigBangScoreTest extends TestCase {
 	
 	public void testAddNodesAndFindPaths() {
 		//addNodes
-		this.score.setComposition(this.objects.multiLevelMacroScore);
+		this.score.setInitialComposition(this.objects.multiLevelMacroScore);
 		List<DenotatorPath> anchorPaths = new ArrayList<DenotatorPath>();
 		anchorPaths.add(new DenotatorPath(this.objects.SOUND_SCORE_FORM, new int[]{}));
 		anchorPaths.add(new DenotatorPath(this.objects.SOUND_SCORE_FORM, new int[]{0,0}));
@@ -58,7 +58,7 @@ public class BigBangScoreTest extends TestCase {
 	}
 	
 	public void testAddNotes() {
-		this.score.setComposition(this.objects.multiLevelMacroScore);
+		this.score.setInitialComposition(this.objects.multiLevelMacroScore);
 		List<List<Denotator>> noteLists = new ArrayList<List<Denotator>>();
 		List<Denotator> notes = new ArrayList<Denotator>();
 		notes.add(this.objects.node2Absolute.copy());
@@ -72,14 +72,14 @@ public class BigBangScoreTest extends TestCase {
 	}
 	
 	public void testGetAbsoluteNote() throws RubatoException {
-		this.score.setComposition(this.objects.multiLevelMacroScore);
+		this.score.setInitialComposition(this.objects.multiLevelMacroScore);
 		DenotatorPath nodePath = new DenotatorPath(this.objects.SOUND_SCORE_FORM, new int[]{0,1,0,1,0});
 		this.assertEqualNodes(this.objects.node2Relative, this.score.getObject(nodePath));
 		this.assertEqualNodes(this.objects.node2Absolute, this.score.getAbsoluteObject(nodePath));
 	}
 	
 	public void testRemoveNote() throws RubatoException {
-		this.score.setComposition(this.objects.multiLevelMacroScore);
+		this.score.setInitialComposition(this.objects.multiLevelMacroScore);
 		TestCase.assertTrue(((PowerDenotator)this.score.getComposition().get(new int[]{0,1,0,1})).getFactorCount() == 1);
 		Denotator removedNode = this.score.removeObject(new DenotatorPath(this.objects.SOUND_SCORE_FORM, new int[]{0,1,0,1,0}));
 		TestCase.assertTrue(((PowerDenotator)this.score.getComposition().get(new int[]{0,1,0,1})).getFactorCount() == 0);
@@ -87,7 +87,7 @@ public class BigBangScoreTest extends TestCase {
 	}
 	
 	public void testRemoveNotes() throws RubatoException {
-		this.score.setComposition(this.objects.flatMacroScore);
+		this.score.setInitialComposition(this.objects.flatMacroScore);
 		TestCase.assertTrue(((PowerDenotator)this.score.getComposition()).getFactorCount() == 3);
 		List<DenotatorPath> paths = new ArrayList<DenotatorPath>();
 		paths.add(new DenotatorPath(this.objects.SOUND_SCORE_FORM, new int[]{1}));
@@ -95,7 +95,7 @@ public class BigBangScoreTest extends TestCase {
 		TestCase.assertTrue(((PowerDenotator)this.score.getComposition()).getFactorCount() == 2);
 		this.assertEqualNodes(removedNote, this.objects.node1Absolute);
 		
-		this.score.setComposition(this.objects.multiLevelMacroScore);
+		this.score.setInitialComposition(this.objects.multiLevelMacroScore);
 		TestCase.assertTrue(((PowerDenotator)this.score.getComposition().get(new int[]{0,1,0,1})).getFactorCount() == 1);
 		paths = new ArrayList<DenotatorPath>();
 		paths.add(new DenotatorPath(this.objects.SOUND_SCORE_FORM, new int[]{0,1,0,1,0}));
