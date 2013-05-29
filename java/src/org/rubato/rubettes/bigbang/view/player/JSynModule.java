@@ -51,7 +51,6 @@ public class JSynModule {
 		//adjust frequency and amplitude
 		oscillator.setFrequency(frequency);
 		oscillator.setAmplitude(object.getAmplitude()*this.player.getRecommendedAmplitude()*modulatorAmplitudeFactor);
-		System.out.println(oscillator + " " +object + " " + frequency + " " + modulatorAmplitudeFactor);
 		//adjust or schedule time
 		double currentSymbolicTime = this.player.getCurrentSymbolicTime();
 		if (object.getOnset() > currentSymbolicTime) {

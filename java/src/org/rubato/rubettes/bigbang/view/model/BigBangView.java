@@ -678,10 +678,11 @@ public class BigBangView extends Model implements View {
 	
 	private int[] getXYViewParameters(List<DenotatorPath> denotatorPaths) {
 		int[] viewParameters = new int[2];
-		List<DenotatorPath> topDenotatorValuePaths = this.displayNotes.getValuePaths();
+		//TODO: this can't be dependent on which object is selected. the object has to be part of the transformation
+		List<DenotatorPath> objectValuePaths = this.displayNotes.getObjectValuePaths();
 		for (int i = 0; i <= 1; i++) {
-			for (int j = 0; j < topDenotatorValuePaths.size(); j++) {
-				if (denotatorPaths.get(i).equals(topDenotatorValuePaths.get(j))) {
+			for (int j = 0; j < objectValuePaths.size(); j++) {
+				if (denotatorPaths.get(i).equals(objectValuePaths.get(j))) {
 					viewParameters[i] = j;
 				}
 			}

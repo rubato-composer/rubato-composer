@@ -36,6 +36,7 @@ public class JSynPlayer {
 	private double synthTimeAtLastTempoChange;
 	private double symbolicTimeAtLastTempoChange;
 	private double tempo; //in bpm
+	private boolean loop;
 	
 	public JSynPlayer() {
 		this.synth = JSyn.createSynthesizer();
@@ -45,6 +46,11 @@ public class JSynPlayer {
 		this.setWaveform(JSynPlayer.WAVEFORMS[0]);
 		this.synthTimeAtLastTempoChange = 0;
 		this.symbolicTimeAtLastTempoChange = 0;
+		this.loop = true;
+	}
+	
+	public void setLoop(boolean loop) {
+		this.loop = loop;
 	}
 	
 	public void addToSynth(UnitGenerator generator) {
@@ -92,11 +98,20 @@ public class JSynPlayer {
 			this.threads.stop();
 		}
 		
-		System.out.println(score);
-		this.threads = this.generateThreads(score);
-		this.allocateModules(this.threads);
+		double lastOffset = 0;
+		
+		//while (this.loop) {
+			this.threads = this.generateThreads(score, lastOffset);
+			this.allocateModules(this.threads);
 			
-		this.threads.start();
+			this.threads.start();
+			/*lastOffset = this.getLastOffset();
+			
+			try {
+				Thread.sleep(lastOffset*1000);
+			} catch (InterruptedException e) { e.printStackTrace(); return; }
+			
+		}*/
 	}
 	
 	/*
@@ -120,6 +135,14 @@ public class JSynPlayer {
 	   }
 	}
 	
+	public double getLastOffset() {
+		double lastOffset = 0;
+		for (JSynThread currentThread : this.threads) {
+			lastOffset = Math.max(currentThread.getLastOffset(), lastOffset);
+		}
+		return lastOffset;
+	}
+	
 	public void setTempo(int bpm) {
 		this.tempo = bpm;
 		this.symbolicTimeAtLastTempoChange = this.getCurrentSymbolicTime();
@@ -130,19 +153,20 @@ public class JSynPlayer {
 	public void replaceScore(JSynScore score) {
 		if (this.isPlaying()) {
 			this.threads.stop();
-			JSynThreadGroup newThreads = this.generateThreads(score);
+			//TODO: won't work.. 
+			JSynThreadGroup newThreads = this.generateThreads(score, 0);
 			this.allocateModules(newThreads);
 			this.threads = newThreads;
 		}
 		this.threads.start();
 	}
 	
-	private JSynThreadGroup generateThreads(JSynScore score) {
+	private JSynThreadGroup generateThreads(JSynScore score, double startingTime) {
 		List<JSynObject> notes = score.getObjects();
 		JSynThreadGroup threads = new JSynThreadGroup();
 		if (notes.size() > 0) {
 			for (JSynObject currentNote : notes) {
-				currentNote.setOnset(currentNote.getOnset());
+				currentNote.setOnset(currentNote.getOnset()+startingTime);
 				this.addNoteToConvenientThread(currentNote, threads);
 			}
 		}

@@ -59,6 +59,10 @@ class JSynThread extends Thread {
 		}
 		return false;
 	}
+	
+	public double getLastOffset() {
+		return this.objects.get(this.objects.size()-1).getOffset();
+	}
 
 	public void playNotes() throws InterruptedException {
 		

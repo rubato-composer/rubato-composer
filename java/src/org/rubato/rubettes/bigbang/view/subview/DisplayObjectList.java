@@ -124,6 +124,14 @@ public class DisplayObjectList extends TreeSet<DisplayObject> implements View {
 		return paths;
 	}
 	
+	public List<DenotatorPath> getObjectValuePaths() {
+		List<DenotatorPath> objectValuePaths = new ArrayList<DenotatorPath>();
+		for (String currentValueName : this.valueNames) {
+			objectValuePaths.add(this.getObjectValueSubPath(currentValueName));
+		}
+		return objectValuePaths;
+	}
+	
 	public DenotatorPath getObjectValuePathAt(int valueIndex) {
 		return this.getObjectValueSubPath(this.valueNames.get(valueIndex));
 	}
