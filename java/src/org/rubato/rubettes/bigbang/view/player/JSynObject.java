@@ -24,18 +24,19 @@ public class JSynObject {
 		this.modulators = new ArrayList<JSynObject>();
 		//assign standard values
 		this.setOnset(0);
-		this.setFrequency(60);
-		this.setAmplitude(100);
+		this.setPitch(60);
+		this.setLoudness(100);
 		this.setDuration(Double.MAX_VALUE);
 		this.setVoice(0);
 	}
 	
 	public void addValues(Form form, Map<String,Double> values) {
-		if (form.equals(CoolFormRegistrant.ONSET_FORM)) {
+		if (form.equals(CoolFormRegistrant.ONSET_FORM) || form.equals(CoolFormRegistrant.BEAT_CLASS_FORM)) {
 			this.setOnset(this.getSingleValue(values));
-		} else if (form.equals(CoolFormRegistrant.PITCH_FORM)) {
-			this.setPitch(this.getSingleValue(values));
-		} else if (form.equals(CoolFormRegistrant.CHROMATIC_PITCH_FORM)) {
+			if (form.equals(CoolFormRegistrant.BEAT_CLASS_FORM)) {
+				//TODO: loop
+			}
+		} else if (form.equals(CoolFormRegistrant.PITCH_FORM) || form.equals(CoolFormRegistrant.CHROMATIC_PITCH_FORM)) {
 			this.setPitch(this.getSingleValue(values));
 		} else if (form.equals(CoolFormRegistrant.PITCH_CLASS_FORM)) {
 			this.setPitch(60+this.getSingleValue(values));
@@ -44,7 +45,7 @@ public class JSynObject {
 				this.setOvertoneFrequency(this.parent.getFrequencies().get(0), (int)this.getSingleValue(values));
 			}
 		} else if (form.equals(CoolFormRegistrant.LOUDNESS_FORM)) {
-			this.setAmplitude(this.getSingleValue(values));
+			this.setLoudness(this.getSingleValue(values));
 		} else if (form.equals(CoolFormRegistrant.DURATION_FORM)) {
 			this.setDuration(this.getSingleValue(values));
 		} else if (form.equals(CoolFormRegistrant.VOICE_FORM)) {
@@ -136,11 +137,15 @@ public class JSynObject {
 	public double getAmplitude() {
 		return this.amplitude;
 	}
-
-	private void setAmplitude(double loudness) {
+	
+	private void setLoudness(double loudness) {
 		loudness = Math.min(loudness, 127);
 		loudness = Math.max(loudness, 0);
-		this.amplitude = loudness/127;
+		this.setAmplitude(loudness/127);
+	}
+
+	private void setAmplitude(double amplitude) {
+		this.amplitude = amplitude;
 	}
 	
 	public double getDuration() {
@@ -183,7 +188,7 @@ public class JSynObject {
 	}
 	
 	public String toString() {
-		return "(" + this.onset + " " + this.frequencies + " " + this.offset + ")";
+		return "(" + this.onset + " " + this.frequencies + " " + this.amplitude + " " + this.offset + ")";
 	}
 
 }

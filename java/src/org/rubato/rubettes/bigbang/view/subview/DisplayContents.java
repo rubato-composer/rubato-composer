@@ -202,9 +202,12 @@ public class DisplayContents {
 	
 	public int getTimeAxisIndex() {
 		//TODO: take "Onset R" from somewhere
-		int onsetValueIndex = this.displayObjects.getValueNames().indexOf("Onset R");
-		if (onsetValueIndex != -1) {
-			int onsetParameterIndex = this.viewParameters.getFirstIndexOfValue(onsetValueIndex);
+		int timeValueIndex = this.displayObjects.getValueNames().indexOf("Onset R");
+		if (timeValueIndex == -1) {
+			timeValueIndex = this.displayObjects.getValueNames().indexOf("BeatClass Z_16");
+		}
+		if (timeValueIndex != -1) {
+			int onsetParameterIndex = this.viewParameters.getFirstIndexOfValue(timeValueIndex);
 			if (onsetParameterIndex < 2) {
 				return onsetParameterIndex;
 			}

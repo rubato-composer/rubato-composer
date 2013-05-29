@@ -48,16 +48,16 @@ public class CoolFormRegistrant {
 		LimitForm pitchClassNote = this.registerLimitForm("PitchClassNote", ONSET_FORM, PITCH_CLASS_FORM, LOUDNESS_FORM, DURATION_FORM, VOICE_FORM);
 		this.registerPowerForm("PitchClassScore", pitchClassNote);
 		
+		//BeatClass
+		BEAT_CLASS_FORM = this.registerZnModuleForm("BeatClass", 16);
+		LimitForm beatclassNote = this.registerLimitForm("BeatClassNote", BEAT_CLASS_FORM, PITCH_FORM, LOUDNESS_FORM, DURATION_FORM, VOICE_FORM);
+		this.registerPowerForm("BeatClassScore", beatclassNote);
+		
 		//Triad
 		CHROMATIC_PITCH_FORM = this.registerZModuleForm("ChromaticPitch");
 		QUALITY_FORM = this.registerZnModuleForm("TriadQuality", 4);
 		LimitForm triad = this.registerLimitForm("Triad", CHROMATIC_PITCH_FORM, QUALITY_FORM);
 		this.registerPowerForm("Triads", triad);
-		
-		//BeatClass
-		BEAT_CLASS_FORM = this.registerZnModuleForm("BeatClass", 16);
-		LimitForm beatclassNote = this.registerLimitForm("BeatClassNote", BEAT_CLASS_FORM, PITCH_FORM, LOUDNESS_FORM, DURATION_FORM, VOICE_FORM);
-		this.registerPowerForm("BeatClassScore", beatclassNote);
 	}
 	
 	public void registerSoundForms() {
