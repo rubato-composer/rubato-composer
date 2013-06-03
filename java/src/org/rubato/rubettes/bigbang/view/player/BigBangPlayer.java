@@ -2,7 +2,6 @@ package org.rubato.rubettes.bigbang.view.player;
 
 public class BigBangPlayer extends Thread {
 	
-	private final int DELAY = 300;
 	public static final int MIN_BPM = 1;
 	public static final int MAX_BPM = 1000;
 	public static final int INITIAL_BPM = 100;
@@ -14,18 +13,12 @@ public class BigBangPlayer extends Thread {
 	
 	private JSynScore score;
 	private int bpm;
-	private String waveform;
 	
 	public BigBangPlayer() {
-		this.init();
-	}
-	
-	private void init() {
 		this.player = new JSynPlayer();
+		this.setTempo(this.bpm);
 		this.setWaveform(JSynPlayer.WAVEFORMS[0]);
 		this.startingTime = 0;
-		this.isRunning = true;
-		this.start();
 	}
 	
 	public synchronized void setScore(JSynScore score) {
@@ -44,41 +37,34 @@ public class BigBangPlayer extends Thread {
 	}
 	
 	public synchronized void startPlaying() {
-		this.startPlaying(this.score, System.currentTimeMillis() + this.DELAY);
+		this.startPlaying(System.currentTimeMillis());
 	}
 	
-	private synchronized void startPlaying(JSynScore score, long startingTime) {
+	private synchronized void startPlaying(long startingTime) {
+		if (!this.isRunning) {
+			this.isRunning = true;
+			this.start();
+		}
 		this.startingTime = startingTime;
-		this.score = score;
 	}
 	
 	public synchronized void playObject(JSynObject object) {
 		this.player.play(object);
 	}
 	
-	//TODO: make real-time tempo change and continuing play
-	//TODO: WHY WITH THREAD????
 	public void run() {
 		while(this.isRunning) {
-			try { Thread.sleep(100); } catch (InterruptedException e) {}
-			if (this.startingTime != 0 && System.currentTimeMillis() >= this.startingTime) {
-				if (this.score != null) {
-					this.resetPlayer();
-					this.player.play(this.score);
-				}
+			try { Thread.sleep(100); } catch (InterruptedException e) { } //e.printStackTrace(); }
+			if (this.startingTime != 0 && System.currentTimeMillis() >= this.startingTime
+					&& this.score != null && !this.player.isPlaying()) {
+				this.player.play(this.score);
 			}
 		}
 	}
 	
-	public void resetPlayer() {
-		this.stopPlaying();
-		this.player = new JSynPlayer();
-		this.player.setTempo(this.bpm);
-		this.player.setWaveform(this.waveform);
-	}
-	
 	public void stopPlaying() {
 		this.player.stopPlaying();
+		this.interrupt(); //interrupt to stop thread and stop looping immediately in jsynplayer
 		this.startingTime = 0;
 	}
 	
@@ -88,8 +74,6 @@ public class BigBangPlayer extends Thread {
 	}
 	
 	public void setWaveform(String waveform) {
-		this.stopPlaying();
-		this.waveform = waveform;
 		this.player.setWaveform(waveform);
 	}
 

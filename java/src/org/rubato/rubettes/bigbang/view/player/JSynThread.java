@@ -72,7 +72,7 @@ class JSynThread extends Thread {
 			double nextOnset = nextNote.getOnset();
 			
 			// try to start in sync TODO: MAYBE PUT BACK TO JSYNPLAYER??
-			this.player.getSynth().sleepUntil(this.player.getSynthTime(nextNote.getOnset()) - JSynPlayer.DEFAULT_ADVANCE);
+			this.player.getSynth().sleepUntil(this.player.getSynthOnset(nextNote.getOnset()) - JSynPlayer.DEFAULT_ADVANCE);
 			
 			while(this.group.isRunning()) {
 				
@@ -85,7 +85,7 @@ class JSynThread extends Thread {
 					/* Advance nextTime by fixed amount. */
 					nextOnset = nextNote.getOnset();
 					/* sleep until advanceTime BEFORE we have to play the next note */
-					this.player.getSynth().sleepUntil(this.player.getSynthTime(nextOnset) - JSynPlayer.DEFAULT_ADVANCE);
+					this.player.getSynth().sleepUntil(this.player.getSynthOnset(nextOnset) - JSynPlayer.DEFAULT_ADVANCE);
 				} else {
 					break;
 				}
@@ -101,7 +101,7 @@ class JSynThread extends Thread {
 		boolean foundOneToAdjust = false;
 		while (this.objectIterator.hasNext()) {
 			JSynObject currentNote = this.objectIterator.next();
-			if (currentNote.getOnset() < this.player.getCurrentSymbolicTime()) {
+			if (currentNote.getOnset() < this.player.getCurrentSymbolicTime() && !this.player.isLooping()) {
 				this.module.playOrAdjustObject(currentNote);
 				foundOneToAdjust = true;
 			} else {

@@ -37,8 +37,8 @@ public class JSynPlayerTest extends TestCase {
 		modulator.setAmplitude(100);
 		
 		lineOut.start();
-		carrier.queueEnvelope(1, player.getCurrentSynthTime());
-		modulator.queueEnvelope(1, player.getCurrentSynthTime());
+		carrier.queueEnvelope(1, player.getCurrentSynthTime(), true);
+		modulator.queueEnvelope(1, player.getCurrentSynthTime(), true);
 		synth.sleepFor(0.5);
 		carrier.setFrequency(1000);
 		carrier.setAmplitude(0.5);

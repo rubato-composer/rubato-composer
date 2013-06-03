@@ -64,12 +64,34 @@ public class JSynObject {
 		return !noIntersection;
 	}
 	
+	/**
+	 * sets onset and adjusts offset to match the object's duration
+	 */
 	public void setOnset(double onset) {
 		this.onset = onset;
+		if (this.duration != null) {
+			this.offset = onset + this.duration;
+		}
 	}
 	
 	public double getOnset() {
 		return this.onset;
+	}
+	
+	/*
+	 * sets duration and adjusts offset
+	 */
+	private void setDuration(double duration) {
+		this.duration = duration;
+		this.offset = this.onset + duration;
+	}
+	
+	public double getDuration() {
+		return this.duration;
+	}
+	
+	public double getOffset() {
+		return this.offset;
 	}
 	
 	public double getMainFrequency() {
@@ -115,6 +137,10 @@ public class JSynObject {
 		this.frequencies.add(frequency);
 	}
 	
+	private void setFrequencies(List<Double> frequencies) {
+		this.frequencies = frequencies;
+	}
+	
 	private void updateFrequencies() {
 		if (this.intervalStructure != null) {
 			double currentFrequency = this.frequencies.get(0);
@@ -148,19 +174,6 @@ public class JSynObject {
 		this.amplitude = amplitude;
 	}
 	
-	public double getDuration() {
-		return this.duration;
-	}
-
-	private void setDuration(double duration) {
-		this.offset = this.onset + duration;
-		this.duration = duration;
-	}
-	
-	public double getOffset() {
-		return this.offset;
-	}
-	
 	public int getVoice() {
 		return this.voice;
 	}
@@ -185,6 +198,17 @@ public class JSynObject {
 	
 	public List<JSynObject> getModulators() {
 		return this.modulators;
+	}
+	
+	//TODO: IMPROVE!!!
+	public JSynObject clone() {
+		JSynObject clone = new JSynObject(this.parent);
+		clone.setOnset(this.onset);
+		clone.setFrequencies(this.frequencies);
+		clone.setAmplitude(this.amplitude);
+		clone.setDuration(this.duration);
+		clone.setVoice(voice);
+		return clone;
 	}
 	
 	public String toString() {
