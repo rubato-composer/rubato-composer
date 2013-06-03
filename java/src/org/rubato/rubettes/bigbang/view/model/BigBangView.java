@@ -227,12 +227,12 @@ public class BigBangView extends Model implements View {
 	}
 	
 	public void togglePlayMode() {
-		this.playingActive = !this.playingActive;
-		if (this.playingActive) {
+		if (!this.playingActive) {
 			this.player.startPlaying();
 		} else {
 			this.player.stopPlaying();
 		}
+		this.playingActive = !this.playingActive;
 		this.panel.toggleTimedRepaint();
 		this.firePropertyChange(ViewController.PLAY_MODE, null, this.playingActive);
 	}

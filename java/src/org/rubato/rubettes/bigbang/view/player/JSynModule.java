@@ -54,8 +54,13 @@ public class JSynModule {
 		//adjust or schedule time
 		double currentSymbolicTime = this.player.getCurrentSymbolicTime();
 		if (object.getOnset() > currentSymbolicTime) {
+			double onset = this.player.getSynthOnset(object.getOnset());
 			double duration = this.player.convertToSynthDuration(object.getDuration());
-			oscillator.queueEnvelope(duration, this.player.convertToSynthOnset(object.getOnset()));
+			oscillator.queueEnvelope(duration, onset, true);
+		} else if (this.player.isLooping()) {
+			double onset = this.player.getSynthOnset(object.getOnset());
+			double duration = this.player.convertToSynthDuration(object.getDuration());
+			oscillator.queueEnvelope(duration, onset, false);
 		} else {
 			double remainingDuration = this.player.convertToSynthDuration(object.getDuration()-(currentSymbolicTime-object.getOnset()));
 			if (remainingDuration > 0) {

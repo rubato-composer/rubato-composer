@@ -86,21 +86,23 @@ public class SmoothOscillator {
 			duration-this.ATTACK, 0.7, // Sustain
 			this.RELEASE, 0.0 // Release
 		};
-		this.queueEnvelope(envelopeData, onset);
+		this.queueEnvelope(envelopeData, onset, true);
 	}
 	
-	public void queueEnvelope(double duration, double onset) {
+	public void queueEnvelope(double duration, double onset, boolean override) {
 		double[] envelopeData = {
 		 	this.ATTACK, 1.0, // Attack
 		 	this.DECAY, 0.7,  // Decay
 		 	duration-(this.ATTACK+this.DECAY), 0.7, // Sustain
 		 	this.RELEASE, 0.0 // Release
 		};
-		this.queueEnvelope(envelopeData, onset);
+		this.queueEnvelope(envelopeData, onset, override);
 	}
 	
-	private void queueEnvelope(double[] envelopeData, double onset) {
-		this.envelopePlayer.dataQueue.clear();
+	private void queueEnvelope(double[] envelopeData, double onset, boolean override) {
+		if (override) {
+			this.envelopePlayer.dataQueue.clear();
+		}
 	 	SegmentedEnvelope envelope = new SegmentedEnvelope(envelopeData);
 	 	this.envelopePlayer.dataQueue.queue(envelope, 0, envelope.getNumFrames(), new TimeStamp(onset));
 	 	this.envelopePlayer.start();
@@ -108,6 +110,7 @@ public class SmoothOscillator {
 	
 	public void mute() {
 		this.amplitudeSweeper.input.set(0);
+		this.envelopePlayer.dataQueue.clear();
 	}
 
 }
