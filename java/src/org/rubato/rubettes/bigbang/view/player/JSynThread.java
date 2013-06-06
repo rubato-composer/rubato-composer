@@ -13,6 +13,7 @@ class JSynThread extends Thread {
 	private List<JSynObject> objects;
 	private Iterator<JSynObject> objectIterator;
 	private int voice;
+	private boolean playInNextLoop;
 	
 	public JSynThread(JSynPlayer player, JSynObject object) {
 		this.player = player;
@@ -23,6 +24,10 @@ class JSynThread extends Thread {
 	
 	public void setGroup(JSynThreadGroup group) {
 		this.group = group;
+	}
+	
+	public void setPlayInNextLoop(boolean playInNextLoop) {
+		this.playInNextLoop = playInNextLoop;
 	}
 	
 	public void addObject(JSynObject object) {
@@ -59,10 +64,6 @@ class JSynThread extends Thread {
 		}
 		return false;
 	}
-	
-	public double getLastOffset() {
-		return this.objects.get(this.objects.size()-1).getOffset();
-	}
 
 	public void playNotes() throws InterruptedException {
 		
@@ -71,13 +72,13 @@ class JSynThread extends Thread {
 		if (nextNote != null) {
 			double nextOnset = nextNote.getOnset();
 			
-			// try to start in sync TODO: MAYBE PUT BACK TO JSYNPLAYER??
-			this.player.getSynth().sleepUntil(this.player.getSynthOnset(nextNote.getOnset()) - JSynPlayer.DEFAULT_ADVANCE);
+			//System.out.println("sleep " + nextNote.toString() + " " + this.player.getSynthOnset(nextNote.getOnset(), this.playInNextLoop) + " " + this.player.getCurrentSynthTime());
+			this.player.getSynth().sleepUntil(this.player.getSynthOnset(nextNote.getOnset(), this.playInNextLoop) - JSynPlayer.DEFAULT_ADVANCE);
 			
 			while(this.group.isRunning()) {
 				
 				/* Play a note at the specified time. */
-				this.module.playOrAdjustObject(nextNote);
+				this.module.playOrAdjustObject(nextNote, this.playInNextLoop);
 				
 				if (objectIterator.hasNext()) {
 					nextNote = objectIterator.next();
@@ -85,11 +86,13 @@ class JSynThread extends Thread {
 					/* Advance nextTime by fixed amount. */
 					nextOnset = nextNote.getOnset();
 					/* sleep until advanceTime BEFORE we have to play the next note */
-					this.player.getSynth().sleepUntil(this.player.getSynthOnset(nextOnset) - JSynPlayer.DEFAULT_ADVANCE);
+					//System.out.println("sleep2 " + nextNote.toString() + " " + this.player.getSynthOnset(nextNote.getOnset(), this.playInNextLoop) + " " + this.player.getCurrentSynthTime());
+					this.player.getSynth().sleepUntil(this.player.getSynthOnset(nextOnset, this.playInNextLoop) - JSynPlayer.DEFAULT_ADVANCE);
 				} else {
 					break;
 				}
 			}
+			//System.out.println("done " + nextNote.toString() + " " + this.player.getCurrentSynthTime());
 		}
 	}
 	
@@ -101,8 +104,10 @@ class JSynThread extends Thread {
 		boolean foundOneToAdjust = false;
 		while (this.objectIterator.hasNext()) {
 			JSynObject currentNote = this.objectIterator.next();
-			if (currentNote.getOnset() < this.player.getCurrentSymbolicTime() && !this.player.isLooping()) {
-				this.module.playOrAdjustObject(currentNote);
+			double currentOnset = currentNote.getOnset();
+			double currentSymbolicTime = this.player.getCurrentSymbolicTime();
+			if (currentOnset < currentSymbolicTime && !this.playInNextLoop) {
+				this.module.playOrAdjustObject(currentNote, false);
 				foundOneToAdjust = true;
 			} else {
 				if (!foundOneToAdjust) {

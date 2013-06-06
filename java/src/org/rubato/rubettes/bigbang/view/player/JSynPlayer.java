@@ -29,31 +29,54 @@ public class JSynPlayer {
 	
 	public static final String[] WAVEFORMS = {"Sine", "Square", "Sawtooth", "Triangle"};
 	
+	//TODO: unite at some point
+	private BigBangPlayer bbPlayer;
 	private Synthesizer synth;
+	private JSynScore score;
 	private JSynThreadGroup threads;
 	private List<JSynModule> modules;
 	private String waveform;
-	private double synthTimeAtLastTempoChange;
-	private double symbolicTimeAtLastTempoChange;
+	private double synthTimeAtStartOrChange;
+	private double symbolicTimeAtStartOrChange;
 	private double tempo; //in bpm
 	private boolean isLooping;
-	private double synthTimeAtStart;
 	private double loopOnset;
 	private double loopDuration;
 	private boolean isPlaying;
 	
-	public JSynPlayer() {
+	public JSynPlayer(BigBangPlayer bbPlayer) {
+		this.bbPlayer = bbPlayer;
 		this.synth = JSyn.createSynthesizer();
 		//this.synth.add( lag = new LinearRamp() );
-		this.threads = new JSynThreadGroup();
+		this.threads = new JSynThreadGroup(false);
 		this.modules = new ArrayList<JSynModule>();
 		this.setWaveform(JSynPlayer.WAVEFORMS[0]);
-		this.synthTimeAtLastTempoChange = 0;
-		this.symbolicTimeAtLastTempoChange = 0;
-		this.isLooping = true;
+		this.synthTimeAtStartOrChange = 0;
+		this.symbolicTimeAtStartOrChange = 0;
+		this.isLooping = false;
 		this.isPlaying = false;
+	}
+	
+	private void setScore(JSynScore score) {
+		this.score = score;
 		//standard loop is entire score
-		this.loopOnset = 0;
+		this.loopOnset = score.getObjects().get(0).getOnset();
+		this.loopDuration = this.getLastOffset()-this.loopOnset;
+		//System.out.println("LOOP "+ this.loopOnset + " " + this.getLastOffset() + " " + this.loopDuration);
+		this.bbPlayer.interrupt();
+	}
+	
+	public void replaceScore(JSynScore score) {
+		if (this.isPlaying) {
+			this.updateStartOrChangeTimes();
+			this.setScore(score);
+			JSynThreadGroup newThreads = this.generateThreads(false);
+			this.allocateModules(newThreads);
+			this.threads.stop();
+			this.threads = newThreads;
+			//System.out.println("replace " + this.score + " " + this.getCurrentSynthTime());
+		}
+		this.threads.start();
 	}
 	
 	public void setIsLooping(boolean isLooping) {
@@ -62,6 +85,32 @@ public class JSynPlayer {
 	
 	public boolean isLooping() {
 		return this.isLooping;
+	}
+	
+	public void setTempo(int bpm) {
+		this.tempo = bpm;
+		this.updateStartOrChangeTimes();
+		this.threads.interrupt();
+		this.bbPlayer.interrupt();
+	}
+	
+	public void setPlaybackPosition(double playbackPosition) {
+		this.symbolicTimeAtStartOrChange = playbackPosition;
+		this.synthTimeAtStartOrChange = this.getCurrentSynthTime();
+		this.restartPlaying();
+	}
+	
+	private void updateStartOrChangeTimes() {
+		//symbolic time has to update first since it uses previous synthTimeAtStartOrTempoChange!!!!!
+		this.symbolicTimeAtStartOrChange = this.getCurrentSymbolicTime();
+		this.synthTimeAtStartOrChange = this.getCurrentSynthTime();
+		//System.out.println("T "+this.symbolicTimeAtStartOrChange + " " + this.synthTimeAtStartOrChange);
+		//TODO: restartPlaying()????!!!!???
+	}
+	
+	private void restartPlaying() {
+		this.stopPlaying();
+		this.play(this.score);
 	}
 	
 	public void addToSynth(UnitGenerator generator) {
@@ -77,18 +126,19 @@ public class JSynPlayer {
 	}
 	
 	public double getCurrentSymbolicTime() {
-		double timeSinceLastTempoChange = this.getCurrentSynthTime()-this.synthTimeAtLastTempoChange-this.synthTimeAtStart;
-		double currentSymbolicTime = this.symbolicTimeAtLastTempoChange+(this.convertToSymbolicDuration(timeSinceLastTempoChange));
+		double timeSinceLastTempoChange = this.getCurrentSynthTime()-this.synthTimeAtStartOrChange;
+		double currentSymbolicTime = this.symbolicTimeAtStartOrChange+this.convertToSymbolicDuration(timeSinceLastTempoChange);
 		if (this.isLooping && this.getLastOffset() > 0) {
-			currentSymbolicTime = (currentSymbolicTime % this.loopDuration) + this.loopOnset; 
+			currentSymbolicTime = ((currentSymbolicTime-this.loopOnset) % this.loopDuration) + this.loopOnset; 
 		}
 		return currentSymbolicTime;
 	}
 	
-	public double getSynthOnset(double symbolicOnset) {
+	public double getSynthOnset(double symbolicOnset, boolean inNextLoop) {
 		double synthOnsetFromNow;
-		if (this.isLooping && symbolicOnset < this.getCurrentSymbolicTime()) {
-			synthOnsetFromNow = this.convertToSynthDuration(this.loopDuration - this.getCurrentSymbolicTime() + symbolicOnset - this.loopOnset);
+		if (inNextLoop && symbolicOnset < this.getCurrentSymbolicTime()) {
+			synthOnsetFromNow = this.convertToSynthDuration(this.loopDuration - (this.getCurrentSymbolicTime()-this.loopOnset) + symbolicOnset-this.loopOnset);
+			//System.out.println(this.loopDuration + " " + this.getCurrentSymbolicTime() + " " + symbolicOnset + " " + this.loopOnset + " " + synthOnsetFromNow);
 		} else {
 			synthOnsetFromNow = this.convertToSynthDuration(symbolicOnset - this.getCurrentSymbolicTime());
 		}
@@ -107,6 +157,7 @@ public class JSynPlayer {
 	 * Setup synthesis by overriding start() method.
 	 */
 	public void play(JSynScore score) {
+		this.setScore(score);
 		if (!this.isPlaying) {
 			if (!this.synth.isRunning()) {
 				this.synth.start(JSynPlayer.SAMPLE_RATE, AudioDeviceManager.USE_DEFAULT_DEVICE, 2, AudioDeviceManager.USE_DEFAULT_DEVICE, 2);
@@ -117,32 +168,45 @@ public class JSynPlayer {
 		
 		this.isPlaying = true;
 		
-		this.synthTimeAtStart = this.getCurrentSynthTime();
+		this.synthTimeAtStartOrChange = this.getCurrentSynthTime();
 		
-		this.threads = this.generateThreads(score);
+		this.threads = this.generateThreads(false);
 		this.allocateModules(this.threads);
 		this.threads.start();
+		//System.out.println("play "+ this.score + " "  + this.getCurrentSynthTime());
 		
 		if (this.isLooping) {
-			this.loopDuration = this.getLastOffset();
+			this.symbolicTimeAtStartOrChange = this.loopOnset;
 			double timeOfNextLoop = this.getCurrentSynthTime();
 			
 			while (this.isLooping && this.isPlaying) {
-				timeOfNextLoop += this.convertToSynthDuration(this.loopDuration);
+				double currentLoopDuration = this.convertToSynthDuration(this.loopDuration);
+				timeOfNextLoop += currentLoopDuration;
 				
-				try {
-					this.synth.sleepUntil(timeOfNextLoop - JSynPlayer.DEFAULT_ADVANCE);
-				} catch (InterruptedException e) {
-					this.threads.stop();
-					return;
+				while (timeOfNextLoop - JSynPlayer.DEFAULT_ADVANCE > this.getCurrentSynthTime()) {
+					try {
+						this.synth.sleepUntil(timeOfNextLoop - JSynPlayer.DEFAULT_ADVANCE);
+					} catch (InterruptedException e) {
+						if (this.isLooping && this.isPlaying) {
+							timeOfNextLoop -= currentLoopDuration;
+							currentLoopDuration = this.convertToSynthDuration(this.loopDuration);
+							timeOfNextLoop += currentLoopDuration;
+							//go back to sleep
+						} else {
+							this.threads.stop();
+							return;
+						}
+					}
 				}
 				
-				this.threads.stop();
-				this.threads = this.generateThreads(score);
+				//System.out.println("loop "+ this.score + " "  + this.getCurrentSynthTime());
+				//this.threads.stop();
+				this.threads = this.generateThreads(true);
 				this.allocateModules(this.threads);
 				this.threads.start();
 			}
 		}
+		//System.out.println("done "+ this.score + " "  + this.getCurrentSynthTime());
 	}
 	
 	/*
@@ -166,38 +230,22 @@ public class JSynPlayer {
 	   }
 	}
 	
-	public double getLastOffset() {
+	private double getLastOffset() {
 		double lastOffset = 0;
-		for (JSynThread currentThread : this.threads) {
-			lastOffset = Math.max(currentThread.getLastOffset(), lastOffset);
+		if (this.score != null) {
+			for (JSynObject currentObject : this.score.getObjects()) {
+				lastOffset = Math.max(currentObject.getOffset(), lastOffset);
+			}
 		}
 		return lastOffset;
-	}
-	
-	public void setTempo(int bpm) {
-		this.tempo = bpm;
-		this.symbolicTimeAtLastTempoChange = this.getCurrentSymbolicTime();
-		this.synthTimeAtLastTempoChange = this.synth.getCurrentTime();
-		this.threads.interrupt();
-	}
-	
-	public void replaceScore(JSynScore score) {
-		if (this.isPlaying) {
-			this.threads.stop();
-			//TODO: won't work.. 
-			JSynThreadGroup newThreads = this.generateThreads(score);
-			this.allocateModules(newThreads);
-			this.threads = newThreads;
-		}
-		this.threads.start();
 	}
 	
 	/*
 	 * generates threads based on copies of this score, adjusted to the given starting time
 	 */
-	private JSynThreadGroup generateThreads(JSynScore score) {
-		List<JSynObject> notes = score.getObjects();
-		JSynThreadGroup threads = new JSynThreadGroup();
+	private JSynThreadGroup generateThreads(boolean playInNextLoop) {
+		List<JSynObject> notes = this.score.getObjects();
+		JSynThreadGroup threads = new JSynThreadGroup(playInNextLoop);
 		if (notes.size() > 0) {
 			for (JSynObject currentNote : notes) {
 				JSynObject clone = currentNote.clone();
@@ -235,7 +283,7 @@ public class JSynPlayer {
 	}
 	
 	//reallocate sound modules in a way to get as few glitches as possible
-	private void allocateModules(JSynThreadGroup threads) {
+	private synchronized void allocateModules(JSynThreadGroup threads) {
 		
 		//order all voices by their distance from one of the module's playing pitch
 		TreeMap<Double,List<JSynModule>> remainingModules = new TreeMap<Double,List<JSynModule>>();

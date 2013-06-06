@@ -32,35 +32,32 @@ public class JSynModule {
 		return this.carriers.get(0).getFrequency();
 	}
 	
-	public void playOrAdjustObject(JSynObject object) {
-		this.playOrAdjustObject(object, 1);
+	public void playOrAdjustObject(JSynObject object, boolean playInNextLoop) {
+		this.playOrAdjustObject(object, 1, playInNextLoop);
 	}
 	
-	private void playOrAdjustObject(JSynObject object, int modulatorAmplitudeFactor) {
+	private void playOrAdjustObject(JSynObject object, int modulatorAmplitudeFactor, boolean playInNextLoop) {
 		for (int i = 0; i < object.getFrequencies().size(); i++) {
 			double currentFrequency = object.getFrequencies().get(i);
 			if (this.carriers.size() <= i) {
 				this.addCarrier();
 			}
-			this.playOrAdjustObject(this.carriers.get(i), object, currentFrequency, modulatorAmplitudeFactor);
+			this.playOrAdjustObject(this.carriers.get(i), object, currentFrequency, modulatorAmplitudeFactor, playInNextLoop);
 		}
 	}
 	
 	//recursive method
-	private void playOrAdjustObject(SmoothOscillator oscillator, JSynObject object, double frequency, int modulatorAmplitudeFactor) {
+	private void playOrAdjustObject(SmoothOscillator oscillator, JSynObject object, double frequency, int modulatorAmplitudeFactor, boolean playInNextLoop) {
+		//System.out.println(object + " " + this.player.getCurrentSymbolicTime() + " " + this.player.getCurrentSynthTime());
 		//adjust frequency and amplitude
 		oscillator.setFrequency(frequency);
 		oscillator.setAmplitude(object.getAmplitude()*this.player.getRecommendedAmplitude()*modulatorAmplitudeFactor);
 		//adjust or schedule time
 		double currentSymbolicTime = this.player.getCurrentSymbolicTime();
-		if (object.getOnset() > currentSymbolicTime) {
-			double onset = this.player.getSynthOnset(object.getOnset());
+		if (object.getOnset() > currentSymbolicTime || (object.getOnset() < currentSymbolicTime && playInNextLoop)) {
+			double onset = this.player.getSynthOnset(object.getOnset(), playInNextLoop);
 			double duration = this.player.convertToSynthDuration(object.getDuration());
 			oscillator.queueEnvelope(duration, onset, true);
-		} else if (this.player.isLooping()) {
-			double onset = this.player.getSynthOnset(object.getOnset());
-			double duration = this.player.convertToSynthDuration(object.getDuration());
-			oscillator.queueEnvelope(duration, onset, false);
 		} else {
 			double remainingDuration = this.player.convertToSynthDuration(object.getDuration()-(currentSymbolicTime-object.getOnset()));
 			if (remainingDuration > 0) {
@@ -78,7 +75,7 @@ public class JSynModule {
 				oscillator.addModulator();
 			}
 			//TODO: one modulator may have several frequencies! go through all
-			this.playOrAdjustObject(modulators.get(i), currentModulator, currentModulator.getMainFrequency(), 2000);
+			this.playOrAdjustObject(modulators.get(i), currentModulator, currentModulator.getMainFrequency(), 2000, playInNextLoop);
 		}
 		//TODO: remove exceeding ones!!!!
 	}

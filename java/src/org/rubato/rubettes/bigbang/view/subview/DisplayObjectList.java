@@ -18,6 +18,7 @@ import org.rubato.rubettes.bigbang.view.controller.ViewController;
 import org.rubato.rubettes.bigbang.view.model.DisplayObject;
 import org.rubato.rubettes.bigbang.view.model.LayerState;
 import org.rubato.rubettes.bigbang.view.model.LayerStates;
+import org.rubato.rubettes.bigbang.view.model.ViewParameters;
 import org.rubato.rubettes.util.DenotatorPath;
 import org.rubato.rubettes.util.DenotatorValueFinder;
 
@@ -502,6 +503,22 @@ public class DisplayObjectList extends TreeSet<DisplayObject> implements View {
 			int[] selectedMods = (int[])event.getNewValue();
 			this.updateModulatorVisibility(selectedMods[0], selectedMods[1]);
 		}
+	}
+	
+	//TODO: pretty lame, but used in two places: BigBangView and DisplayContents
+	public int getTimeAxisIndex(ViewParameters viewParameters) {
+		//TODO: take "Onset R" from somewhere
+		int timeValueIndex = this.getValueNames().indexOf("Onset R");
+		if (timeValueIndex == -1) {
+			timeValueIndex = this.getValueNames().indexOf("BeatClass Z_16");
+		}
+		if (timeValueIndex != -1) {
+			int onsetParameterIndex = viewParameters.getFirstIndexOfValue(timeValueIndex);
+			if (onsetParameterIndex < 2) {
+				return onsetParameterIndex;
+			}
+		}
+		return -1;
 	}
 
 }

@@ -4,21 +4,30 @@ import java.util.ArrayList;
 
 public class JSynThreadGroup extends ArrayList<JSynThread> {
 	
-	private boolean isRunning = false;
+	private boolean playInNextLoop;
+	private boolean isRunning;
+	
+	public JSynThreadGroup(boolean playInNextLoop) {
+		this.playInNextLoop = playInNextLoop;
+		this.isRunning = false;
+	}
 	
 	public boolean add(JSynThread thread) {
 		boolean added = super.add(thread);
 		thread.setGroup(this);
+		thread.setPlayInNextLoop(this.playInNextLoop);
 		if (this.isRunning) {
 			thread.start();
 		}
 		return added;
 	}
 	
-	public void start() {
+	public synchronized void start() {
 		this.isRunning = true;
 		for (JSynThread currentThread : this) {
-			currentThread.start();
+			if (currentThread.getState().equals(Thread.State.NEW)) {
+				currentThread.start();
+			}
 		}
 	}
 	
