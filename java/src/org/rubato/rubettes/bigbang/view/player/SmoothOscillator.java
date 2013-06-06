@@ -13,7 +13,7 @@ import com.softsynth.shared.time.TimeStamp;
 
 public class SmoothOscillator {
 	
-	private final double RAMP_DURATION = .02;
+	private final double RAMP_DURATION = .007;
 	private final double ATTACK = 0.002;
 	private final double DECAY = 0.03;
 	private final double RELEASE = 0.1;
@@ -81,6 +81,7 @@ public class SmoothOscillator {
 	}
 	
 	public void queueEnvelopeWithoutAttackAndDecay(double duration, double onset) {
+		//System.out.println("WO "+ onset + " " + duration);
 		double[] envelopeData = {
 			this.ATTACK, 0.7,
 			duration-this.ATTACK, 0.7, // Sustain
@@ -90,6 +91,7 @@ public class SmoothOscillator {
 	}
 	
 	public void queueEnvelope(double duration, double onset, boolean override) {
+		//System.out.println("AD "+ onset + " " + duration);
 		double[] envelopeData = {
 		 	this.ATTACK, 1.0, // Attack
 		 	this.DECAY, 0.7,  // Decay

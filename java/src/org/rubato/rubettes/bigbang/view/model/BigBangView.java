@@ -721,9 +721,23 @@ public class BigBangView extends Model implements View {
 		}
 	}*/
 	
+	public void setIsLooping(Boolean isLooping) {
+		this.player.setIsLooping(isLooping);
+		this.firePropertyChange(ViewController.IS_LOOPING, null, isLooping);
+	}
+	
 	public void setTempo(Integer tempo) {
 		this.player.setTempo(tempo);
 		this.firePropertyChange(ViewController.TEMPO, null, tempo);
+	}
+	
+	public void setPlaybackPosition(Point2D.Double location) {
+		int timeAxisIndex = this.getTimeAxisIndex();
+		if (timeAxisIndex != -1) {
+			double[] xyDenotatorValues = this.getXYDenotatorValues(location);
+			System.out.println("POS!!!! " + xyDenotatorValues[timeAxisIndex]);
+			this.player.setPlaybackPosition(xyDenotatorValues[timeAxisIndex]);
+		}
 	}
 	
 	public void setFMModel(String fmModel) {
@@ -734,6 +748,10 @@ public class BigBangView extends Model implements View {
 	public void setWaveform(String waveform) {
 		this.player.setWaveform(waveform);
 		this.firePropertyChange(ViewController.WAVEFORM, null, waveform);
+	}
+	
+	private int getTimeAxisIndex() {
+		return this.displayNotes.getTimeAxisIndex(this.viewParameters);
 	}
 
 }

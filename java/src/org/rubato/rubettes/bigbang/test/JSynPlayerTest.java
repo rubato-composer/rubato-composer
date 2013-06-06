@@ -1,5 +1,6 @@
 package org.rubato.rubettes.bigbang.test;
 
+import org.rubato.rubettes.bigbang.view.player.BigBangPlayer;
 import org.rubato.rubettes.bigbang.view.player.JSynPlayer;
 import org.rubato.rubettes.bigbang.view.player.SmoothOscillator;
 
@@ -19,7 +20,7 @@ public class JSynPlayerTest extends TestCase {
 	}
 	
 	public void testSmoothOscillator() throws InterruptedException {
-		JSynPlayer player = new JSynPlayer();
+		JSynPlayer player = new JSynPlayer(new BigBangPlayer());
 		Synthesizer synth = player.getSynth();
 		synth.start(JSynPlayer.SAMPLE_RATE, AudioDeviceManager.USE_DEFAULT_DEVICE, 2, AudioDeviceManager.USE_DEFAULT_DEVICE, 2);
 		LineOut lineOut = new LineOut();

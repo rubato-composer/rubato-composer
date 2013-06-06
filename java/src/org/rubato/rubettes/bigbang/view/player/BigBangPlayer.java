@@ -3,7 +3,7 @@ package org.rubato.rubettes.bigbang.view.player;
 public class BigBangPlayer extends Thread {
 	
 	public static final int MIN_BPM = 1;
-	public static final int MAX_BPM = 1000;
+	public static final int MAX_BPM = 5000;
 	public static final int INITIAL_BPM = 100;
 	
 	
@@ -15,7 +15,7 @@ public class BigBangPlayer extends Thread {
 	private int bpm;
 	
 	public BigBangPlayer() {
-		this.player = new JSynPlayer();
+		this.player = new JSynPlayer(this);
 		this.setTempo(this.bpm);
 		this.setWaveform(JSynPlayer.WAVEFORMS[0]);
 		this.startingTime = 0;
@@ -68,9 +68,17 @@ public class BigBangPlayer extends Thread {
 		this.startingTime = 0;
 	}
 	
+	public void setIsLooping(boolean isLooping) {
+		this.player.setIsLooping(isLooping);
+	}
+	
 	public void setTempo(int bpm) {
 		this.bpm = bpm;
 		this.player.setTempo(bpm);
+	}
+	
+	public void setPlaybackPosition(double playbackPosition) {
+		this.player.setPlaybackPosition(playbackPosition);
 	}
 	
 	public void setWaveform(String waveform) {

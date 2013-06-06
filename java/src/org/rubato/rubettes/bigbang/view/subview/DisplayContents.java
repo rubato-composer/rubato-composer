@@ -1,7 +1,6 @@
 package org.rubato.rubettes.bigbang.view.subview;
 
 import java.awt.Point;
-import java.util.Map;
 
 import org.rubato.rubettes.bigbang.view.model.DisplayObject;
 import org.rubato.rubettes.bigbang.view.model.ViewParameter;
@@ -200,19 +199,9 @@ public class DisplayContents {
 		this.playbackLine.paint(painter);
 	}
 	
+	//TODO: also in BigBangView. find way to just have one!!!
 	public int getTimeAxisIndex() {
-		//TODO: take "Onset R" from somewhere
-		int timeValueIndex = this.displayObjects.getValueNames().indexOf("Onset R");
-		if (timeValueIndex == -1) {
-			timeValueIndex = this.displayObjects.getValueNames().indexOf("BeatClass Z_16");
-		}
-		if (timeValueIndex != -1) {
-			int onsetParameterIndex = this.viewParameters.getFirstIndexOfValue(timeValueIndex);
-			if (onsetParameterIndex < 2) {
-				return onsetParameterIndex;
-			}
-		}
-		return -1;
+		return this.displayObjects.getTimeAxisIndex(this.viewParameters);
 	}
 
 }

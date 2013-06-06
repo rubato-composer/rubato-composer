@@ -91,7 +91,9 @@ public class ViewController extends Controller {
 	
 	//playback feature
 	public static final String PLAY_MODE = "togglePlayMode";
+	public static final String IS_LOOPING = "setIsLooping";
 	public static final String TEMPO = "setTempo";
+	public static final String PLAYBACK_POSITION = "setPlaybackPosition";
 	public static final String FM_MODEL = "FMModel";
 	public static final String WAVEFORM = "Waveform";
 	
@@ -312,8 +314,16 @@ public class ViewController extends Controller {
 		this.callModelMethod(ViewController.PLAY_MODE);
 	}
 	
+	public void setIsLooping(boolean isLooping) {
+		this.callModelMethod(ViewController.IS_LOOPING, isLooping);
+	}
+	
 	public void setTempo(int tempo) {
 		this.callModelMethod(ViewController.TEMPO, tempo);
+	}
+	
+	public void setPlaybackPosition(Point2D.Double clickPosition) {
+		this.callModelMethod(ViewController.PLAYBACK_POSITION, clickPosition);
 	}
 	
 	public void changeFMModel(Object fmModel) {

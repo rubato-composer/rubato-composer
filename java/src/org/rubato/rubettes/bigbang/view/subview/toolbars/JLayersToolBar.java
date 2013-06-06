@@ -1,11 +1,14 @@
 package org.rubato.rubettes.bigbang.view.subview.toolbars;
 
 import java.awt.Dimension;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.beans.PropertyChangeEvent;
 import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JSlider;
 import javax.swing.JSpinner;
 import javax.swing.JToolBar;
@@ -21,10 +24,11 @@ import org.rubato.rubettes.bigbang.view.model.LayerState;
 import org.rubato.rubettes.bigbang.view.model.LayerStates;
 import org.rubato.rubettes.bigbang.view.player.BigBangPlayer;
 
-public class JLayersToolBar extends JToolBar implements View {
+public class JLayersToolBar extends JToolBar implements ActionListener, View {
 	
 	private ViewController controller;
 	private JButton playButton;
+	private JCheckBox isLoopingCheckBox;
 	private JSlider tempoSlider;
 	private JButton modFilterButton;
 	private List<JSpinner> modFilterSpinners;
@@ -35,6 +39,9 @@ public class JLayersToolBar extends JToolBar implements View {
 		controller.addView(this);
 		this.playButton = new JButton(new PlayButtonAction(controller));
 		this.add(this.playButton);
+		this.isLoopingCheckBox = new JCheckBox("Loop");
+		this.isLoopingCheckBox.addActionListener(this);
+		this.add(this.isLoopingCheckBox);
 		this.addTempoSlider();
 		this.addModFilterButtonAndSpinners();
 		this.layerButtons = new ArrayList<JLayerButton>();
@@ -74,6 +81,8 @@ public class JLayersToolBar extends JToolBar implements View {
 			this.updateLayerButtons(event);
 		} else if (propertyName.equals(ViewController.PLAY_MODE)) {
 			this.playButton.setSelected((Boolean)event.getNewValue());
+		} else if (propertyName.equals(ViewController.IS_LOOPING)) {
+			this.isLoopingCheckBox.setSelected((Boolean)event.getNewValue());
 		} else if (propertyName.equals(ViewController.TEMPO)) {
 			this.tempoSlider.setValue(this.convertToSliderValue((Integer)event.getNewValue()));
 		} else if (propertyName.equals(ViewController.TOGGLE_MOD_FILTER)) {
@@ -115,6 +124,12 @@ public class JLayersToolBar extends JToolBar implements View {
 	
 	private int convertToSliderValue(int value) {
 		return (int)Math.round(Math.sqrt((value)));
+	}
+
+	public void actionPerformed(ActionEvent event) {
+		if (event.getSource().equals(this.isLoopingCheckBox)) {
+			this.controller.setIsLooping(this.isLoopingCheckBox.isSelected());
+		}
 	}
 
 }
