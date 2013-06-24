@@ -11,8 +11,9 @@ public class DenotatorAnalyzer {
 	private ObjectGenerator generator = new ObjectGenerator();
 	
 	public double[] getMinAndMaxValue(PowerDenotator powerset, int valueIndex) {
+		//TODO: how to deal with colimits??????????
 		List<Denotator> factors = powerset.getFactors();
-		List<DenotatorPath> formValuePaths = new DenotatorValueFinder(factors.get(0).getForm(), false).getValuePathsInFoundOrder();
+		List<DenotatorPath> formValuePaths = new DenotatorValueFinder(factors.get(0), false).getValuePaths();
 		if (formValuePaths.size() > valueIndex) {
 			DenotatorPath valuePath = formValuePaths.get(valueIndex);
 			double currentMin = Double.MAX_VALUE;

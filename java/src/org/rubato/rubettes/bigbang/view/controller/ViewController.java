@@ -56,8 +56,8 @@ public class ViewController extends Controller {
 	
 	//score manipulation - denotators
 	public static final String STANDARD_DENOTATOR_VALUES = "setStandardDenotatorValue";
-	public static final String SELECTED_OBJECT = "setSelectedObject";
-	public static final String SELECTED_COLIMIT_COORDINATE = "setSelectedColimitCoordinate";
+	public static final String ACTIVE_OBJECT = "setActiveObject";
+	public static final String ACTIVE_COLIMIT_COORDINATE = "setActiveColimitCoordinate";
 	public static final String ADD_OBJECT = "addObject";
 	public static final String DELETE_OBJECTS = "deleteSelectedObjects";
 	public static final String COPY_NOTES = "copySelectedNotesTo";
@@ -134,12 +134,12 @@ public class ViewController extends Controller {
 		this.callModelMethod(ViewController.STANDARD_DENOTATOR_VALUES, index, value);
 	}
 	
-	public void setSelectedPowerset(int objectIndex) {
-		this.callModelMethod(ViewController.SELECTED_OBJECT, objectIndex);
+	public void setActiveObject(int objectIndex) {
+		this.callModelMethod(ViewController.ACTIVE_OBJECT, objectIndex);
 	}
 	
-	public void setSelectedColimitCoordinate(int colimitIndex, int coordinateIndex) {
-		this.callModelMethod(ViewController.SELECTED_COLIMIT_COORDINATE, colimitIndex, coordinateIndex);
+	public void setActiveColimitCoordinate(int colimitIndex, int coordinateIndex) {
+		this.callModelMethod(ViewController.ACTIVE_COLIMIT_COORDINATE, colimitIndex, coordinateIndex);
 	}
 	
 	public void showWindowPreferences() {

@@ -1,0 +1,144 @@
+package org.rubato.rubettes.util;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import org.rubato.math.module.Module;
+import org.rubato.math.module.ProductRing;
+import org.rubato.math.yoneda.ColimitForm;
+import org.rubato.math.yoneda.Form;
+import org.rubato.math.yoneda.PowerForm;
+import org.rubato.math.yoneda.SimpleForm;
+
+public class FormValueFinder {
+	
+	private List<String> distinctValueNames;
+	private List<String> coordinateSystemValueNames;
+	private List<DenotatorPath> allValuePaths; //TODO: implement!!!
+	//objects are the top-level denotator (if it is not a powerset) as well as elements of powersets
+	private List<DenotatorObject> objectsInFoundOrder;
+	private List<Form> objectForms;
+	private boolean formContainsColimits;
+	private boolean allowsForSatellites;
+	private final int MAX_SEARCH_DEPTH = 10;
+	
+	public FormValueFinder(Form form, boolean searchThroughPowersets) {
+		this.distinctValueNames = new ArrayList<String>();
+		this.objectsInFoundOrder = new ArrayList<DenotatorObject>();
+		this.objectForms = new ArrayList<Form>();
+		this.allowsForSatellites = false;
+		this.formContainsColimits = false;
+		DenotatorPath formPath = new DenotatorPath(form);
+		this.findValues(formPath, searchThroughPowersets, 0, new DenotatorObject(form, formPath));
+		this.updateCoordinateSystemValueNames();
+	}
+	
+	public List<String> getCoordinateSystemValueNames() {
+		return this.coordinateSystemValueNames;
+	}
+	
+	public int getObjectCount() {
+		return this.objectsInFoundOrder.size();
+	}
+	
+	public List<Form> getObjectForms() {
+		return this.objectForms;
+	}
+	
+	public DenotatorObject getObjectAt(int objectIndex) {
+		return this.objectsInFoundOrder.get(objectIndex);
+	}
+	
+	public boolean formAllowsForSatellites() {
+		return this.allowsForSatellites;
+	}
+	
+	public boolean formContainsColimits() {
+		return this.formContainsColimits;
+	}
+	
+	//recursive depth search, has to be the same as the one in DenotatorValueExtractor...
+	private void findValues(DenotatorPath currentPath, boolean searchThroughPowersets, int currentSearchDepth, DenotatorObject currentObject) {
+		if (currentSearchDepth < this.MAX_SEARCH_DEPTH) {
+			Form currentForm = currentPath.getEndForm();
+			if (currentPath.size() == 0 && currentForm.getType() != Form.POWER && currentForm.getType() != Form.LIST) {
+				this.addObject(currentObject);
+			}
+			if (currentForm.getType() == Form.SIMPLE) {
+				this.addValueNames(currentForm.getNameString(), ((SimpleForm)currentForm).getModule(), currentPath, "", currentObject);
+			} else if (currentForm.getType() == Form.LIMIT || currentForm.getType() == Form.COLIMIT) {
+				if (currentForm.getType() == Form.COLIMIT) {
+					this.formContainsColimits = true;
+					currentObject.addColimit((ColimitForm)currentForm, currentPath);
+				}
+				for (int i = 0; i < currentForm.getForms().size(); i++) {
+					this.findValues(currentPath.getChildPath(i), searchThroughPowersets, currentSearchDepth+1, currentObject);
+				}
+			} else if (searchThroughPowersets && (currentForm.getType() == Form.POWER || currentForm.getType() == Form.LIST)) {
+				Form childForm = ((PowerForm)currentForm).getForm();
+				DenotatorPath childPath = currentPath.getChildPath(0);
+				if (!this.objectForms.contains(childForm)) {
+					currentObject = new DenotatorObject(childForm, childPath);
+					this.addObject(currentObject);
+					this.findValues(childPath, searchThroughPowersets, currentSearchDepth+1, currentObject);
+				}
+				if (currentSearchDepth > 0) {
+					//TODO: actually, this should check if there are simples in the top object. otherwise they are
+					//technically not satellites...
+					this.allowsForSatellites = true;
+				}
+			}
+		}
+	}
+	
+	private void addObject(DenotatorObject object) {
+		this.objectsInFoundOrder.add(object);
+		this.objectForms.add(object.getForm());
+	}
+	
+	//recursively finds all values and their names
+	private void addValueNames(String simpleName, Module currentModule, DenotatorPath currentPath, String indexString, DenotatorObject currentObject) {
+		if (currentModule instanceof ProductRing) {
+			ProductRing productRing = (ProductRing)currentModule;
+			for (int i = 0; i < productRing.getFactorCount(); i++) {
+				if (!indexString.isEmpty()) indexString += ".";
+				this.addValueNames(simpleName, productRing.getFactor(i), currentPath.getChildPath(i), indexString+(i+1), currentObject);
+			}
+		} else if (currentModule.getDimension() > 1) {
+			for (int i = 0; i < currentModule.getDimension(); i++) {
+				if (!indexString.isEmpty()) indexString += ".";
+				//System.out.println(currentModule + " " + currentModule.getComponentModule(i) + " " + currentPath.getChildPath(i));
+				this.addValueNames(simpleName, currentModule.getComponentModule(i), currentPath.getChildPath(i), indexString+(i+1), currentObject);
+			}
+		} else {
+			String currentValueName = FormValueFinder.makeValueName(simpleName, currentModule, indexString);
+			currentObject.addValue(currentValueName, currentPath);
+			if (!this.distinctValueNames.contains(currentValueName)) {
+				this.distinctValueNames.add(currentValueName);
+			}
+		}
+	}
+	
+	private void updateCoordinateSystemValueNames() {
+		this.coordinateSystemValueNames = new ArrayList<String>();
+		for (String currentValueName : this.distinctValueNames) {
+			int currentMaxInstances = 0;
+			for (DenotatorObject currentObject : this.objectsInFoundOrder) {
+				currentMaxInstances = Math.max(currentObject.getMaxInstancesInConfigurations(currentValueName), currentMaxInstances);
+			}
+			for (int i = 0; i < currentMaxInstances; i++) {
+				this.coordinateSystemValueNames.add(currentValueName);
+			}
+		}
+	}
+	
+	public static String makeValueName(String simpleName, Module module, String indexString) {
+		String moduleName = indexString;
+		if (!indexString.isEmpty()) {
+			moduleName += " ";
+		}
+		moduleName += module.toVisualString();
+		return simpleName + " " + moduleName;
+	}
+
+}

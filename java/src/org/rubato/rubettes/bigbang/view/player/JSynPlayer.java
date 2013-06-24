@@ -95,9 +95,14 @@ public class JSynPlayer {
 	}
 	
 	public void setPlaybackPosition(double playbackPosition) {
-		this.symbolicTimeAtStartOrChange = playbackPosition;
-		this.synthTimeAtStartOrChange = this.getCurrentSynthTime();
-		this.restartPlaying();
+		//if (!this.isLooping) {
+			boolean restart = playbackPosition < this.symbolicTimeAtStartOrChange;
+			this.symbolicTimeAtStartOrChange = playbackPosition;
+			this.synthTimeAtStartOrChange = this.getCurrentSynthTime();
+			if (restart) {
+				this.restartPlaying();
+			}
+		//}
 	}
 	
 	private void updateStartOrChangeTimes() {
@@ -110,7 +115,29 @@ public class JSynPlayer {
 	
 	private void restartPlaying() {
 		this.stopPlaying();
-		this.play(this.score);
+		this.playScore();
+	}
+	
+	public boolean isPlaying() {
+		return this.isPlaying;
+	}
+
+  /*
+   * Clean up synthesis by overriding stop() method.
+   */
+	public void stopPlaying() {
+		if (this.isPlaying) {
+			this.isPlaying = false;
+			if (this.isLooping) {
+				this.bbPlayer.interrupt();
+			} else {
+				this.threads.stop(); // tell run() to exit peacefully
+			}
+			for (JSynModule currentModule : this.modules) {
+				currentModule.mute();
+			}
+			//this.synth.stop();
+		}
 	}
 	
 	public void addToSynth(UnitGenerator generator) {
@@ -152,12 +179,18 @@ public class JSynPlayer {
 	private double convertToSymbolicDuration(double synthDuration) {
 		return synthDuration/60*this.tempo;
 	}
-
-	/*
-	 * Setup synthesis by overriding start() method.
-	 */
+	
 	public void play(JSynScore score) {
 		this.setScore(score);
+		this.synthTimeAtStartOrChange = this.getCurrentSynthTime();
+		if (this.isLooping) {
+			this.symbolicTimeAtStartOrChange = this.loopOnset;
+		}
+		this.playScore();
+	}
+
+	private void playScore() {
+		System.out.println("play");
 		if (!this.isPlaying) {
 			if (!this.synth.isRunning()) {
 				this.synth.start(JSynPlayer.SAMPLE_RATE, AudioDeviceManager.USE_DEFAULT_DEVICE, 2, AudioDeviceManager.USE_DEFAULT_DEVICE, 2);
@@ -168,15 +201,12 @@ public class JSynPlayer {
 		
 		this.isPlaying = true;
 		
-		this.synthTimeAtStartOrChange = this.getCurrentSynthTime();
-		
 		this.threads = this.generateThreads(false);
 		this.allocateModules(this.threads);
 		this.threads.start();
-		//System.out.println("play "+ this.score + " "  + this.getCurrentSynthTime());
+		//System.out.println("play "+ this.score + " "  + this.getCurrentSynthTime() + " " + this.getCurrentSymbolicTime());
 		
 		if (this.isLooping) {
-			this.symbolicTimeAtStartOrChange = this.loopOnset;
 			double timeOfNextLoop = this.getCurrentSynthTime();
 			
 			while (this.isLooping && this.isPlaying) {
@@ -194,6 +224,7 @@ public class JSynPlayer {
 							//go back to sleep
 						} else {
 							this.threads.stop();
+							System.out.println("stop!!");
 							return;
 						}
 					}
@@ -369,24 +400,6 @@ public class JSynPlayer {
 			modules.remove(frequency);
 		}
 		return closestModule;
-	}
-	
-	public boolean isPlaying() {
-		return this.isPlaying;
-	}
-
-  /*
-   * Clean up synthesis by overriding stop() method.
-   */
-	public void stopPlaying() {
-		if (this.isPlaying) {
-			this.isPlaying = false;
-			this.threads.stop(); // tell run() to exit peacefully
-			for (JSynModule currentModule : this.modules) {
-				currentModule.mute();
-			}
-			//this.synth.stop();
-		}
 	}
 	
 	public void setWaveform(String waveform) {

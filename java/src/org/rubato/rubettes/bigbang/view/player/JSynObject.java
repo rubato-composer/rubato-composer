@@ -22,9 +22,10 @@ public class JSynObject {
 		this.parent = parent;
 		//TODO: modulators will just be children!!!!
 		this.modulators = new ArrayList<JSynObject>();
+		this.frequencies = new ArrayList<Double>();
 		//assign standard values
 		this.setOnset(0);
-		this.setPitch(60);
+		this.addPitch(60);
 		this.setLoudness(100);
 		this.setDuration(Double.MAX_VALUE);
 		this.setVoice(0);
@@ -37,9 +38,9 @@ public class JSynObject {
 				//TODO: loop
 			}
 		} else if (form.equals(CoolFormRegistrant.PITCH_FORM) || form.equals(CoolFormRegistrant.CHROMATIC_PITCH_FORM)) {
-			this.setPitch(this.getSingleValue(values));
+			this.addPitch(this.getSingleValue(values));
 		} else if (form.equals(CoolFormRegistrant.PITCH_CLASS_FORM)) {
-			this.setPitch(60+this.getSingleValue(values));
+			this.addPitch(60+this.getSingleValue(values));
 		} else if (form.equals(CoolFormRegistrant.OVERTONE_INDEX_FORM)) {
 			if (this.parent != null) {
 				this.setOvertoneFrequency(this.parent.getFrequencies().get(0), (int)this.getSingleValue(values));
@@ -102,8 +103,8 @@ public class JSynObject {
 		return this.frequencies;
 	}
 
-	private void setPitch(double pitch) {
-		this.setFrequency(this.midiToFrequency(pitch));
+	private void addPitch(double pitch) {
+		this.addFrequency(this.midiToFrequency(pitch));
 	}
 	
 	private void setTriadQuality(int quality) {
@@ -128,8 +129,8 @@ public class JSynObject {
 	}
 	
 	private void setFrequency(double frequency) {
-		this.frequencies = new ArrayList<Double>(); 
-		this.frequencies.add(frequency);
+		this.frequencies = new ArrayList<Double>();
+		this.addFrequency(frequency);
 		this.updateFrequencies();
 	}
 	

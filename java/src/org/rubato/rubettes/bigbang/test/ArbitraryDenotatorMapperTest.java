@@ -35,12 +35,9 @@ public class ArbitraryDenotatorMapperTest  extends TestCase {
 		ArbitraryDenotatorMapper mapper = new ArbitraryDenotatorMapper(this.translation, elementPaths);
 		LimitDenotator node = (LimitDenotator)this.objects.multiLevelMacroScore.get(new int[]{0});
 		LimitDenotator mappedNode = (LimitDenotator)mapper.getMappedDenotator(node);
-		//check if transformed properly
-		LimitDenotator expectedNode = this.objects.generator.createNodeDenotator(new double[]{-1,58,120,1,0,0});
+		//check if transformed properly and satellites still there and unchanged
+		LimitDenotator expectedNode = this.objects.createMultilevelNode(new double[][]{{-1,58,120,1,0,0},{1,3,-4,0,0,0},{1,-3,5,0,1,0}});
 		this.objects.assertEqualDenotators(mappedNode, expectedNode);
-		//check, if satellites still there and unchanged
-		this.objects.assertEqualDenotators(mappedNode.get(new int[]{1,0}), this.objects.node1Relative);
-		this.objects.assertEqualDenotators(mappedNode.get(new int[]{1,0,1,0}), this.objects.node2Relative);
 		//check if layer unchanged
 		TestCase.assertEquals(mappedNode.getElement(new int[]{0,5,0}), new ZElement(0));
 	}

@@ -58,6 +58,7 @@ public class BigBangPlayer extends Thread {
 			if (this.startingTime != 0 && System.currentTimeMillis() >= this.startingTime
 					&& this.score != null && !this.player.isPlaying()) {
 				this.player.play(this.score);
+				this.startingTime = 0;
 			}
 		}
 	}

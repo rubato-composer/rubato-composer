@@ -10,7 +10,7 @@ import org.rubato.rubettes.bigbang.controller.ScoreChangedNotification;
 import org.rubato.rubettes.bigbang.view.controller.ViewController;
 import org.rubato.rubettes.bigbang.view.model.DenotatorValueExtractor;
 import org.rubato.rubettes.bigbang.view.model.LayerStates;
-import org.rubato.rubettes.bigbang.view.subview.DisplayObjectList;
+import org.rubato.rubettes.bigbang.view.subview.DisplayObjects;
 import org.rubato.rubettes.util.DenotatorPath;
 
 public class DenotatorValueExtractorTest extends TestCase {
@@ -25,7 +25,7 @@ public class DenotatorValueExtractorTest extends TestCase {
 	}
 	
 	public void testExtractDisplayObjectsWithNotes() {
-		DisplayObjectList notes = this.extractDisplayObjects(this.objects.score.getComposition());
+		DisplayObjects notes = this.extractDisplayObjects(this.objects.score.getComposition());
 		TestCase.assertEquals(9, notes.size());
 		TestCase.assertEquals(6, this.extractor.getMinValues().size());
 		TestCase.assertEquals(5.0, notes.last().getValue(DenotatorValueExtractor.SATELLITE_LEVEL));
@@ -33,7 +33,7 @@ public class DenotatorValueExtractorTest extends TestCase {
 	}
 	
 	public void testExtractDisplayObjectsWithMultilevelSoundScore() {
-		DisplayObjectList notes = this.extractDisplayObjects(this.objects.multiLevelMacroScore);
+		DisplayObjects notes = this.extractDisplayObjects(this.objects.multiLevelMacroScore);
 		TestCase.assertEquals(3, notes.size());
 		TestCase.assertEquals(2.0, notes.last().getValue(notes.getValueNames().get(0)));
 		TestCase.assertEquals(60.0, notes.last().getValue(notes.getValueNames().get(1)));
@@ -45,7 +45,7 @@ public class DenotatorValueExtractorTest extends TestCase {
 	}
 	
 	public void testExtractDisplayObjectsWithQ3() {
-		DisplayObjectList triples = this.extractDisplayObjects(this.objects.rationalTriples);
+		DisplayObjects triples = this.extractDisplayObjects(this.objects.rationalTriples);
 		TestCase.assertEquals(4, triples.size());
 		TestCase.assertEquals(4.0, triples.last().getValue(triples.getValueNames().get(0)));
 		TestCase.assertEquals(3.0, triples.last().getValue(triples.getValueNames().get(1)));
@@ -55,7 +55,7 @@ public class DenotatorValueExtractorTest extends TestCase {
 	}
 	
 	public void testExtractDisplayObjectsWithProductRing() {
-		DisplayObjectList triples = this.extractDisplayObjects(this.objects.realTriples);
+		DisplayObjects triples = this.extractDisplayObjects(this.objects.realTriples);
 		TestCase.assertEquals(3, triples.size());
 		TestCase.assertEquals(4.0, triples.last().getValue(triples.getValueNames().get(0)));
 		TestCase.assertEquals(3.0, triples.last().getValue(triples.getValueNames().get(1)));
@@ -65,7 +65,7 @@ public class DenotatorValueExtractorTest extends TestCase {
 	}
 	
 	public void testExtractDisplayObjectsWithColimit() {
-		DisplayObjectList integerOrReals = this.extractDisplayObjects(this.objects.integerOrReals);
+		DisplayObjects integerOrReals = this.extractDisplayObjects(this.objects.integerOrReals);
 		TestCase.assertEquals(4, integerOrReals.size());
 		TestCase.assertEquals("Integer Z", integerOrReals.getValueNames().get(0));
 		TestCase.assertEquals("Real R", integerOrReals.getValueNames().get(1));
@@ -87,11 +87,11 @@ public class DenotatorValueExtractorTest extends TestCase {
 		TestCase.assertEquals(1.0, integerOrReals.last().getValue(integerOrReals.getValueNames().get(2)));
 	}
 	
-	private DisplayObjectList extractDisplayObjects(Denotator denotator) {
+	private DisplayObjects extractDisplayObjects(Denotator denotator) {
 		Set<DenotatorPath> noPaths = new TreeSet<DenotatorPath>();
 		ScoreChangedNotification notification = new ScoreChangedNotification(denotator, noPaths, new DenotatorPath(denotator.getForm()), false, false);
-		this.extractor = new DenotatorValueExtractor(this.viewController, notification, false, new LayerStates(this.viewController));
-		return this.extractor.getDisplayObjects();
+		this.extractor = new DenotatorValueExtractor(new LayerStates(this.viewController));
+		return this.extractor.extractValues(this.viewController, notification, false);
 	}
 
 }

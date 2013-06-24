@@ -40,7 +40,7 @@ import org.rubato.rubettes.bigbang.view.model.tools.DisplayTool;
 import org.rubato.rubettes.bigbang.view.model.tools.SelectionTool;
 import org.rubato.rubettes.bigbang.view.player.BigBangPlayer;
 import org.rubato.rubettes.bigbang.view.player.JSynScore;
-import org.rubato.rubettes.bigbang.view.subview.DisplayObjectList;
+import org.rubato.rubettes.bigbang.view.subview.DisplayObjects;
 import org.rubato.rubettes.bigbang.view.subview.JBigBangPanel;
 import org.rubato.rubettes.util.DenotatorPath;
 
@@ -62,7 +62,8 @@ public class BigBangView extends Model implements View {
 	protected ViewParameters viewParameters;
 	private Map<String,Double> standardDenotatorValues;
 	private boolean satellitesConnected;
-	protected DisplayObjectList displayNotes;
+	DenotatorValueExtractor extractor;
+	protected DisplayObjects displayNotes;
 	private DisplayTool displayTool;
 	//just used in preview mode
 	private Set<DenotatorPath> selectedNotes;
@@ -78,7 +79,7 @@ public class BigBangView extends Model implements View {
 		this.initViewMVC();
 		this.initViewParameterControls();
 		this.initStandardDenotatorValues();
-		this.setDisplayNotes(new DisplayObjectList(viewController, null), new ArrayList<Double>(), new ArrayList<Double>());
+		this.extractor = new DenotatorValueExtractor(this.layerStates);
 		this.setSatellitesConnected(true);
 		this.setDisplayMode(new DrawingModeAdapter(viewController));
 		//TODO:make this automatic when displaynotes loaded!!! depending on max/min and window size
@@ -111,7 +112,7 @@ public class BigBangView extends Model implements View {
 		this.viewController.addModel(this);
 		this.initViewParameters();
 		this.initVisibleInterface();
-		this.layerStates = new LayerStates(viewController);
+		this.layerStates = new LayerStates(this.viewController);
 	}
 	
 	protected void initViewParameters() {
@@ -275,7 +276,7 @@ public class BigBangView extends Model implements View {
 	public void modelPropertyChange(PropertyChangeEvent event) {
 		String propertyName = event.getPropertyName();
 		if (propertyName.equals(BigBangController.COMPOSITION)) {
-			this.setDisplayNotes(event);
+			this.updateDisplayObjects(event);
 		} else if (propertyName.equals(BigBangController.UNDO)) {
 			this.firePropertyChange(ViewController.UNDO, null, event.getNewValue());
 		} else if (propertyName.equals(BigBangController.REDO)) {
@@ -288,11 +289,10 @@ public class BigBangView extends Model implements View {
 		}
 	}
 	
-	private void setDisplayNotes(PropertyChangeEvent event) {
-		this.viewController.removeView(this.displayNotes);
+	private void updateDisplayObjects(PropertyChangeEvent event) {
 		ScoreChangedNotification notification = (ScoreChangedNotification)event.getNewValue();
-		DenotatorValueExtractor extractor = new DenotatorValueExtractor(this.viewController, notification, !notification.preview(), this.layerStates);
-		DisplayObjectList newObjects = extractor.getDisplayObjects();
+		DisplayObjects newObjects = this.extractor.extractValues(this.viewController, notification, !notification.preview());
+		
 		if (this.modFilterOn) {
 			newObjects.updateModulatorVisibility(this.modLevel, this.modNumber);
 		}
@@ -304,25 +304,22 @@ public class BigBangView extends Model implements View {
 			this.selectedNotes = null;
 			this.selectedAnchor = null;
 		}
-		this.setDisplayNotes(newObjects, extractor.getMinValues(), extractor.getMaxValues());
+		this.updateDisplayObjects(newObjects, extractor.getMinValues(), extractor.getMaxValues());
 		this.updatePlayerScore(extractor.getJSynScore(), notification.playback());
 	}
 	
-	private void setDisplayNotes(DisplayObjectList displayNotes, List<Double> minValues, List<Double> maxValues) {
-		if (this.displayNotes == null || (displayNotes.getBaseForm() != this.displayNotes.getBaseForm())) {
-			if (displayNotes.allowsForSatellites()) {
+	private void updateDisplayObjects(DisplayObjects displayNotes, List<Double> minValues, List<Double> maxValues) {
+		if (this.displayNotes == null || displayNotes.getBaseForm() != this.displayNotes.getBaseForm()) {
+			if (displayNotes.baseFormAllowsForSatellites()) {
 				this.viewParameters.initSelections(displayNotes.getValueNames().size()-2);
 			} else {
 				this.viewParameters.initSelections(displayNotes.getValueNames().size());
 			}
+			this.viewController.removeView(this.displayNotes);
+			this.displayNotes = displayNotes;
 			this.firePropertyChange(ViewController.FORM, null, displayNotes);
-			this.firePropertyChange(ViewController.SELECTED_COLIMIT_COORDINATE, null, displayNotes.getSelectedColimitCoordinates());
-		} else {
-			//TODO: dumb, make displaynotes permanent so they keep these values
-			displayNotes.setSelectedObject(this.displayNotes.getSelectedObject());
-			displayNotes.setSelectedColimitCoordinates(this.displayNotes.getSelectedColimitCoordinates());
+			this.firePropertyChange(ViewController.ACTIVE_COLIMIT_COORDINATE, null, displayNotes.getActiveColimitCoordinates());
 		}
-		this.displayNotes = displayNotes;
 		this.viewParameters.setDenotatorMinAndMaxValues(minValues, maxValues);
 		//do not select parameters for satellite and sibling number...
 		this.firePropertyChange(ViewController.DISPLAY_NOTES, null, this.displayNotes);
@@ -346,15 +343,15 @@ public class BigBangView extends Model implements View {
 		return values;
 	}
 	
-	public void setSelectedObject(Integer objectIndex) {
-		this.displayNotes.setSelectedObject(objectIndex);
-		this.firePropertyChange(ViewController.SELECTED_OBJECT, null, objectIndex);
+	public void setSelectedObject(Integer objectTypeIndex) {
+		this.displayNotes.setIndexOfActiveObjectType(objectTypeIndex);
+		this.firePropertyChange(ViewController.ACTIVE_OBJECT, null, objectTypeIndex);
 		//TODO: update selectable colimits!!!!!!!
 	}
 	
-	public void setSelectedColimitCoordinate(Integer colimitIndex, Integer coordinateIndex) {
-		this.displayNotes.setSelectedColimitCoordinate(colimitIndex, coordinateIndex);
-		this.firePropertyChange(ViewController.SELECTED_COLIMIT_COORDINATE, null, this.displayNotes.getSelectedColimitCoordinates());
+	public void setActiveColimitCoordinate(Integer colimitIndex, Integer coordinateIndex) {
+		this.displayNotes.setActiveColimitCoordinate(colimitIndex, coordinateIndex);
+		this.firePropertyChange(ViewController.ACTIVE_COLIMIT_COORDINATE, null, this.displayNotes.getActiveColimitCoordinates());
 	}
 	
 	public void selectTransformation(AbstractTransformationEdit edit) {
@@ -525,8 +522,9 @@ public class BigBangView extends Model implements View {
 	}
 	
 	public void addObject(Point2D.Double location) {
-		Map<DenotatorPath,Double> objectValues = this.displayNotes.getObjectStandardValues(this.standardDenotatorValues);
+		Map<DenotatorPath,Double> objectValues = this.displayNotes.getActiveObjectStandardValues(this.standardDenotatorValues);
 		DenotatorPath objectPowersetPath = this.editObjectValuesAndFindClosestPowerset(location, objectValues);
+		System.out.println(this.displayNotes.getActiveObjectType().getPath() + " " + objectValues + " " + objectPowersetPath);
 		
 		//only add object if there are some screen values to be converted
 		if (!objectValues.isEmpty()) {
@@ -619,18 +617,18 @@ public class BigBangView extends Model implements View {
 	}
 	
 	private DenotatorPath editObjectValuesAndFindClosestPowerset(Point2D.Double location, Map<DenotatorPath,Double> denotatorValues) {
-		DenotatorPath closestPowersetPath = this.displayNotes.getSelectedObjectPath().getParentPath();
-		int XValueIndex = this.viewParameters.getValueIndex(0);
-		int YValueIndex = this.viewParameters.getValueIndex(1);
-		if (XValueIndex >= 0 && YValueIndex >= 0) {
-			closestPowersetPath = this.replaceDenotatorValue(location.x, XValueIndex, 0, this.displayPosition.x, this.xZoomFactor, denotatorValues, closestPowersetPath);
-			if (YValueIndex != XValueIndex) {
-				closestPowersetPath = this.replaceDenotatorValue(location.y, YValueIndex, 1, this.displayPosition.y, this.yZoomFactor, denotatorValues, closestPowersetPath);
+		DenotatorPath closestPowersetPath = this.displayNotes.getActiveObjectType().getPath().getParentPath();
+		int xValueIndex = this.displayNotes.getActiveObjectValueIndex(this.viewParameters.getValueIndex(0));
+		int yValueIndex = this.displayNotes.getActiveObjectValueIndex(this.viewParameters.getValueIndex(1));
+		if (xValueIndex >= 0 && yValueIndex >= 0) {
+			closestPowersetPath = this.replaceDenotatorValue(location.x, xValueIndex, 0, this.displayPosition.x, this.xZoomFactor, denotatorValues, closestPowersetPath);
+			if (yValueIndex != xValueIndex) {
+				closestPowersetPath = this.replaceDenotatorValue(location.y, yValueIndex, 1, this.displayPosition.y, this.yZoomFactor, denotatorValues, closestPowersetPath);
 			}
-		} else if (YValueIndex < 0) {
-			closestPowersetPath = this.replaceDenotatorValue(location.x, XValueIndex, 0, this.displayPosition.x, this.xZoomFactor, denotatorValues, closestPowersetPath);
+		} else if (yValueIndex < 0) {
+			closestPowersetPath = this.replaceDenotatorValue(location.x, xValueIndex, 0, this.displayPosition.x, this.xZoomFactor, denotatorValues, closestPowersetPath);
 		} else {
-			closestPowersetPath = this.replaceDenotatorValue(location.y, YValueIndex, 1, this.displayPosition.y, this.yZoomFactor, denotatorValues, closestPowersetPath);
+			closestPowersetPath = this.replaceDenotatorValue(location.y, yValueIndex, 1, this.displayPosition.y, this.yZoomFactor, denotatorValues, closestPowersetPath);
 		}
 		return closestPowersetPath;
 	}
@@ -639,8 +637,8 @@ public class BigBangView extends Model implements View {
 		if (valueIndex > -1) {
 			double denotatorValue = this.getDenotatorValue(displayValue, parameterIndex, position, zoomFactor);
 			DenotatorPath associatedPath = this.displayNotes.getObjectValuePathAt(valueIndex);
-			//null happens when parent value, or satellite or sibling level is selected
-			if (associatedPath != null && this.displayNotes.pathInAllowedColimitBranch(associatedPath)) {
+			//null happens when parent value, satellite/sibling level is selected, or when path not in active colimits
+			if (associatedPath != null) {
 				values.put(associatedPath, denotatorValue);
 			}
 			//TODO: really find closest, not just closest of last dimension...
@@ -665,7 +663,7 @@ public class BigBangView extends Model implements View {
 	private List<DenotatorPath> getXYValuePaths() {
 		List<DenotatorPath> denotatorPaths = new ArrayList<DenotatorPath>();
 		for (int i = 0; i < 4; i++) {
-			int selectedViewParameter = this.viewParameters.getValueIndex(i%2);
+			int selectedViewParameter = this.displayNotes.getActiveObjectValueIndex(this.viewParameters.getValueIndex(i%2));
 			//only one parameter might be selected...
 			if (selectedViewParameter >= 0) {
 				denotatorPaths.add(this.displayNotes.getObjectValuePathAt(selectedViewParameter));
@@ -735,7 +733,6 @@ public class BigBangView extends Model implements View {
 		int timeAxisIndex = this.getTimeAxisIndex();
 		if (timeAxisIndex != -1) {
 			double[] xyDenotatorValues = this.getXYDenotatorValues(location);
-			System.out.println("POS!!!! " + xyDenotatorValues[timeAxisIndex]);
 			this.player.setPlaybackPosition(xyDenotatorValues[timeAxisIndex]);
 		}
 	}

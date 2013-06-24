@@ -82,7 +82,7 @@ public class ObjectGenerator {
 					ColimitDenotator currentColimit = (ColimitDenotator)object.get(currentColimitPath.toIntArray());
 					DenotatorPath currentChildPath = currentPath.subPath(0, currentColimitPath.size()+1);
 					if (currentColimit.getIndex() != currentChildPath.getLastIndex()) {
-						Form currentChildForm = currentChildPath.getForm();
+						Form currentChildForm = currentChildPath.getEndForm();
 						((ColimitDenotator)object.get(currentColimitPath.toIntArray())).setFactor(currentChildPath.getLastIndex(), currentChildForm.createDefaultDenotator());
 						//object = object.replace(currentChildPath.toIntArray(), currentChildForm.createDefaultDenotator());
 						//object = object.replace(currentColimitPath.getChildPath(0).toIntArray(), currentChildForm.createDefaultDenotator());
@@ -95,9 +95,12 @@ public class ObjectGenerator {
 		return object;
 	}
 	
-	public Denotator createDenotator(Form form, double... values) {
+	/**
+	 * creates the first denotator possible with the first coordinate for all colimits present
+	 */
+	public Denotator createStandardDenotator(Form form, double... values) {
 		Denotator newDenotator = form.createDefaultDenotator();
-		List<DenotatorPath> formValuePaths = new DenotatorValueFinder(form, true).getValuePathsInFoundOrder();
+		List<DenotatorPath> formValuePaths = new FormValueFinder(form, true).getObjectAt(0).getStandardColimitConfigurationValuePaths();
 		for (int i = 0; i < Math.min(values.length, formValuePaths.size()); i++) {
 			newDenotator = this.replaceValue(newDenotator, formValuePaths.get(i), values[i]);
 		}
@@ -110,7 +113,7 @@ public class ObjectGenerator {
 	}
 	
 	public Double getDoubleValue(Denotator denotator, int valueIndex) {
-		DenotatorPath valuePath = new DenotatorValueFinder(denotator.getForm(), false).getValuePathsInFoundOrder().get(valueIndex);
+		DenotatorPath valuePath = new DenotatorValueFinder(denotator, false).getValuePathAt(valueIndex);
 		return this.getDoubleValue(denotator, valuePath);
 	}
 	
@@ -120,7 +123,7 @@ public class ObjectGenerator {
 				ModuleElement topElement = ((SimpleDenotator)denotator.get(valuePath.getDenotatorSubpath().toIntArray())).getElement();
 				//have to do this like this for the possibility of ProductElements
 				return this.extractValue(topElement, valuePath.getElementSubpath().toIntArray());
-			} else if (valuePath.getForm().getType() == Form.SIMPLE) {
+			} else if (valuePath.getEndForm().getType() == Form.SIMPLE) {
 				SimpleDenotator simple = (SimpleDenotator)denotator.get(valuePath.toIntArray());
 				if (simple != null) {
 					return ((RElement)simple.getElement().cast(RRing.ring)).getValue();

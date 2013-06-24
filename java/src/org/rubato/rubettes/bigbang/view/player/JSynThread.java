@@ -130,7 +130,7 @@ class JSynThread extends Thread {
 		}
 	}
 	
-	public String toString() {
+	/*public String toString() {
 		String representation = "[";
 		for (JSynObject currentNote: this.objects) {
 			representation += currentNote.toString() + ", ";
@@ -138,6 +138,6 @@ class JSynThread extends Thread {
 		representation = representation.substring(0, representation.length()-2);
 		representation += "]";
 		return representation;
-	}
+	}*/
 	
 }

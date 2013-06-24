@@ -75,7 +75,7 @@ public class JBigBangDisplay extends JPanel implements View {
 			this.contents.setViewParameters((ViewParameters)event.getNewValue());
 			this.repaint();
 		} else if (propertyName.equals(ViewController.DISPLAY_NOTES)) {
-			this.contents.setNotes((DisplayObjectList)event.getNewValue());
+			this.contents.setNotes((DisplayObjects)event.getNewValue());
 			this.repaint();
 		} else if (propertyName.equals(ViewController.DISPLAY_TOOL)) {
 			this.contents.setTool((DisplayTool)event.getNewValue());

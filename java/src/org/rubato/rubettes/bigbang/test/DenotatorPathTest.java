@@ -27,19 +27,19 @@ public class DenotatorPathTest extends TestCase {
 		TestCase.assertFalse(this.satellitePath.isElementPath());
 		TestCase.assertEquals(this.satellitePath, this.satellitePath.getDenotatorSubpath());
 		TestCase.assertNull(this.satellitePath.getElementSubpath());
-		TestCase.assertEquals(this.objects.SOUND_NOTE_FORM, this.satellitePath.getForm());
+		TestCase.assertEquals(this.objects.SOUND_NOTE_FORM, this.satellitePath.getEndForm());
 		TestCase.assertNull(this.satellitePath.getModule());
 		
 		TestCase.assertTrue(this.rationalTriplePath.isElementPath());
 		TestCase.assertEquals(new DenotatorPath(this.objects.RATIONAL_TRIPLE_FORM), this.rationalTriplePath.getDenotatorSubpath());
 		TestCase.assertEquals(this.rationalTriplePath, this.rationalTriplePath.getElementSubpath());
-		TestCase.assertEquals(this.objects.RATIONAL_TRIPLE_FORM, this.rationalTriplePath.getForm());
+		TestCase.assertEquals(this.objects.RATIONAL_TRIPLE_FORM, this.rationalTriplePath.getEndForm());
 		TestCase.assertEquals(this.objects.RATIONAL_TRIPLE_MODULE.getComponentModule(2), this.rationalTriplePath.getModule());
 		
 		TestCase.assertTrue(this.realTriplesPath.isElementPath());
 		TestCase.assertEquals(new DenotatorPath(this.objects.REAL_TRIPLES_FORM, new int[]{5}), this.realTriplesPath.getDenotatorSubpath());
 		TestCase.assertEquals(new DenotatorPath(this.objects.REAL_TRIPLES_FORM, new int[]{1}), this.realTriplesPath.getElementSubpath());
-		TestCase.assertEquals(this.objects.REAL_TRIPLE_FORM, this.realTriplesPath.getForm());
+		TestCase.assertEquals(this.objects.REAL_TRIPLE_FORM, this.realTriplesPath.getEndForm());
 		TestCase.assertEquals(RRing.ring, this.realTriplesPath.getModule());
 	}
 	
@@ -95,6 +95,26 @@ public class DenotatorPathTest extends TestCase {
 		DenotatorPath node = new DenotatorPath(this.objects.SOUND_SCORE_FORM, new int[]{2});
 		TestCase.assertEquals(new DenotatorPath(this.objects.SOUND_SCORE_FORM, new int[]{2,1}), node.getPowersetPath(0));
 		TestCase.assertEquals(new DenotatorPath(this.objects.SOUND_SCORE_FORM, new int[]{2,0,6}), node.getPowersetPath(1));
+	}
+	
+	public void testInConflictingColimitPositions() {
+		DenotatorPath intOrRealPath0 = new DenotatorPath(this.objects.INTEGER_OR_REALS_FORM, new int[]{0,0});
+		DenotatorPath intOrRealPath1 = new DenotatorPath(this.objects.INTEGER_OR_REALS_FORM, new int[]{0,1});
+		TestCase.assertTrue(intOrRealPath0.inConflictingColimitPositions(intOrRealPath1));
+		TestCase.assertTrue(intOrRealPath1.inConflictingColimitPositions(intOrRealPath0));
+		TestCase.assertFalse(intOrRealPath0.inConflictingColimitPositions(intOrRealPath0));
+		
+		DenotatorPath intOrRealPath2 = new DenotatorPath(this.objects.INTEGER_OR_REALS_FORM, new int[]{0});
+		TestCase.assertFalse(intOrRealPath0.inConflictingColimitPositions(intOrRealPath2));
+		TestCase.assertFalse(intOrRealPath1.inConflictingColimitPositions(intOrRealPath2));
+		TestCase.assertFalse(intOrRealPath2.inConflictingColimitPositions(intOrRealPath0));
+		TestCase.assertFalse(intOrRealPath2.inConflictingColimitPositions(intOrRealPath1));
+		
+		DenotatorPath intOrRealPath3 = new DenotatorPath(this.objects.INTEGER_OR_REALS_FORM, new int[]{});
+		TestCase.assertFalse(intOrRealPath0.inConflictingColimitPositions(intOrRealPath3));
+		TestCase.assertFalse(intOrRealPath1.inConflictingColimitPositions(intOrRealPath3));
+		TestCase.assertFalse(intOrRealPath3.inConflictingColimitPositions(intOrRealPath0));
+		TestCase.assertFalse(intOrRealPath3.inConflictingColimitPositions(intOrRealPath1));
 	}
 
 }
