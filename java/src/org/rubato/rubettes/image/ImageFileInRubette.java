@@ -94,9 +94,9 @@ public class ImageFileInRubette extends SimpleAbstractRubette {
     				int blue = currentColor.getBlue();
     				int alpha = currentColor.getAlpha();
     				if (this.variableSizePixels) {
-    					pixels.add(this.objectGenerator.createDenotator(ImageFileInRubette.VS_PIXEL_FORM, x, image.getHeight()-1-y, 1, 1, red, green, blue, alpha));
+    					pixels.add(this.objectGenerator.createStandardDenotator(ImageFileInRubette.VS_PIXEL_FORM, x, image.getHeight()-1-y, 1, 1, red, green, blue, alpha));
     				} else {
-    					pixels.add(this.objectGenerator.createDenotator(ImageFileInRubette.PIXEL_FORM, x, image.getHeight()-1-y, red, green, blue, alpha));
+    					pixels.add(this.objectGenerator.createStandardDenotator(ImageFileInRubette.PIXEL_FORM, x, image.getHeight()-1-y, red, green, blue, alpha));
     				}
     			}
     			if (runInfo.stopped()) {

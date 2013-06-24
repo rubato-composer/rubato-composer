@@ -15,86 +15,80 @@ import org.rubato.math.yoneda.ColimitForm;
 import org.rubato.math.yoneda.Form;
 import org.rubato.rubettes.bigbang.view.View;
 import org.rubato.rubettes.bigbang.view.controller.ViewController;
+import org.rubato.rubettes.bigbang.view.model.DenotatorValueExtractor;
 import org.rubato.rubettes.bigbang.view.model.DisplayObject;
 import org.rubato.rubettes.bigbang.view.model.LayerState;
 import org.rubato.rubettes.bigbang.view.model.LayerStates;
 import org.rubato.rubettes.bigbang.view.model.ViewParameters;
+import org.rubato.rubettes.util.DenotatorObject;
 import org.rubato.rubettes.util.DenotatorPath;
-import org.rubato.rubettes.util.DenotatorValueFinder;
+import org.rubato.rubettes.util.FormValueFinder;
 
-public class DisplayObjectList extends TreeSet<DisplayObject> implements View {
+public class DisplayObjects implements View {
 	
+	//active object is the one selected for being drawn etc
 	private Form baseForm;
-	private int selectedObject;
-	private List<Integer> selectedColimitCoordinates;
-	private List<Form> objects;
-	private Map<Form,DenotatorPath> objectsAndPaths;
-	private boolean allowsForSatellites;
-	//TODO: make objectcolimits!!!!!
-	private List<ColimitForm> topDenotatorColimits;
-	private Map<ColimitForm,DenotatorPath> topDenotatorColimitsAndPaths;
+	private FormValueFinder finder;
+	private int indexOfActiveObjectType;
+	private List<Integer> activeColimitCoordinates;
 	private List<String> valueNames;
-	//TODO: paths not used anymore!!! since they can be different in every object!!! refactor
-	private Map<String,DenotatorPath> valueNamesAndPaths;
-	private Set<DisplayObject> selectedNotes;
-	private DisplayObject selectedAnchorNote;
+	private TreeSet<DisplayObject> objects;
+	private Set<DisplayObject> selectedObjects;
+	private DisplayObject selectedAnchor;
 	
-	public DisplayObjectList(ViewController controller, Form baseForm) {
+	public DisplayObjects(ViewController controller, Form baseForm) {
 		controller.addView(this);
 		this.baseForm = baseForm;
-		this.objects = new ArrayList<Form>();
-		this.objectsAndPaths = new TreeMap<Form,DenotatorPath>();
-		this.topDenotatorColimits = new ArrayList<ColimitForm>();
-		this.topDenotatorColimitsAndPaths = new TreeMap<ColimitForm,DenotatorPath>();
-		this.selectedNotes = new TreeSet<DisplayObject>();
-		this.valueNames = new ArrayList<String>();
-		this.valueNamesAndPaths = new TreeMap<String,DenotatorPath>();
-		this.initSelectedColimitCoordinates(0);
+		
+		this.finder = new FormValueFinder(this.baseForm, true);
+		this.indexOfActiveObjectType = 0;
+		this.initActiveColimitCoordinates(this.finder.getObjectAt(0).getColimits().size());
+		
+		List<String> valueNames = finder.getCoordinateSystemValueNames();
+		if (this.finder.formAllowsForSatellites()) {
+			valueNames.add(DenotatorValueExtractor.SATELLITE_LEVEL);
+			valueNames.add(DenotatorValueExtractor.SIBLING_NUMBER);
+		}
+		if (this.finder.formContainsColimits()) {
+			valueNames.add(DenotatorValueExtractor.COLIMIT_INDEX);
+		}
+		this.valueNames = valueNames;
+		
+		this.objects = new TreeSet<DisplayObject>();
+		this.selectedObjects = new TreeSet<DisplayObject>();
 	}
 	
-	private void initSelectedColimitCoordinates(int numberOfColimits) {
-		this.selectedColimitCoordinates = new ArrayList<Integer>();
+	private void initActiveColimitCoordinates(int numberOfColimits) {
+		this.activeColimitCoordinates = new ArrayList<Integer>();
 		for (int i = 0; i < numberOfColimits; i++) {
-			this.selectedColimitCoordinates.add(0);
+			this.activeColimitCoordinates.add(0);
 		}
 	}
 	
-	public void setSelectedObject(int selectedObject) {
-		this.selectedObject = selectedObject;
+	public void setIndexOfActiveObjectType(int indexOfActiveObjectType) {
+		this.indexOfActiveObjectType = indexOfActiveObjectType;
 	}
 	
-	public int getSelectedObject() {
-		return this.selectedObject;
+	public List<Integer> getActiveColimitCoordinates() {
+		return this.activeColimitCoordinates;
 	}
 	
-	public void setSelectedColimitCoordinates(List<Integer> selectedColimitCoordinates) {
-		this.selectedColimitCoordinates = selectedColimitCoordinates;
-	}
-	
-	public List<Integer> getSelectedColimitCoordinates() {
-		return this.selectedColimitCoordinates;
-	}
-	
-	public void setSelectedColimitCoordinate(Integer colimitIndex, Integer coordinateIndex) {
-		List<ColimitForm> topDenotatorColimits = this.getTopDenotatorColimits();
-		if (coordinateIndex >= 0 && topDenotatorColimits.size() > colimitIndex && topDenotatorColimits.get(colimitIndex).getForms().size() >= coordinateIndex) {
-			this.selectedColimitCoordinates.set(colimitIndex, coordinateIndex);
+	public void setActiveColimitCoordinate(int colimitIndex, int coordinateIndex) {
+		List<ColimitForm> activeObjectTypeColimits = this.getActiveObjectType().getColimits();
+		if (coordinateIndex >= 0 && activeObjectTypeColimits.size() > colimitIndex && activeObjectTypeColimits.get(colimitIndex).getForms().size() >= coordinateIndex) {
+			this.activeColimitCoordinates.set(colimitIndex, coordinateIndex);
 			//set all ColimitForms impossible to reach to -1
 			//TODO: does not account for forms that contain the same colimit several times
-			Form coordinateForm = topDenotatorColimits.get(colimitIndex).getForm(coordinateIndex);
-			List<ColimitForm> subColimits = new DenotatorValueFinder(coordinateForm, false).getColimitsInFoundOrder();
-			for (int i = colimitIndex+1; i < topDenotatorColimits.size(); i++) {
-				if (!subColimits.contains(topDenotatorColimits.get(i))) {
-					this.selectedColimitCoordinates.set(i, -1);
-				} else if (this.selectedColimitCoordinates.get(i) == -1) {
-					this.selectedColimitCoordinates.set(i, 0);
+			Form coordinateForm = activeObjectTypeColimits.get(colimitIndex).getForm(coordinateIndex);
+			List<ColimitForm> subColimits = new FormValueFinder(coordinateForm, false).getObjectAt(this.indexOfActiveObjectType).getColimits();
+			for (int i = colimitIndex+1; i < activeObjectTypeColimits.size(); i++) {
+				if (!subColimits.contains(activeObjectTypeColimits.get(i))) {
+					this.activeColimitCoordinates.set(i, -1);
+				} else if (this.activeColimitCoordinates.get(i) == -1) {
+					this.activeColimitCoordinates.set(i, 0);
 				}
 			}
 		}
-	}
-	
-	public void setValueNames(List<String> valueNames) {
-		this.valueNames = valueNames;
 	}
 	
 	public List<String> getValueNames() {
@@ -105,49 +99,41 @@ public class DisplayObjectList extends TreeSet<DisplayObject> implements View {
 		return this.baseForm;
 	}
 	
-	public void setAllowsForSatellites(boolean allowsForSatellites) {
-		this.allowsForSatellites = allowsForSatellites;
+	public boolean baseFormAllowsForSatellites() {
+		return this.finder.formAllowsForSatellites();
 	}
 	
-	public boolean allowsForSatellites() {
-		return this.allowsForSatellites;
-	}
-	
-	public void setValueNamesAndPaths(Map<String,DenotatorPath> valuesNamesAndPaths) {
-		this.valueNamesAndPaths = valuesNamesAndPaths;
-	}
-	
-	public List<DenotatorPath> getValuePaths() {
-		List<DenotatorPath> paths = new ArrayList<DenotatorPath>();
-		for (String currentValueName : this.valueNames) {
-			paths.add(this.valueNamesAndPaths.get(currentValueName));
-		}
-		return paths;
+	public boolean baseFormContainsColimits() {
+		return this.finder.formContainsColimits();
 	}
 	
 	public List<DenotatorPath> getObjectValuePaths() {
-		List<DenotatorPath> objectValuePaths = new ArrayList<DenotatorPath>();
-		for (String currentValueName : this.valueNames) {
-			objectValuePaths.add(this.getObjectValueSubPath(currentValueName));
-		}
-		return objectValuePaths;
+		return this.getActiveObjectType().getColimitConfigurationValuePaths(this.activeColimitCoordinates);
+	}
+	
+	public void addObject(DisplayObject object) {
+		this.objects.add(object);
+	}
+	
+	public TreeSet<DisplayObject> getObjects() {
+		return this.objects;
+	}
+	
+	public void clearObjects() {
+		this.objects = new TreeSet<DisplayObject>();
 	}
 	
 	public DenotatorPath getObjectValuePathAt(int valueIndex) {
-		return this.getObjectValueSubPath(this.valueNames.get(valueIndex));
-	}
-	
-	private DenotatorPath getPathOfValueAt(int valueIndex) {
-		return this.valueNamesAndPaths.get(this.valueNames.get(valueIndex));
+		return this.getObjectValuePaths().get(valueIndex);
 	}
 	
 	public DisplayObject getClosestObject(int valueIndex, double value, DenotatorPath powersetPath) {
 		String valueName = this.valueNames.get(valueIndex);
-		DenotatorPath valuePath = this.getPathOfValueAt(valueIndex);
+		//DenotatorPath valuePath = this.getPathOfValueAt(valueIndex);
 		DisplayObject closestObject = null;
 		double shortestDistance = Double.MAX_VALUE;
-		if (this.selectedObject > 0) {
-			for (DisplayObject currentObject : this) {
+		if (this.indexOfActiveObjectType > 0) {
+			for (DisplayObject currentObject : this.objects) {
 				//has to be same type of object. TODO: lenghth of course is not the deciding thing!!!!
 				if (currentObject.getTopDenotatorPath().size() == powersetPath.getTopPath().size()) {
 					Double currentValue = currentObject.getValue(valueName);
@@ -165,82 +151,49 @@ public class DisplayObjectList extends TreeSet<DisplayObject> implements View {
 		return null;
 	}
 	
-	public void setObjects(List<Form> objects) {
-		this.objects = objects;
+	public List<Form> getObjectTypes() {
+		return this.finder.getObjectForms();
 	}
 	
-	public void setObjectsAndPaths(Map<Form,DenotatorPath> objectsAndPaths) {
-		this.objectsAndPaths = objectsAndPaths;
+	public DenotatorObject getActiveObjectType() {
+		return this.finder.getObjectAt(this.indexOfActiveObjectType);
 	}
 	
-	public List<Form> getObjects() {
-		return this.objects;
-	}
-	
-	public DenotatorPath getSelectedObjectPath() {
-		return this.objectsAndPaths.get(this.objects.get(this.selectedObject));
-	}
-	
-	public void setTopDenotatorColimits(List<ColimitForm> colimits) {
-		this.topDenotatorColimits = colimits;
-		this.initSelectedColimitCoordinates(colimits.size());
-	}
-	
-	public List<ColimitForm> getTopDenotatorColimits() {
-		return this.topDenotatorColimits;
-	}
-	
-	public void setTopDenotatorColimitsAndPaths(Map<ColimitForm,DenotatorPath> colimitsAndPaths) {
-		this.topDenotatorColimitsAndPaths = colimitsAndPaths;
-	}
-	
-	public List<DenotatorPath> getTopDenotatorColimitPaths(List<Integer> colimitCoordinates) {
+	/*private List<DenotatorPath> getActiveObjectColimitPaths(List<Integer> colimitCoordinates) {
 		List<DenotatorPath> colimitCoordinatePaths = new ArrayList<DenotatorPath>();
 		for (int i = 0; i < colimitCoordinates.size(); i++) {
 			int currentSelectedCoordinate = colimitCoordinates.get(i);
 			if (currentSelectedCoordinate >= 0) {
-				colimitCoordinatePaths.add(this.topDenotatorColimitsAndPaths.get(this.topDenotatorColimits.get(i)).getChildPath(currentSelectedCoordinate));
+				colimitCoordinatePaths.add(this.getActiveObjectType().getColimitPaths().get(i).getChildPath(currentSelectedCoordinate));
 			}
 		}
 		return colimitCoordinatePaths;
-	}
+	}*/
 	
 	/**
 	 * @return the top denotator standard values under assumption that the given value
 	 * is selected in a colimit. if it is not in a colimit, just returns the standard values
 	 */
-	public Map<DenotatorPath,Double> getObjectStandardValues(Map<String,Double> standardDenotatorValues) {
-		DenotatorPath selectedObjectPath = this.getSelectedObjectPath();
+	public Map<DenotatorPath,Double> getActiveObjectStandardValues(Map<String,Double> standardDenotatorValues) {
 		Map<DenotatorPath,Double> objectStandardValues = new TreeMap<DenotatorPath,Double>();
-		List<DenotatorPath> selectedColimitCoordinatePaths = this.getTopDenotatorColimitPaths(this.selectedColimitCoordinates);
-		for (String currentName : this.valueNamesAndPaths.keySet()) {
+		List<String> activeObjectValueNames = this.getActiveObjectType().getColimitConfigurationValueNames(this.activeColimitCoordinates);
+		List<DenotatorPath> activeObjectValuePaths = this.getActiveObjectType().getColimitConfigurationValuePaths(this.activeColimitCoordinates);
+		
+		for (int i = 0; i < activeObjectValueNames.size(); i++) {
+			String currentName = activeObjectValueNames.get(i);
 			if (standardDenotatorValues.containsKey(currentName)) {
-				//if (this.inAllowedColimitBranch(currentPath, selectedColimitCoordinatePaths)) {
-				DenotatorPath valuePath = this.getObjectValueSubPath(currentName);
-				if (valuePath != null) {
-					objectStandardValues.put(valuePath, standardDenotatorValues.get(currentName));
-				}
-				//}
+				objectStandardValues.put(activeObjectValuePaths.get(i), standardDenotatorValues.get(currentName));
 			}
-			/*DenotatorPath currentPath = this.valueNamesAndPaths.get(currentName);
-			if (currentPath.isPartOfSameObjectAs(selectedObjectPath) && standardDenotatorValues.containsKey(currentName)) {
-				if (this.inAllowedColimitBranch(currentPath, selectedColimitCoordinatePaths)) {
-					objectStandardValues.put(this.getObjectValueSubPath(currentName), standardDenotatorValues.get(currentName));
-					System.out.println(currentName + " " + this.getObjectValueSubPath(currentName) + " " + standardDenotatorValues.get(currentName));
-				}
-			}*/
 		}
 		return objectStandardValues;
 	}
 	
-	private DenotatorPath getObjectValueSubPath(String valueName) {
-		DenotatorPath selectedObjectPath = this.getSelectedObjectPath();
-		DenotatorPath objectValuePath = new DenotatorValueFinder(selectedObjectPath.getForm(), true).getValueNamesAndPaths().get(valueName);
-		return objectValuePath;
+	public int getActiveObjectValueIndex(int coordinateSystemValueIndex) {
+		return this.getActiveObjectType().getColimitConfigurationValueNames(this.activeColimitCoordinates).indexOf(this.finder.getCoordinateSystemValueNames().get(coordinateSystemValueIndex));
 	}
 	
-	public boolean pathInAllowedColimitBranch(DenotatorPath path) {
-		return this.inAllowedColimitBranch(path, this.getTopDenotatorColimitPaths(this.selectedColimitCoordinates));
+	/*public boolean pathInAllowedColimitBranch(DenotatorPath path) {
+		return this.inAllowedColimitBranch(path, this.getActiveObjectColimitPaths(this.activeColimitCoordinates));
 	}
 	
 	private boolean inAllowedColimitBranch(DenotatorPath path, List<DenotatorPath> selectedColimitCoordinatePaths) {
@@ -263,25 +216,25 @@ public class DisplayObjectList extends TreeSet<DisplayObject> implements View {
 		return true;
 	}
 	
-	public boolean inConflictingColimitPositions(int valueIndex1, int valueIndex2) {
+	/*public boolean inConflictingColimitPositions(int valueIndex1, int valueIndex2) {
 		return this.getPathOfValueAt(valueIndex1).inConflictingColimitPositions(this.getPathOfValueAt(valueIndex2));
-	}
+	}*/
 	
 	public void tempSelectNotes(Rectangle2D.Double area) {
-		for (DisplayObject currentNote: this) {
-			if (!this.selectedNotes.contains(currentNote)) {
+		for (DisplayObject currentNote: this.objects) {
+			if (!this.selectedObjects.contains(currentNote)) {
 				currentNote.setSelected(currentNote.intersects(area));
 			}
 		}
 	}
 	
 	public int selectNotes(Rectangle2D.Double area) {
-		for (DisplayObject currentNote: this) {
+		for (DisplayObject currentNote: this.objects) {
 			if (currentNote.intersects(area)) {
 				this.selectNote(currentNote);
 			}
 		}
-		return this.selectedNotes.size();
+		return this.selectedObjects.size();
 	}
 	
 	private void toggleSelected(DisplayObject note) {
@@ -295,8 +248,8 @@ public class DisplayObjectList extends TreeSet<DisplayObject> implements View {
 	public void selectNote(DisplayObject note) {
 		if (this.isNotSelectedAnchorNote(note)) {
 			note.setSelected(true);
-			if (!this.selectedNotes.contains(note) && note.isActive()) {
-				this.selectedNotes.add(note);
+			if (!this.selectedObjects.contains(note) && note.isActive()) {
+				this.selectedObjects.add(note);
 				this.deselectParents(note);
 				this.deselectChildren(note);
 			}
@@ -305,12 +258,12 @@ public class DisplayObjectList extends TreeSet<DisplayObject> implements View {
 	
 	private void deselectNote(DisplayObject note) {
 		note.setSelected(false);
-		this.selectedNotes.remove(note);
+		this.selectedObjects.remove(note);
 	}
 	
 	private boolean isNotSelectedAnchorNote(DisplayObject note) {
-		return (this.selectedAnchorNote != null && !this.selectedAnchorNote.equals(note))
-			|| this.selectedAnchorNote == null;
+		return (this.selectedAnchor != null && !this.selectedAnchor.equals(note))
+			|| this.selectedAnchor == null;
 	}
 	
 	private void deselectParents(DisplayObject note) {
@@ -330,29 +283,29 @@ public class DisplayObjectList extends TreeSet<DisplayObject> implements View {
 	
 	public int selectTopOrDeselectAllNotes(Point location) {
 		//notes are saved from bottom to top... just takes one note
-		for (DisplayObject currentNote: this) {
+		for (DisplayObject currentNote: this.objects) {
 			if (currentNote.getRectangle().contains(location)) {
 				this.toggleSelected(currentNote);
-				return this.selectedNotes.size();
+				return this.selectedObjects.size();
 			}
 		}
 		this.deselectAllNotes();
-		return this.selectedNotes.size();
+		return this.selectedObjects.size();
 	}
 	
 	private void deselectAllNotes() {
-		for (DisplayObject currentNote: this.selectedNotes) {
+		for (DisplayObject currentNote: this.selectedObjects) {
 			currentNote.setSelected(false);
 		}
-		this.selectedNotes = new TreeSet<DisplayObject>();
+		this.selectedObjects = new TreeSet<DisplayObject>();
 	}
 	
 	public DisplayObject getNoteAt(Point location) {
-		return this.getNoteAt(location, this);
+		return this.getNoteAt(location, this.objects);
 	}
 	
 	public boolean hasSelectedNoteAt(Point location) {
-		return this.getNoteAt(location, this.selectedNotes) != null;
+		return this.getNoteAt(location, this.selectedObjects) != null;
 	}
 	
 	private DisplayObject getNoteAt(Point location, Set<DisplayObject> notes) {
@@ -367,38 +320,38 @@ public class DisplayObjectList extends TreeSet<DisplayObject> implements View {
 	public void selectOrDeselectAnchorNote(Point location) {
 		DisplayObject noteInLocation = this.getNoteAt(location);
 		if (noteInLocation != null) {
-			if (noteInLocation.equals(this.selectedAnchorNote)) {
-				this.selectedAnchorNote = null;
+			if (noteInLocation.equals(this.selectedAnchor)) {
+				this.selectedAnchor = null;
 			} else if (noteInLocation.hasChildren()) {
 				this.setSelectedAnchorNote(noteInLocation);
 			}
 		} else {
-			this.selectedAnchorNote = null;
+			this.selectedAnchor = null;
 		}
 	}
 	
 	public void setSelectedAnchorNote(DisplayObject note) {
-		this.selectedAnchorNote = note;
-		this.selectedNotes.remove(note);
+		this.selectedAnchor = note;
+		this.selectedObjects.remove(note);
 	}
 	
 	public DenotatorPath getSelectedAnchorNodePath() {
-		if (this.selectedAnchorNote != null) {
-			return this.selectedAnchorNote.getTopDenotatorPath();
+		if (this.selectedAnchor != null) {
+			return this.selectedAnchor.getTopDenotatorPath();
 		}
 		return null;
 	}
 	
 	public Point2D.Double getSelectedAnchorNodeCenter() {
-		if (this.selectedAnchorNote != null) {
-			return this.selectedAnchorNote.getLocation();
+		if (this.selectedAnchor != null) {
+			return this.selectedAnchor.getLocation();
 		}
 		return null;
 	}
 	
 	public Set<DenotatorPath> getSelectedObjectPaths() {
 		TreeSet<DenotatorPath> objectPaths = new TreeSet<DenotatorPath>();
-		for (DisplayObject currentObject : this.selectedNotes) {
+		for (DisplayObject currentObject : this.selectedObjects) {
 			//nodePaths.add(new DenotatorPath(currentNote.getOriginalPath()));
 			objectPaths.add(currentObject.getTopDenotatorPath());
 		}
@@ -406,7 +359,7 @@ public class DisplayObjectList extends TreeSet<DisplayObject> implements View {
 	}
 	
 	private void makeAllModulatorsVisible() {
-		for (DisplayObject currentNote: this) {
+		for (DisplayObject currentNote: this.objects) {
 			currentNote.setVisibility(LayerState.active);
 		}
 	}
@@ -424,7 +377,7 @@ public class DisplayObjectList extends TreeSet<DisplayObject> implements View {
 	}
 	
 	private void updateVisibility(LayerStates states) {
-		for (DisplayObject currentNote: this) {
+		for (DisplayObject currentNote: this.objects) {
 			LayerState currentState = states.get(currentNote.getLayer());
 			currentNote.setVisibility(currentState);
 			if (!currentState.equals(LayerState.active)) {
@@ -436,13 +389,13 @@ public class DisplayObjectList extends TreeSet<DisplayObject> implements View {
 	}
 	
 	public void updateBounds(double xZoomFactor, double yZoomFactor, int xPosition, int yPosition) {
-		for (DisplayObject currentNote : this) {
+		for (DisplayObject currentNote : this.objects) {
 			currentNote.updateBounds(xZoomFactor, yZoomFactor, xPosition, yPosition);
 		}
 	}
 	
 	public void paint(AbstractPainter painter) {
-		this.paintConnectors(painter, this);
+		this.paintConnectors(painter, this.objects);
 		this.paintInactiveNotes(painter);
 		this.paintActiveNotes(painter);
 		//leads to some flipping problems, but necessary for clearness
@@ -451,7 +404,7 @@ public class DisplayObjectList extends TreeSet<DisplayObject> implements View {
 	}
 	
 	public void paintSelectedNotesConnectors(AbstractPainter painter, int parentX, int parentY) {
-		for (DisplayObject currentNote : this.selectedNotes) {
+		for (DisplayObject currentNote : this.selectedObjects) {
 			currentNote.paintConnectors(painter, parentX, parentY);
 		}
 	}
@@ -463,7 +416,7 @@ public class DisplayObjectList extends TreeSet<DisplayObject> implements View {
 	}
 	
 	private void paintInactiveNotes(AbstractPainter painter) {
-		for (DisplayObject currentNote : this) {
+		for (DisplayObject currentNote : this.objects) {
 			if (!currentNote.isActive()) {
 				currentNote.paint(painter);
 			}
@@ -471,7 +424,7 @@ public class DisplayObjectList extends TreeSet<DisplayObject> implements View {
 	}
 	
 	private void paintActiveNotes(AbstractPainter painter) {
-		for (DisplayObject currentNote : this) {
+		for (DisplayObject currentNote : this.objects) {
 			if (currentNote.isActive()) {
 				currentNote.paint(painter);
 			}
@@ -479,14 +432,14 @@ public class DisplayObjectList extends TreeSet<DisplayObject> implements View {
 	}
 	
 	public void paintSelectedNotes(AbstractPainter painter) {
-		for (DisplayObject currentNote : this.selectedNotes) {
+		for (DisplayObject currentNote : this.selectedObjects) {
 			currentNote.paint(painter);
 		}
 	}
 	
 	private void paintSelectedAnchorNote(AbstractPainter painter) {
-		if (this.selectedAnchorNote != null) {
-			this.selectedAnchorNote.paintAnchorSelection(painter);
+		if (this.selectedAnchor != null) {
+			this.selectedAnchor.paintAnchorSelection(painter);
 		}
 	}
 
@@ -519,6 +472,18 @@ public class DisplayObjectList extends TreeSet<DisplayObject> implements View {
 			}
 		}
 		return -1;
+	}
+	
+	public DisplayObject first() {
+		return this.objects.first();
+	}
+	
+	public DisplayObject last() {
+		return this.objects.last();
+	}
+	
+	public int size() {
+		return this.objects.size();
 	}
 
 }

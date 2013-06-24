@@ -61,7 +61,7 @@ public class AddObjectsEdit extends AbstractOperationEdit {
 		if (this.powersetPath == null) {
 			presentationName += this.scoreManager.getComposition().getForm().getNameString();
 		} else {
-			presentationName += this.powersetPath.getForm().getForm(0).getNameString();
+			presentationName += this.powersetPath.getEndForm().getForm(0).getNameString();
 		}
 		if (this.pathsWithValues.size() > 1) {
 			presentationName += "s";

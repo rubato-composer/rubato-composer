@@ -105,9 +105,9 @@ public class JBigBangPopupMenu extends JPopupMenu implements View {
 	public void modelPropertyChange(PropertyChangeEvent event) {
 		String propertyName = event.getPropertyName();
 		if (propertyName.equals(ViewController.FORM)) {
-			DisplayObjectList displayObjects = (DisplayObjectList)event.getNewValue();
-			this.allowSatelliteItems(displayObjects.allowsForSatellites());
-			this.updateSatelliteMenu(displayObjects.getObjects());
+			DisplayObjects displayObjects = (DisplayObjects)event.getNewValue();
+			this.allowSatelliteItems(displayObjects.baseFormAllowsForSatellites());
+			this.updateSatelliteMenu(displayObjects.getObjectTypes());
 		} else if (propertyName.equals(ViewController.UNDO)) {
 			this.updateUndoRedoItems(event);
 		} else if (propertyName.equals(ViewController.REDO)) {

@@ -23,7 +23,7 @@ public class DenotatorPath implements Comparable<Object> {
 	private List<Integer> indices;
 	private Form baseForm;
 	//form at which the path ends
-	private Form form;
+	private Form endForm;
 	//null if not a simple form
 	private Module module;
 	private int elementPathIndex;
@@ -75,7 +75,7 @@ public class DenotatorPath implements Comparable<Object> {
 				}
 			}
 		}
-		this.form = currentForm;
+		this.endForm = currentForm;
 		this.module = currentModule;
 	}
 	
@@ -131,7 +131,7 @@ public class DenotatorPath implements Comparable<Object> {
 	
 	public DenotatorPath subPath(int fromIndex, int toIndex) {
 		try {
-			Form subForm = new DenotatorPath(this.baseForm, this.indices.subList(0, fromIndex)).getForm();
+			Form subForm = new DenotatorPath(this.baseForm, this.indices.subList(0, fromIndex)).getEndForm();
 			return new DenotatorPath(subForm, new ArrayList<Integer>(this.indices.subList(fromIndex, toIndex)));
 		} catch (IllegalArgumentException e) {
 			return null;
@@ -185,7 +185,7 @@ public class DenotatorPath implements Comparable<Object> {
 		}
 		DenotatorPath other = (DenotatorPath)object;
 		for (int i = 0; i < this.indices.size(); i++) {
-			Form currentForm = this.subPath(0, i+1).getForm();
+			Form currentForm = this.subPath(0, i+1).getEndForm();
 			if (currentForm.getType() != Form.POWER && currentForm.getType() != Form.LIST) {
 				if (this.indices.get(i) != other.indices.get(i)) {
 					return false;
@@ -220,8 +220,8 @@ public class DenotatorPath implements Comparable<Object> {
 	 * @return the path of the childIndex-th child of this path, regardless wether it exists or not
 	 */
 	public DenotatorPath getChildPath(int childIndex) {
-		if (this.form.getFormCount() > childIndex || this.form.getType() == Form.POWER || this.form.getType() == Form.LIST
-				|| (this.form.getType() == Form.SIMPLE && this.getSubModuleOrRing(childIndex) != null)) {
+		if (this.endForm.getFormCount() > childIndex || this.endForm.getType() == Form.POWER || this.endForm.getType() == Form.LIST
+				|| (this.endForm.getType() == Form.SIMPLE && this.getSubModuleOrRing(childIndex) != null)) {
 			DenotatorPath childPath = this.clone();
 			childPath.add(childIndex);
 			return childPath;
@@ -280,10 +280,10 @@ public class DenotatorPath implements Comparable<Object> {
 	}
 	
 	public List<DenotatorPath> getParentColimitPaths() {
-		DenotatorPath currentPath = this.clone();
+		DenotatorPath currentPath = this.getParentPath();
 		List<DenotatorPath> parentColimitPaths = new ArrayList<DenotatorPath>();
 		while (currentPath != null) {
-			if (currentPath.getForm().getType() == Form.COLIMIT) {
+			if (currentPath.getEndForm().getType() == Form.COLIMIT) {
 				parentColimitPaths.add(currentPath);
 			}
 			currentPath = currentPath.getParentPath();
@@ -308,7 +308,7 @@ public class DenotatorPath implements Comparable<Object> {
 	private Form getParentForm() {
 		DenotatorPath parentPath = this.getParentPath(); 
 		if (parentPath != null) {
-			return parentPath.getForm();
+			return parentPath.getEndForm();
 		}
 		return null;
 	}
@@ -322,7 +322,7 @@ public class DenotatorPath implements Comparable<Object> {
 		if (this.size() >= path.size()) {
 			if (this.subPath(0, path.size()).equals(path)) {
 				for (int i = path.size()+1; i < this.size(); i++) {
-					if (this.subPath(0, i).getForm().getType() == Form.POWER) {
+					if (this.subPath(0, i).getEndForm().getType() == Form.POWER) {
 						return false;
 					}
 				}
@@ -376,11 +376,15 @@ public class DenotatorPath implements Comparable<Object> {
 		return powersetIndices;
 	}
 	
+	public Form getBaseForm() {
+		return this.baseForm;
+	}
+	
 	/**
 	 * @return the form that the path ends with, even if it goes on into module elements
 	 */
-	public Form getForm() {
-		return this.form;
+	public Form getEndForm() {
+		return this.endForm;
 	}
 	
 	public Module getModule() {
@@ -388,8 +392,8 @@ public class DenotatorPath implements Comparable<Object> {
 	}
 		
 	private Module getSubModuleOrRing(int index) {
-		if (this.form.getType() == Form.SIMPLE && this.module == null) {
-			return this.getSubModule(((SimpleForm)this.form).getModule(), index); 
+		if (this.endForm.getType() == Form.SIMPLE && this.module == null) {
+			return this.getSubModule(((SimpleForm)this.endForm).getModule(), index); 
 		} else if (this.module != null) {
 			return this.getSubModule(this.module, index);
 		}
@@ -418,7 +422,7 @@ public class DenotatorPath implements Comparable<Object> {
 		pathQueue.add(this.getTopPath());
 		while (!pathQueue.isEmpty()) {
 			DenotatorPath currentPath = pathQueue.poll();
-			Form currentForm = currentPath.getForm();
+			Form currentForm = currentPath.getEndForm();
 			//TODO: LIST TOO, change all names!!!
 			if (currentForm.getType() == Form.POWER || currentForm.getType() == Form.LIST) {
 				if (foundCount >= powersetIndex) {

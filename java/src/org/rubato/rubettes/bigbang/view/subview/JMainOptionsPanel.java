@@ -79,22 +79,21 @@ public class JMainOptionsPanel extends JPanel implements ActionListener, View {
 		this.drawingOptionsPanel.removeAll();
 		int numberOfBoxes = 0;
 		
+		//TODO: only if more than one object to draw!?
 		if (!objects.isEmpty()) {
-			Vector<String> objectNames = new Vector<String>();
-			for (Form currentObjectForm : objects) {
-				objectNames.add(currentObjectForm.getNameString());
-			}
-			this.objectBox = new JComboBox(objectNames);
+			this.objectBox = new JComboBox(this.generateNameVector(objects));
 			this.objectBox.addActionListener(this);
 			this.drawingOptionsPanel.add(new JLabel("Object"));
 			this.drawingOptionsPanel.add(this.objectBox);
 			numberOfBoxes++;
 		}
 		
+		//TODO: ADD SEPARATOR!!
+		
 		this.colimitBoxes.clear();
 		for (ColimitForm currentColimit : colimits) {
 			this.drawingOptionsPanel.add(new JLabel(currentColimit.getNameString()));
-			JComboBox currentBox = new JComboBox(new Vector<Form>(currentColimit.getForms()));
+			JComboBox currentBox = new JComboBox(this.generateNameVector(currentColimit.getForms()));
 			currentBox.addActionListener(this);
 			this.colimitBoxes.add(currentBox);
 			this.drawingOptionsPanel.add(currentBox);
@@ -103,11 +102,21 @@ public class JMainOptionsPanel extends JPanel implements ActionListener, View {
 		SpringUtilities.makeCompactGrid(this.drawingOptionsPanel, numberOfBoxes, 2, 0, 0, 0, 0);
 	}
 	
+	private Vector<String> generateNameVector(List<Form> forms) {
+		Vector<String> names = new Vector<String>();
+		for (Form currentObjectForm : forms) {
+			names.add(currentObjectForm.getNameString());
+		}
+		return names;
+	}
+	
 	private void updateColimitBoxes(List<Integer> selectedCoordinates) {
-		for (int i = 0; i < this.colimitBoxes.size(); i++) {
-			int currentIndex = selectedCoordinates.get(i);
-			this.colimitBoxes.get(i).setEnabled(currentIndex >= 0);
-			this.colimitBoxes.get(i).setSelectedIndex(currentIndex);
+		if (selectedCoordinates.size() == this.colimitBoxes.size()) {
+			for (int i = 0; i < this.colimitBoxes.size(); i++) {
+				int currentIndex = selectedCoordinates.get(i);
+				this.colimitBoxes.get(i).setEnabled(currentIndex >= 0);
+				this.colimitBoxes.get(i).setSelectedIndex(currentIndex);
+			}
 		}
 	}
 
@@ -119,13 +128,13 @@ public class JMainOptionsPanel extends JPanel implements ActionListener, View {
 		} else if (propertyName.equals(ViewController.MAIN_OPTIONS_VISIBLE)) {
 			this.setVisible((Boolean)event.getNewValue());
 		} else if (propertyName.equals(ViewController.FORM)) {
-			DisplayObjectList displayObjects = (DisplayObjectList)event.getNewValue();
+			DisplayObjects displayObjects = (DisplayObjects)event.getNewValue();
 			this.selectFormPanel.setForm(displayObjects.getBaseForm());
-			this.initDrawingOptionsPanel(displayObjects.getObjects(), displayObjects.getTopDenotatorColimits());
+			this.initDrawingOptionsPanel(displayObjects.getObjectTypes(), displayObjects.getActiveObjectType().getColimits());
 			this.revalidate();
-		} else if (propertyName.equals(ViewController.SELECTED_OBJECT)) {
+		} else if (propertyName.equals(ViewController.ACTIVE_OBJECT)) {
 			this.objectBox.setSelectedIndex((Integer)event.getNewValue());
-		} else if (propertyName.equals(ViewController.SELECTED_COLIMIT_COORDINATE)) {
+		} else if (propertyName.equals(ViewController.ACTIVE_COLIMIT_COORDINATE)) {
 			this.updateColimitBoxes(((List<Integer>)event.getNewValue()));
 		}
 	}
@@ -134,12 +143,12 @@ public class JMainOptionsPanel extends JPanel implements ActionListener, View {
 		if (event.getSource().equals(this.selectFormPanel)) {
 			this.bigBangController.setForm(this.selectFormPanel.getForm());
 		} else if (this.objectBox.equals(event.getSource())) {
-			this.viewController.setSelectedPowerset(this.objectBox.getSelectedIndex());
+			this.viewController.setActiveObject(this.objectBox.getSelectedIndex());
 		} else if (this.colimitBoxes.contains(event.getSource())) {
 			JComboBox colimitBox = (JComboBox)event.getSource();
 			int colimitIndex = this.colimitBoxes.indexOf(colimitBox);
 			int coordinateIndex = colimitBox.getSelectedIndex();
-			this.viewController.setSelectedColimitCoordinate(colimitIndex, coordinateIndex);
+			this.viewController.setActiveColimitCoordinate(colimitIndex, coordinateIndex);
 		}
 	}
 	

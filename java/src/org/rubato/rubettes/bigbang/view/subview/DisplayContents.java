@@ -13,7 +13,7 @@ public class DisplayContents {
 	//finally merge with display!!!!
 	protected ViewParameters viewParameters;
 	private int[] selectedViewParameters;
-	protected DisplayObjectList displayObjects;
+	protected DisplayObjects displayObjects;
 	private DisplayAxes axes;
 	private DisplayTool tool;
 	private DisplayPlaybackLine playbackLine;
@@ -26,8 +26,8 @@ public class DisplayContents {
 		this.playbackLine = new DisplayPlaybackLine(this, player);
 	}
 	
-	public void setNotes(DisplayObjectList displayObjects) {
-		for (DisplayObject currentNote : displayObjects) {
+	public void setNotes(DisplayObjects displayObjects) {
+		for (DisplayObject currentNote : displayObjects.getObjects()) {
 			currentNote.setDisplay(this);
 		}
 		this.displayObjects = displayObjects;
@@ -35,7 +35,7 @@ public class DisplayContents {
 		this.axes = new DisplayAxes(this, displayObjects.getValueNames());
 	}
 	
-	public DisplayObjectList getDisplayObjects() {
+	public DisplayObjects getDisplayObjects() {
 		return this.displayObjects;
 	}
 	

@@ -92,7 +92,7 @@ public class BigBangScore implements Cloneable {
 	 */
 	public DenotatorPath addObject(DenotatorPath powersetPath, Map<DenotatorPath,Double> pathsWithValues) {
 		if (powersetPath != null) {
-			Denotator newObject = this.objectGenerator.createObject(powersetPath.getChildPath(0).getForm(), pathsWithValues);
+			Denotator newObject = this.objectGenerator.createObject(powersetPath.getChildPath(0).getEndForm(), pathsWithValues);
 			
 			return this.addObject(newObject, powersetPath);
 		}
@@ -111,7 +111,7 @@ public class BigBangScore implements Cloneable {
 		List<Denotator> newObjects = new ArrayList<Denotator>();
 		Form objectForm;
 		if (powersetPath != null) {
-			objectForm = powersetPath.getChildPath(0).getForm();
+			objectForm = powersetPath.getChildPath(0).getEndForm();
 		} else {
 			objectForm = this.score.getForm();
 		}

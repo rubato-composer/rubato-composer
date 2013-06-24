@@ -21,9 +21,9 @@ import org.rubato.rubettes.bigbang.controller.ScoreChangedNotification;
 import org.rubato.rubettes.bigbang.view.controller.ViewController;
 import org.rubato.rubettes.bigbang.view.player.JSynObject;
 import org.rubato.rubettes.bigbang.view.player.JSynScore;
-import org.rubato.rubettes.bigbang.view.subview.DisplayObjectList;
+import org.rubato.rubettes.bigbang.view.subview.DisplayObjects;
 import org.rubato.rubettes.util.DenotatorPath;
-import org.rubato.rubettes.util.DenotatorValueFinder;
+import org.rubato.rubettes.util.FormValueFinder;
 
 //TODO: deal with case that different occurences of same form have independent maxima!!!  
 public class DenotatorValueExtractor {
@@ -34,62 +34,49 @@ public class DenotatorValueExtractor {
 	
 	private int maxLayer;
 	private Map<String,Double> minValues, maxValues;
-	private DisplayObjectList displayObjects;
+	private DisplayObjects displayObjects;
 	private JSynScore jSynScore;
 	//TreeSet in future for faster searching!!!
 	private boolean selectObjects;
 	private Set<DenotatorPath> selectedPaths;
 	private DenotatorPath selectedAnchor;
 	private LayerStates layerStates;
-	private DenotatorValueFinder finder;
 	
-	//TODO: not really nice, but used this way just to get JSynScore of independent object..
-	public DenotatorValueExtractor(Denotator score) {
+	public DenotatorValueExtractor(LayerStates layerStates) {
 		//PerformanceCheck.startTask("extract");
-		this.layerStates = new LayerStates(new ViewController());
-		this.initAndExtract(new ViewController(), score, false);
+		this.layerStates = layerStates;
 	}
 	
-	public DenotatorValueExtractor(ViewController controller, ScoreChangedNotification notification, boolean selectObjects, LayerStates layerStates) {
+	//TODO: not really nice, but used this way just to get JSynScore of independent object..
+	public DisplayObjects extractValues(Denotator score) {
+		//PerformanceCheck.startTask("extract");
+		this.layerStates = new LayerStates(new ViewController());
+		return this.initAndExtract(new ViewController(), score, false);
+	}
+	
+	public DisplayObjects extractValues(ViewController controller, ScoreChangedNotification notification, boolean selectObjects) {
 		//PerformanceCheck.startTask("extract");
 		this.selectedPaths = notification.getNotesToBeSelected();
 		this.selectedAnchor = notification.getAnchorToBeSelected();
-		this.layerStates = layerStates;
-		this.initAndExtract(controller, notification.getScore(), selectObjects);
+		return this.initAndExtract(controller, notification.getScore(), selectObjects);
 	}
 	
-	private void initAndExtract(ViewController controller, Denotator score, boolean selectObjects) {
-		Form form = score.getForm();
-		this.finder = new DenotatorValueFinder(form, true);
+	private DisplayObjects initAndExtract(ViewController controller, Denotator score, boolean selectObjects) {
+		Form baseForm = score.getForm();
 		this.minValues = new TreeMap<String,Double>();
 		this.maxValues = new TreeMap<String,Double>();
-		this.displayObjects = new DisplayObjectList(controller, form);
+		if (this.displayObjects != null && baseForm.equals(this.displayObjects.getBaseForm())) {
+			this.displayObjects.clearObjects();
+		} else {
+			this.displayObjects = new DisplayObjects(controller, baseForm);
+		}
 		this.jSynScore = new JSynScore();
 		this.selectObjects = selectObjects;
 		try {
-			this.extractObjects(score, null, null, null, null, 0, 0, 0, new DenotatorPath(score.getForm()));
+			this.extractObjects(score, null, null, null, null, 0, 0, 0, new DenotatorPath(baseForm));
 		} catch (RubatoException e) { e.printStackTrace(); }
-		this.setTopDenotatorParameters();
 		this.layerStates.removeLayers(this.maxLayer);
-	}
-	
-	private void setTopDenotatorParameters() {
-		this.displayObjects.setValueNamesAndPaths(this.finder.getValueNamesAndPaths());
-		this.displayObjects.setObjects(this.finder.getObjectsInFoundOrder());
-		this.displayObjects.setObjectsAndPaths(this.finder.getObjectsAndPaths());
-		this.displayObjects.setTopDenotatorColimits(this.finder.getColimitsInFoundOrder());
-		this.displayObjects.setTopDenotatorColimitsAndPaths(this.finder.getColimitsAndPaths());
-		this.displayObjects.setAllowsForSatellites(this.finder.formAllowsForSatellites());
-		
-		List<String> valueNames = this.finder.getValueNamesInFoundOrder();
-		if (this.finder.formAllowsForSatellites()) {
-			valueNames.add(DenotatorValueExtractor.SATELLITE_LEVEL);
-			valueNames.add(DenotatorValueExtractor.SIBLING_NUMBER);
-		}
-		if (this.finder.formContainsColimit()) {
-			valueNames.add(DenotatorValueExtractor.COLIMIT_INDEX);
-		}
-		this.displayObjects.setValueNames(valueNames);
+		return this.displayObjects;
 	}
 	
 	//recursive method!!
@@ -134,7 +121,7 @@ public class DenotatorValueExtractor {
 	private DisplayObject addDisplayObject(Denotator denotator, DisplayObject parent, int satelliteLevel, int siblingNumber, int colimitIndex, DenotatorPath path) {
 		DisplayObject displayObject = this.createDisplayObject(denotator, parent, satelliteLevel, siblingNumber, colimitIndex, path);
 		displayObject.setVisibility(this.layerStates.get(displayObject.getLayer()));
-		this.displayObjects.add(displayObject);
+		this.displayObjects.addObject(displayObject);
 		if (this.selectObjects && this.selectedPaths != null) {
 			if (this.selectedPaths.contains(path)) {
 				this.displayObjects.selectNote(displayObject);
@@ -148,11 +135,11 @@ public class DenotatorValueExtractor {
 	
 	private DisplayObject createDisplayObject(Denotator denotator, DisplayObject parent, int satelliteLevel, int siblingNumber, int colimitIndex, DenotatorPath path) {
 		List<Integer> structuralValues = new ArrayList<Integer>();
-		if (this.finder.formAllowsForSatellites()) {
+		if (this.displayObjects.baseFormAllowsForSatellites()) {
 			structuralValues.add(satelliteLevel);
 			structuralValues.add(siblingNumber);
 		}
-		if (this.finder.formContainsColimit()) {
+		if (this.displayObjects.baseFormContainsColimits()) {
 			structuralValues.add(colimitIndex);
 		}
 		return new DisplayObject(parent, denotator.getType(), structuralValues, path.clone());
@@ -186,7 +173,7 @@ public class DenotatorValueExtractor {
 				this.extractValues(parent, simpleName, currentElement.getComponent(i), values, indexString+(i+1));
 			}
 		} else {
-			String valueName = DenotatorValueFinder.makeValueName(simpleName, currentElement.getModule(), indexString);
+			String valueName = FormValueFinder.makeValueName(simpleName, currentElement.getModule(), indexString);
 			double value = ((RElement)currentElement.cast(RRing.ring)).getValue();
 			if (parent != null) {
 				Double parentValue = parent.getValue(valueName);
@@ -207,10 +194,6 @@ public class DenotatorValueExtractor {
 			this.minValues.put(currentValueName, Math.min(values.get(currentValueName), this.minValues.get(currentValueName)));
 			this.maxValues.put(currentValueName, Math.max(values.get(currentValueName), this.maxValues.get(currentValueName)));
 		}
-	}
-	
-	public DisplayObjectList getDisplayObjects() {
-		return this.displayObjects;
 	}
 	
 	public JSynScore getJSynScore() {

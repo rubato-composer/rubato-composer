@@ -2,6 +2,8 @@ package org.rubato.rubettes.bigbang.test;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
 
 import junit.framework.TestCase;
 
@@ -34,6 +36,7 @@ public class TestObjects {
 	
 	public final Form SOUND_SCORE_FORM, SOUND_NODE_FORM, SOUND_NOTE_FORM, HARMONIC_SPECTRUM_FORM;
 	public final Form MACRO_SCORE_FORM = Repository.systemRepository().getForm("MacroScore");
+	public final PowerForm GENERAL_SCORE_FORM = (PowerForm)Repository.systemRepository().getForm("GeneralScore");
 	public final Module RATIONAL_TRIPLE_MODULE = Repository.systemRepository().getModule("Triples of rationals"); 
 	public final SimpleForm RATIONAL_TRIPLE_FORM = new SimpleForm(NameDenotator.make("RationalTriple"), RATIONAL_TRIPLE_MODULE);
 	public final PowerForm RATIONAL_TRIPLES_FORM = new PowerForm(NameDenotator.make("RationalTriples"), RATIONAL_TRIPLE_FORM);
@@ -154,33 +157,55 @@ public class TestObjects {
 		this.integerOrReals = new PowerDenotator(NameDenotator.make(""), INTEGER_OR_REALS_FORM, integerOrReals);
 	}
 	
+	public PowerDenotator createGeneralScore(double[][] notes, double[][] rests) throws RubatoException {
+		List<Denotator> notesAndRests = new ArrayList<Denotator>();
+		for (int i = 0; i < notes.length; i++) {
+			Denotator currentNote = this.objectGenerator.createStandardDenotator(CoolFormRegistrant.NOTE_FORM, notes[i]);
+			notesAndRests.add(this.createColimitDenotator(CoolFormRegistrant.NOTE_OR_REST_FORM, 0, currentNote));
+		}
+		for (int i = 0; i < rests.length; i++) {
+			Denotator currentRest = this.objectGenerator.createStandardDenotator(CoolFormRegistrant.REST_FORM, rests[i]);
+			notesAndRests.add(this.createColimitDenotator(CoolFormRegistrant.NOTE_OR_REST_FORM, 1, currentRest));
+		}
+		return new PowerDenotator(NameDenotator.make(""), GENERAL_SCORE_FORM, notesAndRests);
+	}
+	
+	public LimitDenotator createMultilevelNode(double[][] parameters) throws RubatoException {
+		return (LimitDenotator)this.generator.createMultiLevelSoundScore(parameters).get(new int[]{0});
+	}
+	
 	public Denotator createRationalTriple(double[] values) {
-		return this.objectGenerator.createDenotator(this.RATIONAL_TRIPLE_FORM, values);
+		return this.objectGenerator.createStandardDenotator(this.RATIONAL_TRIPLE_FORM, values);
 	}
 	
 	public Denotator createRealTriple(double[] values) {
-		return this.objectGenerator.createDenotator(this.REAL_TRIPLE_FORM, values);
+		return this.objectGenerator.createStandardDenotator(this.REAL_TRIPLE_FORM, values);
 	}
 	
 	public Denotator createIntegerOrReal(boolean integer, double value) throws RubatoException {
 		if (integer) {
-			return new ColimitDenotator(NameDenotator.make(""), INTEGER_OR_REAL_FORM, 0, this.createInteger((int)value));
+			return this.createColimitDenotator(INTEGER_OR_REAL_FORM, 0, this.createInteger((int)value));
 		}
-		return new ColimitDenotator(NameDenotator.make(""), INTEGER_OR_REAL_FORM, 1, this.createReal(value));
+		return this.createColimitDenotator(INTEGER_OR_REAL_FORM, 1, this.createReal(value));
+	}
+	
+	private ColimitDenotator createColimitDenotator(ColimitForm form, int index, Denotator coordinate) throws RubatoException {
+		return new ColimitDenotator(NameDenotator.make(""), form, index, coordinate);
 	}
 	
 	public Denotator createInteger(int value) {
-		return this.objectGenerator.createDenotator(this.INTEGER_FORM, value);
+		return this.objectGenerator.createStandardDenotator(this.INTEGER_FORM, value);
 	}
 	
 	public Denotator createReal(double value) {
-		return this.objectGenerator.createDenotator(this.REAL_FORM, value);
+		return this.objectGenerator.createStandardDenotator(this.REAL_FORM, value);
 	}
 	
 	public void assertEqualDenotators(Denotator d1, Denotator d2) {
 		TestCase.assertEquals(d1.getForm(), d2.getForm());
-		List<DenotatorPath> allValuePaths = new ArrayList<DenotatorPath>(new DenotatorValueFinder(d1.getForm(), true).getValueNamesAndPaths().values());
-		allValuePaths.addAll(new DenotatorValueFinder(d2.getForm(), true).getValueNamesAndPaths().values());
+		Set<DenotatorPath> allValuePaths = new TreeSet<DenotatorPath>(new DenotatorValueFinder(d1, true).getValuePaths());
+		allValuePaths.addAll(new DenotatorValueFinder(d2, true).getValuePaths());
+		//System.out.println(allValuePaths + " " + d1 + " " + d2);
 		for (DenotatorPath currentPath : allValuePaths) {
 			TestCase.assertEquals(this.objectGenerator.getDoubleValue(d1, currentPath), this.objectGenerator.getDoubleValue(d2, currentPath));
 		}
