@@ -1,9 +1,5 @@
 package org.rubato.rubettes.bigbang.model;
 
-import java.util.List;
-
-import org.rubato.rubettes.util.DenotatorPath;
-
 /**
  * Manipulates satellite and sound node hierarchies
  * @author flo
@@ -12,11 +8,11 @@ import org.rubato.rubettes.util.DenotatorPath;
 public class BigBangScoreManipulator {
 	
 	protected BigBangScore score;
-	protected List<DenotatorPath> valuePaths;
+	protected TransformationPaths transformationPaths;
 	
-	public BigBangScoreManipulator(BigBangScore score, List<DenotatorPath> valuePaths) {
+	public BigBangScoreManipulator(BigBangScore score, TransformationPaths transformationPaths) {
 		this.score = score;
-		this.valuePaths = valuePaths;
+		this.transformationPaths = transformationPaths;
 	}
 
 }

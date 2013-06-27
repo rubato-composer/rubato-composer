@@ -18,6 +18,7 @@ import javax.swing.JPanel;
 import org.rubato.rubettes.bigbang.controller.BigBangController;
 import org.rubato.rubettes.bigbang.controller.ScoreChangedNotification;
 import org.rubato.rubettes.bigbang.model.Model;
+import org.rubato.rubettes.bigbang.model.TransformationPaths;
 import org.rubato.rubettes.bigbang.model.TransformationProperties;
 import org.rubato.rubettes.bigbang.model.edits.AbstractLocalTransformationEdit;
 import org.rubato.rubettes.bigbang.model.edits.AbstractTransformationEdit;
@@ -304,16 +305,16 @@ public class BigBangView extends Model implements View {
 			this.selectedNotes = null;
 			this.selectedAnchor = null;
 		}
-		this.updateDisplayObjects(newObjects, extractor.getMinValues(), extractor.getMaxValues());
-		this.updatePlayerScore(extractor.getJSynScore(), notification.playback());
+		this.updateDisplayObjects(newObjects, this.extractor.getMinValues(), this.extractor.getMaxValues());
+		this.updatePlayerScore(this.extractor.getJSynScore(), notification.playback());
 	}
 	
 	private void updateDisplayObjects(DisplayObjects displayNotes, List<Double> minValues, List<Double> maxValues) {
 		if (this.displayNotes == null || displayNotes.getBaseForm() != this.displayNotes.getBaseForm()) {
 			if (displayNotes.baseFormAllowsForSatellites()) {
-				this.viewParameters.initSelections(displayNotes.getValueNames().size()-2);
+				this.viewParameters.initSelections(displayNotes.getCoordinateSystemValueNames().size()-2);
 			} else {
-				this.viewParameters.initSelections(displayNotes.getValueNames().size());
+				this.viewParameters.initSelections(displayNotes.getCoordinateSystemValueNames().size());
 			}
 			this.viewController.removeView(this.displayNotes);
 			this.displayNotes = displayNotes;
@@ -327,13 +328,13 @@ public class BigBangView extends Model implements View {
 	}
 	
 	public void setStandardDenotatorValue(Integer index, Double value) {
-		this.standardDenotatorValues.put(this.displayNotes.getValueNames().get(index), value);
+		this.standardDenotatorValues.put(this.displayNotes.getCoordinateSystemValueNames().get(index), value);
 		this.firePropertyChange(ViewController.STANDARD_DENOTATOR_VALUES, null, this.getStandardDenotatorValues());
 	}
 	
 	public List<Double> getStandardDenotatorValues() {
 		List<Double> values = new ArrayList<Double>();
-		for (String currentValueName : this.displayNotes.getValueNames()) {
+		for (String currentValueName : this.displayNotes.getCoordinateSystemValueNames()) {
 			if (this.standardDenotatorValues.containsKey(currentValueName)) {
 				values.add(this.standardDenotatorValues.get(currentValueName));
 			} else {
@@ -358,7 +359,7 @@ public class BigBangView extends Model implements View {
 		this.selectedTransformation = edit;
 		if (this.selectedTransformation != null) {
 			//select perspective first
-			this.viewParameters.setSelectedXYViewParameters(this.getXYViewParameters(edit.getValuePaths()));
+			this.viewParameters.setSelectedXYViewParameters(edit.getTransformationPaths().getXYCoordinates());
 			//TODO: center view?????
 			
 			//TODO: then select notes!!!
@@ -517,7 +518,7 @@ public class BigBangView extends Model implements View {
 		} else {
 			objectPaths = this.selectedNotes;
 		}
-		List<DenotatorPath> valuePaths = this.getXYValuePaths();
+		TransformationPaths valuePaths = this.getXYTransformationPaths();
 		return new TransformationProperties(objectPaths, valuePaths, copyAndTransform, previewMode, this.inWallpaperMode);
 	}
 	
@@ -618,8 +619,10 @@ public class BigBangView extends Model implements View {
 	
 	private DenotatorPath editObjectValuesAndFindClosestPowerset(Point2D.Double location, Map<DenotatorPath,Double> denotatorValues) {
 		DenotatorPath closestPowersetPath = this.displayNotes.getActiveObjectType().getPath().getParentPath();
-		int xValueIndex = this.displayNotes.getActiveObjectValueIndex(this.viewParameters.getValueIndex(0));
-		int yValueIndex = this.displayNotes.getActiveObjectValueIndex(this.viewParameters.getValueIndex(1));
+		int[] xyParameters = this.viewParameters.getSelectedXYViewParameters();
+		int xValueIndex = this.displayNotes.getActiveObjectValueIndex(xyParameters[0]);
+		int yValueIndex = this.displayNotes.getActiveObjectValueIndex(xyParameters[1]);
+		System.out.println(xValueIndex + " " + yValueIndex);
 		if (xValueIndex >= 0 && yValueIndex >= 0) {
 			closestPowersetPath = this.replaceDenotatorValue(location.x, xValueIndex, 0, this.displayPosition.x, this.xZoomFactor, denotatorValues, closestPowersetPath);
 			if (yValueIndex != xValueIndex) {
@@ -636,7 +639,7 @@ public class BigBangView extends Model implements View {
 	private DenotatorPath replaceDenotatorValue(double displayValue, int valueIndex, int parameterIndex, int position, double zoomFactor, Map<DenotatorPath,Double> values, DenotatorPath closestPowersetPath) {
 		if (valueIndex > -1) {
 			double denotatorValue = this.getDenotatorValue(displayValue, parameterIndex, position, zoomFactor);
-			DenotatorPath associatedPath = this.displayNotes.getObjectValuePathAt(valueIndex);
+			DenotatorPath associatedPath = this.displayNotes.getActiveObjectValuePathAt(valueIndex);
 			//null happens when parent value, satellite/sibling level is selected, or when path not in active colimits
 			if (associatedPath != null) {
 				values.put(associatedPath, denotatorValue);
@@ -660,32 +663,18 @@ public class BigBangView extends Model implements View {
 		return (displayValue*zoomFactor)+position;
 	}
 	
-	private List<DenotatorPath> getXYValuePaths() {
-		List<DenotatorPath> denotatorPaths = new ArrayList<DenotatorPath>();
-		for (int i = 0; i < 4; i++) {
-			int selectedViewParameter = this.displayNotes.getActiveObjectValueIndex(this.viewParameters.getValueIndex(i%2));
-			//only one parameter might be selected...
-			if (selectedViewParameter >= 0) {
-				denotatorPaths.add(this.displayNotes.getObjectValuePathAt(selectedViewParameter));
-			} else {
-				denotatorPaths.add(null);
-			}
-		}
-		return denotatorPaths;
-	}
-	
-	private int[] getXYViewParameters(List<DenotatorPath> denotatorPaths) {
-		int[] viewParameters = new int[2];
-		//TODO: this can't be dependent on which object is selected. the object has to be part of the transformation
-		List<DenotatorPath> objectValuePaths = this.displayNotes.getObjectValuePaths();
-		for (int i = 0; i <= 1; i++) {
-			for (int j = 0; j < objectValuePaths.size(); j++) {
-				if (denotatorPaths.get(i).equals(objectValuePaths.get(j))) {
-					viewParameters[i] = j;
-				}
-			}
-		}
-		return viewParameters;
+	private TransformationPaths getXYTransformationPaths() {
+		TransformationPaths paths = new TransformationPaths();
+		int[] xyParameters = this.viewParameters.getSelectedXYViewParameters();
+		paths.setXYCoordinates(xyParameters);
+		//only one parameter might be selected... TODO does the list need to be null or can it just be empty??
+		List<DenotatorPath> xPaths = this.displayNotes.getAllObjectConfigurationsValuePathsAt(xyParameters[0]);
+		List<DenotatorPath> yPaths = this.displayNotes.getAllObjectConfigurationsValuePathsAt(xyParameters[1]);
+		paths.setDomainPaths(0, xPaths);
+		paths.setDomainPaths(1, yPaths);
+		paths.setCodomainPaths(0, xPaths);
+		paths.setCodomainPaths(1, yPaths);
+		return paths;
 	}
 	
 	public void undo() {

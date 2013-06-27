@@ -18,9 +18,7 @@ public class DenotatorObject {
 	private List<DenotatorPath> valuePaths;
 	private List<ColimitForm> colimits;
 	private List<DenotatorPath> colimitPaths;
-	private Map<List<Integer>,DenotatorPath> colimitConfigurations;
-	private Map<List<Integer>,List<String>> colimitConfigurationValueNames;
-	private Map<List<Integer>,List<DenotatorPath>> colimitConfigurationValuePaths;
+	private Map<List<Integer>,DenotatorObjectConfiguration> colimitConfigurations;
 	
 	public DenotatorObject(Form form, DenotatorPath path) {
 		this.form = form;
@@ -47,21 +45,20 @@ public class DenotatorObject {
 	
 	private void updateColimitConfigurations() {
 		if (this.colimitConfigurations == null) {
-			this.colimitConfigurations = new HashMap<List<Integer>,DenotatorPath>();
+			this.colimitConfigurations = new HashMap<List<Integer>,DenotatorObjectConfiguration>();
 			if (this.colimits.size() == 0) {
-				this.colimitConfigurations.put(new ArrayList<Integer>(), new DenotatorPath(this.form));
+				DenotatorObjectConfiguration singleConfiguration = new DenotatorObjectConfiguration(new DenotatorPath(this.form));
+				this.colimitConfigurations.put(new ArrayList<Integer>(), singleConfiguration);
 			} else {
 				this.generateColimitConfigurations(new ArrayList<Integer>(), 0, new DenotatorPath(this.form));
 			}
-			this.initColimitConfigurationValueNamesAndPaths();
 			
 			for (List<Integer> currentConfiguration : this.colimitConfigurations.keySet()) {
 				for (int i = 0; i < this.valueNames.size(); i++) {
 					DenotatorPath currentValuePath = this.valuePaths.get(i);
-					DenotatorPath longestPathInCurrentConfiguration = this.colimitConfigurations.get(currentConfiguration);
+					DenotatorPath longestPathInCurrentConfiguration = this.colimitConfigurations.get(currentConfiguration).getLongestColimitPath();
 					if (!currentValuePath.inConflictingColimitPositions(longestPathInCurrentConfiguration)) {
-						this.colimitConfigurationValueNames.get(currentConfiguration).add(this.valueNames.get(i));
-						this.colimitConfigurationValuePaths.get(currentConfiguration).add(currentValuePath);
+						this.colimitConfigurations.get(currentConfiguration).addValue(this.valueNames.get(i), currentValuePath);
 					}
 				}
 			}
@@ -81,7 +78,8 @@ public class DenotatorObject {
 					List<Integer> currentChildConfiguration = new ArrayList<Integer>(currentConfiguration);
 					currentChildConfiguration.add(i);
 					if (currentIndex == this.colimits.size()-1) {
-						this.colimitConfigurations.put(currentChildConfiguration, currentLongestPath.getChildPath(i).subPath(this.path.size()));
+						DenotatorPath configurationPath = currentLongestPath.getChildPath(i).subPath(this.path.size());
+						this.colimitConfigurations.put(currentChildConfiguration, new DenotatorObjectConfiguration(configurationPath));
 					} else {
 						this.generateColimitConfigurations(currentChildConfiguration, currentIndex+1, currentLongestPath);
 					}
@@ -90,40 +88,63 @@ public class DenotatorObject {
 		}
 	}
 	
-	private void initColimitConfigurationValueNamesAndPaths() {
-		this.colimitConfigurationValueNames = new HashMap<List<Integer>,List<String>>();
-		this.colimitConfigurationValuePaths = new HashMap<List<Integer>,List<DenotatorPath>>();
-		for (List<Integer> currentConfiguration : this.colimitConfigurations.keySet()) {
-			this.colimitConfigurationValueNames.put(currentConfiguration, new ArrayList<String>());
-			this.colimitConfigurationValuePaths.put(currentConfiguration, new ArrayList<DenotatorPath>());
-		}
-	}
-	
 	public Set<List<Integer>> getColimitConfigurations() {
 		this.updateColimitConfigurations();
 		return this.colimitConfigurations.keySet();
 	}
 	
+	public DenotatorObjectConfiguration getColimitConfiguration(DenotatorPath longestColimitPath) {
+		for (DenotatorObjectConfiguration currentConfiguration : this.colimitConfigurations.values()) {
+			if (currentConfiguration.getLongestColimitPath().equals(longestColimitPath)) {
+				return currentConfiguration;
+			}
+		}
+		return null;
+	}
+	
+	public DenotatorObjectConfiguration getStandardConfiguration() {
+		return this.colimitConfigurations.values().iterator().next();
+	}
+	
 	public List<String> getColimitConfigurationValueNames(List<Integer> colimitConfiguration) {
 		this.updateColimitConfigurations();
 		//System.out.println(this.colimitConfigurations + " " + this.colimitConfigurationValueNames + " " + this.colimitConfigurationValuePaths);
-		return this.colimitConfigurationValueNames.get(colimitConfiguration);
+		return this.colimitConfigurations.get(colimitConfiguration).getValueNames();
+	}
+	
+	public List<DenotatorPath> getAllConfigurationsValuePathsOfNthInstance(String valueName, int n) {
+		List<DenotatorPath> paths = new ArrayList<DenotatorPath>();
+		for (DenotatorObjectConfiguration currentConfiguration : this.colimitConfigurations.values()) {
+			DenotatorPath currentPath = currentConfiguration.getPathOfNthInstanceOfValueName(valueName, n);
+			if (currentPath != null) {
+				paths.add(currentPath);
+			}
+		}
+		return paths;
+	}
+	
+	/*
+	 * 0 <= n
+	 */
+	public int getIndexOfNthInstanceOfConfigurationValueName(List<Integer> colimitConfiguration, String name, int n) {
+		return this.colimitConfigurations.get(colimitConfiguration).getIndexOfNthInstanceOfValueName(name, n);
 	}
 	
 	public List<DenotatorPath> getColimitConfigurationValuePaths(List<Integer> colimitConfiguration) {
 		this.updateColimitConfigurations();
-		return this.colimitConfigurationValuePaths.get(colimitConfiguration);
+		return this.colimitConfigurations.get(colimitConfiguration).getValuePaths();
 	}
 	
 	public List<DenotatorPath> getStandardColimitConfigurationValuePaths() {
 		//TODO: improve... remember which config is really first (0 or -1 in all colimits)
-		return this.colimitConfigurationValuePaths.get(this.colimitConfigurations.keySet().iterator().next());
+		return this.colimitConfigurations.get(this.colimitConfigurations.keySet().iterator().next()).getValuePaths();
 	}
 	
 	public int getMaxInstancesInConfigurations(String valueName) {
 		this.updateColimitConfigurations();
 		int maxInstancesInConfigurations = 0;
-		for (List<String> currentValueNames : this.colimitConfigurationValueNames.values()) {
+		for (DenotatorObjectConfiguration currentConfiguration : this.colimitConfigurations.values()) {
+			List<String> currentValueNames = currentConfiguration.getValueNames();
 			int instancesInCurrentConfiguration = Collections.frequency(currentValueNames, valueName);
 			maxInstancesInConfigurations = Math.max(instancesInCurrentConfiguration, maxInstancesInConfigurations);
 		}

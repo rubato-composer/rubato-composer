@@ -1,6 +1,7 @@
 package org.rubato.rubettes.bigbang.test;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
@@ -26,6 +27,7 @@ import org.rubato.math.yoneda.SimpleForm;
 import org.rubato.rubettes.bigbang.controller.BigBangController;
 import org.rubato.rubettes.bigbang.model.BigBangScore;
 import org.rubato.rubettes.bigbang.model.BigBangScoreManager;
+import org.rubato.rubettes.bigbang.model.TransformationPaths;
 import org.rubato.rubettes.util.CoolFormRegistrant;
 import org.rubato.rubettes.util.DenotatorPath;
 import org.rubato.rubettes.util.DenotatorValueFinder;
@@ -174,6 +176,10 @@ public class TestObjects {
 		return (LimitDenotator)this.generator.createMultiLevelSoundScore(parameters).get(new int[]{0});
 	}
 	
+	public Denotator createDyad(double[] pitches) {
+		return this.objectGenerator.createStandardDenotator(CoolFormRegistrant.DYAD_FORM, pitches);
+	}
+	
 	public Denotator createRationalTriple(double[] values) {
 		return this.objectGenerator.createStandardDenotator(this.RATIONAL_TRIPLE_FORM, values);
 	}
@@ -199,6 +205,20 @@ public class TestObjects {
 	
 	public Denotator createReal(double value) {
 		return this.objectGenerator.createStandardDenotator(this.REAL_FORM, value);
+	}
+	
+	/**
+	 * @return TransformationPaths for the given form and one dimension for each given intPath
+	 */
+	public TransformationPaths createStandardTransformationPaths(Form form, int[][] intPaths) {
+		TransformationPaths paths = new TransformationPaths();
+		//add Duration paths for both types of configurations: note and rest
+		for (int i = 0; i < intPaths.length; i++) {
+			DenotatorPath currentPath = new DenotatorPath(form, intPaths[i]);
+			paths.setDomainPaths(i, Arrays.asList(currentPath));
+			paths.setCodomainPaths(i, Arrays.asList(currentPath));
+		}
+		return paths;
 	}
 	
 	public void assertEqualDenotators(Denotator d1, Denotator d2) {

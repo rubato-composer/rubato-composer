@@ -21,6 +21,7 @@ import org.rubato.rubettes.bigbang.view.model.LayerState;
 import org.rubato.rubettes.bigbang.view.model.LayerStates;
 import org.rubato.rubettes.bigbang.view.model.ViewParameters;
 import org.rubato.rubettes.util.DenotatorObject;
+import org.rubato.rubettes.util.DenotatorObjectConfiguration;
 import org.rubato.rubettes.util.DenotatorPath;
 import org.rubato.rubettes.util.FormValueFinder;
 
@@ -31,7 +32,7 @@ public class DisplayObjects implements View {
 	private FormValueFinder finder;
 	private int indexOfActiveObjectType;
 	private List<Integer> activeColimitCoordinates;
-	private List<String> valueNames;
+	private List<String> coordinateSystemValueNames;
 	private TreeSet<DisplayObject> objects;
 	private Set<DisplayObject> selectedObjects;
 	private DisplayObject selectedAnchor;
@@ -44,15 +45,15 @@ public class DisplayObjects implements View {
 		this.indexOfActiveObjectType = 0;
 		this.initActiveColimitCoordinates(this.finder.getObjectAt(0).getColimits().size());
 		
-		List<String> valueNames = finder.getCoordinateSystemValueNames();
+		List<String> coordinateSystemValueNames = finder.getCoordinateSystemValueNames();
 		if (this.finder.formAllowsForSatellites()) {
-			valueNames.add(DenotatorValueExtractor.SATELLITE_LEVEL);
-			valueNames.add(DenotatorValueExtractor.SIBLING_NUMBER);
+			coordinateSystemValueNames.add(DenotatorValueExtractor.SATELLITE_LEVEL);
+			coordinateSystemValueNames.add(DenotatorValueExtractor.SIBLING_NUMBER);
 		}
 		if (this.finder.formContainsColimits()) {
-			valueNames.add(DenotatorValueExtractor.COLIMIT_INDEX);
+			coordinateSystemValueNames.add(DenotatorValueExtractor.COLIMIT_INDEX);
 		}
-		this.valueNames = valueNames;
+		this.coordinateSystemValueNames = coordinateSystemValueNames;
 		
 		this.objects = new TreeSet<DisplayObject>();
 		this.selectedObjects = new TreeSet<DisplayObject>();
@@ -91,8 +92,8 @@ public class DisplayObjects implements View {
 		}
 	}
 	
-	public List<String> getValueNames() {
-		return this.valueNames;
+	public List<String> getCoordinateSystemValueNames() {
+		return this.coordinateSystemValueNames;
 	}
 	
 	public Form getBaseForm() {
@@ -107,7 +108,7 @@ public class DisplayObjects implements View {
 		return this.finder.formContainsColimits();
 	}
 	
-	public List<DenotatorPath> getObjectValuePaths() {
+	private List<DenotatorPath> getActiveObjectValuePaths() {
 		return this.getActiveObjectType().getColimitConfigurationValuePaths(this.activeColimitCoordinates);
 	}
 	
@@ -121,14 +122,38 @@ public class DisplayObjects implements View {
 	
 	public void clearObjects() {
 		this.objects = new TreeSet<DisplayObject>();
+		this.selectedObjects = new TreeSet<DisplayObject>();
 	}
 	
-	public DenotatorPath getObjectValuePathAt(int valueIndex) {
-		return this.getObjectValuePaths().get(valueIndex);
+	/**
+	 * @return the number of the instance of the valueName of the value at the given index (number of previous
+	 * instances + the instance itself. 1 if it is the first)
+	 */
+	public int getInstanceNumberOfCoordinateValueName(int coordinateSystemValueIndex) {
+		return this.finder.getInstanceNumberOfCoordinateValueName(coordinateSystemValueIndex);
 	}
 	
-	public DisplayObject getClosestObject(int valueIndex, double value, DenotatorPath powersetPath) {
-		String valueName = this.valueNames.get(valueIndex);
+	public DenotatorObjectConfiguration getObjectType(Form objectForm, DenotatorPath longestColimitPath) {
+		return this.finder.getConfiguration(objectForm, longestColimitPath);
+	}
+	
+	public DenotatorObjectConfiguration getStandardObjectType(Form objectForm) {
+		return this.finder.getStandardConfiguration(objectForm);
+	}
+	
+	public DenotatorPath getActiveObjectValuePathAt(int valueIndex) {
+		return this.getActiveObjectValuePaths().get(valueIndex);
+	}
+	
+	public List<DenotatorPath> getAllObjectConfigurationsValuePathsAt(int coordinateSystemValueIndex) {
+		return this.finder.getAllObjectConfigurationsValuePathsAt(coordinateSystemValueIndex);
+	}
+	
+	public DisplayObject getClosestObject(int coordinateSystemValueIndex, double value, DenotatorPath powersetPath) {
+		String valueName = this.coordinateSystemValueNames.get(coordinateSystemValueIndex);
+		int nameIndex = this.getInstanceNumberOfCoordinateValueName(coordinateSystemValueIndex);
+		//TODO: DOES PROBABLY NOT WORK!!!!
+		
 		//DenotatorPath valuePath = this.getPathOfValueAt(valueIndex);
 		DisplayObject closestObject = null;
 		double shortestDistance = Double.MAX_VALUE;
@@ -136,7 +161,7 @@ public class DisplayObjects implements View {
 			for (DisplayObject currentObject : this.objects) {
 				//has to be same type of object. TODO: lenghth of course is not the deciding thing!!!!
 				if (currentObject.getTopDenotatorPath().size() == powersetPath.getTopPath().size()) {
-					Double currentValue = currentObject.getValue(valueName);
+					Double currentValue = currentObject.getNthValue(valueName, nameIndex);
 					if (currentValue != null) {
 						double currentDistance = Math.abs(currentValue-value);
 						if (currentDistance < shortestDistance) {
@@ -189,36 +214,11 @@ public class DisplayObjects implements View {
 	}
 	
 	public int getActiveObjectValueIndex(int coordinateSystemValueIndex) {
-		return this.getActiveObjectType().getColimitConfigurationValueNames(this.activeColimitCoordinates).indexOf(this.finder.getCoordinateSystemValueNames().get(coordinateSystemValueIndex));
+		return this.finder.getActiveObjectValueIndex(coordinateSystemValueIndex, this.indexOfActiveObjectType, this.activeColimitCoordinates);
 	}
 	
-	/*public boolean pathInAllowedColimitBranch(DenotatorPath path) {
-		return this.inAllowedColimitBranch(path, this.getActiveObjectColimitPaths(this.activeColimitCoordinates));
-	}
 	
-	private boolean inAllowedColimitBranch(DenotatorPath path, List<DenotatorPath> selectedColimitCoordinatePaths) {
-		for (DenotatorPath currentColimitPath : path.getParentColimitPaths()) {
-			boolean containedInSelectedPaths = false;
-			for (DenotatorPath currentSelectedPath : selectedColimitCoordinatePaths) {
-				if (currentColimitPath.equals(currentSelectedPath.getParentPath())) {
-					containedInSelectedPaths = true;
-					if (!path.subPath(0, currentColimitPath.size()+1).equals(currentSelectedPath)) {
-						return false;
-					}
-				}
-			}
-			if (!containedInSelectedPaths) {
-				if (path.subPath(0, currentColimitPath.size()+1).getLastIndex() != 0) {
-					return false;
-				}
-			}
-		}
-		return true;
-	}
-	
-	/*public boolean inConflictingColimitPositions(int valueIndex1, int valueIndex2) {
-		return this.getPathOfValueAt(valueIndex1).inConflictingColimitPositions(this.getPathOfValueAt(valueIndex2));
-	}*/
+	//------------------------
 	
 	public void tempSelectNotes(Rectangle2D.Double area) {
 		for (DisplayObject currentNote: this.objects) {
@@ -396,6 +396,7 @@ public class DisplayObjects implements View {
 	
 	public void paint(AbstractPainter painter) {
 		this.paintConnectors(painter, this.objects);
+		//paint active notes on top of inactive ones
 		this.paintInactiveNotes(painter);
 		this.paintActiveNotes(painter);
 		//leads to some flipping problems, but necessary for clearness
@@ -431,7 +432,7 @@ public class DisplayObjects implements View {
 		}
 	}
 	
-	public void paintSelectedNotes(AbstractPainter painter) {
+	private void paintSelectedNotes(AbstractPainter painter) {
 		for (DisplayObject currentNote : this.selectedObjects) {
 			currentNote.paint(painter);
 		}
@@ -461,9 +462,9 @@ public class DisplayObjects implements View {
 	//TODO: pretty lame, but used in two places: BigBangView and DisplayContents
 	public int getTimeAxisIndex(ViewParameters viewParameters) {
 		//TODO: take "Onset R" from somewhere
-		int timeValueIndex = this.getValueNames().indexOf("Onset R");
+		int timeValueIndex = this.getCoordinateSystemValueNames().indexOf("Onset R");
 		if (timeValueIndex == -1) {
-			timeValueIndex = this.getValueNames().indexOf("BeatClass Z_16");
+			timeValueIndex = this.getCoordinateSystemValueNames().indexOf("BeatClass Z_16");
 		}
 		if (timeValueIndex != -1) {
 			int onsetParameterIndex = viewParameters.getFirstIndexOfValue(timeValueIndex);

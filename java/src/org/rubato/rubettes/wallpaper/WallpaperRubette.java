@@ -38,6 +38,7 @@ import org.rubato.composer.components.JSelectForm;
 import org.rubato.composer.components.JStatusline;
 import org.rubato.math.module.morphism.*;
 import org.rubato.math.yoneda.*;
+import org.rubato.rubettes.bigbang.model.TransformationPaths;
 import org.rubato.rubettes.util.ArbitraryDenotatorMapper;
 import org.rubato.rubettes.util.DenotatorPath;
 import org.rubato.rubettes.util.SimpleFormFinder;
@@ -156,17 +157,23 @@ public class WallpaperRubette extends AbstractRubette implements ActionListener 
 	}
 	
 	protected PowerDenotator mapDenotator(PowerDenotator input, ModuleMorphism morphism) throws RubatoException {
-		List<DenotatorPath> paths = this.listPathsToDenotatorPaths(this.morphismsTable.getCoordinates(morphism));
+		TransformationPaths paths = this.createTransformationPaths(morphism);
 		ArbitraryDenotatorMapper mapper = new ArbitraryDenotatorMapper(morphism, paths);
 		return mapper.getMappedPowerDenotator(input);
 	}
 	
-	private List<DenotatorPath> listPathsToDenotatorPaths(List<List<Integer>> listPaths) {
-		List<DenotatorPath> denotatorPaths = new ArrayList<DenotatorPath>();
-		for (List<Integer> currentListPath : listPaths) {
-			denotatorPaths.add(new DenotatorPath(this.inputForm, currentListPath));
+	private TransformationPaths createTransformationPaths(ModuleMorphism morphism) {
+		List<List<Integer>> listPaths = this.morphismsTable.getCoordinates(morphism);
+		TransformationPaths transformationPaths = new TransformationPaths();
+		int domDim = morphism.getDomain().getDimension();
+		int codomDim = morphism.getCodomain().getDimension();
+		for (int i = 0; i < domDim; i++) {
+			transformationPaths.addSinglePathToNewDomainDimension(new DenotatorPath(this.inputForm, listPaths.get(i)));
 		}
-		return denotatorPaths;
+		for (int j = domDim; j < domDim+codomDim; j++) {
+			transformationPaths.addSinglePathToNewDomainDimension(new DenotatorPath(this.inputForm, listPaths.get(j)));
+		}
+		return transformationPaths;
 	}
     
 	/**

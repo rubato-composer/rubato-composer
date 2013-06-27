@@ -11,6 +11,7 @@ import org.rubato.math.module.morphism.ModuleMorphism;
 import org.rubato.math.module.morphism.RFreeAffineMorphism;
 import org.rubato.rubettes.bigbang.model.BigBangScoreManager;
 import org.rubato.rubettes.bigbang.model.BigBangTransformation;
+import org.rubato.rubettes.bigbang.model.TransformationPaths;
 import org.rubato.rubettes.bigbang.model.TransformationProperties;
 import org.rubato.rubettes.util.DenotatorPath;
 
@@ -62,12 +63,12 @@ public abstract class AbstractTransformationEdit extends AbstractOperationEdit {
 	public Map<DenotatorPath,DenotatorPath> map(Map<DenotatorPath,DenotatorPath> pathDifferences, boolean sendCompositionChange) {
 		this.properties.updateNodePaths(pathDifferences);
 		List<DenotatorPath> notePaths = new ArrayList<DenotatorPath>(this.properties.getObjectPaths());
-		List<DenotatorPath> valuePaths = this.properties.getValuePaths();
+		TransformationPaths transformationPaths = this.properties.getTransformationPaths();
 		DenotatorPath anchorNodePath = this.properties.getAnchorNodePath();
 		boolean inPreviewMode = this.properties.inPreviewMode();
 		boolean copyAndTransform = this.properties.copyAndTransform();
 		boolean inWallpaperMode = this.properties.inWallpaperMode();
-		BigBangTransformation transformation = new BigBangTransformation(this.transformation, valuePaths, copyAndTransform, anchorNodePath);
+		BigBangTransformation transformation = new BigBangTransformation(this.transformation, transformationPaths, copyAndTransform, anchorNodePath);
 		List<DenotatorPath> resultPaths;
 		if (inWallpaperMode) {
 			//TODO: include sendCompositionChange
@@ -101,8 +102,8 @@ public abstract class AbstractTransformationEdit extends AbstractOperationEdit {
 		return pathDifferences;
 	}
 	
-	public List<DenotatorPath> getValuePaths() {
-		return this.properties.getValuePaths();
+	public TransformationPaths getTransformationPaths() {
+		return this.properties.getTransformationPaths();
 	}
 	
 	@Override

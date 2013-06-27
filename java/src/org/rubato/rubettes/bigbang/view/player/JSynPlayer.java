@@ -60,10 +60,13 @@ public class JSynPlayer {
 	private void setScore(JSynScore score) {
 		this.score = score;
 		//standard loop is entire score
-		this.loopOnset = score.getObjects().get(0).getOnset();
-		this.loopDuration = this.getLastOffset()-this.loopOnset;
+		if (score.getObjects().size() > 0) {
+			this.loopOnset = score.getObjects().get(0).getOnset();
+			this.loopDuration = this.getLastOffset()-this.loopOnset;
+		}
 		//System.out.println("LOOP "+ this.loopOnset + " " + this.getLastOffset() + " " + this.loopDuration);
 		this.bbPlayer.interrupt();
+		System.out.println(score.getObjects());
 	}
 	
 	public void replaceScore(JSynScore score) {
@@ -275,12 +278,11 @@ public class JSynPlayer {
 	 * generates threads based on copies of this score, adjusted to the given starting time
 	 */
 	private JSynThreadGroup generateThreads(boolean playInNextLoop) {
-		List<JSynObject> notes = this.score.getObjects();
+		List<JSynObject> objects = this.score.getObjects();
 		JSynThreadGroup threads = new JSynThreadGroup(playInNextLoop);
-		if (notes.size() > 0) {
-			for (JSynObject currentNote : notes) {
-				JSynObject clone = currentNote.clone();
-				clone.setOnset(currentNote.getOnset());
+		if (objects.size() > 0) {
+			for (JSynObject currentObject : objects) {
+				JSynObject clone = currentObject.clone();
 				this.addNoteToConvenientThread(clone, threads);
 			}
 		}

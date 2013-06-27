@@ -35,6 +35,7 @@ import org.rubato.math.yoneda.NameDenotator;
 import org.rubato.math.yoneda.PowerDenotator;
 import org.rubato.math.yoneda.SimpleDenotator;
 import org.rubato.math.yoneda.SimpleForm;
+import org.rubato.rubettes.bigbang.model.TransformationPaths;
 
 /**
  * 
@@ -44,13 +45,13 @@ import org.rubato.math.yoneda.SimpleForm;
 public class ArbitraryDenotatorMapper {
 	
 	private ModuleMorphism morphism;
-	private List<DenotatorPath> denotatorPaths;
+	private TransformationPaths transformationPaths;
 	private Module domain;
 	private int domainDim, codomainDim;
 	private List<ModuleMorphism> injectionMorphisms;
 	
-	public ArbitraryDenotatorMapper(ModuleMorphism morphism, List<DenotatorPath> paths) {
-		this.denotatorPaths = paths;
+	public ArbitraryDenotatorMapper(ModuleMorphism morphism, TransformationPaths paths) {
+		this.transformationPaths = paths;
 		this.init(morphism);
 	}
 	
@@ -71,7 +72,8 @@ public class ArbitraryDenotatorMapper {
 		//prepare output
 		PowerDenotator output = new PowerDenotator(NameDenotator.make(""), input.getAddress(), input.getPowerForm(), new ArrayList<Denotator>());
 		
-		if (this.denotatorPaths != null && this.denotatorPaths.size() == this.domainDim + this.codomainDim) {
+		if (this.transformationPaths != null && this.transformationPaths.getDomainDim() == this.domainDim
+				&& this.transformationPaths.getCodomainDim() == this.codomainDim) {
 			//iterate through the coordinates of the input and add their mapping to the output
 			Iterator<Denotator> inputCoordinates = input.iterator();
 			Denotator currentCoordinate; //später allgemein!!
@@ -101,7 +103,10 @@ public class ArbitraryDenotatorMapper {
 	private ModuleMorphism makeInitialInjectionSum(Denotator denotator) throws RubatoException {
 		ModuleMorphism injectionSum = null;
 		for (int j = 0; j < this.domainDim; j++) {
-			DenotatorPath currentPath = this.denotatorPaths.get(j);
+			
+			//TODO: mapping relatively easy for now since we're already doing powersets element by element..
+			
+			DenotatorPath currentPath = this.transformationPaths.getDomainPath(j, denotator);
 			if (currentPath != null) {
 				ModuleMorphism currentMorphism = null;
 				if (currentPath.isElementPath()) {
@@ -159,7 +164,7 @@ public class ArbitraryDenotatorMapper {
 			}
 			
 			//replace original coordinate by mapped coordinate 
-			DenotatorPath currentCodomainPath = this.denotatorPaths.get(this.domainDim + i);
+			DenotatorPath currentCodomainPath = this.transformationPaths.getCodomainPath(i, mappedDenotator);
 			
 			if (currentCodomainPath != null) {
 				//currentCodomainPath = currentCodomainPath.neutralizeColimitIndices();
@@ -216,8 +221,8 @@ public class ArbitraryDenotatorMapper {
 						}
 						if (currentCodomainPath.size() == 0) {
 							mappedDenotator = currentSimpleDenotator;
-						} else if (this.denotatorPaths != null && this.denotatorPaths.get(this.domainDim + i).isElementPath()) {
-							mappedDenotator = mappedDenotator.replace(this.denotatorPaths.get(this.domainDim + i).getDenotatorSubpath().toIntArray(), currentSimpleDenotator);
+						} else if (this.transformationPaths != null && currentCodomainPath.isElementPath()) {
+							mappedDenotator = mappedDenotator.replace(currentCodomainPath.getDenotatorSubpath().toIntArray(), currentSimpleDenotator);
 						} else {
 							mappedDenotator = mappedDenotator.replace(currentCodomainPath.toIntArray(), currentSimpleDenotator);
 						}

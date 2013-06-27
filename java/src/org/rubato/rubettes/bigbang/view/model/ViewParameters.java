@@ -98,6 +98,10 @@ public class ViewParameters extends Model {
 		this.firePropertyChange(ViewController.SELECTED_VIEW_PARAMETERS, null, this.selectedViewParameters);
 	}
 	
+	public int[] getSelectedXYViewParameters() {
+		return new int[]{this.selectedViewParameters[0], this.selectedViewParameters[1]};
+	}
+	
 	//sets the first given number of view parameters diagonally
 	public void initSelections(int numberOfSelectedOnes) {
 		int[] newSelections = new int[this.size()];
@@ -115,10 +119,6 @@ public class ViewParameters extends Model {
 		this.selectedViewParameters = newSelections;
 		this.updateMinAndMaxValues();
 		this.firePropertyChange(ViewController.SELECTED_VIEW_PARAMETERS, null, this.selectedViewParameters);
-	}
-	
-	public int getValueIndex(int viewParameterIndex) {
-		return this.selectedViewParameters[viewParameterIndex];
 	}
 	
 	public int getFirstIndexOfValue(int valueIndex) {

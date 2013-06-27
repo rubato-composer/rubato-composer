@@ -41,10 +41,12 @@ public class NoteRotationAdapter extends NoteTransformationAdapter {
 
 	@Override
 	public void mouseDragged(MouseEvent event) {
-		Point2D.Double currentEndingPoint = new Point2D.Double(event.getPoint().x, event.getPoint().y);
-		double arcAngle = this.calculateArcAngle(currentEndingPoint);
-		this.updateArcAngle(arcAngle);
-		super.mouseDragged(event);
+		if (this.center != null) {
+			Point2D.Double currentEndingPoint = new Point2D.Double(event.getPoint().x, event.getPoint().y);
+			double arcAngle = this.calculateArcAngle(currentEndingPoint);
+			this.updateArcAngle(arcAngle);
+			super.mouseDragged(event);
+		}
 	}
 	
 	@Override

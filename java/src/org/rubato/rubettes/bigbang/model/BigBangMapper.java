@@ -21,7 +21,7 @@ public class BigBangMapper extends BigBangScoreManipulator {
 	private boolean relative;
 	
 	public BigBangMapper(BigBangScore score, BigBangTransformation transformation) {
-		super(score, transformation.getValuePaths());
+		super(score, transformation.getTransformationPaths());
 		this.morphism = transformation.getModuleMorphism();
 		this.copyAndMap = transformation.isCopyAndMap();
 		this.relative = transformation.getAnchorNodePath() != null;
@@ -86,7 +86,7 @@ public class BigBangMapper extends BigBangScoreManipulator {
 	
 	private List<List<Denotator>> mapAndAddObjects(List<Denotator> objects, DenotatorPath anchorPath, ModuleMorphism morphism) {
 		List<Denotator> mappedObjects = new ArrayList<Denotator>();
-		ArbitraryDenotatorMapper mapper = new ArbitraryDenotatorMapper(morphism, this.valuePaths);
+		ArbitraryDenotatorMapper mapper = new ArbitraryDenotatorMapper(morphism, this.transformationPaths);
 		//boolean modulators = objects.get(0).getForm().equals(this.score.objectGenerator.SOUND_NOTE_FORM);
 		for (int i = 0; i < objects.size(); i++) {
 			//PerformanceCheck.startTask(".map");
@@ -117,8 +117,8 @@ public class BigBangMapper extends BigBangScoreManipulator {
 	//TODO: WOOOO REMOVE THIS AND MAKE OBJECT GENERATOR WORK!!!
 	private double[] extractValues(Denotator object) {
 		double v1 = 0, v2 = 0;
-		v1 = this.score.objectGenerator.getDoubleValue(object, this.valuePaths.get(0));
-		v2 = this.score.objectGenerator.getDoubleValue(object, this.valuePaths.get(1));
+		v1 = this.score.objectGenerator.getDoubleValue(object, this.transformationPaths.getDomainPath(0, object));
+		v2 = this.score.objectGenerator.getDoubleValue(object, this.transformationPaths.getDomainPath(1, object));
 		return new double[] {v1, v2};
 	}
 

@@ -6,11 +6,10 @@ import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.TreeMap;
 
 import org.rubato.rubettes.bigbang.view.subview.AbstractPainter;
 import org.rubato.rubettes.bigbang.view.subview.DisplayContents;
+import org.rubato.rubettes.util.DenotatorObjectConfiguration;
 import org.rubato.rubettes.util.DenotatorPath;
 
 public class DisplayObject implements Comparable<Object> {
@@ -18,37 +17,33 @@ public class DisplayObject implements Comparable<Object> {
 	private static final float DARK = 0.6f;
 	private static final float BRIGHT = 1;
 	
-	private int topDenotatorType;
+	private DenotatorObjectConfiguration objectType;
 	private DenotatorPath topDenotatorPath;
 	private DisplayContents display;
 	private DisplayObject parent;
 	private List<DisplayObject> children;
-	private Map<String,Double> values;
+	private List<Double> values;
 	private List<Integer> structuralIndices; //sibling number, satellite level, colimit index, etc
 	private int layer;
 	private double xDiff, yDiff;
 	private Rectangle2D.Double rectangle;
 	private Point2D.Double center;
 	private boolean selected;
-	private boolean selectionVisible;
 	private boolean visible;
 	private boolean active;
 	
 	private float currentHue, currentOpacity;
 	private int currentRed, currentBlue, currentGreen;
-	private Color currentColor;
 	
-	public DisplayObject(DisplayObject parent, int topDenotatorType, List<Integer> structuralIndices, DenotatorPath topDenotatorPath) {
-		this(parent, topDenotatorType, structuralIndices, topDenotatorPath, 0);
+	public DisplayObject(DisplayObject parent, List<Integer> structuralIndices, DenotatorPath topDenotatorPath) {
+		this(parent, structuralIndices, topDenotatorPath, 0);
 	}
 	
-	public DisplayObject(DisplayObject parent, int topDenotatorType, List<Integer> structuralIndices, DenotatorPath topDenotatorPath, int layer) {
-		this.values = new TreeMap<String,Double>();
+	public DisplayObject(DisplayObject parent, List<Integer> structuralIndices, DenotatorPath topDenotatorPath, int layer) {
+		this.values = new ArrayList<Double>();
 		this.parent = parent;
-		this.topDenotatorType = topDenotatorType;
 		this.topDenotatorPath = topDenotatorPath;
 		this.children = new ArrayList<DisplayObject>();
-		this.selectionVisible = true;
 		this.structuralIndices = structuralIndices;
 		this.layer = layer;
 		if (this.parent != null) {
@@ -56,12 +51,12 @@ public class DisplayObject implements Comparable<Object> {
 		}
 	}
 	
-	public void setDisplay(DisplayContents display) {
-		this.display = display;
+	public void setObjectType(DenotatorObjectConfiguration objectType) {
+		this.objectType = objectType;
 	}
 	
-	public void setChildren(List<DisplayObject> children) {
-		this.children = children;
+	public void setDisplay(DisplayContents display) {
+		this.display = display;
 	}
 	
 	public void addChild(DisplayObject newChild) {
@@ -112,30 +107,29 @@ public class DisplayObject implements Comparable<Object> {
 		return this.active;
 	}
 	
-	public void setSelectionVisible(boolean selectionVisible) {
-		this.selectionVisible = selectionVisible;
+	public void addValues(List<Double> values) {
+		this.values.addAll(values);
 	}
 	
-	public void move(double x, double y) {
-		this.xDiff += x;
-		this.yDiff += y;
+	public int getCurrentOccurrencesOfValueName(String valueName) {
+		return this.objectType.getOccurrencesOfValueNameBefore(valueName, this.values.size());
 	}
 	
-	public void addValues(Map<String,Double> values) {
-		this.values.putAll(values);
-	}
-	
-	public Double getValue(String valueName) {
+	/**
+	 * @return the nth value with the given name
+	 */
+	public Double getNthValue(String valueName, int n) {
 		if (valueName.equals(DenotatorValueExtractor.SATELLITE_LEVEL) || valueName.equals(DenotatorValueExtractor.COLIMIT_INDEX)) {
 			return this.structuralIndices.get(0).doubleValue();
 		} else if (valueName.equals(DenotatorValueExtractor.SIBLING_NUMBER)) {
 			return this.structuralIndices.get(1).doubleValue();
 		}
-		Double value = this.values.get(valueName);
+		int valueIndex = this.objectType.getIndexOfNthInstanceOfValueName(valueName, n);
+		Double value = this.values.get(valueIndex);
 		if (value != null) {
 			return value;
 		} else if (this.parent != null) {
-			return this.parent.getValue(valueName);
+			return this.parent.getNthValue(valueName, n);
 		}
 		return null;
 	}
@@ -188,7 +182,7 @@ public class DisplayObject implements Comparable<Object> {
 	}
 	
 	private float getBrightness() {
-		if (this.selected && this.selectionVisible) {
+		if (this.selected) {
 			return DisplayObject.DARK;
 		}
 		return DisplayObject.BRIGHT;
@@ -206,6 +200,7 @@ public class DisplayObject implements Comparable<Object> {
 		double height = this.getHeight(yZoomFactor);
 		//only calculate other stuff, if x on display, and so on...
 		double y = this.getY(yZoomFactor)-(height/2)+yPosition;
+		System.out.println(x + " . " + y);
 		this.rectangle = new Rectangle2D.Double(x, y, width, height);
 		this.center = new Point2D.Double(x+width/2, y+height/2);
 	}
@@ -249,10 +244,6 @@ public class DisplayObject implements Comparable<Object> {
 			painter.setColor(this.getColor());
 			painter.fillNote(this.rectangle.x, this.rectangle.y, this.rectangle.width, this.rectangle.height);
 		}
-	}
-	
-	public Color getCurrentColor() {
-		return this.currentColor;
 	}
 	
 	public Rectangle2D.Double getRectangle() {

@@ -27,6 +27,7 @@ public class CoolFormRegistrant {
 	public static SimpleForm PITCH_CLASS_FORM;
 	public static SimpleForm CHROMATIC_PITCH_FORM;
 	public static SimpleForm QUALITY_FORM;
+	public static LimitForm DYAD_FORM;
 	public static PowerForm DYADS_FORM;
 	public static SimpleForm BEAT_CLASS_FORM;
 	public static LimitForm REST_FORM;
@@ -65,8 +66,8 @@ public class CoolFormRegistrant {
 		this.registerPowerForm("Triads", triad);
 		
 		//Dyads
-		LimitForm dyad = this.registerLimitForm("Dyad", PITCH_FORM, PITCH_FORM);
-		DYADS_FORM = this.registerPowerForm("Dyads", dyad);
+		DYAD_FORM = this.registerLimitForm("Dyad", PITCH_FORM, PITCH_FORM);
+		DYADS_FORM = this.registerPowerForm("Dyads", DYAD_FORM);
 		
 		//GeneralScore
 		REST_FORM = this.registerLimitForm("Rest", ONSET_FORM, DURATION_FORM, VOICE_FORM);
