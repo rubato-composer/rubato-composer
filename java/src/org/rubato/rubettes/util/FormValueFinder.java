@@ -49,6 +49,46 @@ public class FormValueFinder {
 		return this.objectsInFoundOrder.get(objectIndex);
 	}
 	
+	public DenotatorObjectConfiguration getConfiguration(Form objectForm, DenotatorPath longestColimitPath) {
+		System.out.println(objectForm + " " + longestColimitPath + " " + this.objectsInFoundOrder.get(this.objectForms.indexOf(objectForm)).getColimitConfigurations());
+		return this.objectsInFoundOrder.get(this.objectForms.indexOf(objectForm)).getColimitConfiguration(longestColimitPath);
+	}
+	
+	public DenotatorObjectConfiguration getStandardConfiguration(Form objectForm) {
+		return this.objectsInFoundOrder.get(this.objectForms.indexOf(objectForm)).getStandardConfiguration();
+	}
+	
+	public List<DenotatorPath> getAllObjectConfigurationsValuePathsAt(int coordinateSystemValueIndex) {
+		List<DenotatorPath> paths = new ArrayList<DenotatorPath>();
+		String nameInCoordinateSystem = this.getCoordinateSystemValueNames().get(coordinateSystemValueIndex);
+		int previousOccurrencesInCoordinateSystem = this.getPreviousOccurrencesInCoordinateSystem(nameInCoordinateSystem, coordinateSystemValueIndex);
+		for (DenotatorObject currentObjectType : this.objectsInFoundOrder) {
+			paths.addAll(currentObjectType.getAllConfigurationsValuePathsOfNthInstance(nameInCoordinateSystem, previousOccurrencesInCoordinateSystem));
+		}
+		return paths;
+	}
+	
+	public int getActiveObjectValueIndex(int coordinateSystemValueIndex, int objectIndex, List<Integer> colimitCofiguration) {
+		String nameInCoordinateSystem = this.getCoordinateSystemValueNames().get(coordinateSystemValueIndex);
+		int previousOccurrencesInCoordinateSystem = this.getPreviousOccurrencesInCoordinateSystem(nameInCoordinateSystem, coordinateSystemValueIndex);
+		return this.objectsInFoundOrder.get(objectIndex).getIndexOfNthInstanceOfConfigurationValueName(colimitCofiguration, nameInCoordinateSystem, previousOccurrencesInCoordinateSystem);
+	}
+	
+	public int getInstanceNumberOfCoordinateValueName(int coordinateSystemValueIndex) {
+		String nameInCoordinateSystem = this.getCoordinateSystemValueNames().get(coordinateSystemValueIndex);
+		return this.getPreviousOccurrencesInCoordinateSystem(nameInCoordinateSystem, coordinateSystemValueIndex) + 1;
+	}
+	
+	private int getPreviousOccurrencesInCoordinateSystem(String nameInCoordinateSystem, int coordinateSystemValueIndex) {
+		int previousOccurrencesInCoordinateSystem = 0;
+		for (int i = 0; i < coordinateSystemValueIndex; i++) {
+			if (this.getCoordinateSystemValueNames().get(i).equals(nameInCoordinateSystem)) {
+				previousOccurrencesInCoordinateSystem++;
+			}
+		}
+		return previousOccurrencesInCoordinateSystem;
+	}
+	
 	public boolean formAllowsForSatellites() {
 		return this.allowsForSatellites;
 	}

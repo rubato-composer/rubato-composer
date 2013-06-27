@@ -92,7 +92,7 @@ public class DenotatorValueExtractor {
 			}
 		} else {
 			if (currentDO == null) {
-				currentDO = this.addDisplayObject(currentDenotator, parentDO, satelliteLevel, siblingNumber, colimitIndex, currentPath);
+				currentDO = this.addDisplayObject(parentDO, satelliteLevel, siblingNumber, colimitIndex, currentPath);
 				currentJSO = this.jSynScore.addNewObject(parentJSO, currentDenotator.getForm());
 			}
 			if (denotatorType == Denotator.LIMIT) {
@@ -109,7 +109,10 @@ public class DenotatorValueExtractor {
 				colimitIndex += currentColimit.getFactorCount();
 				for (int i = 0; i < currentColimit.getForm().getFormCount(); i++) {
 					if (i == childIndex) {
-						this.extractObjects(onlyChild, parentDO, currentDO, parentJSO, currentJSO, satelliteLevel, siblingNumber, childIndex, currentPath.getChildPath(childIndex));
+						DenotatorPath childPath = currentPath.getChildPath(childIndex);
+						//TODO: uiui, not great, but should work for now
+						currentDO.setObjectType(this.displayObjects.getObjectType(currentDO.getTopDenotatorPath().getEndForm(), childPath.subPath(childPath.size()-childPath.getTopPath().size())));
+						this.extractObjects(onlyChild, parentDO, currentDO, parentJSO, currentJSO, satelliteLevel, siblingNumber, childIndex, childPath);
 					}
 				}
 			} else if (denotatorType == Denotator.SIMPLE) {
@@ -118,8 +121,9 @@ public class DenotatorValueExtractor {
 		}
 	}
 	
-	private DisplayObject addDisplayObject(Denotator denotator, DisplayObject parent, int satelliteLevel, int siblingNumber, int colimitIndex, DenotatorPath path) {
-		DisplayObject displayObject = this.createDisplayObject(denotator, parent, satelliteLevel, siblingNumber, colimitIndex, path);
+	private DisplayObject addDisplayObject(DisplayObject parent, int satelliteLevel, int siblingNumber, int colimitIndex, DenotatorPath path) {
+		DisplayObject displayObject = this.createDisplayObject(parent, satelliteLevel, siblingNumber, colimitIndex, path);
+		displayObject.setObjectType(this.displayObjects.getStandardObjectType(path.getEndForm()));
 		displayObject.setVisibility(this.layerStates.get(displayObject.getLayer()));
 		this.displayObjects.addObject(displayObject);
 		if (this.selectObjects && this.selectedPaths != null) {
@@ -133,7 +137,7 @@ public class DenotatorValueExtractor {
 		return displayObject;
 	}
 	
-	private DisplayObject createDisplayObject(Denotator denotator, DisplayObject parent, int satelliteLevel, int siblingNumber, int colimitIndex, DenotatorPath path) {
+	private DisplayObject createDisplayObject(DisplayObject parent, int satelliteLevel, int siblingNumber, int colimitIndex, DenotatorPath path) {
 		List<Integer> structuralValues = new ArrayList<Integer>();
 		if (this.displayObjects.baseFormAllowsForSatellites()) {
 			structuralValues.add(satelliteLevel);
@@ -142,57 +146,62 @@ public class DenotatorValueExtractor {
 		if (this.displayObjects.baseFormContainsColimits()) {
 			structuralValues.add(colimitIndex);
 		}
-		return new DisplayObject(parent, denotator.getType(), structuralValues, path.clone());
+		return new DisplayObject(parent, structuralValues, path.clone());
 	}
 	
 	private void addSimpleValues(DisplayObject parentDO, DisplayObject displayObject, JSynObject jSynObject, SimpleDenotator simpleDenotator) {
-		Map<String,Double> objectValues = this.extractValues(simpleDenotator, parentDO);
-		displayObject.addValues(objectValues);
-		jSynObject.addValues(simpleDenotator.getForm(), objectValues); //needs to know forms!!
+		List<String> valueNames = new ArrayList<String>();
+		List<Double> values = new ArrayList<Double>();
+		this.extractValues(simpleDenotator, parentDO, displayObject, valueNames, values);
+		displayObject.addValues(values);
+		jSynObject.addValues(simpleDenotator.getForm(), values); //needs to know forms!!
 	}
 	
 	//TODO: maybe outsource, join with ObjectGenerator.createModule
-	private Map<String,Double> extractValues(SimpleDenotator denotator, DisplayObject parent) {
-		Map<String,Double> values = new TreeMap<String,Double>();
+	private void extractValues(SimpleDenotator denotator, DisplayObject parent, DisplayObject object, List<String> valueNames, List<Double> values) {
 		String simpleName = denotator.getForm().getNameString();
-		this.extractValues(parent, simpleName, denotator.getElement(), values, "");
-		this.updateMinAndMax(values);
-		return values;
+		this.extractValues(parent, object, simpleName, denotator.getElement(), valueNames, values, "");
+		this.updateMinAndMax(valueNames, values);
 	}
 	
-	private void extractValues(DisplayObject parent, String simpleName, ModuleElement currentElement, Map<String,Double> values, String indexString) {
+	private void extractValues(DisplayObject parent, DisplayObject object, String simpleName, ModuleElement currentElement, List<String> valueNames, List<Double> values, String indexString) {
 		if (currentElement instanceof ProductElement) {
 			ProductElement productElement = (ProductElement)currentElement;
 			for (int i = 0; i < productElement.getFactorCount(); i++) {
 				if (!indexString.isEmpty()) indexString += ".";
-				this.extractValues(parent, simpleName, productElement.getFactor(i), values, indexString+(i+1));
+				this.extractValues(parent, object, simpleName, productElement.getFactor(i), valueNames, values, indexString+(i+1));
 			}
 		} else if (currentElement.getModule().getDimension() > 1) {
 			for (int i = 0; i < currentElement.getModule().getDimension(); i++) {
 				if (!indexString.isEmpty()) indexString += ".";
-				this.extractValues(parent, simpleName, currentElement.getComponent(i), values, indexString+(i+1));
+				this.extractValues(parent, object, simpleName, currentElement.getComponent(i), valueNames, values, indexString+(i+1));
 			}
 		} else {
 			String valueName = FormValueFinder.makeValueName(simpleName, currentElement.getModule(), indexString);
 			double value = ((RElement)currentElement.cast(RRing.ring)).getValue();
+			int nextIndex = object.getCurrentOccurrencesOfValueName(valueName);
 			if (parent != null) {
-				Double parentValue = parent.getValue(valueName);
+				Double parentValue = parent.getNthValue(valueName, nextIndex);
 				if (parentValue != null) {
 					value += parentValue;
 				}
 			}
-			values.put(valueName, value);
+			valueNames.add(valueName);
+			values.add(value);
 		}
 	}
 	
-	private void updateMinAndMax(Map<String,Double> values) {
-		for (String currentValueName : values.keySet()) {
+	private void updateMinAndMax(List<String> valueNames, List<Double> values) {
+		//TODO: consider multiple occurrences??? maybe not!! 
+		for (int i = 0; i < valueNames.size(); i++) {
+			String currentValueName = valueNames.get(i);
+			Double currentValue = values.get(i);
 			if (!this.minValues.keySet().contains(currentValueName)) {
 				this.minValues.put(currentValueName, Double.MAX_VALUE);
 				this.maxValues.put(currentValueName, -1*Double.MAX_VALUE);
 			}
-			this.minValues.put(currentValueName, Math.min(values.get(currentValueName), this.minValues.get(currentValueName)));
-			this.maxValues.put(currentValueName, Math.max(values.get(currentValueName), this.maxValues.get(currentValueName)));
+			this.minValues.put(currentValueName, Math.min(currentValue, this.minValues.get(currentValueName)));
+			this.maxValues.put(currentValueName, Math.max(currentValue, this.maxValues.get(currentValueName)));
 		}
 	}
 	
@@ -202,7 +211,7 @@ public class DenotatorValueExtractor {
 	
 	public List<Double> getMinValues() {
 		List<Double> minValues = new ArrayList<Double>();
-		for (String currentValueName : this.displayObjects.getValueNames()) {
+		for (String currentValueName : this.displayObjects.getCoordinateSystemValueNames()) {
 			Double currentValue = this.minValues.get(currentValueName);
 			if (currentValue != null) {
 				minValues.add(currentValue);
@@ -213,7 +222,7 @@ public class DenotatorValueExtractor {
 	
 	public List<Double> getMaxValues() {
 		List<Double> maxValues = new ArrayList<Double>();
-		for (String currentValueName : this.displayObjects.getValueNames()) {
+		for (String currentValueName : this.displayObjects.getCoordinateSystemValueNames()) {
 			Double currentValue = this.maxValues.get(currentValueName);
 			if (currentValue != null) {
 				maxValues.add(currentValue);

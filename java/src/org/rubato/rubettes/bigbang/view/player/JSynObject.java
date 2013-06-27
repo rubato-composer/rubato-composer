@@ -1,8 +1,8 @@
 package org.rubato.rubettes.bigbang.view.player;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 
 import org.rubato.math.yoneda.Form;
 import org.rubato.rubettes.util.CoolFormRegistrant;
@@ -12,10 +12,10 @@ public class JSynObject {
 	private JSynObject parent;
 	private List<Double> intervalStructure;
 	private List<Double> frequencies;
-	private double amplitude;
+	private Double amplitude;
 	private Double duration;
-	private int voice;
-	private Double onset, offset;
+	private Integer voice;
+	private Double onset;
 	private List<JSynObject> modulators;
 	
 	public JSynObject(JSynObject parent) {
@@ -23,15 +23,9 @@ public class JSynObject {
 		//TODO: modulators will just be children!!!!
 		this.modulators = new ArrayList<JSynObject>();
 		this.frequencies = new ArrayList<Double>();
-		//assign standard values
-		this.setOnset(0);
-		this.addPitch(60);
-		this.setLoudness(100);
-		this.setDuration(Double.MAX_VALUE);
-		this.setVoice(0);
 	}
 	
-	public void addValues(Form form, Map<String,Double> values) {
+	public void addValues(Form form, List<Double> values) {
 		if (form.equals(CoolFormRegistrant.ONSET_FORM) || form.equals(CoolFormRegistrant.BEAT_CLASS_FORM)) {
 			this.setOnset(this.getSingleValue(values));
 			if (form.equals(CoolFormRegistrant.BEAT_CLASS_FORM)) {
@@ -46,7 +40,7 @@ public class JSynObject {
 				this.setOvertoneFrequency(this.parent.getFrequencies().get(0), (int)this.getSingleValue(values));
 			}
 		} else if (form.equals(CoolFormRegistrant.LOUDNESS_FORM)) {
-			this.setLoudness(this.getSingleValue(values));
+			this.setLoudness((int)this.getSingleValue(values));
 		} else if (form.equals(CoolFormRegistrant.DURATION_FORM)) {
 			this.setDuration(this.getSingleValue(values));
 		} else if (form.equals(CoolFormRegistrant.VOICE_FORM)) {
@@ -56,54 +50,65 @@ public class JSynObject {
 		}
 	}
 	
-	private double getSingleValue(Map<String,Double> values) {
-		return values.values().iterator().next();
+	private double getSingleValue(List<Double> values) {
+		return values.get(0);
 	}
 	
-	public boolean playsAt(double onset, double offset) {
-		boolean noIntersection = this.offset < onset || this.onset > offset; 
-		return !noIntersection;
-	}
+	
+	//TIME
 	
 	/**
 	 * sets onset and adjusts offset to match the object's duration
 	 */
-	public void setOnset(double onset) {
+	private void setOnset(Double onset) {
 		this.onset = onset;
-		if (this.duration != null) {
-			this.offset = onset + this.duration;
-		}
 	}
 	
 	public double getOnset() {
-		return this.onset;
+		if (this.onset != null) {
+			return this.onset;
+		}
+		return 0;
 	}
 	
 	/*
 	 * sets duration and adjusts offset
 	 */
-	private void setDuration(double duration) {
+	private void setDuration(Double duration) {
 		this.duration = duration;
-		this.offset = this.onset + duration;
 	}
 	
 	public double getDuration() {
-		return this.duration;
+		if (this.duration != null) {
+			return this.duration;
+		}
+		return Double.MAX_VALUE;
 	}
 	
-	public double getOffset() {
-		return this.offset;
+	public Double getOffset() {
+		return this.getOnset() + this.getDuration();
 	}
+	
+	public boolean playsAt(double onset, double offset) {
+		boolean noIntersection = this.getOffset() < onset || this.getOnset() > offset; 
+		return !noIntersection;
+	}
+	
+	
+	//AMPLITUDE
 	
 	public double getMainFrequency() {
-		return this.frequencies.get(0);
+		return this.getFrequencies().get(0);
 	}
 
 	public List<Double> getFrequencies() {
-		return this.frequencies;
+		if (this.frequencies.size() > 0) {
+			return this.frequencies;
+		}
+		return Arrays.asList(this.midiToFrequency(60));
 	}
 
-	private void addPitch(double pitch) {
+	private void addPitch(Double pitch) {
 		this.addFrequency(this.midiToFrequency(pitch));
 	}
 	
@@ -128,13 +133,13 @@ public class JSynObject {
 		this.intervalStructure.add(interval);
 	}
 	
-	private void setFrequency(double frequency) {
+	private void setFrequency(Double frequency) {
 		this.frequencies = new ArrayList<Double>();
 		this.addFrequency(frequency);
 		this.updateFrequencies();
 	}
 	
-	private void addFrequency(double frequency) {
+	private void addFrequency(Double frequency) {
 		this.frequencies.add(frequency);
 	}
 	
@@ -160,36 +165,41 @@ public class JSynObject {
 		}
 		this.setFrequency(overtoneFrequency);
 	}
+	
+	
+	//AMPLITUDE
 
 	public double getAmplitude() {
-		return this.amplitude;
+		if (this.amplitude != null) {
+			return this.amplitude;
+		}
+		return this.midiToAmplitude(100);
 	}
 	
-	private void setLoudness(double loudness) {
-		loudness = Math.min(loudness, 127);
-		loudness = Math.max(loudness, 0);
-		this.setAmplitude(loudness/127);
+	private void setLoudness(int loudness) {
+		this.setAmplitude(this.midiToAmplitude(loudness));
 	}
 
-	private void setAmplitude(double amplitude) {
+	private void setAmplitude(Double amplitude) {
 		this.amplitude = amplitude;
 	}
 	
+	
+	//VOICE
+	
 	public int getVoice() {
-		return this.voice;
+		if (this.voice != null) {
+			return this.voice;
+		}
+		return 0;
 	}
 	
-	private void setVoice(int voice) {
+	private void setVoice(Integer voice) {
 		this.voice = voice;
 	}
 	
-	private double midiToFrequency(double midiPitch) {
-		return JSynPlayer.BASE_A4*Math.pow(2, (midiPitch-57)/12);
-	}
 	
-	private double intervalToRatio(double interval) {
-		return Math.pow(Math.sqrt(Math.sqrt(Math.cbrt(2))), interval); //12th root of two
-	}
+	//MODULATORS
 	
 	public JSynObject addModulator() {
 		JSynObject modulator = new JSynObject(this); 
@@ -201,7 +211,24 @@ public class JSynObject {
 		return this.modulators;
 	}
 	
-	//TODO: IMPROVE!!!
+	
+	//UTIL
+	
+	private double midiToFrequency(double midiPitch) {
+		return JSynPlayer.BASE_A4*Math.pow(2, (midiPitch-57)/12);
+	}
+	
+	private double midiToAmplitude(double loudness) {
+		loudness = Math.min(loudness, 127);
+		loudness = Math.max(loudness, 0);
+		return loudness/127;
+	}
+	
+	private double intervalToRatio(double interval) {
+		return Math.pow(Math.sqrt(Math.sqrt(Math.cbrt(2))), interval); //12th root of two
+	}
+	
+	//TODO: IMPROVE!!! 
 	public JSynObject clone() {
 		JSynObject clone = new JSynObject(this.parent);
 		clone.setOnset(this.onset);
@@ -213,7 +240,7 @@ public class JSynObject {
 	}
 	
 	public String toString() {
-		return "(" + this.onset + " " + this.frequencies + " " + this.amplitude + " " + this.offset + ")";
+		return "(" + this.onset + " " + this.frequencies + " " + this.amplitude + " " + this.duration + ")";
 	}
 
 }

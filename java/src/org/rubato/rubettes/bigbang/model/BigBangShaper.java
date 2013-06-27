@@ -18,7 +18,7 @@ public class BigBangShaper extends BigBangScoreManipulator {
 	private double shapingRange;
 	
 	public BigBangShaper(BigBangScore score, TransformationProperties properties, TreeMap<Double,Double> shapingLocations) {
-		super(score, properties.getValuePaths());
+		super(score, properties.getTransformationPaths());
 		this.objectPaths = new ArrayList<DenotatorPath>(properties.getObjectPaths());
 		this.shapingLocations = shapingLocations;
 		this.shapingRange = 0.5;
@@ -97,7 +97,7 @@ public class BigBangShaper extends BigBangScoreManipulator {
 	
 	private Denotator shapeObject(Denotator object, Map<Denotator,Double> newObjectsAndOldYValues) {
 		Double newValue = this.getValueOfClosestLocation(object);
-		DenotatorPath valuePath = this.valuePaths.get(1);
+		DenotatorPath valuePath = this.transformationPaths.getDomainPath(1, object);
 		double oldValue = this.score.objectGenerator.getDoubleValue(object, valuePath);
 		if (newValue != null) {
 			object = this.score.objectGenerator.replaceValue(object, valuePath, newValue);
@@ -115,7 +115,7 @@ public class BigBangShaper extends BigBangScoreManipulator {
 	}
 
 	private Double getValueOfClosestLocation(Denotator object) {
-		DenotatorPath valuePath = this.valuePaths.get(0);
+		DenotatorPath valuePath = this.transformationPaths.getDomainPath(0, object);
 		double xPosition = this.score.objectGenerator.getDoubleValue(object, valuePath);
 		Map<Double,Double> subMap = this.shapingLocations.subMap(xPosition-this.shapingRange, xPosition+this.shapingRange);
 		Double closestPosition = null;

@@ -21,7 +21,7 @@ public class ConnectorsTool extends DisplayTool {
 		if (this.display != null && this.point != null) {
 			DisplayObjects notes = this.display.getDisplayObjects();
 			notes.paintSelectedNotesConnectors(painter, this.point.x, this.point.y);
-			notes.paintSelectedNotes(painter);
+			//notes.paintSelectedNotes(painter);
 		}
 	}
 

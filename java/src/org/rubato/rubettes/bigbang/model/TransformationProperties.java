@@ -1,6 +1,5 @@
 package org.rubato.rubettes.bigbang.model;
 
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -10,16 +9,16 @@ public class TransformationProperties {
 	
 	private Set<DenotatorPath> objectPaths;
 	private DenotatorPath anchorNodePath;
-	private List<DenotatorPath> valuePaths;
+	private TransformationPaths transformationPaths;
 	private boolean copyAndTransform;
 	private double[] center;
 	private double[] endPoint;
 	private boolean inPreviewMode;
 	private boolean inWallpaperMode;
 	
-	public TransformationProperties(Set<DenotatorPath> nodePaths, List<DenotatorPath> valuePaths, boolean copyAndTransform, boolean inPreviewMode, boolean inWallpaperMode) {
+	public TransformationProperties(Set<DenotatorPath> nodePaths, TransformationPaths transformationPaths, boolean copyAndTransform, boolean inPreviewMode, boolean inWallpaperMode) {
 		this.objectPaths = nodePaths;
-		this.valuePaths = valuePaths;
+		this.transformationPaths = transformationPaths;
 		this.copyAndTransform = copyAndTransform;
 		this.inPreviewMode = inPreviewMode;
 		this.inWallpaperMode = inWallpaperMode;
@@ -43,8 +42,8 @@ public class TransformationProperties {
 		return this.objectPaths;
 	}
 	
-	public List<DenotatorPath> getValuePaths() {
-		return this.valuePaths;
+	public TransformationPaths getTransformationPaths() {
+		return this.transformationPaths;
 	}
 	
 	public boolean copyAndTransform() {

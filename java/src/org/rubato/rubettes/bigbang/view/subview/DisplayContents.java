@@ -32,7 +32,7 @@ public class DisplayContents {
 		}
 		this.displayObjects = displayObjects;
 		this.updateNoteBounds();
-		this.axes = new DisplayAxes(this, displayObjects.getValueNames());
+		this.axes = new DisplayAxes(this, displayObjects.getCoordinateSystemValueNames());
 	}
 	
 	public DisplayObjects getDisplayObjects() {
@@ -164,8 +164,10 @@ public class DisplayContents {
 	
 	public double translateValue(DisplayObject object, int viewParameterIndex) {
 		int valueIndex = this.selectedViewParameters[viewParameterIndex];
-		if (valueIndex > -1 && valueIndex < this.displayObjects.getValueNames().size()) {
-			Double denotatorValue = object.getValue(this.displayObjects.getValueNames().get(valueIndex));
+		if (valueIndex > -1 && valueIndex < this.displayObjects.getCoordinateSystemValueNames().size()) {
+			String valueName = this.displayObjects.getCoordinateSystemValueNames().get(valueIndex);
+			int nameInstanceNumber = this.displayObjects.getInstanceNumberOfCoordinateValueName(valueIndex);
+			Double denotatorValue = object.getNthValue(valueName, nameInstanceNumber);
 			if (denotatorValue != null) {
 				return this.viewParameters.get(viewParameterIndex).translateDenotatorValue(denotatorValue);
 			}

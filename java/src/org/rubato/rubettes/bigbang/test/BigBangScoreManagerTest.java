@@ -19,6 +19,7 @@ import org.rubato.math.yoneda.PowerDenotator;
 import org.rubato.rubettes.bigbang.controller.BigBangController;
 import org.rubato.rubettes.bigbang.model.BigBangScoreManager;
 import org.rubato.rubettes.bigbang.model.BigBangTransformation;
+import org.rubato.rubettes.bigbang.model.TransformationPaths;
 import org.rubato.rubettes.bigbang.model.TransformationProperties;
 import org.rubato.rubettes.util.DenotatorPath;
 
@@ -26,31 +27,19 @@ public class BigBangScoreManagerTest extends TestCase {
 	
 	private BigBangScoreManager scoreManager;
 	private TestObjects objects;
-	private List<DenotatorPath> nodeValuePaths, noteValuePaths, rationalTriplesValuePaths, realTriplesValuePaths;
+	private TransformationPaths nodePaths, notePaths, rationalTriplesPaths, realTriplesPaths;
 	
 	protected void setUp() {
 		this.objects = new TestObjects();
 		this.scoreManager = this.objects.scoreManager;
-		this.nodeValuePaths = new ArrayList<DenotatorPath>();
-		this.nodeValuePaths.add(new DenotatorPath(this.objects.SOUND_NODE_FORM, new int[]{0,0}));
-		this.nodeValuePaths.add(new DenotatorPath(this.objects.SOUND_NODE_FORM, new int[]{0,1}));
-		this.nodeValuePaths.add(new DenotatorPath(this.objects.SOUND_NODE_FORM, new int[]{0,0}));
-		this.nodeValuePaths.add(new DenotatorPath(this.objects.SOUND_NODE_FORM, new int[]{0,1}));
-		this.noteValuePaths = new ArrayList<DenotatorPath>();
-		this.noteValuePaths.add(new DenotatorPath(this.objects.SOUND_NOTE_FORM, new int[]{0}));
-		this.noteValuePaths.add(new DenotatorPath(this.objects.SOUND_NOTE_FORM, new int[]{1}));
-		this.noteValuePaths.add(new DenotatorPath(this.objects.SOUND_NOTE_FORM, new int[]{0}));
-		this.noteValuePaths.add(new DenotatorPath(this.objects.SOUND_NOTE_FORM, new int[]{1}));
-		this.rationalTriplesValuePaths = new ArrayList<DenotatorPath>();
-		this.rationalTriplesValuePaths.add(new DenotatorPath(this.objects.RATIONAL_TRIPLE_FORM, new int[]{1}));
-		this.rationalTriplesValuePaths.add(new DenotatorPath(this.objects.RATIONAL_TRIPLE_FORM, new int[]{2}));
-		this.rationalTriplesValuePaths.add(new DenotatorPath(this.objects.RATIONAL_TRIPLE_FORM, new int[]{1}));
-		this.rationalTriplesValuePaths.add(new DenotatorPath(this.objects.RATIONAL_TRIPLE_FORM, new int[]{2}));
-		this.realTriplesValuePaths = new ArrayList<DenotatorPath>();
-		this.realTriplesValuePaths.add(new DenotatorPath(this.objects.REAL_TRIPLE_FORM, new int[]{0}));
-		this.realTriplesValuePaths.add(new DenotatorPath(this.objects.REAL_TRIPLE_FORM, new int[]{2}));
-		this.realTriplesValuePaths.add(new DenotatorPath(this.objects.REAL_TRIPLE_FORM, new int[]{0}));
-		this.realTriplesValuePaths.add(new DenotatorPath(this.objects.REAL_TRIPLE_FORM, new int[]{2}));
+		this.nodePaths = this.objects.createStandardTransformationPaths(
+				this.objects.SOUND_NODE_FORM, new int[][]{{0,0},{0,1}});
+		this.notePaths = this.objects.createStandardTransformationPaths(
+				this.objects.SOUND_NOTE_FORM, new int[][]{{0},{1}});
+		this.rationalTriplesPaths = this.objects.createStandardTransformationPaths(
+				this.objects.RATIONAL_TRIPLE_FORM, new int[][]{{1},{2}});
+		this.realTriplesPaths = this.objects.createStandardTransformationPaths(
+				this.objects.REAL_TRIPLE_FORM, new int[][]{{0},{2}});
 	}
 	
 	/*TODO: adapt!!! public void testAddNote() {
@@ -83,7 +72,7 @@ public class BigBangScoreManagerTest extends TestCase {
 	
 	public void testMapNodesFlat() {
 		this.scoreManager.setInitialComposition(this.objects.flatMacroScore);
-		BigBangTransformation translation = this.makeTranslation(-1,-2, this.nodeValuePaths);
+		BigBangTransformation translation = this.makeTranslation(-1,-2, this.nodePaths);
 		List<DenotatorPath> notePaths = this.makeNotePaths(new int[]{0}, new int[]{2});
 		List<DenotatorPath> newPaths = this.scoreManager.mapObjects(notePaths, translation, false, false);
 		TestCase.assertEquals(new DenotatorPath(this.objects.SOUND_SCORE_FORM, new int[]{0}), newPaths.get(0));
@@ -92,7 +81,7 @@ public class BigBangScoreManagerTest extends TestCase {
 	
 	public void testMapRationalTriples() throws RubatoException {
 		this.scoreManager.setInitialComposition(this.objects.rationalTriples);
-		BigBangTransformation translation = this.makeTranslation(-1,-2, this.rationalTriplesValuePaths);
+		BigBangTransformation translation = this.makeTranslation(-1,-2, this.rationalTriplesPaths);
 		List<DenotatorPath> triplesPath = new ArrayList<DenotatorPath>();
 		triplesPath.add(new DenotatorPath(this.objects.RATIONAL_TRIPLES_FORM, new int[]{0}));
 		triplesPath.add(new DenotatorPath(this.objects.RATIONAL_TRIPLES_FORM, new int[]{1}));
@@ -111,7 +100,7 @@ public class BigBangScoreManagerTest extends TestCase {
 	
 	public void testMapRealTriples() throws RubatoException {
 		this.scoreManager.setInitialComposition(this.objects.realTriples);
-		BigBangTransformation translation = this.makeTranslation(-2,-3, this.realTriplesValuePaths);
+		BigBangTransformation translation = this.makeTranslation(-2,-3, this.realTriplesPaths);
 		List<DenotatorPath> triplesPath = new ArrayList<DenotatorPath>();
 		triplesPath.add(new DenotatorPath(this.objects.REAL_TRIPLES_FORM, new int[]{1}));
 		triplesPath.add(new DenotatorPath(this.objects.REAL_TRIPLES_FORM, new int[]{2}));
@@ -129,7 +118,7 @@ public class BigBangScoreManagerTest extends TestCase {
 	//ProductElement element3 = ProductElement.make(new RElement(2), new RElement(1), new RElement(5));
 	public void testMapRealTriple() throws RubatoException {
 		this.scoreManager.setInitialComposition(this.objects.realTriples.getFactor(1));
-		BigBangTransformation translation = this.makeTranslation(-2,-3, this.realTriplesValuePaths);
+		BigBangTransformation translation = this.makeTranslation(-2,-3, this.realTriplesPaths);
 		List<DenotatorPath> emptyPath = new ArrayList<DenotatorPath>();
 		emptyPath.add(new DenotatorPath(this.objects.REAL_TRIPLE_FORM, new int[]{}));
 		List<DenotatorPath> newPaths = this.scoreManager.mapObjects(emptyPath, translation, false, false);
@@ -140,7 +129,7 @@ public class BigBangScoreManagerTest extends TestCase {
 	
 	public void testMapNodesFlatSequential() {
 		this.scoreManager.setInitialComposition(this.objects.flatMacroScore);
-		BigBangTransformation translation = this.makeTranslation(3,5, this.nodeValuePaths);
+		BigBangTransformation translation = this.makeTranslation(3,5, this.nodePaths);
 		List<DenotatorPath> notePaths = this.makeNotePaths(new int[]{0}, new int[]{2});
 		/*List<List<LimitDenotator>> notes = this.scoreManager.getNotes(notePaths);
 		TestCase.assertTrue(notes.size() == 2);
@@ -157,7 +146,7 @@ public class BigBangScoreManagerTest extends TestCase {
 	public void testMapNodesMultiLevel() throws RubatoException {
 		this.objects.multiLevelMacroScore.appendFactor(this.objects.generator.createNodeDenotator(this.objects.note2Absolute));
 		this.scoreManager.setInitialComposition(this.objects.multiLevelMacroScore);
-		BigBangTransformation translation = this.makeTranslation(-2, -1, this.nodeValuePaths);
+		BigBangTransformation translation = this.makeTranslation(-2, -1, this.nodePaths);
 		List<DenotatorPath> nodePaths = this.makeNotePaths(new int[]{1}, new int[]{0,1,0});
 		List<DenotatorPath> newPaths = new ArrayList<DenotatorPath>(this.scoreManager.mapObjects(nodePaths, translation, false, false));
 		TestCase.assertEquals(new DenotatorPath(this.objects.SOUND_SCORE_FORM, new int[]{0}), newPaths.get(0));
@@ -181,7 +170,7 @@ public class BigBangScoreManagerTest extends TestCase {
 		this.scoreManager.moveObjectsToParent(paths, new DenotatorPath(this.objects.SOUND_SCORE_FORM, new int[]{0}), 1, false);
 		this.scoreManager.moveObjectsToParent(paths, new DenotatorPath(this.objects.SOUND_SCORE_FORM, new int[]{0,0,6,0}), 0, false);
 		
-		BigBangTransformation translation = this.makeTranslation(-2, -1, this.noteValuePaths);
+		BigBangTransformation translation = this.makeTranslation(-2, -1, this.notePaths);
 		List<DenotatorPath> nodePaths = this.makeNotePaths(new int[]{0,0,6,0,6,0});
 		List<DenotatorPath> newPaths = this.scoreManager.mapObjects(nodePaths, translation, false, false);
 		TestCase.assertEquals(newPaths.get(0), new DenotatorPath(this.objects.SOUND_SCORE_FORM, new int[]{0,0,6,0,6,0}));
@@ -309,7 +298,7 @@ public class BigBangScoreManagerTest extends TestCase {
 		paths.add(new DenotatorPath(this.objects.SOUND_SCORE_FORM, new int[]{1}));
 		paths.add(new DenotatorPath(this.objects.SOUND_SCORE_FORM, new int[]{2}));
 		
-		TransformationProperties properties = new TransformationProperties(paths, this.nodeValuePaths, false, false, false);
+		TransformationProperties properties = new TransformationProperties(paths, this.nodePaths, false, false, false);
 		TreeMap<Double,Double> shapingLocations = new TreeMap<Double,Double>();
 		shapingLocations.put(-0.3, 69.0);
 		shapingLocations.put(0.5, 71.0);
@@ -332,7 +321,7 @@ public class BigBangScoreManagerTest extends TestCase {
 		paths.add(new DenotatorPath(this.objects.RATIONAL_TRIPLES_FORM, new int[]{2}));
 		paths.add(new DenotatorPath(this.objects.RATIONAL_TRIPLES_FORM, new int[]{3}));
 		
-		TransformationProperties properties = new TransformationProperties(paths, this.rationalTriplesValuePaths, false, false, false);
+		TransformationProperties properties = new TransformationProperties(paths, this.rationalTriplesPaths, false, false, false);
 		TreeMap<Double,Double> shapingLocations = new TreeMap<Double,Double>();
 		shapingLocations.put(0.7, 1.0);
 		shapingLocations.put(2.3, 11.0);
@@ -360,7 +349,7 @@ public class BigBangScoreManagerTest extends TestCase {
 		paths.add(new DenotatorPath(this.objects.REAL_TRIPLES_FORM, new int[]{1}));
 		paths.add(new DenotatorPath(this.objects.REAL_TRIPLES_FORM, new int[]{2}));
 		
-		TransformationProperties properties = new TransformationProperties(paths, this.realTriplesValuePaths, false, false, false);
+		TransformationProperties properties = new TransformationProperties(paths, this.realTriplesPaths, false, false, false);
 		TreeMap<Double,Double> shapingLocations = new TreeMap<Double,Double>();
 		shapingLocations.put(1.2, 1.0);
 		shapingLocations.put(3.0, 11.0);
@@ -375,7 +364,7 @@ public class BigBangScoreManagerTest extends TestCase {
 		this.objects.assertEqualDenotators(expectedTriple, this.scoreManager.getComposition().get(new int[]{2}));
 	}
 	
-	private BigBangTransformation makeTranslation(int x, int y, List<DenotatorPath> paths) {
+	private BigBangTransformation makeTranslation(int x, int y, TransformationPaths paths) {
 		RMatrix identity = new RMatrix(new double[][]{{1,0},{0,1}});
 		ModuleMorphism translation = RFreeAffineMorphism.make(identity, new double[]{x, y});
 		return new BigBangTransformation(translation, paths, false, null);
