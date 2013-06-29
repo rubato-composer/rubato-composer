@@ -9,6 +9,7 @@ import org.rubato.math.module.morphism.ModuleMorphism;
 import org.rubato.math.module.morphism.RFreeAffineMorphism;
 import org.rubato.math.yoneda.Denotator;
 import org.rubato.math.yoneda.LimitDenotator;
+import org.rubato.math.yoneda.PowerDenotator;
 import org.rubato.rubettes.bigbang.model.TransformationPaths;
 import org.rubato.rubettes.util.ArbitraryDenotatorMapper;
 import org.rubato.rubettes.util.DenotatorPath;
@@ -37,7 +38,7 @@ public class ArbitraryDenotatorMapperTest  extends TestCase {
 		LimitDenotator mappedNode = (LimitDenotator)mapper.getMappedDenotator(node);
 		//check if transformed properly and satellites still there and unchanged
 		LimitDenotator expectedNode = this.objects.createMultilevelNode(new double[][]{{-1,58,120,1,0,0},{1,3,-4,0,0,0},{1,-3,5,0,1,0}});
-		this.objects.assertEqualDenotators(mappedNode, expectedNode);
+		this.objects.assertEqualNonPowerDenotators(mappedNode, expectedNode);
 		//check if layer unchanged
 		TestCase.assertEquals(mappedNode.getElement(new int[]{0,5,0}), new ZElement(0));
 	}
@@ -53,58 +54,45 @@ public class ArbitraryDenotatorMapperTest  extends TestCase {
 		Denotator currentColimit = this.objects.integerOrReals.get(new int[]{0});
 		Denotator mappedColimit = mapper.getMappedDenotator(currentColimit);
 		Denotator expectedColimit = this.objects.createIntegerOrReal(true, 3);
-		this.objects.assertEqualDenotators(expectedColimit, mappedColimit);
+		this.objects.assertEqualNonPowerDenotators(expectedColimit, mappedColimit);
 		currentColimit = this.objects.integerOrReals.get(new int[]{3});
 		mappedColimit = mapper.getMappedDenotator(currentColimit);
 		expectedColimit = this.objects.createIntegerOrReal(false, 1.5);
-		this.objects.assertEqualDenotators(expectedColimit, mappedColimit);
+		this.objects.assertEqualNonPowerDenotators(expectedColimit, mappedColimit);
 		
 		//test transformation of powerset
 		Denotator mappedPowerset = mapper.getMappedPowerDenotator(this.objects.integerOrReals);
 		expectedColimit = this.objects.createIntegerOrReal(true, 3);
-		this.objects.assertEqualDenotators(expectedColimit, mappedPowerset.get(new int[]{0}));
+		this.objects.assertEqualNonPowerDenotators(expectedColimit, mappedPowerset.get(new int[]{0}));
 		expectedColimit = this.objects.createIntegerOrReal(true, 4);
-		this.objects.assertEqualDenotators(expectedColimit, mappedPowerset.get(new int[]{1}));
+		this.objects.assertEqualNonPowerDenotators(expectedColimit, mappedPowerset.get(new int[]{1}));
 		expectedColimit = this.objects.createIntegerOrReal(false, 0.5);
-		this.objects.assertEqualDenotators(expectedColimit, mappedPowerset.get(new int[]{2}));
+		this.objects.assertEqualNonPowerDenotators(expectedColimit, mappedPowerset.get(new int[]{2}));
 		expectedColimit = this.objects.createIntegerOrReal(false, 1.5);
-		this.objects.assertEqualDenotators(expectedColimit, mappedPowerset.get(new int[]{3}));
+		this.objects.assertEqualNonPowerDenotators(expectedColimit, mappedPowerset.get(new int[]{3}));
 	}
 	
 	public void testMappingOfColimitDenotators2() throws RubatoException {
 		TransformationPaths paths = new TransformationPaths();
 		//add Duration paths for both types of configurations: note and rest
-		DenotatorPath noteDurationPath = new DenotatorPath(this.objects.GENERAL_SCORE_FORM, new int[]{0,0,3});
-		DenotatorPath restDurationPath = new DenotatorPath(this.objects.GENERAL_SCORE_FORM, new int[]{0,1,1});
+		DenotatorPath noteDurationPath = new DenotatorPath(this.objects.GENERAL_NOTE_FORM, new int[]{0,3});
+		DenotatorPath restDurationPath = new DenotatorPath(this.objects.GENERAL_NOTE_FORM, new int[]{1,1});
 		paths.setDomainPaths(0, Arrays.asList(noteDurationPath, restDurationPath));
 		paths.setCodomainPaths(0, Arrays.asList(noteDurationPath, restDurationPath));
 		//add Pitch paths only for notes
-		DenotatorPath notePitchPath = new DenotatorPath(this.objects.GENERAL_SCORE_FORM, new int[]{0,0,1});
+		DenotatorPath notePitchPath = new DenotatorPath(this.objects.GENERAL_NOTE_FORM, new int[]{0,1});
 		paths.setDomainPaths(1, Arrays.asList(notePitchPath));
 		paths.setCodomainPaths(1, Arrays.asList(notePitchPath));
 		//init mapper
 		ArbitraryDenotatorMapper mapper = new ArbitraryDenotatorMapper(this.translation, paths);
 		
 		//test transformation of coordinates directly
-		Denotator currentColimit = this.objects.integerOrReals.get(new int[]{0});
-		Denotator mappedColimit = mapper.getMappedDenotator(currentColimit);
-		Denotator expectedColimit = this.objects.createIntegerOrReal(true, 3);
-		this.objects.assertEqualDenotators(expectedColimit, mappedColimit);
-		currentColimit = this.objects.integerOrReals.get(new int[]{3});
-		mappedColimit = mapper.getMappedDenotator(currentColimit);
-		expectedColimit = this.objects.createIntegerOrReal(false, 1.5);
-		this.objects.assertEqualDenotators(expectedColimit, mappedColimit);
+		double[][] rests = new double[][]{{3,1,0},{4,3,0}};
+		Denotator mappedGeneralScore = mapper.getMappedPowerDenotator(this.objects.createGeneralScore(this.objects.ABSOLUTE, rests));
 		
-		//test transformation of powerset
-		Denotator mappedPowerset = mapper.getMappedPowerDenotator(this.objects.integerOrReals);
-		expectedColimit = this.objects.createIntegerOrReal(true, 3);
-		this.objects.assertEqualDenotators(expectedColimit, mappedPowerset.get(new int[]{0}));
-		expectedColimit = this.objects.createIntegerOrReal(true, 4);
-		this.objects.assertEqualDenotators(expectedColimit, mappedPowerset.get(new int[]{1}));
-		expectedColimit = this.objects.createIntegerOrReal(false, 0.5);
-		this.objects.assertEqualDenotators(expectedColimit, mappedPowerset.get(new int[]{2}));
-		expectedColimit = this.objects.createIntegerOrReal(false, 1.5);
-		this.objects.assertEqualDenotators(expectedColimit, mappedPowerset.get(new int[]{3}));
+		Denotator expectedGeneralScore = this.objects.createGeneralScore(
+				new double[][]{{0,58,120,0,0,0},{1,61,116,0,0,0},{2,58,121,0,1,0}}, new double[][]{{3,0},{4,2}});
+		this.objects.assertEqualPowerDenotators((PowerDenotator)expectedGeneralScore, (PowerDenotator)mappedGeneralScore);
 	}
 
 }

@@ -27,7 +27,7 @@ public class ObjectGeneratorTest extends TestCase {
 		}
 		LimitDenotator expectedNode = this.objects.generator.createNodeDenotator(noteValues);
 		Denotator generatedObject = new ObjectGenerator().createObject(this.objects.SOUND_NODE_FORM, pathsWithValues);
-		this.objects.assertEqualDenotators(expectedNode, generatedObject);
+		this.objects.assertEqualNonPowerDenotators(expectedNode, generatedObject);
 	}
 
 }

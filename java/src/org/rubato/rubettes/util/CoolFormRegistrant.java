@@ -23,6 +23,7 @@ public class CoolFormRegistrant {
 	public static final SimpleForm DURATION_FORM = (SimpleForm)REPOSITORY.getForm("Duration");
 	public static final SimpleForm VOICE_FORM = (SimpleForm)REPOSITORY.getForm("Voice");
 	public static final LimitForm NOTE_FORM = (LimitForm)REPOSITORY.getForm("Note");
+	public static final PowerForm SCORE_FORM = (PowerForm)REPOSITORY.getForm("Score");
 	
 	public static SimpleForm PITCH_CLASS_FORM;
 	public static SimpleForm CHROMATIC_PITCH_FORM;
@@ -78,7 +79,7 @@ public class CoolFormRegistrant {
 	public void registerSoundForms() {
 		//SoundSpectrum
 		LimitForm partial = this.registerLimitForm("Partial", LOUDNESS_FORM, PITCH_FORM);
-		this.registerPowerForm("Spectrum", partial);
+		PowerForm spectrum = this.registerPowerForm("Spectrum", partial);
 		
 		//HarmonicSpectrum
 		OVERTONE_INDEX_FORM = this.registerZModuleForm("OvertoneIndex");
@@ -104,6 +105,11 @@ public class CoolFormRegistrant {
 		LimitForm soundNode = this.registerLimitForm("SoundNode", SOUND_NOTE_FORM, soundScore);
 		soundScore = this.registerPowerForm("SoundScore", soundNode);
 		soundScore.resolveReferences(REPOSITORY);
+		
+		
+		//just for testing:
+		this.registerColimitForm("NoteOrPartial", NOTE_FORM, partial);
+		this.registerLimitForm("SpectrumAndScore", spectrum, SCORE_FORM);
 	}
 	
 	public void registerImageForms() {

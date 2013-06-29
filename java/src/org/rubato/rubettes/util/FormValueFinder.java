@@ -50,7 +50,7 @@ public class FormValueFinder {
 	}
 	
 	public DenotatorObjectConfiguration getConfiguration(Form objectForm, DenotatorPath longestColimitPath) {
-		System.out.println(objectForm + " " + longestColimitPath + " " + this.objectsInFoundOrder.get(this.objectForms.indexOf(objectForm)).getColimitConfigurations());
+		//System.out.println(objectForm + " " + longestColimitPath + " " + this.objectsInFoundOrder.get(this.objectForms.indexOf(objectForm)).getColimitConfigurations());
 		return this.objectsInFoundOrder.get(this.objectForms.indexOf(objectForm)).getColimitConfiguration(longestColimitPath);
 	}
 	
@@ -76,7 +76,7 @@ public class FormValueFinder {
 	
 	public int getInstanceNumberOfCoordinateValueName(int coordinateSystemValueIndex) {
 		String nameInCoordinateSystem = this.getCoordinateSystemValueNames().get(coordinateSystemValueIndex);
-		return this.getPreviousOccurrencesInCoordinateSystem(nameInCoordinateSystem, coordinateSystemValueIndex) + 1;
+		return this.getPreviousOccurrencesInCoordinateSystem(nameInCoordinateSystem, coordinateSystemValueIndex);
 	}
 	
 	private int getPreviousOccurrencesInCoordinateSystem(String nameInCoordinateSystem, int coordinateSystemValueIndex) {

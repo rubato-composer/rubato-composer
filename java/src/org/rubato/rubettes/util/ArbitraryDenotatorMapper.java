@@ -107,6 +107,7 @@ public class ArbitraryDenotatorMapper {
 			//TODO: mapping relatively easy for now since we're already doing powersets element by element..
 			
 			DenotatorPath currentPath = this.transformationPaths.getDomainPath(j, denotator);
+			
 			if (currentPath != null) {
 				ModuleMorphism currentMorphism = null;
 				if (currentPath.isElementPath()) {

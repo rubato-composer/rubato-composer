@@ -116,7 +116,7 @@ public class DisplayObject implements Comparable<Object> {
 	}
 	
 	/**
-	 * @return the nth value with the given name
+	 * @return the nth value with the given name, n >= 0 like a normal index
 	 */
 	public Double getNthValue(String valueName, int n) {
 		if (valueName.equals(DenotatorValueExtractor.SATELLITE_LEVEL) || valueName.equals(DenotatorValueExtractor.COLIMIT_INDEX)) {
@@ -125,11 +125,13 @@ public class DisplayObject implements Comparable<Object> {
 			return this.structuralIndices.get(1).doubleValue();
 		}
 		int valueIndex = this.objectType.getIndexOfNthInstanceOfValueName(valueName, n);
-		Double value = this.values.get(valueIndex);
-		if (value != null) {
-			return value;
-		} else if (this.parent != null) {
-			return this.parent.getNthValue(valueName, n);
+		if (valueIndex != -1) {
+			Double value = this.values.get(valueIndex);
+			if (value != null) {
+				return value;
+			} else if (this.parent != null) {
+				return this.parent.getNthValue(valueName, n);
+			}
 		}
 		return null;
 	}
@@ -200,7 +202,6 @@ public class DisplayObject implements Comparable<Object> {
 		double height = this.getHeight(yZoomFactor);
 		//only calculate other stuff, if x on display, and so on...
 		double y = this.getY(yZoomFactor)-(height/2)+yPosition;
-		System.out.println(x + " . " + y);
 		this.rectangle = new Rectangle2D.Double(x, y, width, height);
 		this.center = new Point2D.Double(x+width/2, y+height/2);
 	}

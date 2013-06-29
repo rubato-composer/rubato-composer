@@ -39,6 +39,7 @@ public class TestObjects {
 	public final Form SOUND_SCORE_FORM, SOUND_NODE_FORM, SOUND_NOTE_FORM, HARMONIC_SPECTRUM_FORM;
 	public final Form MACRO_SCORE_FORM = Repository.systemRepository().getForm("MacroScore");
 	public final PowerForm GENERAL_SCORE_FORM = (PowerForm)Repository.systemRepository().getForm("GeneralScore");
+	public final ColimitForm GENERAL_NOTE_FORM = (ColimitForm)Repository.systemRepository().getForm("NoteOrRest");
 	public final Module RATIONAL_TRIPLE_MODULE = Repository.systemRepository().getModule("Triples of rationals"); 
 	public final SimpleForm RATIONAL_TRIPLE_FORM = new SimpleForm(NameDenotator.make("RationalTriple"), RATIONAL_TRIPLE_MODULE);
 	public final PowerForm RATIONAL_TRIPLES_FORM = new PowerForm(NameDenotator.make("RationalTriples"), RATIONAL_TRIPLE_FORM);
@@ -221,11 +222,17 @@ public class TestObjects {
 		return paths;
 	}
 	
-	public void assertEqualDenotators(Denotator d1, Denotator d2) {
+	public void assertEqualPowerDenotators(PowerDenotator d1, PowerDenotator d2) {
+		TestCase.assertEquals(d1.getFactorCount(), d2.getFactorCount());
+		for (int i = 0; i < d1.getFactorCount(); i++) {
+			this.assertEqualNonPowerDenotators(d1.getFactor(i), d2.getFactor(i));
+		}
+	}
+	
+	public void assertEqualNonPowerDenotators(Denotator d1, Denotator d2) {
 		TestCase.assertEquals(d1.getForm(), d2.getForm());
 		Set<DenotatorPath> allValuePaths = new TreeSet<DenotatorPath>(new DenotatorValueFinder(d1, true).getValuePaths());
 		allValuePaths.addAll(new DenotatorValueFinder(d2, true).getValuePaths());
-		//System.out.println(allValuePaths + " " + d1 + " " + d2);
 		for (DenotatorPath currentPath : allValuePaths) {
 			TestCase.assertEquals(this.objectGenerator.getDoubleValue(d1, currentPath), this.objectGenerator.getDoubleValue(d2, currentPath));
 		}
