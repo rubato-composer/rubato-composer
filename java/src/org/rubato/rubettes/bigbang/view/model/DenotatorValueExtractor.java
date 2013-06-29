@@ -111,7 +111,11 @@ public class DenotatorValueExtractor {
 					if (i == childIndex) {
 						DenotatorPath childPath = currentPath.getChildPath(childIndex);
 						//TODO: uiui, not great, but should work for now
-						currentDO.setObjectType(this.displayObjects.getObjectType(currentDO.getTopDenotatorPath().getEndForm(), childPath.subPath(childPath.size()-childPath.getTopPath().size())));
+						DenotatorPath path = childPath;
+						if (childPath.getTopPath().size() > 0) {
+							path = path.subPath(childPath.size()-childPath.getTopPath().size());
+						}
+						currentDO.setObjectType(this.displayObjects.getObjectType(currentDO.getTopDenotatorPath().getEndForm(), path));
 						this.extractObjects(onlyChild, parentDO, currentDO, parentJSO, currentJSO, satelliteLevel, siblingNumber, childIndex, childPath);
 					}
 				}

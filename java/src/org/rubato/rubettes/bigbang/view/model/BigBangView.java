@@ -344,7 +344,7 @@ public class BigBangView extends Model implements View {
 		return values;
 	}
 	
-	public void setSelectedObject(Integer objectTypeIndex) {
+	public void setActiveObject(Integer objectTypeIndex) {
 		this.displayNotes.setIndexOfActiveObjectType(objectTypeIndex);
 		this.firePropertyChange(ViewController.ACTIVE_OBJECT, null, objectTypeIndex);
 		//TODO: update selectable colimits!!!!!!!
@@ -525,7 +525,6 @@ public class BigBangView extends Model implements View {
 	public void addObject(Point2D.Double location) {
 		Map<DenotatorPath,Double> objectValues = this.displayNotes.getActiveObjectStandardValues(this.standardDenotatorValues);
 		DenotatorPath objectPowersetPath = this.editObjectValuesAndFindClosestPowerset(location, objectValues);
-		System.out.println(this.displayNotes.getActiveObjectType().getPath() + " " + objectValues + " " + objectPowersetPath);
 		
 		//only add object if there are some screen values to be converted
 		if (!objectValues.isEmpty()) {
@@ -622,7 +621,6 @@ public class BigBangView extends Model implements View {
 		int[] xyParameters = this.viewParameters.getSelectedXYViewParameters();
 		int xValueIndex = this.displayNotes.getActiveObjectValueIndex(xyParameters[0]);
 		int yValueIndex = this.displayNotes.getActiveObjectValueIndex(xyParameters[1]);
-		System.out.println(xValueIndex + " " + yValueIndex);
 		if (xValueIndex >= 0 && yValueIndex >= 0) {
 			closestPowersetPath = this.replaceDenotatorValue(location.x, xValueIndex, 0, this.displayPosition.x, this.xZoomFactor, denotatorValues, closestPowersetPath);
 			if (yValueIndex != xValueIndex) {

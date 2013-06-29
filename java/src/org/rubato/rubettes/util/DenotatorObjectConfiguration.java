@@ -36,7 +36,11 @@ public class DenotatorObjectConfiguration {
 	}
 	
 	public DenotatorPath getPathOfNthInstanceOfValueName(String valueName, int n) {
-		return this.valuePaths.get(this.getIndexOfNthInstanceOfValueName(valueName, n));
+		int index = this.getIndexOfNthInstanceOfValueName(valueName, n);
+		if (index > -1) {
+			return this.valuePaths.get(index);
+		}
+		return null;
 	}
 	
 	public int getOccurrencesOfValueNameBefore(String valueName, int index) {
@@ -61,11 +65,9 @@ public class DenotatorObjectConfiguration {
 				names = names.subList(currentIndex+1, names.size());
 				previousIndex = currentIndex;
 			} else {
-				System.out.println("HELLO!!!");
 				return -1;
 			}
 		}
-		System.out.println(valueName + " " + n + " " + previousIndex);
 		return names.indexOf(valueName)+previousIndex+1;
 	}
 	

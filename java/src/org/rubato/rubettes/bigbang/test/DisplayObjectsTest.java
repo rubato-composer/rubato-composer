@@ -12,9 +12,7 @@ import org.rubato.rubettes.bigbang.view.controller.ViewController;
 import org.rubato.rubettes.bigbang.view.model.DenotatorValueExtractor;
 import org.rubato.rubettes.bigbang.view.model.LayerStates;
 import org.rubato.rubettes.bigbang.view.subview.DisplayObjects;
-import org.rubato.rubettes.util.CoolFormRegistrant;
 import org.rubato.rubettes.util.DenotatorPath;
-import org.rubato.rubettes.util.FormValueFinder;
 
 public class DisplayObjectsTest extends TestCase {
 	
