@@ -54,30 +54,32 @@ public class JSynModule {
 		oscillator.setAmplitude(object.getAmplitude()*this.player.getRecommendedAmplitude()*modulatorAmplitudeFactor);
 		//adjust or schedule time
 		double currentSymbolicTime = this.player.getCurrentSymbolicTime();
-		if (object.getOnset() > currentSymbolicTime || (object.getOnset() < currentSymbolicTime && playInNextLoop)) {
-			double onset = this.player.getSynthOnset(object.getOnset(), playInNextLoop);
-			double duration = this.player.convertToSynthDuration(object.getDuration());
-			oscillator.queueEnvelope(duration, onset, true);
-		} else {
-			double remainingDuration = this.player.convertToSynthDuration(object.getDuration()-(currentSymbolicTime-object.getOnset()));
-			if (remainingDuration > 0) {
-				oscillator.queueEnvelopeWithoutAttackAndDecay(remainingDuration, this.player.getCurrentSynthTime());
+		if (object.isPlayable()) {
+			if (object.getOnset() > currentSymbolicTime || (object.getOnset() < currentSymbolicTime && playInNextLoop)) {
+				double onset = this.player.getSynthOnset(object.getOnset(), playInNextLoop);
+				double duration = this.player.convertToSynthDuration(object.getDuration());
+				oscillator.queueEnvelope(duration, onset, true);
 			} else {
-				this.mute();
+				double remainingDuration = this.player.convertToSynthDuration(object.getDuration()-(currentSymbolicTime-object.getOnset()));
+				if (remainingDuration > 0) {
+					oscillator.queueEnvelopeWithoutAttackAndDecay(remainingDuration, this.player.getCurrentSynthTime());
+				} else {
+					this.mute();
+				}
 			}
-		}
-		//recursively create or adjust modulators 
-		List<JSynObject> modulatorObjects = object.getModulators();
-		List<SmoothOscillator> modulators = oscillator.getModulators();
-		for (int i = 0; i < modulatorObjects.size(); i++) {
-			JSynObject currentModulator = modulatorObjects.get(i);
-			if (modulators.size() <= i) {
-				oscillator.addModulator();
+			//recursively create or adjust modulators 
+			List<JSynObject> modulatorObjects = object.getModulators();
+			List<SmoothOscillator> modulators = oscillator.getModulators();
+			for (int i = 0; i < modulatorObjects.size(); i++) {
+				JSynObject currentModulator = modulatorObjects.get(i);
+				if (modulators.size() <= i) {
+					oscillator.addModulator();
+				}
+				//TODO: one modulator may have several frequencies! go through all
+				this.playOrAdjustObject(modulators.get(i), currentModulator, currentModulator.getMainFrequency(), 2000, playInNextLoop);
 			}
-			//TODO: one modulator may have several frequencies! go through all
-			this.playOrAdjustObject(modulators.get(i), currentModulator, currentModulator.getMainFrequency(), 2000, playInNextLoop);
+			//TODO: remove exceeding ones!!!!
 		}
-		//TODO: remove exceeding ones!!!!
 	}
 	
 	public void mute() {

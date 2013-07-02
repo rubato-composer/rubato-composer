@@ -129,9 +129,9 @@ public class DisplayObject implements Comparable<Object> {
 			Double value = this.values.get(valueIndex);
 			if (value != null) {
 				return value;
-			} else if (this.parent != null) {
-				return this.parent.getNthValue(valueName, n);
 			}
+		} else if (this.parent != null) {
+			return this.parent.getNthValue(valueName, n);
 		}
 		return null;
 	}

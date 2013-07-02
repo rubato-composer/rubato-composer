@@ -149,31 +149,38 @@ public class DisplayObjects implements View {
 		return this.finder.getAllObjectConfigurationsValuePathsAt(coordinateSystemValueIndex);
 	}
 	
-	public DisplayObject getClosestObject(int coordinateSystemValueIndex, double value, DenotatorPath powersetPath) {
-		String valueName = this.coordinateSystemValueNames.get(coordinateSystemValueIndex);
-		int nameIndex = this.getInstanceNumberOfCoordinateValueName(coordinateSystemValueIndex);
-		//TODO: DOES PROBABLY NOT WORK!!!!
-		
-		//DenotatorPath valuePath = this.getPathOfValueAt(valueIndex);
+	/**
+	 * @return the path of the closest powerset at the given coordinateSystemValueIndex, if it is closer to the given
+	 * currentClosestPowersetPath
+	 */
+	public DisplayObject getClosestObject(int[] coordinateSystemValueIndices, double[] values, DenotatorPath examplePowersetPath) {
+		Form formOfObjectInExamplePowerset = examplePowersetPath.getTopPath().getEndForm();
 		DisplayObject closestObject = null;
 		double shortestDistance = Double.MAX_VALUE;
+			
 		if (this.indexOfActiveObjectType > 0) {
 			for (DisplayObject currentObject : this.objects) {
-				//has to be same type of object. TODO: lenghth of course is not the deciding thing!!!!
-				if (currentObject.getTopDenotatorPath().size() == powersetPath.getTopPath().size()) {
-					Double currentValue = currentObject.getNthValue(valueName, nameIndex);
-					if (currentValue != null) {
-						double currentDistance = Math.abs(currentValue-value);
-						if (currentDistance < shortestDistance) {
-							shortestDistance = currentDistance;
-							closestObject = currentObject;
+				if (currentObject.getTopDenotatorPath().getEndForm().equals(formOfObjectInExamplePowerset)) {
+					//calculate Euclidean distance
+					double currentDistance = 0;
+					for (int i = 0; i < coordinateSystemValueIndices.length; i++) {
+						String valueName = this.coordinateSystemValueNames.get(coordinateSystemValueIndices[i]);
+						int nameIndex = this.getInstanceNumberOfCoordinateValueName(coordinateSystemValueIndices[i]);
+						
+						Double currentValue = currentObject.getNthValue(valueName, nameIndex);
+						if (currentValue != null) {
+							currentDistance += Math.pow(currentValue-values[i], 2);
 						}
+					}
+					currentDistance = Math.sqrt(currentDistance);
+					if (currentDistance < shortestDistance) {
+						shortestDistance = currentDistance;
+						closestObject = currentObject;
 					}
 				}
 			}
-			return closestObject;
 		}
-		return null;
+		return closestObject;
 	}
 	
 	public List<Form> getObjectTypes() {
@@ -183,17 +190,6 @@ public class DisplayObjects implements View {
 	public DenotatorObject getActiveObjectType() {
 		return this.finder.getObjectAt(this.indexOfActiveObjectType);
 	}
-	
-	/*private List<DenotatorPath> getActiveObjectColimitPaths(List<Integer> colimitCoordinates) {
-		List<DenotatorPath> colimitCoordinatePaths = new ArrayList<DenotatorPath>();
-		for (int i = 0; i < colimitCoordinates.size(); i++) {
-			int currentSelectedCoordinate = colimitCoordinates.get(i);
-			if (currentSelectedCoordinate >= 0) {
-				colimitCoordinatePaths.add(this.getActiveObjectType().getColimitPaths().get(i).getChildPath(currentSelectedCoordinate));
-			}
-		}
-		return colimitCoordinatePaths;
-	}*/
 	
 	/**
 	 * @return the top denotator standard values under assumption that the given value

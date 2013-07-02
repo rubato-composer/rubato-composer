@@ -54,6 +54,14 @@ public class JSynObject {
 		return values.get(0);
 	}
 	
+	/**
+	 * @return true if the object is worth being played. for now this is only the case if it contains at least
+	 * one frequency. 
+	 */
+	public boolean isPlayable() {
+		return this.frequencies.size() > 0;
+	}
+	
 	
 	//TIME
 	

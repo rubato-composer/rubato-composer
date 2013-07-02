@@ -75,11 +75,10 @@ public class BigBangModel extends Model {
 	
 	public void addObject(TreeMap<DenotatorPath,Double> pathsWithValues, DenotatorPath powersetPath) {
 		AbstractOperationEdit lastEdit = this.undoRedoModel.getLastEdit();
-		//TODO: make that you can't switch object while drawing!!!!!!
 		if (lastEdit != null && lastEdit instanceof AddObjectsEdit) {
 			AddObjectsEdit addEdit = (AddObjectsEdit) lastEdit;
 			if ((powersetPath == null && addEdit.getPowersetPath() == null)
-					|| powersetPath.equalsExceptForPowersetIndices(addEdit.getPowersetPath())) {
+					|| powersetPath.equals(addEdit.getPowersetPath())) {
 				addEdit.addObject(pathsWithValues);
 				this.undoRedoModel.modifiedOperation(false);
 				return;

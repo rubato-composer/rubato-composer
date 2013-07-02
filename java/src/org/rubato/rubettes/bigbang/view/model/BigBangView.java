@@ -617,38 +617,41 @@ public class BigBangView extends Model implements View {
 	}
 	
 	private DenotatorPath editObjectValuesAndFindClosestPowerset(Point2D.Double location, Map<DenotatorPath,Double> denotatorValues) {
-		DenotatorPath closestPowersetPath = this.displayNotes.getActiveObjectType().getPath().getParentPath();
+		DenotatorPath parentPowersetPath = this.displayNotes.getActiveObjectType().getPath().getParentPath();
 		int[] xyParameters = this.viewParameters.getSelectedXYViewParameters();
 		int xValueIndex = this.displayNotes.getActiveObjectValueIndex(xyParameters[0]);
 		int yValueIndex = this.displayNotes.getActiveObjectValueIndex(xyParameters[1]);
-		if (xValueIndex >= 0 && yValueIndex >= 0) {
-			closestPowersetPath = this.replaceDenotatorValue(location.x, xValueIndex, 0, this.displayPosition.x, this.xZoomFactor, denotatorValues, closestPowersetPath);
-			if (yValueIndex != xValueIndex) {
-				closestPowersetPath = this.replaceDenotatorValue(location.y, yValueIndex, 1, this.displayPosition.y, this.yZoomFactor, denotatorValues, closestPowersetPath);
-			}
-		} else if (yValueIndex < 0) {
-			closestPowersetPath = this.replaceDenotatorValue(location.x, xValueIndex, 0, this.displayPosition.x, this.xZoomFactor, denotatorValues, closestPowersetPath);
-		} else {
-			closestPowersetPath = this.replaceDenotatorValue(location.y, yValueIndex, 1, this.displayPosition.y, this.yZoomFactor, denotatorValues, closestPowersetPath);
+		double[] xyDenotatorValues = new double[2];
+		xyDenotatorValues[0] = this.getDenotatorValue(location.x, 0, this.displayPosition.x, this.xZoomFactor);
+		xyDenotatorValues[1] = this.getDenotatorValue(location.y, 1, this.displayPosition.y, this.yZoomFactor);
+		if (xValueIndex >= 0) {
+			this.replaceDenotatorValue(location.x, xValueIndex, 0, this.displayPosition.x, this.xZoomFactor, denotatorValues);
 		}
+		if (yValueIndex >= 0 && (xValueIndex < 0 || yValueIndex != xValueIndex)) {
+			this.replaceDenotatorValue(location.y, yValueIndex, 1, this.displayPosition.y, this.yZoomFactor, denotatorValues);
+		}
+		DenotatorPath closestPowersetPath = this.findClosestPowersetPath(xyParameters, xyDenotatorValues, parentPowersetPath);
 		return closestPowersetPath;
 	}
 	
-	private DenotatorPath replaceDenotatorValue(double displayValue, int valueIndex, int parameterIndex, int position, double zoomFactor, Map<DenotatorPath,Double> values, DenotatorPath closestPowersetPath) {
-		if (valueIndex > -1) {
-			double denotatorValue = this.getDenotatorValue(displayValue, parameterIndex, position, zoomFactor);
-			DenotatorPath associatedPath = this.displayNotes.getActiveObjectValuePathAt(valueIndex);
-			//null happens when parent value, satellite/sibling level is selected, or when path not in active colimits
-			if (associatedPath != null) {
-				values.put(associatedPath, denotatorValue);
-			}
-			//TODO: really find closest, not just closest of last dimension...
-			DisplayObject closestObject = this.displayNotes.getClosestObject(valueIndex, denotatorValue, closestPowersetPath);
+	private double replaceDenotatorValue(double displayValue, int valueIndex, int parameterIndex, int position, double zoomFactor, Map<DenotatorPath,Double> values) {
+		double denotatorValue = this.getDenotatorValue(displayValue, parameterIndex, position, zoomFactor);
+		DenotatorPath associatedPath = this.displayNotes.getActiveObjectValuePathAt(valueIndex);
+		//null happens when parent value, satellite/sibling level is selected, or when path not in active colimits
+		if (associatedPath != null) {
+			values.put(associatedPath, denotatorValue);
+		}
+		return denotatorValue;
+	}
+	
+	private DenotatorPath findClosestPowersetPath(int[] valueIndices, double[] denotatorValues, DenotatorPath parentPowersetPath) {
+		if (parentPowersetPath != null) {
+			DisplayObject closestObject = this.displayNotes.getClosestObject(valueIndices, denotatorValues, parentPowersetPath);
 			if (closestObject != null) {
-				return closestObject.getTopDenotatorPath().getDescendantPathAccordingTo(closestPowersetPath);
+				return closestObject.getTopDenotatorPath().getDescendantPathAccordingTo(parentPowersetPath);
 			}
 		}
-		return closestPowersetPath;
+		return parentPowersetPath;
 	}
 	
 	protected double getDenotatorValue(double displayValue, int parameterIndex, int position, double zoomFactor) {
@@ -666,12 +669,16 @@ public class BigBangView extends Model implements View {
 		int[] xyParameters = this.viewParameters.getSelectedXYViewParameters();
 		paths.setXYCoordinates(xyParameters);
 		//only one parameter might be selected... TODO does the list need to be null or can it just be empty??
-		List<DenotatorPath> xPaths = this.displayNotes.getAllObjectConfigurationsValuePathsAt(xyParameters[0]);
-		List<DenotatorPath> yPaths = this.displayNotes.getAllObjectConfigurationsValuePathsAt(xyParameters[1]);
-		paths.setDomainPaths(0, xPaths);
-		paths.setDomainPaths(1, yPaths);
-		paths.setCodomainPaths(0, xPaths);
-		paths.setCodomainPaths(1, yPaths);
+		for (int i = 0; i < xyParameters.length; i++) {
+			if (xyParameters[i] >= 0) {
+				List<DenotatorPath> currentPaths = this.displayNotes.getAllObjectConfigurationsValuePathsAt(xyParameters[i]);
+				paths.setDomainPaths(i, currentPaths);
+				paths.setCodomainPaths(i, currentPaths);
+			} else {
+				paths.setDomainPaths(i, null);
+				paths.setCodomainPaths(i, null);
+			}
+		}
 		return paths;
 	}
 	

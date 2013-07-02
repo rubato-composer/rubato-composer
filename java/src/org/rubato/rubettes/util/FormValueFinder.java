@@ -14,7 +14,6 @@ public class FormValueFinder {
 	
 	private List<String> distinctValueNames;
 	private List<String> coordinateSystemValueNames;
-	private List<DenotatorPath> allValuePaths; //TODO: implement!!!
 	//objects are the top-level denotator (if it is not a powerset) as well as elements of powersets
 	private List<DenotatorObject> objectsInFoundOrder;
 	private List<Form> objectForms;
@@ -59,19 +58,25 @@ public class FormValueFinder {
 	}
 	
 	public List<DenotatorPath> getAllObjectConfigurationsValuePathsAt(int coordinateSystemValueIndex) {
-		List<DenotatorPath> paths = new ArrayList<DenotatorPath>();
-		String nameInCoordinateSystem = this.getCoordinateSystemValueNames().get(coordinateSystemValueIndex);
-		int previousOccurrencesInCoordinateSystem = this.getPreviousOccurrencesInCoordinateSystem(nameInCoordinateSystem, coordinateSystemValueIndex);
-		for (DenotatorObject currentObjectType : this.objectsInFoundOrder) {
-			paths.addAll(currentObjectType.getAllConfigurationsValuePathsOfNthInstance(nameInCoordinateSystem, previousOccurrencesInCoordinateSystem));
+		if (coordinateSystemValueIndex >= 0) {
+			List<DenotatorPath> paths = new ArrayList<DenotatorPath>();
+			String nameInCoordinateSystem = this.getCoordinateSystemValueNames().get(coordinateSystemValueIndex);
+			int previousOccurrencesInCoordinateSystem = this.getPreviousOccurrencesInCoordinateSystem(nameInCoordinateSystem, coordinateSystemValueIndex);
+			for (DenotatorObject currentObjectType : this.objectsInFoundOrder) {
+				paths.addAll(currentObjectType.getAllConfigurationsValuePathsOfNthInstance(nameInCoordinateSystem, previousOccurrencesInCoordinateSystem));
+			}
+			return paths;
 		}
-		return paths;
+		return null;
 	}
 	
 	public int getActiveObjectValueIndex(int coordinateSystemValueIndex, int objectIndex, List<Integer> colimitCofiguration) {
-		String nameInCoordinateSystem = this.getCoordinateSystemValueNames().get(coordinateSystemValueIndex);
-		int previousOccurrencesInCoordinateSystem = this.getPreviousOccurrencesInCoordinateSystem(nameInCoordinateSystem, coordinateSystemValueIndex);
-		return this.objectsInFoundOrder.get(objectIndex).getIndexOfNthInstanceOfConfigurationValueName(colimitCofiguration, nameInCoordinateSystem, previousOccurrencesInCoordinateSystem);
+		if (coordinateSystemValueIndex >= 0) {
+			String nameInCoordinateSystem = this.getCoordinateSystemValueNames().get(coordinateSystemValueIndex);
+			int previousOccurrencesInCoordinateSystem = this.getPreviousOccurrencesInCoordinateSystem(nameInCoordinateSystem, coordinateSystemValueIndex);
+			return this.objectsInFoundOrder.get(objectIndex).getIndexOfNthInstanceOfConfigurationValueName(colimitCofiguration, nameInCoordinateSystem, previousOccurrencesInCoordinateSystem);
+		}
+		return -1;
 	}
 	
 	public int getInstanceNumberOfCoordinateValueName(int coordinateSystemValueIndex) {
