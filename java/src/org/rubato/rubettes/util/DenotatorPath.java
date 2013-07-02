@@ -179,15 +179,14 @@ public class DenotatorPath implements Comparable<Object> {
 		return this.indices.equals(((DenotatorPath)object).indices);
 	}
 	
-	public boolean equalsExceptForPowersetIndices(Object object) {
-		if (object == null || !(object instanceof DenotatorPath) || ((DenotatorPath)object).size() != this.size()) {
+	public boolean equalsExceptForPowersetIndices(DenotatorPath path) {
+		if (path == null || path.size() != this.size() || path.getBaseForm() != this.getBaseForm()) {
 			return false;
 		}
-		DenotatorPath other = (DenotatorPath)object;
 		for (int i = 0; i < this.indices.size(); i++) {
-			Form currentForm = this.subPath(0, i+1).getEndForm();
-			if (currentForm.getType() != Form.POWER && currentForm.getType() != Form.LIST) {
-				if (this.indices.get(i) != other.indices.get(i)) {
+			Form currentParentForm = this.subPath(0, i+1).getParentForm();
+			if (currentParentForm.getType() != Form.POWER && currentParentForm.getType() != Form.LIST) {
+				if (this.indices.get(i) != path.indices.get(i)) {
 					return false;
 				}
 			}

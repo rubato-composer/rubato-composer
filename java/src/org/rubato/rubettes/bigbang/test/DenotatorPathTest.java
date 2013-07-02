@@ -41,6 +41,13 @@ public class DenotatorPathTest extends TestCase {
 		TestCase.assertEquals(new DenotatorPath(this.objects.REAL_TRIPLES_FORM, new int[]{1}), this.realTriplesPath.getElementSubpath());
 		TestCase.assertEquals(this.objects.REAL_TRIPLE_FORM, this.realTriplesPath.getEndForm());
 		TestCase.assertEquals(RRing.ring, this.realTriplesPath.getModule());
+		
+		DenotatorPath modulatorPath2 = new DenotatorPath(this.objects.SOUND_SCORE_FORM, new int[]{4,1,3,0,6,1,6,5});
+		TestCase.assertTrue(modulatorPath2.equalsExceptForPowersetIndices(this.modulatorPath));
+		TestCase.assertTrue(this.modulatorPath.equalsExceptForPowersetIndices(modulatorPath2));
+		DenotatorPath modulatorPath3 = new DenotatorPath(this.objects.SOUND_SCORE_FORM, new int[]{2,1,0,1,6,1,6,0});
+		TestCase.assertFalse(modulatorPath3.equalsExceptForPowersetIndices(this.modulatorPath));
+		TestCase.assertFalse(this.modulatorPath.equalsExceptForPowersetIndices(modulatorPath3));
 	}
 	
 	public void testWithSatellitePath() {

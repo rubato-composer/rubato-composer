@@ -66,7 +66,7 @@ public class JSynPlayer {
 		}
 		//System.out.println("LOOP "+ this.loopOnset + " " + this.getLastOffset() + " " + this.loopDuration);
 		this.bbPlayer.interrupt();
-		System.out.println(score.getObjects());
+		//System.out.println(score.getObjects());
 	}
 	
 	public void replaceScore(JSynScore score) {
@@ -193,7 +193,6 @@ public class JSynPlayer {
 	}
 
 	private void playScore() {
-		System.out.println("play");
 		if (!this.isPlaying) {
 			if (!this.synth.isRunning()) {
 				this.synth.start(JSynPlayer.SAMPLE_RATE, AudioDeviceManager.USE_DEFAULT_DEVICE, 2, AudioDeviceManager.USE_DEFAULT_DEVICE, 2);
@@ -227,7 +226,6 @@ public class JSynPlayer {
 							//go back to sleep
 						} else {
 							this.threads.stop();
-							System.out.println("stop!!");
 							return;
 						}
 					}
