@@ -57,15 +57,32 @@ public class FormValueFinder {
 		return this.objectsInFoundOrder.get(this.objectForms.indexOf(objectForm)).getStandardConfiguration();
 	}
 	
-	public List<DenotatorPath> getAllObjectConfigurationsValuePathsAt(int coordinateSystemValueIndex) {
+	/**
+	 * @return all paths of the instances of the value at the given coordinateSystemValueIndex, separated by objects
+	 * and then by configurations
+	 */
+	public List<List<DenotatorPath>> getAllObjectConfigurationsValuePathsAt(int coordinateSystemValueIndex) {
 		if (coordinateSystemValueIndex >= 0) {
-			List<DenotatorPath> paths = new ArrayList<DenotatorPath>();
+			List<List<DenotatorPath>> paths = new ArrayList<List<DenotatorPath>>();
 			String nameInCoordinateSystem = this.getCoordinateSystemValueNames().get(coordinateSystemValueIndex);
 			int previousOccurrencesInCoordinateSystem = this.getPreviousOccurrencesInCoordinateSystem(nameInCoordinateSystem, coordinateSystemValueIndex);
 			for (DenotatorObject currentObjectType : this.objectsInFoundOrder) {
-				paths.addAll(currentObjectType.getAllConfigurationsValuePathsOfNthInstance(nameInCoordinateSystem, previousOccurrencesInCoordinateSystem));
+				paths.add(currentObjectType.getAllConfigurationsValuePathsOfNthInstance(nameInCoordinateSystem, previousOccurrencesInCoordinateSystem));
 			}
 			return paths;
+		}
+		return null;
+	}
+	
+	/**
+	 * @return all paths of the instances of the value at the given coordinateSystemValueIndex, separated by objects
+	 * and then by configurations
+	 */
+	public List<DenotatorPath> getAllObjectConfigurationsValuePathsAt(int objectIndex, int coordinateSystemValueIndex) {
+		if (coordinateSystemValueIndex >= 0) {
+			String nameInCoordinateSystem = this.getCoordinateSystemValueNames().get(coordinateSystemValueIndex);
+			int previousOccurrencesInCoordinateSystem = this.getPreviousOccurrencesInCoordinateSystem(nameInCoordinateSystem, coordinateSystemValueIndex);
+			return this.objectsInFoundOrder.get(objectIndex).getAllConfigurationsValuePathsOfNthInstance(nameInCoordinateSystem, previousOccurrencesInCoordinateSystem);
 		}
 		return null;
 	}

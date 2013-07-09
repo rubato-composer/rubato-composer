@@ -27,7 +27,15 @@ public class BigBangMapper extends BigBangScoreManipulator {
 		this.relative = transformation.getAnchorNodePath() != null;
 	}
 	
-	public List<DenotatorPath> mapObjects(List<DenotatorPath> objectPaths) {
+	public List<List<DenotatorPath>> mapCategorizedObjects(List<List<DenotatorPath>> objectPaths) {
+		List<List<DenotatorPath>> newCategorizedObjects = new ArrayList<List<DenotatorPath>>();
+		for (int i = 0; i < objectPaths.size(); i++) {
+			newCategorizedObjects.add(this.mapObjects(objectPaths.get(i), this.transformationPaths.get(i)));
+		}
+		return newCategorizedObjects;
+	}
+	
+	public List<DenotatorPath> mapObjects(List<DenotatorPath> objectPaths, TransformationPaths transformationPaths) {
 		//PerformanceCheck.startTask(".pre");
 		List<List<Denotator>> newObjects = new ArrayList<List<Denotator>>();
 		objectPaths = this.score.reverseSort(objectPaths);
@@ -36,7 +44,7 @@ public class BigBangMapper extends BigBangScoreManipulator {
 		if (objectPathsIterator.hasNext()) {
 			DenotatorPath firstOfNextSiblings = objectPathsIterator.next();
 			while (firstOfNextSiblings != null) {
-				firstOfNextSiblings = this.mapAndAddNextSiblings(newObjects, firstOfNextSiblings, objectPathsIterator);
+				firstOfNextSiblings = this.mapAndAddNextSiblings(newObjects, firstOfNextSiblings, objectPathsIterator, transformationPaths);
 			}
 		}
 		//PerformanceCheck.startTask(".find");
@@ -46,7 +54,7 @@ public class BigBangMapper extends BigBangScoreManipulator {
 		return newPaths; 
 	}
 	
-	private DenotatorPath mapAndAddNextSiblings(List<List<Denotator>> newObjects, DenotatorPath firstSiblingPath, Iterator<DenotatorPath> objectPathsIterator) {
+	private DenotatorPath mapAndAddNextSiblings(List<List<Denotator>> newObjects, DenotatorPath firstSiblingPath, Iterator<DenotatorPath> objectPathsIterator, TransformationPaths transformationPaths) {
 		//PerformanceCheck.startTask(".first_sib");
 		List<Denotator> siblings = new ArrayList<Denotator>();
 		List<DenotatorPath> siblingsPaths = new ArrayList<DenotatorPath>();
@@ -57,7 +65,7 @@ public class BigBangMapper extends BigBangScoreManipulator {
 		ModuleMorphism siblingsMorphism = this.morphism;
 		if (this.relative) {
 			Denotator siblingsAnchor = this.score.getAbsoluteObject(siblingsAnchorPath);
-			siblingsMorphism = this.generateRelativeMorphism(this.extractValues(siblingsAnchor));
+			siblingsMorphism = this.generateRelativeMorphism(this.extractValues(siblingsAnchor, transformationPaths));
 		}
 		
 		DenotatorPath currentSiblingPath = firstSiblingPath;
@@ -68,25 +76,25 @@ public class BigBangMapper extends BigBangScoreManipulator {
 				siblingsPaths.add(currentSiblingPath);
 				siblings.add(this.score.getAbsoluteObject(currentSiblingPath));
 			} else {
-				this.removeMapAndAdd(newObjects, siblings, siblingsAnchorPath, siblingsPaths, siblingsMorphism);
+				this.removeMapAndAdd(newObjects, siblings, siblingsAnchorPath, siblingsPaths, siblingsMorphism, transformationPaths);
 				return currentSiblingPath;
 			}
 		}
-		this.removeMapAndAdd(newObjects, siblings, siblingsAnchorPath, siblingsPaths, siblingsMorphism);
+		this.removeMapAndAdd(newObjects, siblings, siblingsAnchorPath, siblingsPaths, siblingsMorphism, transformationPaths);
 		return null;
 	}
 	
-	private void removeMapAndAdd(List<List<Denotator>> newNodes, List<Denotator> objects, DenotatorPath anchorPath, List<DenotatorPath> siblingsPaths, ModuleMorphism morphism) {
+	private void removeMapAndAdd(List<List<Denotator>> newNodes, List<Denotator> objects, DenotatorPath anchorPath, List<DenotatorPath> siblingsPaths, ModuleMorphism morphism, TransformationPaths transformationPaths) {
 		//PerformanceCheck.startTask(".remove");
 		if (!this.copyAndMap) {
 			this.score.removeObjects(siblingsPaths);
 		}
-		newNodes.addAll(this.mapAndAddObjects(objects, anchorPath, morphism));
+		newNodes.addAll(this.mapAndAddObjects(objects, anchorPath, morphism, transformationPaths));
 	}
 	
-	private List<List<Denotator>> mapAndAddObjects(List<Denotator> objects, DenotatorPath anchorPath, ModuleMorphism morphism) {
+	private List<List<Denotator>> mapAndAddObjects(List<Denotator> objects, DenotatorPath anchorPath, ModuleMorphism morphism, TransformationPaths transformationPaths) {
 		List<Denotator> mappedObjects = new ArrayList<Denotator>();
-		ArbitraryDenotatorMapper mapper = new ArbitraryDenotatorMapper(morphism, this.transformationPaths);
+		ArbitraryDenotatorMapper mapper = new ArbitraryDenotatorMapper(morphism, transformationPaths);
 		//boolean modulators = objects.get(0).getForm().equals(this.score.objectGenerator.SOUND_NOTE_FORM);
 		for (int i = 0; i < objects.size(); i++) {
 			//PerformanceCheck.startTask(".map");
@@ -115,10 +123,10 @@ public class BigBangMapper extends BigBangScoreManipulator {
 	}
 	
 	//TODO: WOOOO REMOVE THIS AND MAKE OBJECT GENERATOR WORK!!!
-	private double[] extractValues(Denotator object) {
+	private double[] extractValues(Denotator object, TransformationPaths transformationPaths) {
 		double v1 = 0, v2 = 0;
-		v1 = this.score.objectGenerator.getDoubleValue(object, this.transformationPaths.getDomainPath(0, object));
-		v2 = this.score.objectGenerator.getDoubleValue(object, this.transformationPaths.getDomainPath(1, object));
+		v1 = this.score.objectGenerator.getDoubleValue(object, transformationPaths.getDomainPath(0, object));
+		v2 = this.score.objectGenerator.getDoubleValue(object, transformationPaths.getDomainPath(1, object));
 		return new double[] {v1, v2};
 	}
 

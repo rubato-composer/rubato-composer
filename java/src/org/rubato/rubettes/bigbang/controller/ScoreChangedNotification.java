@@ -1,39 +1,39 @@
 package org.rubato.rubettes.bigbang.controller;
 
+import java.util.ArrayList;
 import java.util.Set;
-import java.util.TreeSet;
 
 import org.rubato.math.yoneda.Denotator;
 import org.rubato.math.yoneda.PowerDenotator;
+import org.rubato.rubettes.bigbang.view.model.SelectedObjectsPaths;
 import org.rubato.rubettes.util.DenotatorPath;
 
 public class ScoreChangedNotification {
 	
 	private Denotator score;
-	private Set<DenotatorPath> notesToBeSelected;
+	private SelectedObjectsPaths selectedObjectsPaths;
 	private DenotatorPath anchorToBeSelected;
 	private boolean preview;
 	private boolean playback;
 	
-	public ScoreChangedNotification(Denotator score, Set<DenotatorPath> notesToBeSelected, DenotatorPath anchorToBeSelected, boolean preview, boolean playback) {
+	public ScoreChangedNotification(Denotator score, SelectedObjectsPaths selectedObjectsPaths, boolean preview, boolean playback) {
 		this.score = score;
-		this.notesToBeSelected = notesToBeSelected;
-		this.anchorToBeSelected = anchorToBeSelected;
+		this.selectedObjectsPaths = selectedObjectsPaths;
 		this.preview = preview;
 		this.playback = playback;
 	}
 	
 	public ScoreChangedNotification(PowerDenotator score) {
 		this.score = score;
-		this.notesToBeSelected = new TreeSet<DenotatorPath>();
+		this.selectedObjectsPaths = new SelectedObjectsPaths(new ArrayList<Set<DenotatorPath>>(), null);
 	}
 	
 	public Denotator getScore() {
 		return this.score;
 	}
 	
-	public Set<DenotatorPath> getNotesToBeSelected() {
-		return this.notesToBeSelected;
+	public SelectedObjectsPaths getSelectedObjectsPaths() {
+		return this.selectedObjectsPaths;
 	}
 	
 	public DenotatorPath getAnchorToBeSelected() {

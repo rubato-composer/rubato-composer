@@ -171,7 +171,7 @@ public class WallpaperRubette extends AbstractRubette implements ActionListener 
 			transformationPaths.addSinglePathToNewDomainDimension(new DenotatorPath(this.inputForm, listPaths.get(i)));
 		}
 		for (int j = domDim; j < domDim+codomDim; j++) {
-			transformationPaths.addSinglePathToNewDomainDimension(new DenotatorPath(this.inputForm, listPaths.get(j)));
+			transformationPaths.addSinglePathToNewCodomainDimension(new DenotatorPath(this.inputForm, listPaths.get(j)));
 		}
 		return transformationPaths;
 	}

@@ -13,7 +13,8 @@ import org.rubato.math.yoneda.PowerDenotator;
 import org.rubato.rubettes.bigbang.BigBangRubette;
 import org.rubato.rubettes.bigbang.controller.BigBangController;
 import org.rubato.rubettes.bigbang.controller.ScoreChangedNotification;
-import org.rubato.rubettes.bigbang.view.model.SelectedPaths;
+import org.rubato.rubettes.bigbang.view.model.SelectedObjectsPaths;
+import org.rubato.rubettes.bigbang.view.model.selectedObjectsPaths;
 import org.rubato.rubettes.util.DenotatorPath;
 
 public class BigBangScoreManager extends Model {
@@ -29,8 +30,8 @@ public class BigBangScoreManager extends Model {
 		this.alteration = new BigBangAlteration(controller);
 	}
 	
-	public void newWindowAdded(SelectedPaths paths) {
-		this.fireCompositionChange(paths.getNodePaths(), paths.getAnchorPath(), false);
+	public void newWindowAdded(selectedObjectsPaths paths) {
+		this.fireCompositionChange(paths, false);
 		this.alteration.fireState();
 	}
 	
@@ -165,9 +166,9 @@ public class BigBangScoreManager extends Model {
 		Map<DenotatorPath,Double> newPathsAndOldYValues = shaper.shapeObjects();
 		
 		if (properties.inPreviewMode()) {
-			this.firePreviewCompositionChange(new TreeSet<DenotatorPath>(properties.getObjectPaths()), null);
+			this.firePreviewCompositionChange(properties.getObjectsPaths());
 		} else {
-			this.fireCompositionChange(newPathsAndOldYValues.keySet(), null, true);
+			this.fireCompositionChange(new SelectedObjectsPaths(newPathsAndOldYValues.keySet(), null), true);
 		}
 		return newPathsAndOldYValues;
 	}
@@ -184,7 +185,7 @@ public class BigBangScoreManager extends Model {
 		}*/
 		
 		if (fireCompositionChange) {
-			this.firePreviewCompositionChange(null, null);
+			this.firePreviewCompositionChange(null);
 			//this.firePropertyChange(BigBangController.ADD_OBJECT, null, this.score.getObject(newPath));
 		}
 		return newPaths;
@@ -295,20 +296,20 @@ public class BigBangScoreManager extends Model {
 	}
 	
 	private void fireCompositionChange(Set<DenotatorPath> selectedNodesPaths) {
-		this.fireCompositionChange(selectedNodesPaths, null, false);
+		this.fireCompositionChange(new SelectedObjectsPaths(selectedNodesPaths, null), false);
 	}
 	
-	private void firePreviewCompositionChange(Set<DenotatorPath> selectedNodesPaths, DenotatorPath selectedAnchorPath) {
-		this.fireCompositionChange(selectedNodesPaths, selectedAnchorPath, true, true);
+	private void firePreviewCompositionChange(SelectedObjectsPaths paths) {
+		this.fireCompositionChange(paths, true, true);
 	}
 	
-	private void fireCompositionChange(Set<DenotatorPath> selectedNodesPaths, DenotatorPath selectedAnchorPath, boolean playback) {
-		this.fireCompositionChange(selectedNodesPaths, selectedAnchorPath, false, playback);
+	private void fireCompositionChange(SelectedObjectsPaths paths, boolean playback) {
+		this.fireCompositionChange(paths, false, playback);
 	}
 	
-	private void fireCompositionChange(Set<DenotatorPath> selectedNodesPaths, DenotatorPath selectedAnchorPath, boolean preview, boolean playback) {
+	private void fireCompositionChange(SelectedObjectsPaths paths, boolean preview, boolean playback) {
 		Denotator changedComposition = this.score.getLayeredComposition();
-		ScoreChangedNotification notification = new ScoreChangedNotification(changedComposition, selectedNodesPaths, selectedAnchorPath, preview, playback);
+		ScoreChangedNotification notification = new ScoreChangedNotification(changedComposition, paths, preview, playback);
 		this.firePropertyChange(BigBangController.COMPOSITION, null, notification);
 	}
 

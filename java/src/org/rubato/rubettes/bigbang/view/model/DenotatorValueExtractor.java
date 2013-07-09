@@ -56,7 +56,7 @@ public class DenotatorValueExtractor {
 	
 	public DisplayObjects extractValues(ViewController controller, ScoreChangedNotification notification, boolean selectObjects) {
 		//PerformanceCheck.startTask("extract");
-		this.selectedPaths = notification.getNotesToBeSelected();
+		this.selectedPaths = notification.getObjectsToBeSelected();
 		this.selectedAnchor = notification.getAnchorToBeSelected();
 		return this.initAndExtract(controller, notification.getScore(), selectObjects);
 	}

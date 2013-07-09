@@ -1,14 +1,15 @@
 package org.rubato.rubettes.bigbang.model;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.rubato.rubettes.bigbang.view.model.SelectedObjectsPaths;
 import org.rubato.rubettes.util.DenotatorPath;
 
 public class TransformationProperties {
 	
-	private Set<DenotatorPath> objectPaths;
-	private DenotatorPath anchorNodePath;
+	private SelectedObjectsPaths objectPaths;
 	private TransformationPaths transformationPaths;
 	private boolean copyAndTransform;
 	private double[] center;
@@ -16,30 +17,38 @@ public class TransformationProperties {
 	private boolean inPreviewMode;
 	private boolean inWallpaperMode;
 	
-	public TransformationProperties(Set<DenotatorPath> nodePaths, TransformationPaths transformationPaths, boolean copyAndTransform, boolean inPreviewMode, boolean inWallpaperMode) {
-		this.objectPaths = nodePaths;
+	public TransformationProperties(SelectedObjectsPaths objectPaths, TransformationPaths transformationPaths, boolean copyAndTransform, boolean inPreviewMode, boolean inWallpaperMode) {
+		this.objectPaths = objectPaths;
 		this.transformationPaths = transformationPaths;
 		this.copyAndTransform = copyAndTransform;
 		this.inPreviewMode = inPreviewMode;
 		this.inWallpaperMode = inWallpaperMode;
 	}
 	
-	public void setNodePaths(Set<DenotatorPath> nodePaths) {
-		this.objectPaths = nodePaths;
-	}
-	
-	public void updateNodePaths(Map<DenotatorPath,DenotatorPath> pathDifferences) {
-		for (DenotatorPath currentPath : pathDifferences.keySet()) {
-			if (this.objectPaths.contains(currentPath)) {
-				DenotatorPath newPath = pathDifferences.get(currentPath);
-				this.objectPaths.add(newPath);
-				this.objectPaths.remove(currentPath);
+	public void updateObjectPaths(List<Map<DenotatorPath,DenotatorPath>> pathDifferences) {
+		for (int i = 0; i < pathDifferences.size(); i++) {
+			Map<DenotatorPath,DenotatorPath> currentObjectDifferences = pathDifferences.get(i);
+			Set<DenotatorPath> currentObjectPaths = this.objectPaths.getObjectPaths().get(i);
+			for (DenotatorPath currentPath : currentObjectDifferences.keySet()) {
+				if (currentObjectPaths.contains(currentPath)) {
+					DenotatorPath newPath = currentObjectDifferences.get(currentPath);
+					currentObjectPaths.add(newPath);
+					currentObjectPaths.remove(currentPath);
+				}
 			}
 		}
 	}
 	
-	public Set<DenotatorPath> getObjectPaths() {
+	public int getNumberOfObjectTypes() {
+		return this.objectPaths.size();
+	}
+	
+	public SelectedObjectsPaths getObjectsPaths() {
 		return this.objectPaths;
+	}
+	
+	public Set<DenotatorPath> getObjectPathsAt(int objectTypeIndex) {
+		return this.objectPaths.getObjectPaths().get(objectTypeIndex);
 	}
 	
 	public TransformationPaths getTransformationPaths() {
@@ -69,12 +78,12 @@ public class TransformationProperties {
 		return this.endPoint;
 	}
 	
-	public void setAnchorNodePath(DenotatorPath anchorNodePath) {
-		this.anchorNodePath = anchorNodePath;
+	public void setAnchorNodePath(DenotatorPath anchorPath) {
+		this.objectPaths.setAnchorPath(anchorPath);
 	}
 	
 	public DenotatorPath getAnchorNodePath() {
-		return this.anchorNodePath;
+		return this.objectPaths.getAnchorPath();
 	}
 	
 	public void setInPreviewMode(boolean inPreviewMode) {
