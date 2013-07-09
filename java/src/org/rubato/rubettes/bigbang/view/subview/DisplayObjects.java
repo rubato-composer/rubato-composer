@@ -19,6 +19,7 @@ import org.rubato.rubettes.bigbang.view.model.DenotatorValueExtractor;
 import org.rubato.rubettes.bigbang.view.model.DisplayObject;
 import org.rubato.rubettes.bigbang.view.model.LayerState;
 import org.rubato.rubettes.bigbang.view.model.LayerStates;
+import org.rubato.rubettes.bigbang.view.model.SelectedObjectsPaths;
 import org.rubato.rubettes.bigbang.view.model.ViewParameters;
 import org.rubato.rubettes.util.DenotatorObject;
 import org.rubato.rubettes.util.DenotatorObjectConfiguration;
@@ -145,7 +146,7 @@ public class DisplayObjects implements View {
 		return this.getActiveObjectValuePaths().get(valueIndex);
 	}
 	
-	public List<DenotatorPath> getAllObjectConfigurationsValuePathsAt(int coordinateSystemValueIndex) {
+	public List<List<DenotatorPath>> getAllObjectConfigurationsValuePathsAt(int coordinateSystemValueIndex) {
 		return this.finder.getAllObjectConfigurationsValuePathsAt(coordinateSystemValueIndex);
 	}
 	
@@ -331,7 +332,7 @@ public class DisplayObjects implements View {
 		this.selectedObjects.remove(note);
 	}
 	
-	public DenotatorPath getSelectedAnchorNodePath() {
+	public DenotatorPath getSelectedAnchorObjectPath() {
 		if (this.selectedAnchor != null) {
 			return this.selectedAnchor.getTopDenotatorPath();
 		}
@@ -345,10 +346,28 @@ public class DisplayObjects implements View {
 		return null;
 	}
 	
-	public Set<DenotatorPath> getSelectedObjectPaths() {
+	//TODO: differ between categorized selectedObjectPaths and not. only transformation ones need to be categorized!
+	//other functions often only need selected paths by themselves and without anchor paths!!!!
+	
+	/*
+	 * @return a list of sets of selected objects sorted by object type. some sets may be empty if no representative
+	 * is selected!
+	 */
+	public SelectedObjectsPaths getCategorizedSelectedObjectsPaths() {
+		List<Set<DenotatorPath>> selectedObjectPaths = new ArrayList<Set<DenotatorPath>>();
+		for (int i = 0; i < this.finder.getObjectCount(); i++) {
+			selectedObjectPaths.add(new TreeSet<DenotatorPath>());
+		}
+		for (DisplayObject currentObject : this.selectedObjects) {
+			int objectTypeIndex = this.finder.getObjectForms().indexOf(currentObject.getTopDenotatorPath().getEndForm());
+			selectedObjectPaths.get(objectTypeIndex).add(currentObject.getTopDenotatorPath());
+		}
+		return new SelectedObjectsPaths(selectedObjectPaths, this.getSelectedAnchorObjectPath());
+	}
+	
+	public Set<DenotatorPath> getSelectedObjectsPaths() {
 		TreeSet<DenotatorPath> objectPaths = new TreeSet<DenotatorPath>();
 		for (DisplayObject currentObject : this.selectedObjects) {
-			//nodePaths.add(new DenotatorPath(currentNote.getOriginalPath()));
 			objectPaths.add(currentObject.getTopDenotatorPath());
 		}
 		return objectPaths;

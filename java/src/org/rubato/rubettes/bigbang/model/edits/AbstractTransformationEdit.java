@@ -61,7 +61,7 @@ public abstract class AbstractTransformationEdit extends AbstractOperationEdit {
 	
 	//TODO: return changes in paths!!!
 	public Map<DenotatorPath,DenotatorPath> map(Map<DenotatorPath,DenotatorPath> pathDifferences, boolean sendCompositionChange) {
-		this.properties.updateNodePaths(pathDifferences);
+		this.properties.updateObjectPaths(pathDifferences);
 		List<DenotatorPath> notePaths = new ArrayList<DenotatorPath>(this.properties.getObjectPaths());
 		TransformationPaths transformationPaths = this.properties.getTransformationPaths();
 		DenotatorPath anchorNodePath = this.properties.getAnchorNodePath();

@@ -1,5 +1,7 @@
 package org.rubato.rubettes.bigbang.model;
 
+import java.util.List;
+
 import org.rubato.math.matrix.RMatrix;
 import org.rubato.math.module.morphism.ModuleMorphism;
 import org.rubato.math.module.morphism.RFreeAffineMorphism;
@@ -8,11 +10,11 @@ import org.rubato.rubettes.util.DenotatorPath;
 public class BigBangTransformation {
 	
 	private ModuleMorphism morphism; 
-	private TransformationPaths transformationPaths;
+	private List<TransformationPaths> transformationPaths;
 	private boolean copyAndMap; 
 	private DenotatorPath anchorNodePath;
 	
-	public BigBangTransformation(ModuleMorphism morphism, TransformationPaths transformationPaths, boolean copyAndMap, DenotatorPath anchorNodePath) {
+	public BigBangTransformation(ModuleMorphism morphism, List<TransformationPaths> transformationPaths, boolean copyAndMap, DenotatorPath anchorNodePath) {
 		this.morphism = morphism;
 		this.transformationPaths = transformationPaths;
 		this.copyAndMap = copyAndMap;
@@ -23,7 +25,7 @@ public class BigBangTransformation {
 		return this.morphism;
 	}
 	
-	public TransformationPaths getTransformationPaths() {
+	public List<TransformationPaths> getTransformationPaths() {
 		return this.transformationPaths;
 	}
 	

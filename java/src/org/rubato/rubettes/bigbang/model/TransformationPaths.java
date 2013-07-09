@@ -12,6 +12,7 @@ public class TransformationPaths {
 	
 	//indices of coordinates within the main coordinate system values
 	private int[] xyCoordinates;
+	//first list for dimensions, second for object types, third for colimits
 	private List<List<DenotatorPath>> domainPaths, codomainPaths;
 	
 	public TransformationPaths() {

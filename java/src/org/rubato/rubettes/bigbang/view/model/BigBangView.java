@@ -66,9 +66,8 @@ public class BigBangView extends Model implements View {
 	DenotatorValueExtractor extractor;
 	protected DisplayObjects displayNotes;
 	private DisplayTool displayTool;
-	//just used in preview mode
-	private Set<DenotatorPath> selectedNotes;
-	private DenotatorPath selectedAnchor;
+	//only used in preview mode
+	private SelectedObjectsPaths selectedObjectsPaths;
 	private boolean inWallpaperMode;
 	private List<Integer> wallpaperRanges;
 	private AbstractTransformationEdit selectedTransformation;
@@ -95,7 +94,7 @@ public class BigBangView extends Model implements View {
 	public void addNewWindow() {
 		Frame parentFrame = JOptionPane.getFrameForComponent(this.panel);
 		new BigBangAdditionalView(this.controller, parentFrame);
-		SelectedPaths paths = new SelectedPaths(this.displayNotes.getSelectedObjectPaths(), this.displayNotes.getSelectedAnchorNodePath());
+		SelectedObjectsPaths paths = this.displayNotes.getCategorizedSelectedObjectsPaths();
 		this.controller.newWindowAdded(paths);
 	}
 	
@@ -298,12 +297,10 @@ public class BigBangView extends Model implements View {
 			newObjects.updateModulatorVisibility(this.modLevel, this.modNumber);
 		}
 		if (notification.preview()) {
-			this.selectedNotes = notification.getNotesToBeSelected();
-			this.selectedAnchor = notification.getAnchorToBeSelected();
+			this.selectedObjectsPaths = notification.getSelectedObjectsPaths();
 		} else {
 			//TODO: WHY??
-			this.selectedNotes = null;
-			this.selectedAnchor = null;
+			this.selectedObjectsPaths = null;
 		}
 		this.updateDisplayObjects(newObjects, this.extractor.getMinValues(), this.extractor.getMaxValues());
 		this.updatePlayerScore(this.extractor.getJSynScore(), notification.playback());
@@ -451,7 +448,7 @@ public class BigBangView extends Model implements View {
 			this.wallpaperRanges = new ArrayList<Integer>();
 			this.inWallpaperMode = true;
 			this.firePropertyChange(ViewController.START_WALLPAPER, null, null);
-			this.controller.startWallpaper(new ArrayList<DenotatorPath>(this.displayNotes.getSelectedObjectPaths()));
+			this.controller.startWallpaper(new ArrayList<DenotatorPath>(this.displayNotes.getSelectedObjectsPaths()));
 		} else {
 			this.firePropertyChange(ViewController.ADD_WP_DIMENSION, null, null);
 		}
@@ -487,7 +484,7 @@ public class BigBangView extends Model implements View {
 	}
 	
 	public void setAlterationComposition(Integer index) {
-		Set<DenotatorPath> nodePaths = this.displayNotes.getSelectedObjectPaths();
+		Set<DenotatorPath> nodePaths = this.displayNotes.getSelectedObjectsPaths();
 		this.controller.setAlterationComposition(index, nodePaths);
 	}
 	
@@ -496,12 +493,10 @@ public class BigBangView extends Model implements View {
 		TransformationProperties properties = this.getTransformationProperties(copyAndTransform, previewMode);
 		double[] denotatorCenter = this.getXYDenotatorValues(center);
 		double[] denotatorEndPoint = this.getXYDenotatorValues(endPoint);
-		DenotatorPath anchorNodePath = this.displayNotes.getSelectedAnchorNodePath();
-		if (anchorNodePath != null) {
-			if (this.selectedNotes != null) {
-				anchorNodePath = this.selectedAnchor;
+		if (properties.getAnchorNodePath() != null) {
+			if (this.selectedObjectsPaths != null) {
+				properties.setAnchorNodePath(this.selectedObjectsPaths.getAnchorPath());
 			}
-			properties.setAnchorNodePath(anchorNodePath);
 			double[] anchorValues = this.getXYDenotatorValues(this.displayNotes.getSelectedAnchorNodeCenter());
 			denotatorCenter[0] -= anchorValues[0];
 			denotatorCenter[1] -= anchorValues[1];
@@ -512,14 +507,14 @@ public class BigBangView extends Model implements View {
 	}
 	
 	private TransformationProperties getTransformationProperties(boolean copyAndTransform, boolean previewMode) {
-		Set<DenotatorPath> objectPaths;
-		if (this.selectedNotes == null) {
-			objectPaths = this.displayNotes.getSelectedObjectPaths();
+		SelectedObjectsPaths objectsPaths;
+		if (this.selectedObjectsPaths == null) {
+			objectsPaths = this.displayNotes.getCategorizedSelectedObjectsPaths();
 		} else {
-			objectPaths = this.selectedNotes;
+			objectsPaths = this.selectedObjectsPaths;
 		}
 		TransformationPaths valuePaths = this.getXYTransformationPaths();
-		return new TransformationProperties(objectPaths, valuePaths, copyAndTransform, previewMode, this.inWallpaperMode);
+		return new TransformationProperties(objectsPaths, valuePaths, copyAndTransform, previewMode, this.inWallpaperMode);
 	}
 	
 	public void addObject(Point2D.Double location) {
@@ -537,49 +532,46 @@ public class BigBangView extends Model implements View {
 	}
 	
 	public void deleteSelectedObjects() {
-		List<DenotatorPath> paths = new ArrayList<DenotatorPath>(this.displayNotes.getSelectedObjectPaths());
+		List<DenotatorPath> paths = new ArrayList<DenotatorPath>(this.displayNotes.getSelectedObjectsPaths());
 		if (paths.size() > 0) {
 			this.controller.deleteObjects(paths);
 		}
 	}
 	
 	public void copySelectedNotesTo(Integer layerIndex) {
-		Set<DenotatorPath> nodePaths = this.displayNotes.getSelectedObjectPaths();
-		if (nodePaths.size() > 0) {
-			this.controller.copyNotes(nodePaths, layerIndex);
+		Set<DenotatorPath> objectsPaths = this.displayNotes.getSelectedObjectsPaths();
+		if (objectsPaths.size() > 0) {
+			this.controller.copyNotes(objectsPaths, layerIndex);
 		}
 	}
 	
 	public void copySelectedNotesToNewLayer() {
-		Set<DenotatorPath> nodePaths = this.displayNotes.getSelectedObjectPaths();
-		if (nodePaths.size() > 0) {
-			this.controller.copyNotes(nodePaths, this.layerStates.size());
-		}
+		this.copySelectedNotesTo(this.layerStates.size());
 	}
 	
 	public void moveSelectedNotesTo(Integer layerIndex) {
-		Set<DenotatorPath> nodePaths = this.displayNotes.getSelectedObjectPaths();
-		if (nodePaths.size() > 0) {
-			this.controller.moveNotes(nodePaths, layerIndex);
+		Set<DenotatorPath> objectsPaths = this.displayNotes.getSelectedObjectsPaths();
+		if (objectsPaths.size() > 0) {
+			this.controller.moveNotes(objectsPaths, layerIndex);
 		}
 	}
 	
 	public void moveSelectedNotesToNewLayer() {
-		Set<DenotatorPath> nodePaths = this.displayNotes.getSelectedObjectPaths();
-		if (nodePaths.size() > 0) {
-			this.controller.moveNotes(nodePaths, this.layerStates.size());
+		Set<DenotatorPath> objectsPaths = this.displayNotes.getSelectedObjectsPaths();
+		if (objectsPaths.size() > 0) {
+			this.controller.moveNotes(objectsPaths, this.layerStates.size());
 		}
 	}
 	
-	public void addSelectedNotesAsSatellitesTo(DisplayObject parentNote, Integer powersetIndex) {
-		Set<DenotatorPath> satelliteNodePaths = this.displayNotes.getSelectedObjectPaths();
-		DenotatorPath parentNodePath = parentNote.getTopDenotatorPath();
-		this.controller.buildSatellites(satelliteNodePaths, parentNodePath, powersetIndex);
+	public void addSelectedNotesAsSatellitesTo(DisplayObject anchorObject, Integer powersetIndex) {
+		Set<DenotatorPath> satellitePaths = this.displayNotes.getSelectedObjectsPaths();
+		DenotatorPath anchorPath = anchorObject.getTopDenotatorPath();
+		this.controller.buildSatellites(satellitePaths, anchorPath, powersetIndex);
 	}
 	
 	public void flattenSelectedNotes() {
-		Set<DenotatorPath> nodePaths = this.displayNotes.getSelectedObjectPaths();
-		this.controller.flattenNotes(nodePaths);
+		Set<DenotatorPath> objectsPaths = this.displayNotes.getSelectedObjectsPaths();
+		this.controller.flattenNotes(objectsPaths);
 	}
 	
 	/*public void addSelectedNotesAsModulatorsTo(DisplayObject parentNote) {
@@ -589,8 +581,8 @@ public class BigBangView extends Model implements View {
 	}*/
 	
 	public void removeSelectedNotesFromCarrier() {
-		Set<DenotatorPath> nodePaths = this.displayNotes.getSelectedObjectPaths();
-		this.controller.removeNotesFromCarrier(nodePaths);
+		Set<DenotatorPath> objectsPaths = this.displayNotes.getSelectedObjectsPaths();
+		this.controller.removeNotesFromCarrier(objectsPaths);
 	}
 	
 	private TreeMap<Double,Double> getXYDenotatorValues(TreeMap<Integer,Integer> locations) {
@@ -634,14 +626,13 @@ public class BigBangView extends Model implements View {
 		return closestPowersetPath;
 	}
 	
-	private double replaceDenotatorValue(double displayValue, int valueIndex, int parameterIndex, int position, double zoomFactor, Map<DenotatorPath,Double> values) {
+	private void replaceDenotatorValue(double displayValue, int valueIndex, int parameterIndex, int position, double zoomFactor, Map<DenotatorPath,Double> values) {
 		double denotatorValue = this.getDenotatorValue(displayValue, parameterIndex, position, zoomFactor);
 		DenotatorPath associatedPath = this.displayNotes.getActiveObjectValuePathAt(valueIndex);
 		//null happens when parent value, satellite/sibling level is selected, or when path not in active colimits
 		if (associatedPath != null) {
 			values.put(associatedPath, denotatorValue);
 		}
-		return denotatorValue;
 	}
 	
 	private DenotatorPath findClosestPowersetPath(int[] valueIndices, double[] denotatorValues, DenotatorPath parentPowersetPath) {
@@ -664,8 +655,8 @@ public class BigBangView extends Model implements View {
 		return (displayValue*zoomFactor)+position;
 	}
 	
-	private TransformationPaths getXYTransformationPaths() {
-		TransformationPaths paths = new TransformationPaths();
+	private List<TransformationPaths> getXYTransformationPaths() {
+		List<TransformationPaths> paths = new ArrayList<TransformationPaths>();
 		int[] xyParameters = this.viewParameters.getSelectedXYViewParameters();
 		paths.setXYCoordinates(xyParameters);
 		//only one parameter might be selected... TODO does the list need to be null or can it just be empty??
@@ -679,6 +670,7 @@ public class BigBangView extends Model implements View {
 				paths.setCodomainPaths(i, null);
 			}
 		}
+		System.out.println(paths);
 		return paths;
 	}
 	
