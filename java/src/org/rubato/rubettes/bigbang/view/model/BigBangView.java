@@ -67,7 +67,7 @@ public class BigBangView extends Model implements View {
 	protected DisplayObjects displayNotes;
 	private DisplayTool displayTool;
 	//only used in preview mode
-	private SelectedObjectsPathss selectedObjectsPaths;
+	private SelectedObjectsPaths selectedObjectsPaths;
 	private boolean inWallpaperMode;
 	private List<Integer> wallpaperRanges;
 	private AbstractTransformationEdit selectedTransformation;
@@ -94,7 +94,7 @@ public class BigBangView extends Model implements View {
 	public void addNewWindow() {
 		Frame parentFrame = JOptionPane.getFrameForComponent(this.panel);
 		new BigBangAdditionalView(this.controller, parentFrame);
-		SelectedObjectsPathss paths = this.displayNotes.getCategorizedSelectedObjectsPaths();
+		SelectedObjectsPaths paths = this.displayNotes.getCategorizedSelectedObjectsPaths();
 		this.controller.newWindowAdded(paths);
 	}
 	
@@ -507,7 +507,7 @@ public class BigBangView extends Model implements View {
 	}
 	
 	private TransformationProperties getTransformationProperties(boolean copyAndTransform, boolean previewMode) {
-		SelectedObjectsPathss objectsPaths;
+		SelectedObjectsPaths objectsPaths;
 		if (this.selectedObjectsPaths == null) {
 			objectsPaths = this.displayNotes.getCategorizedSelectedObjectsPaths();
 		} else {
