@@ -354,9 +354,9 @@ public class DisplayObjects implements View {
 	 * is selected!
 	 */
 	public SelectedObjectsPaths getCategorizedSelectedObjectsPaths() {
-		List<Set<DenotatorPath>> selectedObjectPaths = new ArrayList<Set<DenotatorPath>>();
+		List<List<DenotatorPath>> selectedObjectPaths = new ArrayList<List<DenotatorPath>>();
 		for (int i = 0; i < this.finder.getObjectCount(); i++) {
-			selectedObjectPaths.add(new TreeSet<DenotatorPath>());
+			selectedObjectPaths.add(new ArrayList<DenotatorPath>());
 		}
 		for (DisplayObject currentObject : this.selectedObjects) {
 			int objectTypeIndex = this.finder.getObjectForms().indexOf(currentObject.getTopDenotatorPath().getEndForm());

@@ -19,7 +19,7 @@ public class DeleteObjectsEdit extends AbstractOperationEdit {
 	}
 	
 	@Override
-	public Map<DenotatorPath, DenotatorPath> execute(Map<DenotatorPath, DenotatorPath> pathDifferences, boolean fireCompositionChange) {
+	public List<Map<DenotatorPath, DenotatorPath>> execute(List<Map<DenotatorPath, DenotatorPath>> pathDifferences, boolean fireCompositionChange) {
 		this.objects = this.scoreManager.removeObjects(new TreeSet<DenotatorPath>(this.objectPaths), fireCompositionChange);
 		return pathDifferences;
 	}

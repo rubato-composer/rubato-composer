@@ -39,7 +39,7 @@ public class AddObjectsEdit extends AbstractOperationEdit {
 		//do nothing for now
 	}
 	
-	public Map<DenotatorPath,DenotatorPath> execute(Map<DenotatorPath,DenotatorPath> pathDifferences, boolean fireCompositionChange) {
+	public List<Map<DenotatorPath,DenotatorPath>> execute(List<Map<DenotatorPath,DenotatorPath>> pathDifferences, boolean fireCompositionChange) {
 		this.objectPaths = this.scoreManager.addObjects(this.powersetPath, this.pathsWithValues, fireCompositionChange);
 		//TODO: think about this!!!!!
 		//pathDifferences.put(null, this.objectPath);

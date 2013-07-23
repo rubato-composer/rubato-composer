@@ -9,6 +9,7 @@ import org.rubato.math.yoneda.ColimitForm;
 import org.rubato.math.yoneda.Form;
 import org.rubato.math.yoneda.FormReference;
 import org.rubato.math.yoneda.LimitForm;
+import org.rubato.math.yoneda.ListForm;
 import org.rubato.math.yoneda.PowerForm;
 import org.rubato.math.yoneda.SimpleForm;
 
@@ -87,11 +88,34 @@ public class CoolFormRegistrant {
 		PowerForm harmonicOvertones = this.registerPowerForm("HarmonicOvertones", harmonicOvertone);
 		this.registerLimitForm("HarmonicSpectrum", PITCH_FORM, harmonicOvertones);
 		
+		//DetunableSpectrum
+		LimitForm detunableOvertone = this.registerLimitForm("DetunableOvertone", PITCH_FORM, OVERTONE_INDEX_FORM, LOUDNESS_FORM);
+		PowerForm detunableOvertones = this.registerPowerForm("DetunableOvertones", detunableOvertone);
+		this.registerLimitForm("DetunableSpectrum", PITCH_FORM, detunableOvertones);
+		
 		//FM
 		Form fmSet = new FormReference("FMSet", Form.POWER);
 		FM_NODE_FORM = this.registerLimitForm("FMNode", partial, fmSet);
 		fmSet = this.registerPowerForm("FMSet", FM_NODE_FORM);
 		fmSet.resolveReferences(REPOSITORY);
+		
+		//GenericSound
+		SimpleForm operation = this.registerZnModuleForm("Operation", 3);
+		LimitForm anchorSound = this.registerLimitForm("AnchorSound", LOUDNESS_FORM, PITCH_FORM, OVERTONE_INDEX_FORM);
+		Form genericSound = new FormReference("GenericSound", Form.POWER);
+		ListForm satelliteSounds = this.registerListForm("SatelliteSounds", genericSound);
+		//LimitForm node = this.registerLimitForm("GSNode", coordinateForms)
+		genericSound = this.registerLimitForm("GenericSound", anchorSound, satelliteSounds, operation);
+		genericSound.resolveReferences(REPOSITORY);
+		//this.registerPowerForm("GenericSounds", genericSound);
+		
+		/*//GenericSound
+		SimpleForm operation = this.registerZnModuleForm("Operation", 3);
+		LimitForm anchorSound = this.registerLimitForm("AnchorSound", LOUDNESS_FORM, PITCH_FORM, OVERTONE_INDEX_FORM);
+		Form genericSound = new FormReference("GenericSound", Form.POWER);
+		ListForm satelliteSounds = this.registerListForm("SatelliteSounds", genericSound);
+		genericSound = this.registerLimitForm("GenericSound", anchorSound, satelliteSounds, operation);
+		genericSound.resolveReferences(REPOSITORY);*/
 		
 		//SoundNote
 		SimpleForm layer = this.registerZModuleForm("Layer");
@@ -132,6 +156,10 @@ public class CoolFormRegistrant {
 	
 	private PowerForm registerPowerForm(String name, Form coordinateForm) {
 		return (PowerForm)this.register(FormFactory.makePowerForm(name, coordinateForm));
+	}
+	
+	private ListForm registerListForm(String name, Form coordinateForm) {
+		return (ListForm)this.register(FormFactory.makeListForm(name, coordinateForm));
 	}
 	
 	private LimitForm registerLimitForm(String name, Form... coordinateForms) {

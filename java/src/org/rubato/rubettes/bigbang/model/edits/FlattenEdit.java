@@ -1,5 +1,6 @@
 package org.rubato.rubettes.bigbang.model.edits;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
@@ -19,7 +20,7 @@ public class FlattenEdit extends AbstractOperationEdit {
 	}
 	
 	@Override
-	public Map<DenotatorPath, DenotatorPath> execute(Map<DenotatorPath, DenotatorPath> pathDifferences,	boolean sendCompositionChange) {
+	public List<Map<DenotatorPath, DenotatorPath>> execute(List<Map<DenotatorPath, DenotatorPath>> pathDifferences,	boolean sendCompositionChange) {
 		this.newAndOldPaths = this.scoreManager.flattenNotes(this.oldNodePaths);
 		return pathDifferences;
 	}

@@ -1,6 +1,7 @@
 package org.rubato.rubettes.bigbang.model;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
@@ -33,7 +34,7 @@ public class BigBangTransformationGraph extends ArrayList<AbstractOperationEdit>
 	
 	public void updateScore(boolean inPreviewMode) {
 		if (this.size()>0) {
-			Map<DenotatorPath,DenotatorPath> pathDifferences = new TreeMap<DenotatorPath,DenotatorPath>();
+			List<Map<DenotatorPath,DenotatorPath>> pathDifferences = new ArrayList<Map<DenotatorPath,DenotatorPath>>();
 			this.get(this.size()-1).setInPreviewMode(inPreviewMode);
 			this.get(0).getScoreManager().resetScore();
 			for (int i = 0; i < this.size(); i++) {

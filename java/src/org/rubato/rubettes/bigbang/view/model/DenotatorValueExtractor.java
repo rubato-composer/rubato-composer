@@ -3,7 +3,6 @@ package org.rubato.rubettes.bigbang.view.model;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.TreeMap;
 
 import org.rubato.base.RubatoException;
@@ -38,8 +37,7 @@ public class DenotatorValueExtractor {
 	private JSynScore jSynScore;
 	//TreeSet in future for faster searching!!!
 	private boolean selectObjects;
-	private Set<DenotatorPath> selectedPaths;
-	private DenotatorPath selectedAnchor;
+	private SelectedObjectsPaths selectedPaths;
 	private LayerStates layerStates;
 	
 	public DenotatorValueExtractor(LayerStates layerStates) {
@@ -56,8 +54,7 @@ public class DenotatorValueExtractor {
 	
 	public DisplayObjects extractValues(ViewController controller, ScoreChangedNotification notification, boolean selectObjects) {
 		//PerformanceCheck.startTask("extract");
-		this.selectedPaths = notification.getObjectsToBeSelected();
-		this.selectedAnchor = notification.getAnchorToBeSelected();
+		this.selectedPaths = notification.getSelectedObjectsPaths();
 		return this.initAndExtract(controller, notification.getScore(), selectObjects);
 	}
 	
@@ -131,12 +128,13 @@ public class DenotatorValueExtractor {
 		displayObject.setVisibility(this.layerStates.get(displayObject.getLayer()));
 		this.displayObjects.addObject(displayObject);
 		if (this.selectObjects && this.selectedPaths != null) {
-			if (this.selectedPaths.contains(path)) {
+			if (this.selectedPaths.containsObjectPath(path)) {
 				this.displayObjects.selectNote(displayObject);
 			}
-		}
-		if (this.selectedAnchor != null && this.selectedAnchor.equals(path)) {
-			this.displayObjects.setSelectedAnchorNote(displayObject);
+			DenotatorPath selectedAnchorPath = this.selectedPaths.getAnchorPath();
+			if (selectedAnchorPath != null && selectedAnchorPath.equals(path)) {
+				this.displayObjects.setSelectedAnchorNote(displayObject);
+			}
 		}
 		return displayObject;
 	}

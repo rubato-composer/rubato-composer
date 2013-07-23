@@ -1,7 +1,7 @@
 package org.rubato.rubettes.bigbang.controller;
 
 import java.util.ArrayList;
-import java.util.Set;
+import java.util.List;
 
 import org.rubato.math.yoneda.Denotator;
 import org.rubato.math.yoneda.PowerDenotator;
@@ -12,7 +12,7 @@ public class ScoreChangedNotification {
 	
 	private Denotator score;
 	private SelectedObjectsPaths selectedObjectsPaths;
-	private DenotatorPath anchorToBeSelected;
+	//private DenotatorPath anchorToBeSelected;
 	private boolean preview;
 	private boolean playback;
 	
@@ -25,7 +25,7 @@ public class ScoreChangedNotification {
 	
 	public ScoreChangedNotification(PowerDenotator score) {
 		this.score = score;
-		this.selectedObjectsPaths = new SelectedObjectsPaths(new ArrayList<Set<DenotatorPath>>(), null);
+		this.selectedObjectsPaths = new SelectedObjectsPaths(new ArrayList<List<DenotatorPath>>(), null);
 	}
 	
 	public Denotator getScore() {
@@ -36,9 +36,9 @@ public class ScoreChangedNotification {
 		return this.selectedObjectsPaths;
 	}
 	
-	public DenotatorPath getAnchorToBeSelected() {
+	/*public DenotatorPath getAnchorToBeSelected() {
 		return this.anchorToBeSelected;
-	}
+	}*/
 	
 	public boolean preview() {
 		return this.preview;

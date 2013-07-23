@@ -7,6 +7,7 @@ import org.rubato.math.module.Module;
 import org.rubato.math.module.ProductRing;
 import org.rubato.math.yoneda.ColimitForm;
 import org.rubato.math.yoneda.Form;
+import org.rubato.math.yoneda.ListForm;
 import org.rubato.math.yoneda.PowerForm;
 import org.rubato.math.yoneda.SimpleForm;
 
@@ -137,7 +138,12 @@ public class FormValueFinder {
 					this.findValues(currentPath.getChildPath(i), searchThroughPowersets, currentSearchDepth+1, currentObject);
 				}
 			} else if (searchThroughPowersets && (currentForm.getType() == Form.POWER || currentForm.getType() == Form.LIST)) {
-				Form childForm = ((PowerForm)currentForm).getForm();
+				Form childForm;
+				if (currentForm instanceof PowerForm) {
+					childForm = ((PowerForm)currentForm).getForm();
+				} else {
+					childForm = ((ListForm)currentForm).getForm();
+				}
 				DenotatorPath childPath = currentPath.getChildPath(0);
 				if (!this.objectForms.contains(childForm)) {
 					currentObject = new DenotatorObject(childForm, childPath);
