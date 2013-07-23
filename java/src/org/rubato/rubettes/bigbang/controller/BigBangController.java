@@ -7,7 +7,7 @@ import java.util.TreeMap;
 
 import org.rubato.math.yoneda.Form;
 import org.rubato.rubettes.bigbang.model.TransformationProperties;
-import org.rubato.rubettes.bigbang.view.model.SelectedObjectsPaths;
+import org.rubato.rubettes.bigbang.view.model.SelectedObjectsPathss;
 import org.rubato.rubettes.util.DenotatorPath;
 
 public class BigBangController extends Controller {
@@ -53,7 +53,7 @@ public class BigBangController extends Controller {
 	public static final String ALTERATION_END_DEGREE = "setAlterationEndDegree";
 	public static final String END_ALTERATION = "endAlteration";
 	
-	public void newWindowAdded(SelectedObjectsPaths paths) {
+	public void newWindowAdded(SelectedObjectsPathss paths) {
 		this.callModelMethod(BigBangController.NEW_WINDOW, paths);
 	}
 	

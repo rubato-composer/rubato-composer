@@ -10,7 +10,7 @@ import org.rubato.rubettes.bigbang.controller.BigBangController;
 import org.rubato.rubettes.bigbang.controller.Controller;
 import org.rubato.rubettes.bigbang.model.edits.AbstractOperationEdit;
 import org.rubato.rubettes.bigbang.model.edits.AbstractTransformationEdit;
-import org.rubato.rubettes.bigbang.view.model.SelectedObjectsPaths;
+import org.rubato.rubettes.bigbang.view.model.SelectedObjectsPathss;
 
 public class UndoRedoModel extends Model {
 	
@@ -29,7 +29,7 @@ public class UndoRedoModel extends Model {
 		this.firePropertyChange(BigBangController.GRAPH, null, this.operations);
 	}
 	
-	public void newWindowAdded(SelectedObjectsPaths paths) {
+	public void newWindowAdded(SelectedObjectsPathss paths) {
 		this.firePropertyChange(BigBangController.GRAPH, null, this.operations);
 	}
 	

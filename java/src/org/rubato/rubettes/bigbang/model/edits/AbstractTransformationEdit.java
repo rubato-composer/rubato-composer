@@ -12,13 +12,13 @@ import org.rubato.rubettes.bigbang.model.BigBangScoreManager;
 import org.rubato.rubettes.bigbang.model.BigBangTransformation;
 import org.rubato.rubettes.bigbang.model.TransformationPaths;
 import org.rubato.rubettes.bigbang.model.TransformationProperties;
-import org.rubato.rubettes.bigbang.view.model.SelectedObjectsPaths;
+import org.rubato.rubettes.bigbang.view.model.SelectedObjectsPathss;
 import org.rubato.rubettes.util.DenotatorPath;
 
 public abstract class AbstractTransformationEdit extends AbstractOperationEdit {
 	
 	protected TransformationProperties properties;
-	private SelectedObjectsPaths previousResultPaths;
+	private SelectedObjectsPathss previousResultPaths;
 	private ModuleMorphism transformation;
 	
 	public AbstractTransformationEdit(BigBangScoreManager scoreManager, TransformationProperties properties) {
@@ -62,14 +62,14 @@ public abstract class AbstractTransformationEdit extends AbstractOperationEdit {
 	//TODO: return changes in paths!!!
 	public List<Map<DenotatorPath,DenotatorPath>> map(List<Map<DenotatorPath,DenotatorPath>> pathDifferences, boolean sendCompositionChange) {
 		this.properties.updateObjectPaths(pathDifferences);
-		SelectedObjectsPaths objectsPaths = this.properties.getObjectsPaths();
+		SelectedObjectsPathss objectsPaths = this.properties.getObjectsPaths();
 		List<TransformationPaths> transformationPaths = this.properties.getTransformationPaths();
 		DenotatorPath anchorNodePath = this.properties.getAnchorNodePath();
 		boolean inPreviewMode = this.properties.inPreviewMode();
 		boolean copyAndTransform = this.properties.copyAndTransform();
 		boolean inWallpaperMode = this.properties.inWallpaperMode();
 		BigBangTransformation transformation = new BigBangTransformation(this.transformation, transformationPaths, copyAndTransform, anchorNodePath);
-		SelectedObjectsPaths resultPaths;
+		SelectedObjectsPathss resultPaths;
 		if (inWallpaperMode) {
 			//TODO: include sendCompositionChange
 			resultPaths = this.scoreManager.addWallpaperTransformation(transformation, inPreviewMode);
@@ -87,7 +87,7 @@ public abstract class AbstractTransformationEdit extends AbstractOperationEdit {
 		return newDifferences;
 	}
 	
-	private List<Map<DenotatorPath,DenotatorPath>> getPathDifferences(SelectedObjectsPaths oldPaths, SelectedObjectsPaths newPaths) {
+	private List<Map<DenotatorPath,DenotatorPath>> getPathDifferences(SelectedObjectsPathss oldPaths, SelectedObjectsPathss newPaths) {
 		List<Map<DenotatorPath,DenotatorPath>> pathDifferences = new ArrayList<Map<DenotatorPath,DenotatorPath>>();
 		if (oldPaths != null) {
 			if (oldPaths.size() != newPaths.size()) {
