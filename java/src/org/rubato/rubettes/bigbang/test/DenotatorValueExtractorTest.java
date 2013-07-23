@@ -9,7 +9,7 @@ import org.rubato.rubettes.bigbang.controller.ScoreChangedNotification;
 import org.rubato.rubettes.bigbang.view.controller.ViewController;
 import org.rubato.rubettes.bigbang.view.model.DenotatorValueExtractor;
 import org.rubato.rubettes.bigbang.view.model.LayerStates;
-import org.rubato.rubettes.bigbang.view.model.SelectedObjectsPaths;
+import org.rubato.rubettes.bigbang.view.model.SelectedObjectsPathss;
 import org.rubato.rubettes.bigbang.view.subview.DisplayObjects;
 import org.rubato.rubettes.util.DenotatorPath;
 
@@ -92,7 +92,7 @@ public class DenotatorValueExtractorTest extends TestCase {
 	}
 	
 	private DisplayObjects extractDisplayObjects(Denotator denotator) {
-		SelectedObjectsPaths noPaths = new SelectedObjectsPaths(new TreeSet<DenotatorPath>(), null);
+		SelectedObjectsPathss noPaths = new SelectedObjectsPathss(new TreeSet<DenotatorPath>(), null);
 		ScoreChangedNotification notification = new ScoreChangedNotification(denotator, noPaths, false, false);
 		this.extractor = new DenotatorValueExtractor(new LayerStates(this.viewController));
 		return this.extractor.extractValues(this.viewController, notification, false);

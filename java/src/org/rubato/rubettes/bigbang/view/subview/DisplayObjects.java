@@ -19,7 +19,7 @@ import org.rubato.rubettes.bigbang.view.model.DenotatorValueExtractor;
 import org.rubato.rubettes.bigbang.view.model.DisplayObject;
 import org.rubato.rubettes.bigbang.view.model.LayerState;
 import org.rubato.rubettes.bigbang.view.model.LayerStates;
-import org.rubato.rubettes.bigbang.view.model.SelectedObjectsPaths;
+import org.rubato.rubettes.bigbang.view.model.SelectedObjectsPathss;
 import org.rubato.rubettes.bigbang.view.model.ViewParameters;
 import org.rubato.rubettes.util.DenotatorObject;
 import org.rubato.rubettes.util.DenotatorObjectConfiguration;
@@ -353,7 +353,7 @@ public class DisplayObjects implements View {
 	 * @return a list of sets of selected objects sorted by object type. some sets may be empty if no representative
 	 * is selected!
 	 */
-	public SelectedObjectsPaths getCategorizedSelectedObjectsPaths() {
+	public SelectedObjectsPathss getCategorizedSelectedObjectsPaths() {
 		List<List<DenotatorPath>> selectedObjectPaths = new ArrayList<List<DenotatorPath>>();
 		for (int i = 0; i < this.finder.getObjectCount(); i++) {
 			selectedObjectPaths.add(new ArrayList<DenotatorPath>());
@@ -362,7 +362,7 @@ public class DisplayObjects implements View {
 			int objectTypeIndex = this.finder.getObjectForms().indexOf(currentObject.getTopDenotatorPath().getEndForm());
 			selectedObjectPaths.get(objectTypeIndex).add(currentObject.getTopDenotatorPath());
 		}
-		return new SelectedObjectsPaths(selectedObjectPaths, this.getSelectedAnchorObjectPath());
+		return new SelectedObjectsPathss(selectedObjectPaths, this.getSelectedAnchorObjectPath());
 	}
 	
 	public Set<DenotatorPath> getSelectedObjectsPaths() {

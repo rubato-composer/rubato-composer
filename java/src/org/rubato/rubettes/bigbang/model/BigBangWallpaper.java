@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.TreeSet;
 
-import org.rubato.rubettes.bigbang.view.model.SelectedObjectsPaths;
+import org.rubato.rubettes.bigbang.view.model.SelectedObjectsPathss;
 import org.rubato.rubettes.util.DenotatorPath;
 
 public class BigBangWallpaper {
@@ -104,14 +104,14 @@ public class BigBangWallpaper {
 				BigBangTransformation currentTransformation = transformations.get(i).inverse(); 
 				currentTransformation.setCopyAndMap(copyAndMap && i == transformations.size()-1);
 				//TODO: BAD!!! make ready for categorized objects!!!!
-				currentPaths = new BigBangMapper(score, currentTransformation).mapCategorizedObjects(new SelectedObjectsPaths(new TreeSet<DenotatorPath>(currentPaths), null)).get(0);
+				currentPaths = new BigBangMapper(score, currentTransformation).mapCategorizedObjects(new SelectedObjectsPathss(new TreeSet<DenotatorPath>(currentPaths), null)).get(0);
 			}
 		} else {
 			for (int i = 0; i < transformations.size(); i++) {
 				BigBangTransformation currentTransformation = transformations.get(i); 
 				currentTransformation.setCopyAndMap(copyAndMap && i == 0);
 				//TODO: BAD!!! make ready for categorized objects!!!!
-				currentPaths = new BigBangMapper(score, currentTransformation).mapCategorizedObjects(new SelectedObjectsPaths(new TreeSet<DenotatorPath>(currentPaths), null)).get(0);
+				currentPaths = new BigBangMapper(score, currentTransformation).mapCategorizedObjects(new SelectedObjectsPathss(new TreeSet<DenotatorPath>(currentPaths), null)).get(0);
 			}
 		}
 		return currentPaths;

@@ -8,12 +8,12 @@ import java.util.Map;
 import java.util.TreeMap;
 
 import org.rubato.math.yoneda.Denotator;
-import org.rubato.rubettes.bigbang.view.model.SelectedObjectsPaths;
+import org.rubato.rubettes.bigbang.view.model.SelectedObjectsPathss;
 import org.rubato.rubettes.util.DenotatorPath;
 
 public class BigBangShaper extends BigBangScoreManipulator {
 	
-	private SelectedObjectsPaths objectPaths;
+	private SelectedObjectsPathss objectPaths;
 	private TreeMap<Double,Double> shapingLocations;
 	private boolean copyAndShape;
 	private double shapingRange;

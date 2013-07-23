@@ -7,18 +7,18 @@ import java.util.List;
 
 import org.rubato.rubettes.util.DenotatorPath;
 
-public class SelectedObjectsPaths {
+public class SelectedObjectsPathss {
 	
 	private List<List<DenotatorPath>> objectPaths;
 	private DenotatorPath anchorPath;
 	
-	public SelectedObjectsPaths(List<List<DenotatorPath>> objectPaths, DenotatorPath anchorPath) {
+	public SelectedObjectsPathss(List<List<DenotatorPath>> objectPaths, DenotatorPath anchorPath) {
 		this.objectPaths = objectPaths;
 		this.anchorPath = anchorPath;
 	}
 	
 	@SuppressWarnings("unchecked")
-	public SelectedObjectsPaths(Collection<DenotatorPath> objectPaths, DenotatorPath anchorPath) {
+	public SelectedObjectsPathss(Collection<DenotatorPath> objectPaths, DenotatorPath anchorPath) {
 		if (objectPaths != null) {
 			List<DenotatorPath> list = new ArrayList<DenotatorPath>(objectPaths);
 			this.objectPaths = Arrays.asList(list);
