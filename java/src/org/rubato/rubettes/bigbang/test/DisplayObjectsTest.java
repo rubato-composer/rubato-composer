@@ -1,6 +1,5 @@
 package org.rubato.rubettes.bigbang.test;
 
-import java.util.Set;
 import java.util.TreeSet;
 
 import junit.framework.TestCase;
@@ -11,6 +10,7 @@ import org.rubato.rubettes.bigbang.controller.ScoreChangedNotification;
 import org.rubato.rubettes.bigbang.view.controller.ViewController;
 import org.rubato.rubettes.bigbang.view.model.DenotatorValueExtractor;
 import org.rubato.rubettes.bigbang.view.model.LayerStates;
+import org.rubato.rubettes.bigbang.view.model.SelectedObjectsPaths;
 import org.rubato.rubettes.bigbang.view.subview.DisplayObjects;
 import org.rubato.rubettes.util.DenotatorPath;
 
@@ -50,8 +50,8 @@ public class DisplayObjectsTest extends TestCase {
 	}
 	
 	private DisplayObjects extractDisplayObjects(Denotator denotator) {
-		Set<DenotatorPath> noPaths = new TreeSet<DenotatorPath>();
-		ScoreChangedNotification notification = new ScoreChangedNotification(denotator, noPaths, new DenotatorPath(denotator.getForm()), false, false);
+		SelectedObjectsPaths noPaths = new SelectedObjectsPaths(new TreeSet<DenotatorPath>(), null);
+		ScoreChangedNotification notification = new ScoreChangedNotification(denotator, noPaths, false, false);
 		this.extractor = new DenotatorValueExtractor(new LayerStates(this.viewController));
 		return this.extractor.extractValues(this.viewController, notification, false);
 	}

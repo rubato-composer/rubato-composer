@@ -356,7 +356,7 @@ public class BigBangView extends Model implements View {
 		this.selectedTransformation = edit;
 		if (this.selectedTransformation != null) {
 			//select perspective first
-			this.viewParameters.setSelectedXYViewParameters(edit.getTransformationPaths().getXYCoordinates());
+			this.viewParameters.setSelectedXYViewParameters(edit.getXYViewParameters());
 			//TODO: center view?????
 			
 			//TODO: then select notes!!!
@@ -513,7 +513,7 @@ public class BigBangView extends Model implements View {
 		} else {
 			objectsPaths = this.selectedObjectsPaths;
 		}
-		TransformationPaths valuePaths = this.getXYTransformationPaths();
+		List<TransformationPaths> valuePaths = this.getXYTransformationPaths();
 		return new TransformationProperties(objectsPaths, valuePaths, copyAndTransform, previewMode, this.inWallpaperMode);
 	}
 	
@@ -658,16 +658,25 @@ public class BigBangView extends Model implements View {
 	private List<TransformationPaths> getXYTransformationPaths() {
 		List<TransformationPaths> paths = new ArrayList<TransformationPaths>();
 		int[] xyParameters = this.viewParameters.getSelectedXYViewParameters();
-		paths.setXYCoordinates(xyParameters);
+		for (int i = 0; i < this.displayNotes.getObjectTypes().size(); i++) {
+			TransformationPaths currentPaths = new TransformationPaths();
+			//TODO: bad so redundant
+			currentPaths.setXYCoordinates(xyParameters);
+			paths.add(currentPaths);
+		}
 		//only one parameter might be selected... TODO does the list need to be null or can it just be empty??
 		for (int i = 0; i < xyParameters.length; i++) {
 			if (xyParameters[i] >= 0) {
-				List<DenotatorPath> currentPaths = this.displayNotes.getAllObjectConfigurationsValuePathsAt(xyParameters[i]);
-				paths.setDomainPaths(i, currentPaths);
-				paths.setCodomainPaths(i, currentPaths);
+				List<List<DenotatorPath>> currentPaths = this.displayNotes.getAllObjectConfigurationsValuePathsAt(xyParameters[i]);
+				for (int j = 0; j < currentPaths.size(); j++) {
+					paths.get(j).setDomainPaths(i, currentPaths.get(j));
+					paths.get(j).setCodomainPaths(i, currentPaths.get(j));
+				}
 			} else {
-				paths.setDomainPaths(i, null);
-				paths.setCodomainPaths(i, null);
+				for (TransformationPaths currentPaths : paths) {
+					currentPaths.setDomainPaths(i, null);
+					currentPaths.setCodomainPaths(i, null);
+				}
 			}
 		}
 		System.out.println(paths);

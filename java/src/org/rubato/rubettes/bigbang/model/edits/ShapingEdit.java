@@ -1,5 +1,6 @@
 package org.rubato.rubettes.bigbang.model.edits;
 
+import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
@@ -14,7 +15,7 @@ public class ShapingEdit extends AbstractUndoableEdit {
 	private BigBangScoreManager score;
 	private TransformationProperties properties;
 	private TreeMap<Double,Double> shapingLocations;
-	private Map<DenotatorPath,Double> newPathsAndOldYValues;
+	private List<Map<DenotatorPath,Double>> newPathsAndOldYValues;
 	
 	public ShapingEdit(BigBangScoreManager score, TransformationProperties properties, TreeMap<Double,Double> shapingLocations) {
 		this.score = score;
@@ -34,11 +35,11 @@ public class ShapingEdit extends AbstractUndoableEdit {
 	
 	public void undo() {
 		super.undo();
-		if (this.properties.copyAndTransform()) {
+		/*if (this.properties.copyAndTransform()) {
 			this.score.removeObjects(this.newPathsAndOldYValues.keySet(), false);
 		} else {
 			this.score.undoShapeObjects(this.newPathsAndOldYValues);
-		}
+		}*/
 	}
 	
 	public String getPresentationName() {

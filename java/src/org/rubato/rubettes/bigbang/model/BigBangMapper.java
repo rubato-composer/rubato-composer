@@ -11,6 +11,7 @@ import org.rubato.math.module.morphism.CompositionException;
 import org.rubato.math.module.morphism.ModuleMorphism;
 import org.rubato.math.module.morphism.RFreeAffineMorphism;
 import org.rubato.math.yoneda.Denotator;
+import org.rubato.rubettes.bigbang.view.model.SelectedObjectsPaths;
 import org.rubato.rubettes.util.ArbitraryDenotatorMapper;
 import org.rubato.rubettes.util.DenotatorPath;
 
@@ -27,15 +28,15 @@ public class BigBangMapper extends BigBangScoreManipulator {
 		this.relative = transformation.getAnchorNodePath() != null;
 	}
 	
-	public List<List<DenotatorPath>> mapCategorizedObjects(List<List<DenotatorPath>> objectPaths) {
+	public SelectedObjectsPaths mapCategorizedObjects(SelectedObjectsPaths objectPaths) {
 		List<List<DenotatorPath>> newCategorizedObjects = new ArrayList<List<DenotatorPath>>();
 		for (int i = 0; i < objectPaths.size(); i++) {
-			newCategorizedObjects.add(this.mapObjects(objectPaths.get(i), this.transformationPaths.get(i)));
+			newCategorizedObjects.add(this.mapObjects(new ArrayList<DenotatorPath>(objectPaths.get(i)), this.transformationPaths.get(i)));
 		}
-		return newCategorizedObjects;
+		return new SelectedObjectsPaths(newCategorizedObjects, objectPaths.getAnchorPath());
 	}
 	
-	public List<DenotatorPath> mapObjects(List<DenotatorPath> objectPaths, TransformationPaths transformationPaths) {
+	private List<DenotatorPath> mapObjects(List<DenotatorPath> objectPaths, TransformationPaths transformationPaths) {
 		//PerformanceCheck.startTask(".pre");
 		List<List<Denotator>> newObjects = new ArrayList<List<Denotator>>();
 		objectPaths = this.score.reverseSort(objectPaths);

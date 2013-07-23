@@ -73,19 +73,18 @@ public class ArbitraryDenotatorMapperTest  extends TestCase {
 		this.objects.assertEqualNonPowerDenotators(expectedColimit, mappedPowerset.get(new int[]{3}));
 	}
 	
-	@SuppressWarnings("unchecked")
 	public void testMappingOfColimitDenotators2() throws RubatoException {
 		TransformationPaths paths = new TransformationPaths();
 		//add Duration paths for both types of configurations: note and rest
 		DenotatorPath noteDurationPath = new DenotatorPath(this.objects.GENERAL_NOTE_FORM, new int[]{0,3});
 		DenotatorPath restDurationPath = new DenotatorPath(this.objects.GENERAL_NOTE_FORM, new int[]{1,1});
-		List<List<DenotatorPath>> durationPaths = Arrays.asList(Arrays.asList(noteDurationPath, restDurationPath));
+		List<DenotatorPath> durationPaths = Arrays.asList(noteDurationPath, restDurationPath);
 		
 		paths.setDomainPaths(0, durationPaths);
 		paths.setCodomainPaths(0, durationPaths);
 		//add Pitch paths only for notes
 		DenotatorPath notePitchPath = new DenotatorPath(this.objects.GENERAL_NOTE_FORM, new int[]{0,1});
-		List<List<DenotatorPath>> pitchPaths = Arrays.asList(Arrays.asList(notePitchPath));
+		List<DenotatorPath> pitchPaths = Arrays.asList(notePitchPath);
 		paths.setDomainPaths(1, pitchPaths);
 		paths.setCodomainPaths(1, pitchPaths);
 		//init mapper

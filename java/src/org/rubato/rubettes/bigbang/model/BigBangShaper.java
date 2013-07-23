@@ -8,34 +8,43 @@ import java.util.Map;
 import java.util.TreeMap;
 
 import org.rubato.math.yoneda.Denotator;
+import org.rubato.rubettes.bigbang.view.model.SelectedObjectsPaths;
 import org.rubato.rubettes.util.DenotatorPath;
 
 public class BigBangShaper extends BigBangScoreManipulator {
 	
-	private List<DenotatorPath> objectPaths;
+	private SelectedObjectsPaths objectPaths;
 	private TreeMap<Double,Double> shapingLocations;
 	private boolean copyAndShape;
 	private double shapingRange;
 	
 	public BigBangShaper(BigBangScore score, TransformationProperties properties, TreeMap<Double,Double> shapingLocations) {
 		super(score, properties.getTransformationPaths());
-		this.objectPaths = new ArrayList<DenotatorPath>(properties.getObjectPaths());
+		this.objectPaths = properties.getObjectsPaths();
 		this.shapingLocations = shapingLocations;
 		this.shapingRange = 0.5;
 		this.copyAndShape = properties.copyAndTransform();
 	}
 	
-	public Map<DenotatorPath,Double> shapeObjects() {
+	public List<Map<DenotatorPath,Double>> shapeCategorizedObjects() {
+		List<Map<DenotatorPath,Double>> pathDifferences = new ArrayList<Map<DenotatorPath,Double>>();
+		for (int i = 0; i < this.objectPaths.size(); i++) {
+			pathDifferences.add(this.shapeObjects(new ArrayList<DenotatorPath>(this.objectPaths.get(i)), this.transformationPaths.get(i)));
+		}
+		return pathDifferences;
+	}
+	
+	public Map<DenotatorPath,Double> shapeObjects(List<DenotatorPath> objectPaths, TransformationPaths shapingPaths) {
 		//PerformanceCheck.startTask(".pre");
 		Map<List<Denotator>,Double> newObjectTracesAndOldYValues = new HashMap<List<Denotator>,Double>();
 		
-		this.objectPaths = this.score.reverseSort(this.objectPaths);
+		objectPaths = this.score.reverseSort(objectPaths);
 		
-		Iterator<DenotatorPath> objectPathsIterator = this.objectPaths.iterator();
+		Iterator<DenotatorPath> objectPathsIterator = objectPaths.iterator();
 		if (objectPathsIterator.hasNext()) {
 			DenotatorPath firstOfNextSiblings = objectPathsIterator.next();
 			while (firstOfNextSiblings != null) {
-				firstOfNextSiblings = this.shapeAndAddNextSiblings(newObjectTracesAndOldYValues, firstOfNextSiblings, objectPathsIterator);
+				firstOfNextSiblings = this.shapeAndAddNextSiblings(newObjectTracesAndOldYValues, firstOfNextSiblings, objectPathsIterator, shapingPaths);
 			}
 		}
 		//PerformanceCheck.startTask(".find");
@@ -44,7 +53,7 @@ public class BigBangShaper extends BigBangScoreManipulator {
 		return newPathsAndOldYValues; 
 	}
 	
-	private DenotatorPath shapeAndAddNextSiblings(Map<List<Denotator>,Double> newObjectTracesAndOldYValues, DenotatorPath firstSiblingPath, Iterator<DenotatorPath> nodePathsIterator) {
+	private DenotatorPath shapeAndAddNextSiblings(Map<List<Denotator>,Double> newObjectTracesAndOldYValues, DenotatorPath firstSiblingPath, Iterator<DenotatorPath> nodePathsIterator, TransformationPaths shapingPaths) {
 		//PerformanceCheck.startTask(".first_sib");
 		List<Denotator> siblings = new ArrayList<Denotator>();
 		List<DenotatorPath> siblingsPaths = new ArrayList<DenotatorPath>();
@@ -61,28 +70,28 @@ public class BigBangShaper extends BigBangScoreManipulator {
 				siblingsPaths.add(currentSiblingPath);
 				siblings.add(this.score.getAbsoluteObject(currentSiblingPath));
 			} else {
-				this.removeShapeAndAdd(newObjectTracesAndOldYValues, siblings, siblingsAnchorPath, siblingsPaths);
+				this.removeShapeAndAdd(newObjectTracesAndOldYValues, siblings, siblingsAnchorPath, siblingsPaths, shapingPaths);
 				return currentSiblingPath;
 			}
 		}
-		this.removeShapeAndAdd(newObjectTracesAndOldYValues, siblings, siblingsAnchorPath, siblingsPaths);
+		this.removeShapeAndAdd(newObjectTracesAndOldYValues, siblings, siblingsAnchorPath, siblingsPaths, shapingPaths);
 		return null;
 	}
 	
-	private void removeShapeAndAdd(Map<List<Denotator>,Double> newObjectTracesAndOldYValues, List<Denotator> objects, DenotatorPath anchorPath, List<DenotatorPath> siblingsPaths) {
+	private void removeShapeAndAdd(Map<List<Denotator>,Double> newObjectTracesAndOldYValues, List<Denotator> objects, DenotatorPath anchorPath, List<DenotatorPath> siblingsPaths, TransformationPaths shapingPaths) {
 		//PerformanceCheck.startTask(".remove");
 		if (!this.copyAndShape) {
 			this.score.removeObjects(siblingsPaths);
 		}
-		this.shapeAndAddObjects(objects, anchorPath, newObjectTracesAndOldYValues);
+		this.shapeAndAddObjects(objects, anchorPath, newObjectTracesAndOldYValues, shapingPaths);
 	}
 	
-	private void shapeAndAddObjects(List<Denotator> objects, DenotatorPath anchorPath, Map<List<Denotator>,Double> newObjectTracesAndOldYValues) {
+	private void shapeAndAddObjects(List<Denotator> objects, DenotatorPath anchorPath, Map<List<Denotator>,Double> newObjectTracesAndOldYValues, TransformationPaths shapingPaths) {
 		Map<Denotator,Double> newObjectsAndOldYValues = new HashMap<Denotator,Double>();
 		//boolean modulators = nodesAndNotes.get(0).getForm().equals(this.score.objectGenerator.SOUND_NOTE_FORM);
 		for (int i = 0; i < objects.size(); i++) {
 			//PerformanceCheck.startTask(".map");
-			this.shapeObject(objects.get(i), newObjectsAndOldYValues);
+			this.shapeObject(objects.get(i), newObjectsAndOldYValues, shapingPaths);
 		}
 		//PerformanceCheck.startTask(".add");
 		//TODO: ADD THEM AS THE SAME TYPE AS THEIR ORIGINAL!! MODULATOR OR SATELLITE
@@ -95,9 +104,9 @@ public class BigBangShaper extends BigBangScoreManipulator {
 		}
 	}
 	
-	private Denotator shapeObject(Denotator object, Map<Denotator,Double> newObjectsAndOldYValues) {
-		Double newValue = this.getValueOfClosestLocation(object);
-		DenotatorPath valuePath = this.transformationPaths.getDomainPath(1, object);
+	private Denotator shapeObject(Denotator object, Map<Denotator,Double> newObjectsAndOldYValues, TransformationPaths shapingPaths) {
+		Double newValue = this.getValueOfClosestLocation(object, shapingPaths);
+		DenotatorPath valuePath = shapingPaths.getDomainPath(1, object);
 		double oldValue = this.score.objectGenerator.getDoubleValue(object, valuePath);
 		if (newValue != null) {
 			object = this.score.objectGenerator.replaceValue(object, valuePath, newValue);
@@ -114,8 +123,8 @@ public class BigBangShaper extends BigBangScoreManipulator {
 		}
 	}
 
-	private Double getValueOfClosestLocation(Denotator object) {
-		DenotatorPath valuePath = this.transformationPaths.getDomainPath(0, object);
+	private Double getValueOfClosestLocation(Denotator object, TransformationPaths shapingPaths) {
+		DenotatorPath valuePath = shapingPaths.getDomainPath(0, object);
 		double xPosition = this.score.objectGenerator.getDoubleValue(object, valuePath);
 		Map<Double,Double> subMap = this.shapingLocations.subMap(xPosition-this.shapingRange, xPosition+this.shapingRange);
 		Double closestPosition = null;
