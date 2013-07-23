@@ -3,12 +3,12 @@ package org.rubato.rubettes.bigbang.model;
 import java.util.List;
 import java.util.Map;
 
-import org.rubato.rubettes.bigbang.view.model.SelectedObjectsPathss;
+import org.rubato.rubettes.bigbang.view.model.SelectedObjectsPaths;
 import org.rubato.rubettes.util.DenotatorPath;
 
 public class TransformationProperties {
 	
-	private SelectedObjectsPathss objectPaths;
+	private SelectedObjectsPaths objectPaths;
 	private List<TransformationPaths> transformationPaths;
 	private boolean copyAndTransform;
 	private double[] center;
@@ -16,7 +16,7 @@ public class TransformationProperties {
 	private boolean inPreviewMode;
 	private boolean inWallpaperMode;
 	
-	public TransformationProperties(SelectedObjectsPathss objectPaths, List<TransformationPaths> transformationPaths, boolean copyAndTransform, boolean inPreviewMode, boolean inWallpaperMode) {
+	public TransformationProperties(SelectedObjectsPaths objectPaths, List<TransformationPaths> transformationPaths, boolean copyAndTransform, boolean inPreviewMode, boolean inWallpaperMode) {
 		this.objectPaths = objectPaths;
 		this.transformationPaths = transformationPaths;
 		this.copyAndTransform = copyAndTransform;
@@ -38,7 +38,7 @@ public class TransformationProperties {
 		}
 	}
 	
-	public SelectedObjectsPathss getObjectsPaths() {
+	public SelectedObjectsPaths getObjectsPaths() {
 		return this.objectPaths;
 	}
 	

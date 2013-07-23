@@ -37,7 +37,7 @@ public class DenotatorValueExtractor {
 	private JSynScore jSynScore;
 	//TreeSet in future for faster searching!!!
 	private boolean selectObjects;
-	private SelectedObjectsPathss selectedPaths;
+	private SelectedObjectsPaths selectedPaths;
 	private LayerStates layerStates;
 	
 	public DenotatorValueExtractor(LayerStates layerStates) {
