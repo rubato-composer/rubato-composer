@@ -3,36 +3,53 @@ package org.rubato.rubettes.bigbang.model.edits;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.TreeMap;
 
+import org.rubato.math.yoneda.Form;
 import org.rubato.rubettes.bigbang.model.BigBangScoreManager;
 import org.rubato.rubettes.util.DenotatorPath;
 
 public class AddObjectsEdit extends AbstractOperationEdit {
 	
-	private DenotatorPath powersetPath;
-	private List<TreeMap<DenotatorPath,Double>> pathsWithValues;
-	private List<DenotatorPath> objectPaths;
+	private List<DenotatorPath> powersetPaths;
+	private List<List<Map<DenotatorPath,Double>>> pathsWithValues;
+	private Form objectForm;
 	
-	public AddObjectsEdit(BigBangScoreManager scoreManager, DenotatorPath powersetPath, TreeMap<DenotatorPath,Double> pathsWithValues) {
+	public AddObjectsEdit(BigBangScoreManager scoreManager, DenotatorPath powersetPath, Map<DenotatorPath,Double> pathsWithValues) {
 		super(scoreManager);
-		this.powersetPath = powersetPath;
-		this.pathsWithValues = new ArrayList<TreeMap<DenotatorPath,Double>>();
-		this.pathsWithValues.add(pathsWithValues);
-		//this.execute();
-	}
-	
-	public DenotatorPath getPowersetPath() {
-		return this.powersetPath;
-	}
-	
-	public void addObject(TreeMap<DenotatorPath,Double> pathsWithValues) {
-		if (this.powersetPath != null) {
-			this.pathsWithValues.add(pathsWithValues);
+		this.powersetPaths = new ArrayList<DenotatorPath>();
+		this.powersetPaths.add(powersetPath);
+		this.pathsWithValues = new ArrayList<List<Map<DenotatorPath,Double>>>();
+		List<Map<DenotatorPath,Double>> pathsWithValuesList = new ArrayList<Map<DenotatorPath,Double>>();
+		pathsWithValuesList.add(pathsWithValues);
+		this.pathsWithValues.add(pathsWithValuesList);
+		if (powersetPath != null) {
+			this.objectForm = powersetPath.getChildPath(0).getEndForm();
 		} else {
-			//no powerset, so replace object..
-			this.pathsWithValues.set(0, pathsWithValues);
+			this.objectForm = this.scoreManager.getComposition().getForm();
 		}
+	}
+	
+	public Form getObjectForm() {
+		return this.objectForm;
+	}
+	
+	public boolean addObject(Map<DenotatorPath,Double> pathsWithValues, DenotatorPath powersetPath) {
+		if (powersetPath.getChildPath(0).getEndForm().equals(this.objectForm)) {
+			if (this.powersetPaths.get(this.powersetPaths.size()-1).equals(powersetPath)) {
+				this.pathsWithValues.get(this.pathsWithValues.size()-1).add(pathsWithValues);
+			} else {
+				this.powersetPaths.add(powersetPath);
+				List<Map<DenotatorPath,Double>> pathsWithValuesList = new ArrayList<Map<DenotatorPath,Double>>();
+				pathsWithValuesList.add(pathsWithValues);
+				this.pathsWithValues.add(pathsWithValuesList);
+			}
+			return true;
+			//} else {
+				//no powerset, so replace object..
+				//this.pathsWithValues.set(0, pathsWithValues);
+			//}
+		}
+		return false;
 	}
 	
 	public void setInPreviewMode(boolean inPreviewMode) {
@@ -40,9 +57,12 @@ public class AddObjectsEdit extends AbstractOperationEdit {
 	}
 	
 	public List<Map<DenotatorPath,DenotatorPath>> execute(List<Map<DenotatorPath,DenotatorPath>> pathDifferences, boolean fireCompositionChange) {
-		this.objectPaths = this.scoreManager.addObjects(this.powersetPath, this.pathsWithValues, fireCompositionChange);
-		//TODO: think about this!!!!!
-		//pathDifferences.put(null, this.objectPath);
+		for (int i = 0; i < this.powersetPaths.size(); i++) {
+			List<DenotatorPath> objectPaths = this.scoreManager.addObjects(this.powersetPaths.get(i), this.pathsWithValues.get(i), fireCompositionChange);
+			for (DenotatorPath currentPath : objectPaths) {
+				//pathDifferences.get(0).put(null, currentPath);
+			}
+		}
 		return pathDifferences;
 	}
 	
@@ -57,12 +77,7 @@ public class AddObjectsEdit extends AbstractOperationEdit {
 	}*/
 	
 	public String getPresentationName() {
-		String presentationName = "Add ";
-		if (this.powersetPath == null) {
-			presentationName += this.scoreManager.getComposition().getForm().getNameString();
-		} else {
-			presentationName += this.powersetPath.getEndForm().getForm(0).getNameString();
-		}
+		String presentationName = "Add " + this.objectForm.getNameString();
 		if (this.pathsWithValues.size() > 1) {
 			presentationName += "s";
 		}

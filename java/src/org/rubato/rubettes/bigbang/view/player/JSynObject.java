@@ -36,8 +36,10 @@ public class JSynObject {
 		} else if (form.equals(CoolFormRegistrant.PITCH_CLASS_FORM)) {
 			this.addPitch(60+this.getSingleValue(values));
 		} else if (form.equals(CoolFormRegistrant.OVERTONE_INDEX_FORM)) {
-			if (this.parent != null) {
-				this.setOvertoneFrequency(this.parent.getFrequencies().get(0), (int)this.getSingleValue(values));
+			if (this.frequencies.size() > 0) {
+				this.setOvertoneFrequency(this.getMainFrequency(), (int)this.getSingleValue(values));
+			} else if (this.parent != null) {
+				this.setOvertoneFrequency(this.parent.getMainFrequency(), (int)this.getSingleValue(values));
 			}
 		} else if (form.equals(CoolFormRegistrant.LOUDNESS_FORM)) {
 			this.setLoudness((int)this.getSingleValue(values));
@@ -103,7 +105,7 @@ public class JSynObject {
 	}
 	
 	
-	//AMPLITUDE
+	//FREQUENCY
 	
 	public double getMainFrequency() {
 		return this.getFrequencies().get(0);

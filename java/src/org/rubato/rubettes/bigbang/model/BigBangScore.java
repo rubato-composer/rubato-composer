@@ -80,10 +80,6 @@ public class BigBangScore implements Cloneable {
 		return this.score;
 	}
 	
-	public ObjectGenerator getObjectGenerator() {
-		return this.objectGenerator;
-	}
-	
 	/**
 	 * Adds a new object with the given values to the top powerset of the score in case there is one
 	 * @param values the values of the object to be added
@@ -107,7 +103,7 @@ public class BigBangScore implements Cloneable {
 		return this.findPath(object, powersetPath);
 	}
 	
-	public List<DenotatorPath> addObjects(DenotatorPath powersetPath, List<TreeMap<DenotatorPath,Double>> pathsWithValues) {
+	public List<DenotatorPath> addObjects(DenotatorPath powersetPath, List<Map<DenotatorPath,Double>> pathsWithValues) {
 		List<Denotator> newObjects = new ArrayList<Denotator>();
 		Form objectForm;
 		if (powersetPath != null) {
@@ -115,7 +111,7 @@ public class BigBangScore implements Cloneable {
 		} else {
 			objectForm = this.score.getForm();
 		}
-		for (TreeMap<DenotatorPath,Double> currentPathsWithValues : pathsWithValues) {
+		for (Map<DenotatorPath,Double> currentPathsWithValues : pathsWithValues) {
 			newObjects.add(this.objectGenerator.createObject(objectForm, currentPathsWithValues));
 		}
 		return this.addObjectsToParent(newObjects, powersetPath);

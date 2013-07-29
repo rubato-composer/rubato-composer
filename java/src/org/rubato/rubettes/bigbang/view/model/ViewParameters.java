@@ -121,6 +121,10 @@ public class ViewParameters extends Model {
 		this.firePropertyChange(ViewController.SELECTED_VIEW_PARAMETERS, null, this.selectedViewParameters);
 	}
 	
+	public int getSelectedViewParameterAt(int index) {
+		return this.selectedViewParameters[index];
+	}
+	
 	public int getFirstIndexOfValue(int valueIndex) {
 		for (int i = 0; i < this.selectedViewParameters.length; i++) {
 			if (this.selectedViewParameters[i] == valueIndex) {

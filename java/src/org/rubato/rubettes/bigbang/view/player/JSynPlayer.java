@@ -92,7 +92,11 @@ public class JSynPlayer {
 	
 	public void setTempo(int bpm) {
 		this.tempo = bpm;
-		this.updateStartOrChangeTimes();
+		if (this.isPlaying) {
+			this.updateStartOrChangeTimes();
+		} else {
+			this.setPlaybackPosition(0);
+		}
 		this.threads.interrupt();
 		this.bbPlayer.interrupt();
 	}
