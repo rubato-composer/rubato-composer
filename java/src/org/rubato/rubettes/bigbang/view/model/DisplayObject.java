@@ -125,7 +125,7 @@ public class DisplayObject implements Comparable<Object> {
 			return this.structuralIndices.get(1).doubleValue();
 		}
 		int valueIndex = this.objectType.getIndexOfNthInstanceOfValueName(valueName, n);
-		if (valueIndex != -1) {
+		if (valueIndex != -1 && valueIndex < this.values.size()) {
 			Double value = this.values.get(valueIndex);
 			if (value != null) {
 				return value;

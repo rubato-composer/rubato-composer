@@ -200,17 +200,15 @@ public class BigBangScore implements Cloneable {
 		return this.setComposition(objects); 
 	}
 	
-	public List<DenotatorPath> addObjectsToParent(List<Denotator> objects, DenotatorPath powersetPath) {
+	private List<DenotatorPath> addObjectsToParent(List<Denotator> objects, DenotatorPath powersetPath) {
 		if (powersetPath != null) {
 			return this.addObjectsToParent(objects, powersetPath.getTopPath(), powersetPath);
 		}
 		return this.setComposition(objects);
 	}
 	
-	public List<DenotatorPath> addObjectsToParent(List<Denotator> objects, DenotatorPath parentPath, DenotatorPath powersetPath) {
-		//if (parentPath.size() > 0) {
-			objects = this.makeObjectsRelative(objects, parentPath);
-		//}
+	private List<DenotatorPath> addObjectsToParent(List<Denotator> objects, DenotatorPath parentPath, DenotatorPath powersetPath) {
+		objects = this.makeObjectsRelative(objects, parentPath);
 		for (int i = 0; i < objects.size(); i++) {
 			objects.set(i, this.internalAddObject(objects.get(i), powersetPath));
 		}
@@ -546,17 +544,17 @@ public class BigBangScore implements Cloneable {
 		return relativeObjects;
 	}
 	
-	public Denotator getAbsoluteObject(DenotatorPath notePath) {
-		List<DenotatorPath> parentPaths = notePath.getAnchorPaths();
+	public Denotator getAbsoluteObject(DenotatorPath objectPath) {
+		List<DenotatorPath> parentPaths = objectPath.getAnchorPaths();
 		if (parentPaths.size() <= 0) {
-			return this.extractObject(notePath);
+			return this.extractObject(objectPath);
 		}
 		Collections.reverse(parentPaths);
 		Denotator currentAbsoluteParent = this.extractObject(parentPaths.get(0));
 		for (int i = 1; i < parentPaths.size(); i++) {
 			currentAbsoluteParent = this.objectGenerator.makeObjectAbsolute(this.extractObject(parentPaths.get(i)), currentAbsoluteParent);
 		}
-		return this.objectGenerator.makeObjectAbsolute(this.extractObject(notePath), currentAbsoluteParent);
+		return this.objectGenerator.makeObjectAbsolute(this.extractObject(objectPath), currentAbsoluteParent);
 	}
 	
 	public Denotator getObject(DenotatorPath objectPath) {

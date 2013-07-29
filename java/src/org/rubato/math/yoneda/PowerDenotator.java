@@ -240,7 +240,7 @@ public final class PowerDenotator
         else if (getFactorCount() == 1 && path[curpos] == 0) {
             return getFactor(0).get(path, curpos+1);
         }
-        //florian braucht diesen code! (wenn man factors hat kann man ja auch gleich dies machen)
+        //florian needs this code! (if you got factors you might as well do this)
         else if (getFactorCount() > path[curpos]) {
         	return getFactor(path[curpos]).get(path, curpos+1);
         }

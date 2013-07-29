@@ -18,6 +18,7 @@ public class FormValueFinder {
 	//objects are the top-level denotator (if it is not a powerset) as well as elements of powersets
 	private List<DenotatorObject> objectsInFoundOrder;
 	private List<Form> objectForms;
+	private List<Boolean> objectsCanBeSatellites;
 	private boolean formContainsColimits;
 	private boolean allowsForSatellites;
 	private final int MAX_SEARCH_DEPTH = 10;
@@ -26,6 +27,7 @@ public class FormValueFinder {
 		this.distinctValueNames = new ArrayList<String>();
 		this.objectsInFoundOrder = new ArrayList<DenotatorObject>();
 		this.objectForms = new ArrayList<Form>();
+		this.objectsCanBeSatellites = new ArrayList<Boolean>();
 		this.allowsForSatellites = false;
 		this.formContainsColimits = false;
 		DenotatorPath formPath = new DenotatorPath(form);
@@ -45,8 +47,16 @@ public class FormValueFinder {
 		return this.objectForms;
 	}
 	
+	public int indexOf(Form objectForm) {
+		return this.objectForms.indexOf(objectForm);
+	}
+	
 	public DenotatorObject getObjectAt(int objectIndex) {
 		return this.objectsInFoundOrder.get(objectIndex);
+	}
+	
+	public List<Boolean> getObjectsCanBeSatellites() {
+		return this.objectsCanBeSatellites;
 	}
 	
 	public DenotatorObjectConfiguration getConfiguration(Form objectForm, DenotatorPath longestColimitPath) {
@@ -149,6 +159,8 @@ public class FormValueFinder {
 					currentObject = new DenotatorObject(childForm, childPath);
 					this.addObject(currentObject);
 					this.findValues(childPath, searchThroughPowersets, currentSearchDepth+1, currentObject);
+				} else {
+					this.objectsCanBeSatellites.set(this.objectForms.indexOf(childForm), true);
 				}
 				if (currentSearchDepth > 0) {
 					//TODO: actually, this should check if there are simples in the top object. otherwise they are
@@ -162,6 +174,7 @@ public class FormValueFinder {
 	private void addObject(DenotatorObject object) {
 		this.objectsInFoundOrder.add(object);
 		this.objectForms.add(object.getForm());
+		this.objectsCanBeSatellites.add(false);
 	}
 	
 	//recursively finds all values and their names

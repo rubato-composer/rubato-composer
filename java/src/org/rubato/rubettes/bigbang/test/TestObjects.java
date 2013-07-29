@@ -36,7 +36,7 @@ import org.rubato.rubettes.util.SoundNoteGenerator;
 
 public class TestObjects {
 	
-	public final Form SOUND_SCORE_FORM, SOUND_NODE_FORM, SOUND_NOTE_FORM, HARMONIC_SPECTRUM_FORM;
+	public final Form SOUND_SCORE_FORM, SOUND_NODE_FORM, SOUND_NOTE_FORM, MODULATORS_FORM, HARMONIC_SPECTRUM_FORM, GENERIC_SOUND_FORM;
 	public final Form MACRO_SCORE_FORM = Repository.systemRepository().getForm("MacroScore");
 	public final PowerForm GENERAL_SCORE_FORM = (PowerForm)Repository.systemRepository().getForm("GeneralScore");
 	public final ColimitForm GENERAL_NOTE_FORM = (ColimitForm)Repository.systemRepository().getForm("NoteOrRest");
@@ -49,7 +49,6 @@ public class TestObjects {
 	public final SimpleForm INTEGER_FORM = (SimpleForm) Repository.systemRepository().getForm("Integer");
 	public final ColimitForm INTEGER_OR_REAL_FORM = (ColimitForm) Repository.systemRepository().getForm("IntegerOrReal");
 	public final PowerForm INTEGER_OR_REALS_FORM = new PowerForm(NameDenotator.make("IntegerOrReals"), INTEGER_OR_REAL_FORM);
-	
 	
 	public final double[][] ABSOLUTE = new double[][]{
 			{0,60,120,1,0,0},{1,63,116,1,0,0},{2,60,121,1,1,0}};
@@ -80,6 +79,8 @@ public class TestObjects {
 		this.SOUND_SCORE_FORM = Repository.systemRepository().getForm("SoundScore");
 		this.SOUND_NODE_FORM = Repository.systemRepository().getForm("SoundNode");
 		this.SOUND_NOTE_FORM = Repository.systemRepository().getForm("SoundNote");
+		this.MODULATORS_FORM = Repository.systemRepository().getForm("Modulators");
+		this.GENERIC_SOUND_FORM = Repository.systemRepository().getForm("GenericSound");
 		this.generator = new SoundNoteGenerator();
 		this.objectGenerator = new ObjectGenerator();
 		this.score = new BigBangScore(this.generator.getSoundScoreForm());

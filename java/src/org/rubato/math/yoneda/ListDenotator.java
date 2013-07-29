@@ -243,6 +243,10 @@ public class ListDenotator
         else if (getFactorCount() == 1 && path[curpos] == 0) {
             return getFactor(0).get(path, curpos+1);
         }
+        //added by florian. must have been a bug.
+        else if (getFactorCount() > path[curpos]) {
+        	return getFactor(path[curpos]).get(path, curpos+1);
+        }
         else {
             return null;
         }

@@ -33,6 +33,9 @@ public class DisplayObjects implements View {
 	private FormValueFinder finder;
 	private int indexOfActiveObjectType;
 	private List<Integer> activeColimitCoordinates;
+	//number for each object type, null if no satellites possible for the type
+	private List<Integer> maxSatelliteLevels;
+	private int activeSatelliteLevel;
 	private List<String> coordinateSystemValueNames;
 	private TreeSet<DisplayObject> objects;
 	private Set<DisplayObject> selectedObjects;
@@ -45,6 +48,15 @@ public class DisplayObjects implements View {
 		this.finder = new FormValueFinder(this.baseForm, true);
 		this.indexOfActiveObjectType = 0;
 		this.initActiveColimitCoordinates(this.finder.getObjectAt(0).getColimits().size());
+		this.maxSatelliteLevels = new ArrayList<Integer>();
+		for (Boolean currentObjectCanBeSatellite : this.finder.getObjectsCanBeSatellites()) {
+			if (currentObjectCanBeSatellite) {
+				this.maxSatelliteLevels.add(-1);
+			} else {
+				this.maxSatelliteLevels.add(null);
+			}
+		}
+		this.activeSatelliteLevel = 0;
 		
 		List<String> coordinateSystemValueNames = finder.getCoordinateSystemValueNames();
 		if (this.finder.formAllowsForSatellites()) {
@@ -93,6 +105,18 @@ public class DisplayObjects implements View {
 		}
 	}
 	
+	public Integer getMaxSatelliteLevelOfActiveObject() {
+		return this.maxSatelliteLevels.get(this.indexOfActiveObjectType);
+	}
+	
+	public void setActiveSatelliteLevel(int satelliteLevel) {
+		this.activeSatelliteLevel = satelliteLevel;
+	}
+	
+	public Integer getActiveSatelliteLevel() {
+		return this.activeSatelliteLevel;
+	}
+	
 	public List<String> getCoordinateSystemValueNames() {
 		return this.coordinateSystemValueNames;
 	}
@@ -115,6 +139,12 @@ public class DisplayObjects implements View {
 	
 	public void addObject(DisplayObject object) {
 		this.objects.add(object);
+		int objectIndex = this.finder.indexOf(object.getTopDenotatorPath().getEndForm());
+		Integer currentLevel = this.maxSatelliteLevels.get(objectIndex);
+		if (currentLevel != null) {
+			int currentMax = Math.max(currentLevel, (int)object.getNthValue(DenotatorValueExtractor.SATELLITE_LEVEL, 0).doubleValue());
+			this.maxSatelliteLevels.set(objectIndex, currentMax);
+		}
 	}
 	
 	public TreeSet<DisplayObject> getObjects() {
@@ -159,9 +189,10 @@ public class DisplayObjects implements View {
 		DisplayObject closestObject = null;
 		double shortestDistance = Double.MAX_VALUE;
 			
-		if (this.indexOfActiveObjectType > 0) {
+		//if (this.indexOfActiveObjectType >= 0) {
 			for (DisplayObject currentObject : this.objects) {
-				if (currentObject.getTopDenotatorPath().getEndForm().equals(formOfObjectInExamplePowerset)) {
+				if (currentObject.getTopDenotatorPath().getEndForm().equals(formOfObjectInExamplePowerset)
+						&& currentObject.getTopDenotatorPath().size() == examplePowersetPath.getTopPath().size()) {
 					//calculate Euclidean distance
 					double currentDistance = 0;
 					for (int i = 0; i < coordinateSystemValueIndices.length; i++) {
@@ -180,7 +211,7 @@ public class DisplayObjects implements View {
 					}
 				}
 			}
-		}
+		//}
 		return closestObject;
 	}
 	
@@ -190,6 +221,11 @@ public class DisplayObjects implements View {
 	
 	public DenotatorObject getActiveObjectType() {
 		return this.finder.getObjectAt(this.indexOfActiveObjectType);
+	}
+	
+	public DenotatorPath getActiveObjectAndLevelPowersetPath() {
+		DenotatorPath activeObjectPath = this.getActiveObjectType().getPath();
+		return activeObjectPath.getPowersetPath(this.activeSatelliteLevel, activeObjectPath.getEndForm());
 	}
 	
 	/**

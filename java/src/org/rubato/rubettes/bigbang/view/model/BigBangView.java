@@ -322,6 +322,7 @@ public class BigBangView extends Model implements View {
 		//do not select parameters for satellite and sibling number...
 		this.firePropertyChange(ViewController.DISPLAY_NOTES, null, this.displayNotes);
 		this.firePropertyChange(ViewController.STANDARD_DENOTATOR_VALUES, null, this.getStandardDenotatorValues());
+		this.firePropertyChange(ViewController.MAX_SATELLITE_LEVEL, null, this.displayNotes.getMaxSatelliteLevelOfActiveObject());
 	}
 	
 	public void setStandardDenotatorValue(Integer index, Double value) {
@@ -344,12 +345,17 @@ public class BigBangView extends Model implements View {
 	public void setActiveObject(Integer objectTypeIndex) {
 		this.displayNotes.setIndexOfActiveObjectType(objectTypeIndex);
 		this.firePropertyChange(ViewController.ACTIVE_OBJECT, null, objectTypeIndex);
-		//TODO: update selectable colimits!!!!!!!
+		this.firePropertyChange(ViewController.MAX_SATELLITE_LEVEL, null, this.displayNotes.getMaxSatelliteLevelOfActiveObject());
 	}
 	
 	public void setActiveColimitCoordinate(Integer colimitIndex, Integer coordinateIndex) {
 		this.displayNotes.setActiveColimitCoordinate(colimitIndex, coordinateIndex);
 		this.firePropertyChange(ViewController.ACTIVE_COLIMIT_COORDINATE, null, this.displayNotes.getActiveColimitCoordinates());
+	}
+	
+	public void setActiveSatelliteLevel(Integer satelliteLevel) {
+		this.displayNotes.setActiveSatelliteLevel(satelliteLevel);
+		this.firePropertyChange(ViewController.ACTIVE_SATELLITE_LEVEL, null, satelliteLevel);
 	}
 	
 	public void selectTransformation(AbstractTransformationEdit edit) {
@@ -609,7 +615,7 @@ public class BigBangView extends Model implements View {
 	}
 	
 	private DenotatorPath editObjectValuesAndFindClosestPowerset(Point2D.Double location, Map<DenotatorPath,Double> denotatorValues) {
-		DenotatorPath parentPowersetPath = this.displayNotes.getActiveObjectType().getPath().getParentPath();
+		DenotatorPath parentPowersetPath = this.displayNotes.getActiveObjectAndLevelPowersetPath();
 		int[] xyParameters = this.viewParameters.getSelectedXYViewParameters();
 		int xValueIndex = this.displayNotes.getActiveObjectValueIndex(xyParameters[0]);
 		int yValueIndex = this.displayNotes.getActiveObjectValueIndex(xyParameters[1]);
@@ -623,6 +629,7 @@ public class BigBangView extends Model implements View {
 			this.replaceDenotatorValue(location.y, yValueIndex, 1, this.displayPosition.y, this.yZoomFactor, denotatorValues);
 		}
 		DenotatorPath closestPowersetPath = this.findClosestPowersetPath(xyParameters, xyDenotatorValues, parentPowersetPath);
+		//System.out.println(parentPowersetPath + " " + closestPowersetPath);
 		return closestPowersetPath;
 	}
 	
@@ -679,7 +686,6 @@ public class BigBangView extends Model implements View {
 				}
 			}
 		}
-		System.out.println(paths);
 		return paths;
 	}
 	

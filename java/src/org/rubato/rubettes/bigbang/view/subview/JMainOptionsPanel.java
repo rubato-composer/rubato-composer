@@ -35,6 +35,8 @@ public class JMainOptionsPanel extends JPanel implements ActionListener, View {
 	private JViewParametersScrollPane viewParametersScrollPane;
 	private JPanel drawingOptionsPanel;
 	private JComboBox objectBox;
+	private JComboBox satelliteLevelBox;
+	private List<JLabel> colimitBoxLabels;
 	private List<JComboBox> colimitBoxes;
 	
 	public JMainOptionsPanel(ViewController controller, BigBangController bigBangController, ViewParameters viewParameters) {
@@ -68,6 +70,7 @@ public class JMainOptionsPanel extends JPanel implements ActionListener, View {
 	}
 	
 	private void initSouthernPanel() {
+		this.colimitBoxLabels = new ArrayList<JLabel>();
 		this.colimitBoxes = new ArrayList<JComboBox>();
 		this.drawingOptionsPanel = new JPanel();
 		this.drawingOptionsPanel.setLayout(new SpringLayout());
@@ -75,31 +78,49 @@ public class JMainOptionsPanel extends JPanel implements ActionListener, View {
 		this.add(this.drawingOptionsPanel, BorderLayout.SOUTH);
 	}
 	
-	private void initDrawingOptionsPanel(List<Form> objects, List<ColimitForm> colimits) {
-		this.drawingOptionsPanel.removeAll();
-		int numberOfBoxes = 0;
-		
+	private void initDrawingOptionsPanelComponents(List<Form> objects, List<ColimitForm> colimits) {
 		//TODO: only if more than one object to draw!?
 		if (!objects.isEmpty()) {
 			this.objectBox = new JComboBox(this.generateNameVector(objects));
 			this.objectBox.addActionListener(this);
+		} else {
+			this.objectBox = null;
+		}
+		
+		this.colimitBoxLabels.clear();
+		this.colimitBoxes.clear();
+		for (ColimitForm currentColimit : colimits) {
+			this.colimitBoxLabels.add(new JLabel(currentColimit.getNameString()));
+			JComboBox currentBox = new JComboBox(this.generateNameVector(currentColimit.getForms()));
+			currentBox.addActionListener(this);
+			this.colimitBoxes.add(currentBox);
+		}
+		this.updateDrawingOptionsPanel();
+	}
+	
+	private void updateDrawingOptionsPanel() {
+		this.drawingOptionsPanel.removeAll();
+		int numberOfBoxes = 0;
+		
+		if (this.objectBox != null) {
 			this.drawingOptionsPanel.add(new JLabel("Object"));
 			this.drawingOptionsPanel.add(this.objectBox);
 			numberOfBoxes++;
 		}
-		
 		//TODO: ADD SEPARATOR!!
-		
-		this.colimitBoxes.clear();
-		for (ColimitForm currentColimit : colimits) {
-			this.drawingOptionsPanel.add(new JLabel(currentColimit.getNameString()));
-			JComboBox currentBox = new JComboBox(this.generateNameVector(currentColimit.getForms()));
-			currentBox.addActionListener(this);
-			this.colimitBoxes.add(currentBox);
-			this.drawingOptionsPanel.add(currentBox);
+		if (this.satelliteLevelBox != null) {
+			this.drawingOptionsPanel.add(new JLabel("Level"));
+			this.drawingOptionsPanel.add(this.satelliteLevelBox);
+			numberOfBoxes++;
+		}
+		//TODO: ADD SEPARATOR!!
+		for (int i = 0; i < this.colimitBoxes.size(); i++) {
+			this.drawingOptionsPanel.add(this.colimitBoxLabels.get(i));
+			this.drawingOptionsPanel.add(this.colimitBoxes.get(i));
 			numberOfBoxes++;
 		}
 		SpringUtilities.makeCompactGrid(this.drawingOptionsPanel, numberOfBoxes, 2, 0, 0, 0, 0);
+		this.revalidate();
 	}
 	
 	private Vector<String> generateNameVector(List<Form> forms) {
@@ -108,6 +129,25 @@ public class JMainOptionsPanel extends JPanel implements ActionListener, View {
 			names.add(currentObjectForm.getNameString());
 		}
 		return names;
+	}
+	
+	private void updateSatelliteLevelBox(Integer maxSatelliteLevel) {
+		if (maxSatelliteLevel != null) {
+			Vector<Integer> availableLevels = new Vector<Integer>();
+			for (int i = 0; i <= maxSatelliteLevel+1; i++) {
+				availableLevels.add(i);
+			}
+			int previousSelection = 0;
+			if (this.satelliteLevelBox != null && this.satelliteLevelBox.getSelectedIndex() <= maxSatelliteLevel) {
+				previousSelection = this.satelliteLevelBox.getSelectedIndex();
+			}
+			this.satelliteLevelBox = new JComboBox(availableLevels);
+			this.satelliteLevelBox.setSelectedIndex(previousSelection);
+			this.satelliteLevelBox.addActionListener(this);
+		} else {
+			this.satelliteLevelBox = null; 
+		}
+		this.updateDrawingOptionsPanel();
 	}
 	
 	private void updateColimitBoxes(List<Integer> selectedCoordinates) {
@@ -130,12 +170,16 @@ public class JMainOptionsPanel extends JPanel implements ActionListener, View {
 		} else if (propertyName.equals(ViewController.FORM)) {
 			DisplayObjects displayObjects = (DisplayObjects)event.getNewValue();
 			this.selectFormPanel.setForm(displayObjects.getBaseForm());
-			this.initDrawingOptionsPanel(displayObjects.getObjectTypes(), displayObjects.getActiveObjectType().getColimits());
-			this.revalidate();
+			this.initDrawingOptionsPanelComponents(displayObjects.getObjectTypes(), displayObjects.getActiveObjectType().getColimits());
+			this.updateSatelliteLevelBox(displayObjects.getMaxSatelliteLevelOfActiveObject());
 		} else if (propertyName.equals(ViewController.ACTIVE_OBJECT)) {
 			this.objectBox.setSelectedIndex((Integer)event.getNewValue());
 		} else if (propertyName.equals(ViewController.ACTIVE_COLIMIT_COORDINATE)) {
 			this.updateColimitBoxes(((List<Integer>)event.getNewValue()));
+		} else if (propertyName.equals(ViewController.MAX_SATELLITE_LEVEL)) {
+			this.updateSatelliteLevelBox(((Integer)event.getNewValue()));
+		} else if (propertyName.equals(ViewController.ACTIVE_SATELLITE_LEVEL)) {
+			this.satelliteLevelBox.setSelectedIndex(((Integer)event.getNewValue()));
 		}
 	}
 
@@ -149,6 +193,8 @@ public class JMainOptionsPanel extends JPanel implements ActionListener, View {
 			int colimitIndex = this.colimitBoxes.indexOf(colimitBox);
 			int coordinateIndex = colimitBox.getSelectedIndex();
 			this.viewController.setActiveColimitCoordinate(colimitIndex, coordinateIndex);
+		} else if (event.getSource().equals(this.satelliteLevelBox)) {
+			this.viewController.setActiveSatelliteLevel(this.satelliteLevelBox.getSelectedIndex());
 		}
 	}
 	
