@@ -77,9 +77,7 @@ public class BigBangModel extends Model {
 		AbstractOperationEdit lastEdit = this.undoRedoModel.getLastEdit();
 		if (lastEdit != null && lastEdit instanceof AddObjectsEdit) {
 			AddObjectsEdit addEdit = (AddObjectsEdit) lastEdit;
-			if ((powersetPath == null && addEdit.getPowersetPath() == null)
-					|| (powersetPath != null && powersetPath.equals(addEdit.getPowersetPath()))) {
-				addEdit.addObject(pathsWithValues);
+			if (addEdit.addObject(pathsWithValues, powersetPath)) {
 				this.undoRedoModel.modifiedOperation(false);
 				return;
 			}

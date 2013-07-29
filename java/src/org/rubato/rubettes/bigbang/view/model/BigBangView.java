@@ -731,7 +731,7 @@ public class BigBangView extends Model implements View {
 	}
 	
 	public void setPlaybackPosition(Point2D.Double location) {
-		int timeAxisIndex = this.getTimeAxisIndex();
+		int timeAxisIndex = this.displayNotes.getTimeAxisIndex(this.viewParameters);
 		if (timeAxisIndex != -1) {
 			double[] xyDenotatorValues = this.getXYDenotatorValues(location);
 			this.player.setPlaybackPosition(xyDenotatorValues[timeAxisIndex]);
@@ -746,10 +746,6 @@ public class BigBangView extends Model implements View {
 	public void setWaveform(String waveform) {
 		this.player.setWaveform(waveform);
 		this.firePropertyChange(ViewController.WAVEFORM, null, waveform);
-	}
-	
-	private int getTimeAxisIndex() {
-		return this.displayNotes.getTimeAxisIndex(this.viewParameters);
 	}
 
 }

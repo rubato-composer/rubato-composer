@@ -12,7 +12,6 @@ public class DisplayContents {
 	
 	//finally merge with display!!!!
 	protected ViewParameters viewParameters;
-	private int[] selectedViewParameters;
 	protected DisplayObjects displayObjects;
 	private DisplayAxes axes;
 	private DisplayTool tool;
@@ -50,11 +49,6 @@ public class DisplayContents {
 		this.viewParameters = viewParameters;
 	}
 	
-	public void setSelectedViewParameters(int[] selectedViewParameters) {
-		this.selectedViewParameters = selectedViewParameters;
-		this.updateNoteBounds();
-	}
-	
 	public void setZoomFactors(double[] zoomFactors) {
 		this.xZoomFactor = zoomFactors[0];
 		this.yZoomFactor = zoomFactors[1];
@@ -67,7 +61,7 @@ public class DisplayContents {
 		this.updateNoteBounds();
 	}
 	
-	protected void updateNoteBounds() {
+	public void updateNoteBounds() {
 		if (this.displayObjects != null) {
 			this.displayObjects.updateBounds(this.xZoomFactor, this.yZoomFactor, this.xPosition, this.yPosition);
 		}
@@ -134,7 +128,7 @@ public class DisplayContents {
 	}
 	
 	public double getMaxY() {
-		int selectedYParameter = this.selectedViewParameters[1];
+		int selectedYParameter = this.viewParameters.getSelectedViewParameterAt(1);
 		double[] maxValues = this.viewParameters.getMaxValues();
 		if (selectedYParameter >= 0 && maxValues != null) {
 			return maxValues[selectedYParameter];
@@ -151,7 +145,7 @@ public class DisplayContents {
 	}
 	
 	public int getSelectedViewParameter(int i) {
-		return this.selectedViewParameters[i];
+		return this.viewParameters.getSelectedViewParameterAt(i);
 	}
 	
 	public void setSatellitesConnected(boolean satellitesConnected) {
@@ -163,7 +157,7 @@ public class DisplayContents {
 	}
 	
 	public double translateValue(DisplayObject object, int viewParameterIndex) {
-		int valueIndex = this.selectedViewParameters[viewParameterIndex];
+		int valueIndex = this.viewParameters.getSelectedViewParameterAt(viewParameterIndex);
 		if (valueIndex > -1 && valueIndex < this.displayObjects.getCoordinateSystemValueNames().size()) {
 			String valueName = this.displayObjects.getCoordinateSystemValueNames().get(valueIndex);
 			int nameInstanceNumber = this.displayObjects.getInstanceNumberOfCoordinateValueName(valueIndex);
@@ -201,7 +195,6 @@ public class DisplayContents {
 		this.playbackLine.paint(painter);
 	}
 	
-	//TODO: also in BigBangView. find way to just have one!!!
 	public int getTimeAxisIndex() {
 		return this.displayObjects.getTimeAxisIndex(this.viewParameters);
 	}
