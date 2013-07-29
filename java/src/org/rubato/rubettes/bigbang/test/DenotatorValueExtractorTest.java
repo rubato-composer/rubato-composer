@@ -28,7 +28,7 @@ public class DenotatorValueExtractorTest extends TestCase {
 		DisplayObjects notes = this.extractDisplayObjects(this.objects.score.getComposition());
 		TestCase.assertEquals(9, notes.size());
 		TestCase.assertEquals(6, this.extractor.getMinValues().size());
-		TestCase.assertEquals(5.0, notes.last().getNthValue(DenotatorValueExtractor.SATELLITE_LEVEL, 0));
+		TestCase.assertEquals(4.0, notes.last().getNthValue(DenotatorValueExtractor.SATELLITE_LEVEL, 0));
 		TestCase.assertEquals(0.0, notes.last().getNthValue(DenotatorValueExtractor.SIBLING_NUMBER, 0));
 	}
 	
@@ -40,7 +40,7 @@ public class DenotatorValueExtractorTest extends TestCase {
 		TestCase.assertEquals(121.0, notes.last().getNthValue(notes.getCoordinateSystemValueNames().get(2), 0));
 		TestCase.assertEquals(1.0, notes.last().getNthValue(notes.getCoordinateSystemValueNames().get(3), 0));
 		TestCase.assertEquals(1.0, notes.last().getNthValue(notes.getCoordinateSystemValueNames().get(4), 0));
-		TestCase.assertEquals(3.0, notes.last().getNthValue(DenotatorValueExtractor.SATELLITE_LEVEL, 0));
+		TestCase.assertEquals(2.0, notes.last().getNthValue(DenotatorValueExtractor.SATELLITE_LEVEL, 0));
 		TestCase.assertEquals(0.0, notes.last().getNthValue(DenotatorValueExtractor.SIBLING_NUMBER, 0));
 	}
 	

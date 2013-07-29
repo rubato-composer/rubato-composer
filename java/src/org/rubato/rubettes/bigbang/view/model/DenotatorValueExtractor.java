@@ -35,7 +35,6 @@ public class DenotatorValueExtractor {
 	private Map<String,Double> minValues, maxValues;
 	private DisplayObjects displayObjects;
 	private JSynScore jSynScore;
-	//TreeSet in future for faster searching!!!
 	private boolean selectObjects;
 	private SelectedObjectsPaths selectedPaths;
 	private LayerStates layerStates;
@@ -82,10 +81,14 @@ public class DenotatorValueExtractor {
 		int denotatorType = currentDenotator.getType();
 		if (denotatorType == Denotator.POWER || denotatorType == Denotator.LIST) {
 			FactorDenotator currentPower = (FactorDenotator)currentDenotator;
-			//TODO: find out if modulators and add them to JSynObject!!
+			//System.out.println(currentDO + " " + satelliteLevel);
 			for (int i = 0; i < currentPower.getFactorCount(); i++) {
 				//call with currentDisplayObject and currentJSynObject null, since all children become independent objects
-				this.extractObjects(currentPower.getFactor(i), currentDO, null, currentJSO, null, satelliteLevel+1, i, colimitIndex, currentPath.getChildPath(i));
+				if (currentDO != null) {
+					this.extractObjects(currentPower.getFactor(i), currentDO, null, currentJSO, null, satelliteLevel+1, i, colimitIndex, currentPath.getChildPath(i));
+				} else {
+					this.extractObjects(currentPower.getFactor(i), currentDO, null, currentJSO, null, satelliteLevel, i, colimitIndex, currentPath.getChildPath(i));
+				}
 			}
 		} else {
 			if (currentDO == null) {

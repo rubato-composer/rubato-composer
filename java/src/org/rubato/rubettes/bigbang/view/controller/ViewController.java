@@ -58,6 +58,8 @@ public class ViewController extends Controller {
 	public static final String STANDARD_DENOTATOR_VALUES = "setStandardDenotatorValue";
 	public static final String ACTIVE_OBJECT = "setActiveObject";
 	public static final String ACTIVE_COLIMIT_COORDINATE = "setActiveColimitCoordinate";
+	public static final String MAX_SATELLITE_LEVEL = "setSatelliteLevels";
+	public static final String ACTIVE_SATELLITE_LEVEL = "setActiveSatelliteLevel";
 	public static final String ADD_OBJECT = "addObject";
 	public static final String DELETE_OBJECTS = "deleteSelectedObjects";
 	public static final String COPY_NOTES = "copySelectedNotesTo";
@@ -140,6 +142,10 @@ public class ViewController extends Controller {
 	
 	public void setActiveColimitCoordinate(int colimitIndex, int coordinateIndex) {
 		this.callModelMethod(ViewController.ACTIVE_COLIMIT_COORDINATE, colimitIndex, coordinateIndex);
+	}
+	
+	public void setActiveSatelliteLevel(int satelliteLevel) {
+		this.callModelMethod(ViewController.ACTIVE_SATELLITE_LEVEL, satelliteLevel);
 	}
 	
 	public void showWindowPreferences() {

@@ -438,6 +438,41 @@ public class DenotatorPath implements Comparable<Object> {
 		return null;
 	}
 	
+	/*
+	 * currently only works for forms containing one instance of each powerset form.
+	 * indices within intermediary powersets are always 0
+	 */
+	public DenotatorPath getPowersetPath(int satelliteLevel, Form satelliteForm) {
+		if (satelliteLevel > 0) {
+			DenotatorPath satellitePath = this.clone();
+			for (int i = 0; i < satelliteLevel; i++) {
+				satellitePath = satellitePath.getPowersetPath(satellitePath.getSatelliteIndex(satelliteForm)).getChildPath(0);
+			}
+			if (satellitePath != null && satellitePath.getEndForm().equals(satelliteForm)) {
+				return satellitePath.getParentPath();
+			}
+			return null;
+		}
+		//can be null if this is not in a powerset
+		if (this.getAnchorPowersetPath() != null) {
+			return this.getAnchorPowersetPath().getPowersetPath(satelliteLevel+1, satelliteForm);
+		}
+		return null;
+	}
+	
+	private int getSatelliteIndex(Form satelliteForm) {
+		int powersetIndex = 0;
+		DenotatorPath powersetPath = this.getPowersetPath(powersetIndex);
+		while (powersetPath != null) {
+			if (powersetPath.getChildPath(0).getEndForm().equals(satelliteForm)) {
+				return powersetIndex;
+			}
+			powersetIndex++;
+			powersetPath = this.getPowersetPath(powersetIndex);
+		}
+		return -1;
+	}
+	
 	public String toString() {
 		return this.indices.toString();
 	}
