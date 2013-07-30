@@ -1,54 +1,74 @@
 package org.rubato.rubettes.bigbang.view.subview.toolbars;
 
+import java.awt.Dimension;
 import java.beans.PropertyChangeEvent;
-import java.util.List;
 
-import javax.swing.DropMode;
-import javax.swing.JList;
 import javax.swing.JToolBar;
-import javax.swing.ListSelectionModel;
 
 import org.rubato.rubettes.bigbang.controller.BigBangController;
+import org.rubato.rubettes.bigbang.model.edits.AbstractOperationEdit;
 import org.rubato.rubettes.bigbang.model.edits.AbstractTransformationEdit;
 import org.rubato.rubettes.bigbang.view.View;
 import org.rubato.rubettes.bigbang.view.controller.ViewController;
 import org.rubato.rubettes.bigbang.view.controller.score.GraphListener;
 
+import edu.uci.ics.jung.algorithms.layout.KKLayout;
+import edu.uci.ics.jung.algorithms.layout.Layout;
+import edu.uci.ics.jung.algorithms.layout.SpringLayout;
+import edu.uci.ics.jung.algorithms.layout.SpringLayout2;
+import edu.uci.ics.jung.graph.DirectedSparseGraph;
+import edu.uci.ics.jung.graph.Graph;
+import edu.uci.ics.jung.visualization.VisualizationViewer;
+import edu.uci.ics.jung.visualization.control.DefaultModalGraphMouse;
+import edu.uci.ics.jung.visualization.control.ModalGraphMouse;
+import edu.uci.ics.jung.visualization.decorators.ToStringLabeller;
+import edu.uci.ics.jung.visualization.renderers.Renderer.VertexLabel.Position;
+
 public class JGraphToolBar extends JToolBar implements View {
 	
-	private JList transformations;
+	private Layout<Integer,AbstractOperationEdit> layout;
+	private VisualizationViewer<Integer,AbstractOperationEdit> operationGraph;
 	
 	public JGraphToolBar(ViewController controller, BigBangController bbController) {
 		controller.addView(this);
 		bbController.addView(this);
-		this.transformations = new JList();
-		this.transformations.setDragEnabled(true);
-		this.transformations.setDropMode(DropMode.INSERT);
-		this.transformations.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-		this.transformations.addListSelectionListener(new GraphListener(controller));
-		this.add(this.transformations);
+		this.layout = new SpringLayout2<Integer,AbstractOperationEdit>(new DirectedSparseGraph<Integer,AbstractOperationEdit>());
+		this.layout.setSize(new Dimension(300,300));
+		//this.layout.setForceMultiplier(0.01);
+		this.operationGraph = new VisualizationViewer<Integer,AbstractOperationEdit>(this.layout);
+		this.operationGraph.setPreferredSize(new Dimension(300,300));
+		this.operationGraph.getRenderContext().setVertexLabelTransformer(new ToStringLabeller<Integer>());
+		this.operationGraph.getRenderContext().setEdgeLabelTransformer(new ToStringLabeller<AbstractOperationEdit>());
+		this.operationGraph.getRenderer().getVertexLabelRenderer().setPosition(Position.CNTR);
+		DefaultModalGraphMouse<Integer,AbstractOperationEdit> graphMouse = new DefaultModalGraphMouse<Integer,AbstractOperationEdit>();
+		graphMouse.setMode(ModalGraphMouse.Mode.PICKING);
+		this.operationGraph.setGraphMouse(graphMouse);
+		this.operationGraph.getPickedEdgeState().addItemListener(new GraphListener(controller, this.operationGraph));
+		//this.operationGraph.set
+		this.add(this.operationGraph);
+	}
+	
+	private void updateGraph(Graph<Integer,AbstractOperationEdit> graph) {
+		this.layout.setGraph(graph);
+		this.operationGraph.repaint();
 	}
 
 	public void modelPropertyChange(PropertyChangeEvent event) {
 		String propertyName = event.getPropertyName();
 		if (propertyName.equals(BigBangController.GRAPH)) {
-			Object[] transformations = ((List<?>)event.getNewValue()).toArray();
-			this.updateTransformations(transformations);
+			Graph<Integer,AbstractOperationEdit> graph = ((Graph<Integer,AbstractOperationEdit>)event.getNewValue());
+			this.updateGraph(graph);
 		} else if (propertyName.equals(ViewController.SELECT_TRANSFORMATION)) {
 			AbstractTransformationEdit transformation = (AbstractTransformationEdit)event.getNewValue();
 			this.selectTransformation(transformation);
 		}
 	}
 	
-	private void updateTransformations(Object[] transformations) {
-		this.transformations.setListData(transformations);
-	}
-	
 	private void selectTransformation(AbstractTransformationEdit transformation) {
 		if (transformation != null) {
-			this.transformations.setSelectedValue(transformation, true);
+			this.operationGraph.getPickedEdgeState().pick(transformation, true);
 		} else {
-			this.transformations.clearSelection();
+			this.operationGraph.getPickedEdgeState().clear();
 		}
 	}
 

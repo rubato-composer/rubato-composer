@@ -10,5 +10,10 @@
 	<classpathentry kind="lib" path="java/jar/xercesImpl.jar"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/MT4j"/>
 	<classpathentry kind="lib" path="java/jar/jsyn-beta-16.5.14.jar"/>
+	<classpathentry kind="lib" path="java/jar/jung-api-2.0.1.jar"/>
+	<classpathentry kind="lib" path="java/jar/jung-graph-impl-2.0.1.jar"/>
+	<classpathentry kind="lib" path="java/jar/collections-generic-4.01.jar"/>
+	<classpathentry kind="lib" path="java/jar/jung-visualization-2.0.1.jar"/>
+	<classpathentry kind="lib" path="java/jar/jung-algorithms-2.0.1.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

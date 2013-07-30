@@ -65,8 +65,8 @@ public class UndoRedoModel extends Model {
 	}
 	
 	public AbstractOperationEdit getLastEdit() {
-		if (this.operations.size() > 0) {
-			return this.operations.get(this.operations.size()-1);
+		if (this.operations.getEdgeCount() > 0) {
+			return this.operations.getLastEdit();
 		}
 		return null;
 	}

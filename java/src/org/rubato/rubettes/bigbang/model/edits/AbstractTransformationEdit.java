@@ -3,6 +3,7 @@ package org.rubato.rubettes.bigbang.model.edits;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 
 import org.rubato.math.matrix.RMatrix;
 import org.rubato.math.module.morphism.CompositionException;
@@ -94,6 +95,9 @@ public abstract class AbstractTransformationEdit extends AbstractOperationEdit {
 				return pathDifferences;
 			}
 			for (int i = 0; i < newPaths.size(); i++) {
+				while (pathDifferences.size() <= i) {
+					pathDifferences.add(new TreeMap<DenotatorPath,DenotatorPath>());
+				}
 				List<DenotatorPath> currentObjectOldPaths = oldPaths.get(i);
 				List<DenotatorPath> currentObjectNewPaths = newPaths.get(i);
 				for (int j = 0; j < currentObjectNewPaths.size(); j++) {
@@ -112,7 +116,11 @@ public abstract class AbstractTransformationEdit extends AbstractOperationEdit {
 	
 	@Override
 	public String getPresentationName() {
-		return this.properties.getEndPoint()[0] + "," + this.properties.getEndPoint()[1];
+		return this.round(this.properties.getEndPoint()[0]) + "," + this.round(this.properties.getEndPoint()[1]);
+	}
+	
+	private double round(double number) {
+		return ((double)Math.round(number*10))/10;
 	}
 
 }
