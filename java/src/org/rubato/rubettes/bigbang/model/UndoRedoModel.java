@@ -72,7 +72,15 @@ public class UndoRedoModel extends Model {
 	}
 	
 	public void modifiedOperation(Boolean inPreviewMode) {
-		this.operations.updateScore(inPreviewMode);
+		this.operations.updateComposition(inPreviewMode);
+	}
+	
+	public void selectCompositionState(Integer vertex) {
+		this.operations.selectCompositionState(vertex);
+	}
+	
+	public void deselectCompositionStates() {
+		this.operations.selectCompositionState(null);
 	}
 	
 	public void reset() {

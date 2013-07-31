@@ -101,8 +101,12 @@ public abstract class AbstractTransformationEdit extends AbstractOperationEdit {
 				List<DenotatorPath> currentObjectOldPaths = oldPaths.get(i);
 				List<DenotatorPath> currentObjectNewPaths = newPaths.get(i);
 				for (int j = 0; j < currentObjectNewPaths.size(); j++) {
-					if (!currentObjectOldPaths.get(j).equals(currentObjectNewPaths.get(j))) {
-						pathDifferences.get(i).put(currentObjectOldPaths.get(j), currentObjectNewPaths.get(j));
+					if (j < currentObjectNewPaths.size()) {
+						if (!currentObjectOldPaths.get(j).equals(currentObjectNewPaths.get(j))) {
+							pathDifferences.get(i).put(currentObjectOldPaths.get(j), currentObjectNewPaths.get(j));
+						}
+					} else {
+						pathDifferences.get(i).put(currentObjectOldPaths.get(j), null);
 					}
 				}
 			}

@@ -43,8 +43,9 @@ public class JGraphToolBar extends JToolBar implements View {
 		DefaultModalGraphMouse<Integer,AbstractOperationEdit> graphMouse = new DefaultModalGraphMouse<Integer,AbstractOperationEdit>();
 		graphMouse.setMode(ModalGraphMouse.Mode.PICKING);
 		this.operationGraph.setGraphMouse(graphMouse);
-		this.operationGraph.getPickedEdgeState().addItemListener(new GraphListener(controller, this.operationGraph));
-		//this.operationGraph.set
+		GraphListener graphListener = new GraphListener(controller, this.operationGraph);
+		this.operationGraph.getPickedVertexState().addItemListener(graphListener);
+		this.operationGraph.getPickedEdgeState().addItemListener(graphListener);
 		this.add(this.operationGraph);
 	}
 	
@@ -59,8 +60,11 @@ public class JGraphToolBar extends JToolBar implements View {
 			Graph<Integer,AbstractOperationEdit> graph = ((Graph<Integer,AbstractOperationEdit>)event.getNewValue());
 			this.updateGraph(graph);
 		} else if (propertyName.equals(ViewController.SELECT_TRANSFORMATION)) {
+			//TODO never called except for deselection...
 			AbstractTransformationEdit transformation = (AbstractTransformationEdit)event.getNewValue();
 			this.selectTransformation(transformation);
+		} else if (propertyName.equals(ViewController.SELECT_COMPOSITION_STATE)) {
+			this.selectVertex((Integer)event.getNewValue());
 		}
 	}
 	
@@ -69,6 +73,14 @@ public class JGraphToolBar extends JToolBar implements View {
 			this.operationGraph.getPickedEdgeState().pick(transformation, true);
 		} else {
 			this.operationGraph.getPickedEdgeState().clear();
+		}
+	}
+	
+	private void selectVertex(Integer vertex) {
+		if (vertex != null) {
+			this.operationGraph.getPickedVertexState().pick(vertex, true);
+		} else {
+			this.operationGraph.getPickedVertexState().clear();
 		}
 	}
 
