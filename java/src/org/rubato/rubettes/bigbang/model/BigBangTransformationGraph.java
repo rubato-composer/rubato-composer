@@ -12,12 +12,24 @@ import edu.uci.ics.jung.graph.DirectedSparseGraph;
 
 public class BigBangTransformationGraph extends DirectedSparseGraph<Integer,AbstractOperationEdit> {
 	
+	private Integer selectedCompositionState;
+	
 	public BigBangTransformationGraph() {
 		this.addVertex(0);
 	}
 	
 	public boolean add(AbstractOperationEdit edit) {
 		return this.add(edit, false);
+	}
+	
+	/**
+	 * sets the composition state to be shown. can be null, which means that the final state is shown
+	 */
+	public void selectCompositionState(Integer vertex) {
+		if (vertex == null || vertex <= this.getEdgeCount()) {
+			this.selectedCompositionState = vertex;
+			this.updateComposition(false);
+		}
 	}
 	
 	public void previewTransformationAtEnd(AbstractTransformationEdit edit) {
@@ -29,12 +41,12 @@ public class BigBangTransformationGraph extends DirectedSparseGraph<Integer,Abst
 		this.addVertex(this.getVertexCount());
 		boolean added = this.addEdge(edit, this.getVertexCount()-2, this.getVertexCount()-1);
 		if (added) {
-			this.updateScore(inPreviewMode);
+			this.updateComposition(inPreviewMode);
 		}
 		return added;
 	}
 	
-	public void updateScore(boolean inPreviewMode) {
+	public void updateComposition(boolean inPreviewMode) {
 		if (this.getEdgeCount() > 0) {
 			List<Map<DenotatorPath,DenotatorPath>> pathDifferences = new ArrayList<Map<DenotatorPath,DenotatorPath>>();
 			//TODO for now just sets inPreviewMode for the last edge.
@@ -42,17 +54,22 @@ public class BigBangTransformationGraph extends DirectedSparseGraph<Integer,Abst
 			lastEdge.setInPreviewMode(inPreviewMode);
 			//TODO pretty bad...
 			lastEdge.getScoreManager().resetScore();
-			for (int i = 0; i < this.getEdgeCount(); i++) {
-				AbstractOperationEdit currentEdit = this.findEdge(i, i+1);
-				//only send composition change with last one!!!!!!
-				pathDifferences = currentEdit.execute(pathDifferences, i==this.getEdgeCount()-1);
+			int lastState = this.selectedCompositionState != null ? this.selectedCompositionState : this.getEdgeCount();
+			if (lastState > 0) {
+				for (int i = 0; i < lastState; i++) {
+					AbstractOperationEdit currentEdit = this.findEdge(i, i+1);
+					//only send composition change with last one!!!!!!
+					pathDifferences = currentEdit.execute(pathDifferences, i==lastState-1);
+				}
+			} else {
+				lastEdge.getScoreManager().fireCompositionChange();
 			}
 		}
 	}
 	
 	public AbstractOperationEdit removeLast() {
 		AbstractOperationEdit removed = this.removeLastWithoutUpdate();
-		this.updateScore(false);
+		this.updateComposition(false);
 		return removed;
 	}
 	

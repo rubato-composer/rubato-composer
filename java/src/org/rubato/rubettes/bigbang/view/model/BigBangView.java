@@ -358,6 +358,16 @@ public class BigBangView extends Model implements View {
 		this.firePropertyChange(ViewController.ACTIVE_SATELLITE_LEVEL, null, satelliteLevel);
 	}
 	
+	public void selectCompositionState(Integer vertex) {
+		this.firePropertyChange(ViewController.SELECT_COMPOSITION_STATE, null, vertex);
+		this.controller.selectCompositionState(vertex);
+	}
+	
+	public void deselectCompositionStates() {
+		this.firePropertyChange(ViewController.DESELECT_COMPOSITION_STATES, null, null);
+		this.controller.deselectCompositionStates();
+	}
+	
 	public void selectTransformation(AbstractTransformationEdit edit) {
 		this.selectedTransformation = edit;
 		if (this.selectedTransformation != null) {

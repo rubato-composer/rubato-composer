@@ -43,6 +43,8 @@ public class ViewController extends Controller {
 	public static final String REDO = "redo";
 	public static final String SELECT_TRANSFORMATION = "selectTransformation";
 	public static final String DESELECT_TRANSFORMATIONS = "deselectTransformations";
+	public static final String SELECT_COMPOSITION_STATE = "selectCompositionState";
+	public static final String DESELECT_COMPOSITION_STATES = "deselectCompositionStates";
 	public static final String INPUT_ACTIVE = "InputActive";
 	
 	//score manipulation - display
@@ -306,6 +308,14 @@ public class ViewController extends Controller {
 	
 	public void deselectTransformations() {
 		this.callModelMethod(ViewController.DESELECT_TRANSFORMATIONS);
+	}
+	
+	public void selectCompositionState(Integer vertex) {
+		this.callModelMethod(ViewController.SELECT_COMPOSITION_STATE, vertex);
+	}
+	
+	public void deselectCompositionStates() {
+		this.callModelMethod(ViewController.DESELECT_COMPOSITION_STATES);
 	}
 	
 	public void changeInputActive(boolean inputActive) {

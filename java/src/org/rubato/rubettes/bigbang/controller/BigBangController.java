@@ -18,6 +18,8 @@ public class BigBangController extends Controller {
 	public static final String POST_EDIT = "postEdit";
 	public static final String GRAPH = "graph";
 	public static final String MODIFIED_OPERATION = "modifiedOperation";
+	public static final String SELECT_COMPOSITION_STATE = "selectCompositionState";
+	public static final String DESELECT_COMPOSITION_STATES = "deselectCompositionStates";
 	public static final String MULTITOUCH = "MultiTouch";
 	public static final String INPUT_ACTIVE = "InputActive";
 	public static final String FORM = "setForm";
@@ -67,6 +69,14 @@ public class BigBangController extends Controller {
 	
 	public void modifiedTransformation(boolean inPreviewMode) {
 		this.callModelMethod(BigBangController.MODIFIED_OPERATION, inPreviewMode);
+	}
+	
+	public void selectCompositionState(Integer vertex) {
+		this.callModelMethod(BigBangController.SELECT_COMPOSITION_STATE, vertex);
+	}
+	
+	public void deselectCompositionStates() {
+		this.callModelMethod(BigBangController.DESELECT_COMPOSITION_STATES);
 	}
 	
 	public void changeInputActive(boolean inputActive) {

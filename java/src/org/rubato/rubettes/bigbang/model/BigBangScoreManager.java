@@ -295,7 +295,7 @@ public class BigBangScoreManager extends Model {
 		return newPaths;
 	}
 	
-	private void fireCompositionChange() {
+	public void fireCompositionChange() {
 		this.fireCompositionChange(new TreeSet<DenotatorPath>());
 	}
 	
