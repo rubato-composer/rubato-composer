@@ -8,18 +8,17 @@ import org.rubato.rubettes.bigbang.model.edits.AbstractOperationEdit;
 import org.rubato.rubettes.bigbang.model.edits.AbstractTransformationEdit;
 import org.rubato.rubettes.util.DenotatorPath;
 
+import edu.uci.ics.jung.algorithms.shortestpath.DijkstraShortestPath;
 import edu.uci.ics.jung.graph.DirectedSparseGraph;
 
 public class BigBangTransformationGraph extends DirectedSparseGraph<Integer,AbstractOperationEdit> {
 	
+	private UndoRedoModel model;
 	private Integer selectedCompositionState;
 	
-	public BigBangTransformationGraph() {
+	public BigBangTransformationGraph(UndoRedoModel model) {
+		this.model = model;
 		this.addVertex(0);
-	}
-	
-	public boolean add(AbstractOperationEdit edit) {
-		return this.add(edit, false);
 	}
 	
 	/**
@@ -37,10 +36,21 @@ public class BigBangTransformationGraph extends DirectedSparseGraph<Integer,Abst
 		this.removeLastWithoutUpdate();
 	}
 	
+	public boolean add(AbstractOperationEdit edit) {
+		return this.add(edit, false);
+	}
+	
 	private boolean add(AbstractOperationEdit edit, boolean inPreviewMode) {
-		this.addVertex(this.getVertexCount());
-		boolean added = this.addEdge(edit, this.getVertexCount()-2, this.getVertexCount()-1);
+		//startingVertex is either current selected vertex or the last vertex
+		Integer startingVertex = this.selectedCompositionState != null? this.selectedCompositionState : this.getVertexCount()-1;
+		Integer endingVertex = this.getVertexCount();
+		this.addVertex(endingVertex);
+		boolean added = this.addEdge(edit, startingVertex, endingVertex);
 		if (added) {
+			//deselect composition state so that new transformation is shown!!
+			if (!inPreviewMode) {
+				this.model.deselectCompositionStates();
+			}
 			this.updateComposition(inPreviewMode);
 		}
 		return added;
@@ -54,12 +64,16 @@ public class BigBangTransformationGraph extends DirectedSparseGraph<Integer,Abst
 			lastEdge.setInPreviewMode(inPreviewMode);
 			//TODO pretty bad...
 			lastEdge.getScoreManager().resetScore();
-			int lastState = this.selectedCompositionState != null ? this.selectedCompositionState : this.getEdgeCount();
-			if (lastState > 0) {
-				for (int i = 0; i < lastState; i++) {
-					AbstractOperationEdit currentEdit = this.findEdge(i, i+1);
+			int shownState = this.getEdgeCount();
+			if (!inPreviewMode && this.selectedCompositionState != null) {
+				shownState = this.selectedCompositionState;
+			}
+			if (shownState > 0) {
+				DijkstraShortestPath<Integer,AbstractOperationEdit> dijkstra = new DijkstraShortestPath<Integer,AbstractOperationEdit>(this);
+			    List<AbstractOperationEdit> shortestPath = dijkstra.getPath(0, shownState);
+			    for (int i = 0; i < shortestPath.size(); i++) {
 					//only send composition change with last one!!!!!!
-					pathDifferences = currentEdit.execute(pathDifferences, i==lastState-1);
+					pathDifferences = shortestPath.get(i).execute(pathDifferences, i==shortestPath.size()-1);
 				}
 			} else {
 				lastEdge.getScoreManager().fireCompositionChange();

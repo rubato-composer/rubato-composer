@@ -65,6 +65,8 @@ public class JGraphToolBar extends JToolBar implements View {
 			this.selectTransformation(transformation);
 		} else if (propertyName.equals(ViewController.SELECT_COMPOSITION_STATE)) {
 			this.selectVertex((Integer)event.getNewValue());
+		} else if (propertyName.equals(ViewController.DESELECT_COMPOSITION_STATES)) {
+			this.selectVertex(null);
 		}
 	}
 	

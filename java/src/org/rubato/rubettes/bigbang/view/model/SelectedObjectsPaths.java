@@ -60,5 +60,9 @@ public class SelectedObjectsPaths {
 		}
 		return size;
 	}
+	
+	public String toString() {
+		return this.objectPaths + " " + this.anchorPath;
+	}
 
 }

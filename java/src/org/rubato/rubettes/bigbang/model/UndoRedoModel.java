@@ -77,15 +77,17 @@ public class UndoRedoModel extends Model {
 	
 	public void selectCompositionState(Integer vertex) {
 		this.operations.selectCompositionState(vertex);
+		this.firePropertyChange(BigBangController.SELECT_COMPOSITION_STATE, null, vertex);
 	}
 	
 	public void deselectCompositionStates() {
 		this.operations.selectCompositionState(null);
+		this.firePropertyChange(BigBangController.DESELECT_COMPOSITION_STATES, null, null);
 	}
 	
 	public void reset() {
 		this.undoManager.discardAllEdits();
-		this.operations = new BigBangTransformationGraph();
+		this.operations = new BigBangTransformationGraph(this);
 		this.firePropertyChange(BigBangController.GRAPH, null, this.operations);
 	}
 
