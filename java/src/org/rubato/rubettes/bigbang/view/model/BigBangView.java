@@ -286,6 +286,8 @@ public class BigBangView extends Model implements View {
 		} else if (propertyName.equals(BigBangController.ADD_OBJECT)) {
 			//not every sounding object makes sense to be played alone (e.g. modulator, or overtone)
 			//this.playObject((Denotator)event.getNewValue());
+		} else if (propertyName.equals(BigBangController.DESELECT_COMPOSITION_STATES)) {
+			this.firePropertyChange(ViewController.DESELECT_COMPOSITION_STATES, null, null);
 		}
 	}
 	
