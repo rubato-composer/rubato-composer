@@ -83,7 +83,6 @@ public abstract class AbstractTransformationEdit extends AbstractOperationEdit {
 			//WOW not at all compatible with dynamic score mapping!!
 			//this.properties.setNodePaths(resultPaths);
 		}
-		System.out.println(this.getPresentationName() + " " + this.properties.getObjectsPaths() + " " + resultPaths);
 		List<Map<DenotatorPath,DenotatorPath>> newDifferences = this.getPathDifferences(this.previousResultPaths, resultPaths);
 		this.previousResultPaths = resultPaths;
 		return newDifferences;

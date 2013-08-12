@@ -33,7 +33,7 @@ public class BigBangPlayer extends Thread {
 	}
 	
 	public double getCurrentSymbolicTime() {
-		return this.player.getCurrentSymbolicTime();
+		return this.player.getCurrentSymbolicTimeOfFirstPerformance();
 	}
 	
 	public synchronized void startPlaying() {
@@ -49,7 +49,7 @@ public class BigBangPlayer extends Thread {
 	}
 	
 	public synchronized void playObject(JSynObject object) {
-		this.player.play(object);
+		//this.player.play(object);
 	}
 	
 	public void run() {

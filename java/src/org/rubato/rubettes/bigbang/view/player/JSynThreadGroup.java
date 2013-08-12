@@ -2,8 +2,6 @@ package org.rubato.rubettes.bigbang.view.player;
 
 import java.util.ArrayList;
 
-import sun.tools.tree.ThisExpression;
-
 public class JSynThreadGroup extends ArrayList<JSynThread> {
 	
 	private boolean playInNextLoop;
