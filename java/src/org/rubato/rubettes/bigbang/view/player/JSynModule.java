@@ -7,22 +7,22 @@ import com.jsyn.unitgen.LineOut;
 
 public class JSynModule {
 	
-	private JSynPlayer player;
+	private JSynPerformance performance;
 	private List<SmoothOscillator> carriers;
 	private LineOut lineOut;
 	
 	
-	public JSynModule(JSynPlayer player) {
-		this.player = player;
+	public JSynModule(JSynPerformance performance) {
+		this.performance = performance;
 	 	//TODO: why one line out PER module????
-	 	this.player.addToSynth(this.lineOut = new LineOut());
+	 	this.performance.addToSynth(this.lineOut = new LineOut());
 	 	this.carriers = new ArrayList<SmoothOscillator>();
 	 	this.addCarrier();
 	 	this.start();
 	}
 	
 	private void addCarrier() {
-		SmoothOscillator newCarrier = new SmoothOscillator(this.player);
+		SmoothOscillator newCarrier = new SmoothOscillator(this.performance.getPlayer());
 		newCarrier.getOutput().connect(0, this.lineOut.input, 0);
 		newCarrier.getOutput().connect(0, this.lineOut.input, 1);
 		this.carriers.add(newCarrier);
@@ -50,19 +50,20 @@ public class JSynModule {
 	private void playOrAdjustObject(SmoothOscillator oscillator, JSynObject object, double frequency, int modulatorAmplitudeFactor, boolean playInNextLoop) {
 		//System.out.println(object + " " + this.player.getCurrentSymbolicTime() + " " + this.player.getCurrentSynthTime());
 		//adjust frequency and amplitude
+		JSynPlayer player = this.performance.getPlayer();
 		oscillator.setFrequency(frequency);
-		oscillator.setAmplitude(object.getAmplitude()*this.player.getRecommendedAmplitude()*modulatorAmplitudeFactor);
+		oscillator.setAmplitude(object.getAmplitude()*player.getRecommendedAmplitude()*modulatorAmplitudeFactor);
 		//adjust or schedule time
-		double currentSymbolicTime = this.player.getCurrentSymbolicTime();
+		double currentSymbolicTime = this.performance.getCurrentSymbolicTime();
 		if (object.isPlayable()) {
 			if (object.getOnset() > currentSymbolicTime || (object.getOnset() < currentSymbolicTime && playInNextLoop)) {
-				double onset = this.player.getSynthOnset(object.getOnset(), playInNextLoop);
-				double duration = this.player.convertToSynthDuration(object.getDuration());
+				double onset = this.performance.getSynthOnset(object.getOnset(), playInNextLoop);
+				double duration = player.convertToSynthDuration(object.getDuration());
 				oscillator.queueEnvelope(duration, onset, true);
 			} else {
-				double remainingDuration = this.player.convertToSynthDuration(object.getDuration()-(currentSymbolicTime-object.getOnset()));
+				double remainingDuration = player.convertToSynthDuration(object.getDuration()-(currentSymbolicTime-object.getOnset()));
 				if (remainingDuration > 0) {
-					oscillator.queueEnvelopeWithoutAttackAndDecay(remainingDuration, this.player.getCurrentSynthTime());
+					oscillator.queueEnvelopeWithoutAttackAndDecay(remainingDuration, player.getCurrentSynthTime());
 				} else {
 					this.mute();
 				}

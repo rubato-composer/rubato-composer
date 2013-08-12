@@ -6,7 +6,7 @@ import java.util.List;
 
 class JSynThread extends Thread {
 	
-	private JSynPlayer player;
+	private JSynPerformance performance;
 	private JSynThreadGroup group;
 	private JSynModule module;
 	
@@ -15,8 +15,8 @@ class JSynThread extends Thread {
 	private int voice;
 	private boolean playInNextLoop;
 	
-	public JSynThread(JSynPlayer player, JSynObject object) {
-		this.player = player;
+	public JSynThread(JSynPerformance performance, JSynObject object) {
+		this.performance = performance;
 		this.objects = new ArrayList<JSynObject>();
 		this.voice = object.getVoice();
 		this.addObject(object);
@@ -73,7 +73,7 @@ class JSynThread extends Thread {
 			double nextOnset = nextNote.getOnset();
 			
 			//System.out.println("sleep " + nextNote.toString() + " " + this.player.getSynthOnset(nextNote.getOnset(), this.playInNextLoop) + " " + this.player.getCurrentSynthTime());
-			this.player.getSynth().sleepUntil(this.player.getSynthOnset(nextNote.getOnset(), this.playInNextLoop) - JSynPlayer.DEFAULT_ADVANCE);
+			this.performance.getPlayer().getSynth().sleepUntil(this.performance.getSynthOnset(nextNote.getOnset(), this.playInNextLoop) - JSynPlayer.DEFAULT_ADVANCE);
 			
 			while(this.group.isRunning()) {
 				
@@ -87,7 +87,7 @@ class JSynThread extends Thread {
 					nextOnset = nextNote.getOnset();
 					/* sleep until advanceTime BEFORE we have to play the next note */
 					//System.out.println("sleep2 " + nextNote.toString() + " " + this.player.getSynthOnset(nextNote.getOnset(), this.playInNextLoop) + " " + this.player.getCurrentSynthTime());
-					this.player.getSynth().sleepUntil(this.player.getSynthOnset(nextOnset, this.playInNextLoop) - JSynPlayer.DEFAULT_ADVANCE);
+					this.performance.getPlayer().getSynth().sleepUntil(this.performance.getSynthOnset(nextOnset, this.playInNextLoop) - JSynPlayer.DEFAULT_ADVANCE);
 				} else {
 					break;
 				}
@@ -105,7 +105,7 @@ class JSynThread extends Thread {
 		while (this.objectIterator.hasNext()) {
 			JSynObject currentNote = this.objectIterator.next();
 			double currentOnset = currentNote.getOnset();
-			double currentSymbolicTime = this.player.getCurrentSymbolicTime();
+			double currentSymbolicTime = this.performance.getCurrentSymbolicTime();
 			if (currentOnset < currentSymbolicTime && !this.playInNextLoop) {
 				this.module.playOrAdjustObject(currentNote, false);
 				foundOneToAdjust = true;

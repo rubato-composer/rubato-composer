@@ -3,6 +3,7 @@ package org.rubato.rubettes.bigbang.view.model;
 import java.awt.Dimension;
 import java.awt.Frame;
 import java.awt.Point;
+import java.awt.event.KeyEvent;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.beans.PropertyChangeEvent;
@@ -89,6 +90,7 @@ public class BigBangView extends Model implements View {
 		this.modFilterOn = false;
 		this.modNumber = -1;
 		this.wallpaperRanges = new ArrayList<Integer>();
+		this.panel.addKeyListener(this);
 	}
 	
 	public void addNewWindow() {
@@ -759,5 +761,22 @@ public class BigBangView extends Model implements View {
 		this.player.setWaveform(waveform);
 		this.firePropertyChange(ViewController.WAVEFORM, null, waveform);
 	}
+	
+	//TODO: put somewhere else!!!!!!
+	
+	public void keyPressed(KeyEvent event) {
+		if (event.getKeyCode() == KeyEvent.VK_A) {
+			this.playScoreVersion(60, 100);
+		}
+	}
+
+	public void keyReleased(KeyEvent event) {
+		if (event.getKeyCode() == KeyEvent.VK_A) {
+			//TODO has to be pitch-specific!
+			this.stopPlaying();
+		}
+	}
+
+	public void keyTyped(KeyEvent event) { }
 
 }
