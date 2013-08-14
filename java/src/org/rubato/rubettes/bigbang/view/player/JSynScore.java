@@ -24,6 +24,7 @@ public class JSynScore {
 	 */
 	public JSynObject addNewObject(JSynObject parent, Form form) {
 		if (form.equals(CoolFormRegistrant.FM_NODE_FORM) || form.equals(CoolFormRegistrant.SOUND_NOTE_FORM)) {
+			//System.out.println(parent + " " + form);
 			if (parent != null) {
 				return parent.addModulator();
 			}

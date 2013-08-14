@@ -1,5 +1,6 @@
 package org.rubato.rubettes.bigbang.model;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.undo.AbstractUndoableEdit;
@@ -11,6 +12,8 @@ import org.rubato.rubettes.bigbang.controller.Controller;
 import org.rubato.rubettes.bigbang.model.edits.AbstractOperationEdit;
 import org.rubato.rubettes.bigbang.model.edits.AbstractTransformationEdit;
 import org.rubato.rubettes.bigbang.view.model.SelectedObjectsPaths;
+
+import edu.uci.ics.jung.algorithms.shortestpath.DijkstraShortestPath;
 
 public class UndoRedoModel extends Model {
 	
@@ -73,6 +76,19 @@ public class UndoRedoModel extends Model {
 	
 	public void modifiedOperation(Boolean inPreviewMode) {
 		this.operations.updateComposition(inPreviewMode);
+	}
+	
+	public void modifyOperation(Integer operationIndex, Double ratio) {
+		if (this.operations.getEdgeCount() > operationIndex) {
+			DijkstraShortestPath<Integer,AbstractOperationEdit> dijkstra = new DijkstraShortestPath<Integer,AbstractOperationEdit>(this.operations);
+		    List<AbstractOperationEdit> shortestPath = dijkstra.getPath(0, this.operations.getEdgeCount());
+		    AbstractOperationEdit operation = shortestPath.get(operationIndex);
+			if (operation instanceof AbstractTransformationEdit) {
+				((AbstractTransformationEdit)operation).modify(ratio);
+				this.operations.updateComposition(true);
+				//this.firePropertyChange(BigBangController.MODIFY_OPERATION, null, operation);
+			}
+		}
 	}
 	
 	public void selectCompositionState(Integer vertex) {

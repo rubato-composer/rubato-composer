@@ -23,7 +23,6 @@ public class JSynThreadGroup extends ArrayList<JSynThread> {
 	}
 	
 	public synchronized void start() {
-		//System.out.println("start " +this);
 		this.isRunning = true;
 		for (JSynThread currentThread : this) {
 			if (currentThread.getState().equals(Thread.State.NEW)) {
@@ -33,12 +32,10 @@ public class JSynThreadGroup extends ArrayList<JSynThread> {
 	}
 	
 	public boolean isRunning() {
-		//System.out.println("isRunning " +this);
 		return this.isRunning;
 	}
 	
 	public void stop() {
-		//System.out.println("stop " +this);
 		this.isRunning = false;
 		this.interrupt();
 	}

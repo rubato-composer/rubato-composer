@@ -180,6 +180,9 @@ public class JSynObject {
 		for (int i = 0; i < this.frequencies.size(); i++) {
 			this.frequencies.set(i, this.frequencies.get(i)*this.intervalToRatio(interval));
 		}
+		for (JSynObject currentModulator : this.modulators) {
+			currentModulator.adjustFrequencies(interval);
+		}
 	}
 	
 	
@@ -202,6 +205,9 @@ public class JSynObject {
 	
 	public void adjustAmplitude(double ratio) {
 		this.amplitude *= ratio;
+		for (JSynObject currentModulator : this.modulators) {
+			currentModulator.adjustAmplitude(ratio);
+		}
 	}
 	
 	
@@ -222,13 +228,17 @@ public class JSynObject {
 	//MODULATORS
 	
 	public JSynObject addModulator() {
-		JSynObject modulator = new JSynObject(this); 
+		JSynObject modulator = new JSynObject(this);
 		this.modulators.add(modulator);
 		return modulator;
 	}
 	
 	public List<JSynObject> getModulators() {
 		return this.modulators;
+	}
+	
+	private void setModulators(List<JSynObject> modulators) {
+		this.modulators = modulators;
 	}
 	
 	
@@ -256,6 +266,13 @@ public class JSynObject {
 		clone.setAmplitude(this.amplitude);
 		clone.setDuration(this.duration);
 		clone.setVoice(voice);
+		if (this.modulators.size() > 0) {
+			List<JSynObject> clonedModulators = new ArrayList<JSynObject>();
+			for (JSynObject currentModulator : this.modulators) {
+				clonedModulators.add(currentModulator.clone());
+			}
+			clone.setModulators(clonedModulators);
+		}
 		return clone;
 	}
 	

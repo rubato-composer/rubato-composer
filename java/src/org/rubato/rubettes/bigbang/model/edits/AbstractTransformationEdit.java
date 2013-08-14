@@ -21,16 +21,23 @@ public abstract class AbstractTransformationEdit extends AbstractOperationEdit {
 	protected TransformationProperties properties;
 	private SelectedObjectsPaths previousResultPaths;
 	private ModuleMorphism transformation;
+	protected double modificationRatio;
 	
 	public AbstractTransformationEdit(BigBangScoreManager scoreManager, TransformationProperties properties) {
 		super(scoreManager);
 		this.properties = properties;
+		this.modificationRatio = 1;
 	}
 	
 	protected abstract void initTransformation();
 	
 	public void modify(double[] newValues) {
 		this.properties.setEndPoint(newValues);
+		this.initTransformation();
+	}
+	
+	public void modify(double ratio) {
+		this.modificationRatio = ratio;
 		this.initTransformation();
 	}
 	

@@ -207,7 +207,7 @@ public class DisplayObject implements Comparable<Object> {
 	}
 	
 	public void paintConnectors(AbstractPainter painter) {
-		if (this.visible) {
+		if (this.visible && this.display != null) {
 			if (this.display.satellitesConnected() && this.parent != null) {
 				//System.out.println(this.parent.getCenter());
 				if (this.parent.visible) {
@@ -241,7 +241,8 @@ public class DisplayObject implements Comparable<Object> {
 	}
 	
 	public void paint(AbstractPainter painter) {
-		if (this.visible) {
+		//TODO WHY??????? REFACTOR!!
+		if (this.visible && this.display != null && this.rectangle != null) {
 			painter.setColor(this.getColor());
 			painter.fillNote(this.rectangle.x, this.rectangle.y, this.rectangle.width, this.rectangle.height);
 		}

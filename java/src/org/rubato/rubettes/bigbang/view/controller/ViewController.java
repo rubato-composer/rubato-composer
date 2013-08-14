@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.TreeMap;
 
 import org.rubato.rubettes.bigbang.controller.Controller;
-import org.rubato.rubettes.bigbang.model.edits.AbstractTransformationEdit;
+import org.rubato.rubettes.bigbang.model.edits.AbstractOperationEdit;
 import org.rubato.rubettes.bigbang.view.View;
 import org.rubato.rubettes.bigbang.view.controller.mode.DisplayModeAdapter;
 import org.rubato.rubettes.bigbang.view.model.DisplayObject;
@@ -41,8 +41,8 @@ public class ViewController extends Controller {
 	//general functionality
 	public static final String UNDO = "undo";
 	public static final String REDO = "redo";
-	public static final String SELECT_TRANSFORMATION = "selectTransformation";
-	public static final String DESELECT_TRANSFORMATIONS = "deselectTransformations";
+	public static final String SELECT_OPERATION = "selectOperation";
+	public static final String DESELECT_OPERATIONS = "deselectOperations";
 	public static final String SELECT_COMPOSITION_STATE = "selectCompositionState";
 	public static final String DESELECT_COMPOSITION_STATES = "deselectCompositionStates";
 	public static final String INPUT_ACTIVE = "InputActive";
@@ -81,7 +81,8 @@ public class ViewController extends Controller {
 	public static final String SHEAR_NOTES = "shearSelectedNotes";
 	public static final String SHAPE_NOTES = "shapeSelectedNotes";
 	public static final String AFFINE_TRANSFORM_NOTES = "affineTransformSelectedNotes";
-	public static final String MODIFY_TRANSFORMATION = "modifySelectedTransformation";
+	public static final String MODIFY_OPERATION = "modifyOperation";
+	public static final String MODIFY_SELECTED_TRANSFORMATION = "modifySelectedTransformation";
 	public static final String MODIFY_ROTATION = "modifyRotationAngle";
 	
 	//score manipulation - wallpaper
@@ -200,12 +201,16 @@ public class ViewController extends Controller {
 		this.callModelMethod(ViewController.CLEAR_DISPLAY_TOOL);
 	}
 	
+	public void modifyOperation(int operationNumber, int midiValue) {
+		this.callModelMethod(ViewController.MODIFY_OPERATION, operationNumber, midiValue);
+	}
+	
 	public void modifySelectedTransformation(Point2D.Double endingPoint, boolean inPreviewMode) {
-		this.callModelMethod(ViewController.MODIFY_TRANSFORMATION, endingPoint, inPreviewMode);
+		this.callModelMethod(ViewController.MODIFY_SELECTED_TRANSFORMATION, endingPoint, inPreviewMode);
 	}
 	
 	public void modifySelectedTransformation(double[] newValues, boolean inPreviewMode) {
-		this.callModelMethod(ViewController.MODIFY_TRANSFORMATION, newValues, inPreviewMode);
+		this.callModelMethod(ViewController.MODIFY_SELECTED_TRANSFORMATION, newValues, inPreviewMode);
 	}
 	
 	public void modifyRotationAngle(Double angle, boolean inPreviewMode) {
@@ -304,12 +309,12 @@ public class ViewController extends Controller {
 		this.callModelMethod(ViewController.REDO);
 	}
 	
-	public void selectTransformation(AbstractTransformationEdit transformation) {
-		this.callModelMethod(ViewController.SELECT_TRANSFORMATION, transformation);
+	public void selectOperation(AbstractOperationEdit operation) {
+		this.callModelMethod(ViewController.SELECT_OPERATION, operation);
 	}
 	
-	public void deselectTransformations() {
-		this.callModelMethod(ViewController.DESELECT_TRANSFORMATIONS);
+	public void deselectOperations() {
+		this.callModelMethod(ViewController.DESELECT_OPERATIONS);
 	}
 	
 	public void selectCompositionState(Integer vertex) {

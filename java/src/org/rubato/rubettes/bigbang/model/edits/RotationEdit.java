@@ -27,8 +27,8 @@ public class RotationEdit extends AbstractLocalTransformationEdit {
 	
 	@Override
 	protected RMatrix getMatrix() {
-		double sin = Math.sin(this.angle);
-		double cos = Math.cos(this.angle);
+		double sin = Math.sin(this.modificationRatio*this.angle);
+		double cos = Math.cos(this.modificationRatio*this.angle);
 		return new RMatrix(new double[][]{{cos,-1*sin},{sin,cos}});
 	}
 	

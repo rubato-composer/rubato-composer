@@ -43,7 +43,7 @@ public class JSynPlayer {
 		//this.synth.add( lag = new LinearRamp() );
 		this.setWaveform(JSynPlayer.WAVEFORMS[0]);
 		this.isLooping = false;
-		this.inLiveMidiMode = true;
+		this.inLiveMidiMode = false;
 		this.currentPerformances = new TreeMap<Integer,JSynPerformance>();
 	}
 	
@@ -91,23 +91,6 @@ public class JSynPlayer {
 			performance.interrupt();
 		}
 		this.bbPlayer.interrupt();
-	}
-	
-	public boolean isPlaying() {
-		return this.currentPerformances.size() > 0;
-	}
-
-	/*
-	 * Clean up synthesis by overriding stop() method.
-	 */
-	public void stopPlaying() {
-		if (this.isLooping) {
-			this.bbPlayer.interrupt();
-		}
-		for (JSynPerformance performance : this.currentPerformances.values()) {
-			performance.stopPlaying(this.isLooping);
-		}
-		//this.synth.stop();
 	}
 	
 	public void setPlaybackPosition(double playbackPosition) {
@@ -164,24 +147,44 @@ public class JSynPlayer {
 	
 	public void play(JSynScore score) {
 		this.setScore(score);
-		this.synthTimeAtStartOrChange = this.getCurrentSynthTime();
-		JSynPerformance performance = new JSynPerformance(this, this.score);
-		if (this.isLooping) {
-			performance.setSymbolicStartOrChangeTime(this.loopOnset);
+		if (!inLiveMidiMode) {
+			this.synthTimeAtStartOrChange = this.getCurrentSynthTime();
+			this.playScoreVersion(60, 127);
 		}
-		performance.playScore();
 	}
 	
 	public void playScoreVersion(int pitch, int velocity) {
 		JSynPerformance performance = new JSynPerformance(this, this.score, pitch, velocity);
+		if (this.isLooping) {
+			performance.setSymbolicStartOrChangeTime(this.loopOnset);
+		}
 		performance.playScore();
 		this.currentPerformances.put(pitch, performance);
-		System.out.println(this.currentPerformances.size() + " " + Thread.activeCount() + " " + this.synth.getUsage());
 	}
 	
 	public void stopScoreVersion(int pitch) {
 		JSynPerformance performance = this.currentPerformances.remove(pitch);
 		performance.stopPlaying(false);
+		this.inLiveMidiMode = true;
+	}
+	
+	public boolean isPlaying() {
+		return this.currentPerformances.size() > 0;
+	}
+
+	/*
+	 * Clean up synthesis by overriding stop() method.
+	 */
+	public void stopPlaying() {
+		if (this.isLooping) {
+			this.bbPlayer.interrupt();
+		}
+		for (JSynPerformance performance : this.currentPerformances.values()) {
+			performance.stopPlaying(this.isLooping);
+		}
+		this.currentPerformances = new TreeMap<Integer,JSynPerformance>();
+		this.inLiveMidiMode = false;
+		this.synth.stop();
 	}
 	
 	/*
