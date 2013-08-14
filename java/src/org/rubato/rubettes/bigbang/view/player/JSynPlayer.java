@@ -1,18 +1,7 @@
 package org.rubato.rubettes.bigbang.view.player;
 
-
-import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
-import java.util.ArrayList;
-import java.util.List;
-
-import javax.sound.midi.MidiDevice;
-import javax.sound.midi.MidiMessage;
-import javax.sound.midi.MidiSystem;
-import javax.sound.midi.MidiUnavailableException;
-import javax.sound.midi.Receiver;
-import javax.sound.midi.ShortMessage;
-import javax.sound.midi.MidiDevice.Info;
+import java.util.Map;
+import java.util.TreeMap;
 
 import com.jsyn.JSyn;
 import com.jsyn.Synthesizer;
@@ -25,7 +14,7 @@ import com.jsyn.unitgen.UnitOscillator;
 
 /** Demonstrate how event buffering and absolute sleep solve the timing problems.
  */
-public class JSynPlayer implements Receiver {
+public class JSynPlayer {
 	
 	public static final int BASE_A4 = 440; // A4 tuning in Hz
 	public static final int SAMPLE_RATE = 44100;
@@ -38,7 +27,7 @@ public class JSynPlayer implements Receiver {
 	private BigBangPlayer bbPlayer;
 	private Synthesizer synth;
 	private JSynScore score;
-	private List<JSynPerformance> currentPerformances;
+	private Map<Integer,JSynPerformance> currentPerformances;
 	private String waveform;
 	private double tempo; //in bpm
 	private boolean isLooping;
@@ -55,19 +44,16 @@ public class JSynPlayer implements Receiver {
 		this.setWaveform(JSynPlayer.WAVEFORMS[0]);
 		this.isLooping = false;
 		this.inLiveMidiMode = true;
-		this.currentPerformances = new ArrayList<JSynPerformance>();
-		Info[] infos = MidiSystem.getMidiDeviceInfo();
-		try {
-			MidiDevice inputDevice = MidiSystem.getMidiDevice(infos[0]);
-			inputDevice.open();
-			inputDevice.getTransmitter().setReceiver(this);
-		} catch (MidiUnavailableException e) {
-			e.printStackTrace();
-		}
+		this.currentPerformances = new TreeMap<Integer,JSynPerformance>();
 	}
 	
 	public void addToSynth(UnitGenerator generator) {
 		this.synth.add(generator);
+	}
+	
+	public void removeFromSynthAndStop(UnitGenerator generator) {
+		this.synth.remove(generator);
+		generator.stop();
 	}
 	
 	private void setScore(JSynScore score) {
@@ -85,7 +71,7 @@ public class JSynPlayer implements Receiver {
 	public void replaceScore(JSynScore score) {
 		this.setScore(score);
 		this.updateStartOrChangeTimes();
-		for (JSynPerformance performance : this.currentPerformances) {
+		for (JSynPerformance performance : this.currentPerformances.values()) {
 			performance.replaceScore(score);
 		}
 	}
@@ -101,7 +87,7 @@ public class JSynPlayer implements Receiver {
 	public void setTempo(int bpm) {
 		this.tempo = bpm;
 		this.updateStartOrChangeTimes();
-		for (JSynPerformance performance : this.currentPerformances) {
+		for (JSynPerformance performance : this.currentPerformances.values()) {
 			performance.interrupt();
 		}
 		this.bbPlayer.interrupt();
@@ -118,16 +104,15 @@ public class JSynPlayer implements Receiver {
 		if (this.isLooping) {
 			this.bbPlayer.interrupt();
 		}
-		for (JSynPerformance performance : this.currentPerformances) {
+		for (JSynPerformance performance : this.currentPerformances.values()) {
 			performance.stopPlaying(this.isLooping);
 		}
 		//this.synth.stop();
-		System.out.println("stop " + this + " " + this.score);
 	}
 	
 	public void setPlaybackPosition(double playbackPosition) {
 		//if (!this.isLooping) {
-			for (JSynPerformance performance : this.currentPerformances) {
+			for (JSynPerformance performance : this.currentPerformances.values()) {
 				performance.setPlaybackPosition(playbackPosition);
 			}
 			this.synthTimeAtStartOrChange = this.getCurrentSynthTime();
@@ -147,7 +132,7 @@ public class JSynPlayer implements Receiver {
 	
 	private void updateStartOrChangeTimes() {
 		//symbolic time has to update first since it uses previous synthTimeAtStartOrTempoChange!!!!!
-		for (JSynPerformance performance : this.currentPerformances) {
+		for (JSynPerformance performance : this.currentPerformances.values()) {
 			performance.updateSymbolicStartOrChangeTime();
 		}
 		this.synthTimeAtStartOrChange = this.getCurrentSynthTime();
@@ -187,10 +172,16 @@ public class JSynPlayer implements Receiver {
 		performance.playScore();
 	}
 	
-	private void playScoreVersion(int pitch, int velocity) {
+	public void playScoreVersion(int pitch, int velocity) {
 		JSynPerformance performance = new JSynPerformance(this, this.score, pitch, velocity);
 		performance.playScore();
-		this.currentPerformances.add(performance);
+		this.currentPerformances.put(pitch, performance);
+		System.out.println(this.currentPerformances.size() + " " + Thread.activeCount() + " " + this.synth.getUsage());
+	}
+	
+	public void stopScoreVersion(int pitch) {
+		JSynPerformance performance = this.currentPerformances.remove(pitch);
+		performance.stopPlaying(false);
 	}
 	
 	/*
@@ -247,29 +238,6 @@ public class JSynPlayer implements Receiver {
 			return 0.3;
 		}
 		return 0.15;
-	}
-
-	public void close() {
-		// TODO Auto-generated method stub
-		
-	}
-
-	public void send(MidiMessage message, long timeStamp) {
-		if (message instanceof ShortMessage) {
-			ShortMessage shortMessage = (ShortMessage)message;
-			if (shortMessage.getCommand() == ShortMessage.NOTE_ON) {
-				//velocity 0
-				if (shortMessage.getData2() == 0) {
-					this.stopPlaying();
-				} else {
-					//this.playScore();
-					this.playScoreVersion(shortMessage.getData1(), shortMessage.getData2());
-				}
-			} else if (shortMessage.getCommand() == ShortMessage.NOTE_OFF) {
-				//TODO has to be pitch-specific!
-				this.stopPlaying();
-			}
-		}
 	}
 
 }

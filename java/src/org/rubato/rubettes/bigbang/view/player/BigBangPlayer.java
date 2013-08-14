@@ -48,8 +48,20 @@ public class BigBangPlayer extends Thread {
 		this.startingTime = startingTime;
 	}
 	
-	public synchronized void playObject(JSynObject object) {
-		//this.player.play(object);
+	public synchronized void playScoreVersion(int pitch, int velocity) {
+		if (!this.isRunning) {
+			this.isRunning = true;
+			this.start();
+		}
+		this.player.playScoreVersion(pitch, velocity);
+	}
+	
+	public synchronized void stopScoreVersion(int pitch) {
+		if (!this.isRunning) {
+			this.isRunning = true;
+			this.start();
+		}
+		this.player.stopScoreVersion(pitch);
 	}
 	
 	public void run() {

@@ -176,6 +176,12 @@ public class JSynObject {
 		this.setFrequency(overtoneFrequency);
 	}
 	
+	public void adjustFrequencies(double interval) {
+		for (int i = 0; i < this.frequencies.size(); i++) {
+			this.frequencies.set(i, this.frequencies.get(i)*this.intervalToRatio(interval));
+		}
+	}
+	
 	
 	//AMPLITUDE
 
@@ -192,6 +198,10 @@ public class JSynObject {
 
 	private void setAmplitude(Double amplitude) {
 		this.amplitude = amplitude;
+	}
+	
+	public void adjustAmplitude(double ratio) {
+		this.amplitude *= ratio;
 	}
 	
 	
@@ -242,7 +252,7 @@ public class JSynObject {
 	public JSynObject clone() {
 		JSynObject clone = new JSynObject(this.parent);
 		clone.setOnset(this.onset);
-		clone.setFrequencies(this.frequencies);
+		clone.setFrequencies(new ArrayList<Double>(this.frequencies));
 		clone.setAmplitude(this.amplitude);
 		clone.setDuration(this.duration);
 		clone.setVoice(voice);

@@ -3,7 +3,6 @@ package org.rubato.rubettes.bigbang.view.model;
 import java.awt.Dimension;
 import java.awt.Frame;
 import java.awt.Point;
-import java.awt.event.KeyEvent;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.beans.PropertyChangeEvent;
@@ -40,6 +39,7 @@ import org.rubato.rubettes.bigbang.view.controller.mode.TranslationModeAdapter;
 import org.rubato.rubettes.bigbang.view.controller.mode.temp.TemporaryDisplayMode;
 import org.rubato.rubettes.bigbang.view.model.tools.DisplayTool;
 import org.rubato.rubettes.bigbang.view.model.tools.SelectionTool;
+import org.rubato.rubettes.bigbang.view.player.BigBangMidiReceiver;
 import org.rubato.rubettes.bigbang.view.player.BigBangPlayer;
 import org.rubato.rubettes.bigbang.view.player.JSynScore;
 import org.rubato.rubettes.bigbang.view.subview.DisplayObjects;
@@ -51,6 +51,7 @@ public class BigBangView extends Model implements View {
 	private BigBangController controller;
 	protected ViewController viewController;
 	protected BigBangPlayer player;
+	protected BigBangMidiReceiver midiReceiver;
 	private boolean playingActive;
 	protected JBigBangPanel panel;
 	private LayerStates layerStates;
@@ -86,11 +87,11 @@ public class BigBangView extends Model implements View {
 		//TODO:make this automatic when displaynotes loaded!!! depending on max/min and window size
 		this.setDisplayPosition(new Point(20, 560));
 		this.setZoomFactors(5.0, 5.0);
+		this.midiReceiver = new BigBangMidiReceiver(this.viewController);
 		this.setTempo(BigBangPlayer.INITIAL_BPM);
 		this.modFilterOn = false;
 		this.modNumber = -1;
 		this.wallpaperRanges = new ArrayList<Integer>();
-		this.panel.addKeyListener(this);
 	}
 	
 	public void addNewWindow() {
@@ -762,21 +763,16 @@ public class BigBangView extends Model implements View {
 		this.firePropertyChange(ViewController.WAVEFORM, null, waveform);
 	}
 	
-	//TODO: put somewhere else!!!!!!
+	public void pressMidiKey(Integer pitch, Integer velocity) {
+		if (this.playingActive) {
+			this.player.playScoreVersion(pitch, velocity);
+		}
+	}
 	
-	public void keyPressed(KeyEvent event) {
-		if (event.getKeyCode() == KeyEvent.VK_A) {
-			this.playScoreVersion(60, 100);
+	public void releaseMidiKey(Integer pitch) {
+		if (this.playingActive) {
+			this.player.stopScoreVersion(pitch);
 		}
 	}
-
-	public void keyReleased(KeyEvent event) {
-		if (event.getKeyCode() == KeyEvent.VK_A) {
-			//TODO has to be pitch-specific!
-			this.stopPlaying();
-		}
-	}
-
-	public void keyTyped(KeyEvent event) { }
 
 }

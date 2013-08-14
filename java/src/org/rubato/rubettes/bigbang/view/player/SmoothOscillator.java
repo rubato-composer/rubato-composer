@@ -114,5 +114,16 @@ public class SmoothOscillator {
 		this.amplitudeSweeper.input.set(0);
 		this.envelopePlayer.dataQueue.clear();
 	}
+	
+	public void removeFromSynthAndStop() {
+		this.player.removeFromSynthAndStop(this.oscillator);
+		this.player.removeFromSynthAndStop(this.frequencySweeper);
+		this.player.removeFromSynthAndStop(this.amplitudeSweeper);
+		this.player.removeFromSynthAndStop(this.envelopePlayer);
+		this.player.removeFromSynthAndStop(this.currentAddUnit);
+		for (SmoothOscillator oscillator : this.modulators) {
+			oscillator.removeFromSynthAndStop();
+		}
+	}
 
 }

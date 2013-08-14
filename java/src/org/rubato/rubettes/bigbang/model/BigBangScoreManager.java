@@ -7,6 +7,7 @@ import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
+import org.rubato.base.Repository;
 import org.rubato.math.yoneda.Denotator;
 import org.rubato.math.yoneda.Form;
 import org.rubato.rubettes.bigbang.BigBangRubette;
@@ -23,8 +24,9 @@ public class BigBangScoreManager extends Model {
 	
 	public BigBangScoreManager(BigBangController controller) {
 		controller.addModel(this);
-		this.score = new BigBangScore(BigBangRubette.STANDARD_FORM);
-		this.setForm(BigBangRubette.STANDARD_FORM);
+		Form standardForm = Repository.systemRepository().getForm(BigBangRubette.STANDARD_FORM_NAME);
+		this.score = new BigBangScore(standardForm);
+		this.setForm(standardForm);
 		this.alteration = new BigBangAlteration(controller);
 	}
 	
