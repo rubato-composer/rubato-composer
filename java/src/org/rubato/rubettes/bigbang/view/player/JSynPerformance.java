@@ -7,7 +7,6 @@ import java.util.TreeMap;
 import java.util.TreeSet;
 
 import com.jsyn.devices.AudioDeviceManager;
-import com.jsyn.unitgen.LineOut;
 import com.jsyn.unitgen.UnitGenerator;
 
 public class JSynPerformance {
@@ -18,6 +17,7 @@ public class JSynPerformance {
 	private List<JSynModule> modules;
 	private double symbolicTimeAtStartOrChange;
 	private boolean isPlaying;
+	private Integer pitch, velocity;
 	
 	public JSynPerformance(JSynPlayer player, JSynScore score) {
 		this(player, score, null, null);
@@ -30,14 +30,12 @@ public class JSynPerformance {
 		this.modules = new ArrayList<JSynModule>();
 		this.symbolicTimeAtStartOrChange = 0;
 		this.isPlaying = false;
+		this.pitch = pitch;
+		this.velocity = velocity;
 	}
 	
 	public JSynPlayer getPlayer() {
 		return this.player;
-	}
-	
-	public void addToSynth(UnitGenerator generator) {
-		this.player.addToSynth(generator);
 	}
 	
 	public void replaceScore(JSynScore score) {
@@ -100,11 +98,14 @@ public class JSynPerformance {
 	 * Clean up synthesis by overriding stop() method.
 	 */
 	public void stopPlaying(boolean justMute) {
-		if (!justMute) {
-			this.threads.stop(); // tell run() to exit peacefully
-		}
 		for (JSynModule currentModule : this.modules) {
 			currentModule.mute();
+		}
+		if (!justMute) {
+			this.threads.stop(); // tell run() to exit peacefully
+			for (JSynModule currentModule : this.modules) {
+				currentModule.finalize();
+			}
 		}
 	}
 	
@@ -166,6 +167,12 @@ public class JSynPerformance {
 		if (objects.size() > 0) {
 			for (JSynObject currentObject : objects) {
 				JSynObject clone = currentObject.clone();
+				if (this.pitch != null) {
+					clone.adjustFrequencies(this.pitch-60);
+				}
+				if (this.velocity != null) {
+					clone.adjustAmplitude(((double)this.velocity)/127);
+				}
 				this.addNoteToConvenientThread(clone, threads);
 			}
 		}

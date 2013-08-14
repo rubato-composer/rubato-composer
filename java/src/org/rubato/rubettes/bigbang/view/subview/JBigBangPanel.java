@@ -6,13 +6,16 @@ import java.awt.FlowLayout;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.GridLayout;
+import java.awt.event.KeyEvent;
 
 import javax.swing.AbstractAction;
 import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
+import javax.swing.KeyStroke;
 
 import org.rubato.rubettes.bigbang.controller.BigBangController;
+import org.rubato.rubettes.bigbang.view.controller.KeyToMidiAction;
 import org.rubato.rubettes.bigbang.view.controller.ToggleMainOptionsAction;
 import org.rubato.rubettes.bigbang.view.controller.ViewController;
 import org.rubato.rubettes.bigbang.view.model.ViewParameters;
@@ -36,6 +39,21 @@ public class JBigBangPanel extends JPanel {
 		new JWindowPreferencesDialog(controller);
 		JBigBangPopupMenu popup = new JBigBangPopupMenu(controller);
 		this.setComponentPopupMenu(popup);
+		this.addKeyToMidiActions(controller, 'A', 60);
+		this.addKeyToMidiActions(controller, 'W', 61);
+		this.addKeyToMidiActions(controller, 'S', 62);
+		this.addKeyToMidiActions(controller, 'E', 63);
+		this.addKeyToMidiActions(controller, 'D', 64);
+		//this.addKeyListener(new KeyToMidiAction(controller));
+	}
+	
+	private void addKeyToMidiActions(ViewController controller, char key, int pitch) {
+		String pressedString = "pressed " + key;
+		this.getInputMap(JPanel.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(pressedString), pressedString);
+		this.getActionMap().put(pressedString, new KeyToMidiAction(controller, pitch, true));
+		String releasedString = "released " + key;
+		this.getInputMap(JPanel.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(releasedString), releasedString);
+		this.getActionMap().put(releasedString, new KeyToMidiAction(controller, pitch, false));
 	}
 	
 	private JPanel createToolBarsPanel(ViewController controller, BigBangController bbController) {

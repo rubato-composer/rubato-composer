@@ -100,6 +100,8 @@ public class ViewController extends Controller {
 	public static final String PLAYBACK_POSITION = "setPlaybackPosition";
 	public static final String FM_MODEL = "FMModel";
 	public static final String WAVEFORM = "Waveform";
+	public static final String PRESS_MIDI_KEY = "pressMidiKey";
+	public static final String RELEASE_MIDI_KEY = "releaseMidiKey";
 	
 	
 	public void changeDisplayMode(DisplayModeAdapter newMode) {
@@ -348,6 +350,14 @@ public class ViewController extends Controller {
 	
 	public void changeWaveform(Object waveform) {
 		this.setModelProperty(ViewController.WAVEFORM, waveform);
+	}
+	
+	public void pressMidiKey(int pitch, int velocity) {
+		this.callModelMethod(ViewController.PRESS_MIDI_KEY, pitch, velocity);
+	}
+	
+	public void releaseMidiKey(int pitch) {
+		this.callModelMethod(ViewController.RELEASE_MIDI_KEY, pitch);
 	}
 
 }
