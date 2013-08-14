@@ -19,7 +19,12 @@ public class TranslationEdit extends AbstractTransformationEdit {
 	protected void initTransformation() {
 		this.startingPoint = this.properties.getCenter();
 		this.endingPoint = this.properties.getEndPoint();
-		this.shift = new double[]{this.endingPoint[0]-this.startingPoint[0], this.endingPoint[1]-this.startingPoint[1]};
+		this.shift = new double[]{this.modificationRatio*(this.endingPoint[0]-this.startingPoint[0]),
+				this.modificationRatio*(this.endingPoint[1]-this.startingPoint[1])};
+		this.updateMatrix();
+	}
+	
+	private void updateMatrix() {
 		RMatrix identity = new RMatrix(new double[][]{{1,0},{0,1}});
 		this.initTransformation(identity, this.shift);
 	}

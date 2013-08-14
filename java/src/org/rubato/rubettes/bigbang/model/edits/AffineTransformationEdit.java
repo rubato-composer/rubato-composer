@@ -21,11 +21,11 @@ public class AffineTransformationEdit extends AbstractLocalTransformationEdit {
 	
 	@Override
 	protected RMatrix getMatrix() {
-		double sin = Math.sin(this.angle);
-		double cos = Math.cos(this.angle);
+		double sin = Math.sin(this.modificationRatio*this.angle);
+		double cos = Math.cos(this.modificationRatio*this.angle);
 		RMatrix rotationMatrix = new RMatrix(new double[][]{{cos,-1*sin},{sin,cos}});
-		double sx = this.scaleFactors[0];
-		double sy = this.scaleFactors[1];
+		double sx = this.modificationRatio*this.scaleFactors[0];
+		double sy = this.modificationRatio*this.scaleFactors[1];
 		RMatrix dilationMatrix = new RMatrix(new double[][]{{sx,0},{0,sy}});
 		return rotationMatrix.product(dilationMatrix);
 	}

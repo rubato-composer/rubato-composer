@@ -7,9 +7,9 @@ public class GeometryTools {
 	
 	public static double calculateArcAngle(Point2D.Double center, double startAngle, Point2D.Double endPoint) {
 		double endAngle = calculateAngle(center, endPoint);
-		if (endAngle < startAngle) {
+		/*if (endAngle < startAngle) {
 			endAngle += 2*Math.PI;
-		}
+		}*/
 		return endAngle - startAngle;
 	}
 	

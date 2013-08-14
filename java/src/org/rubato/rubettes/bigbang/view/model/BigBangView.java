@@ -21,6 +21,7 @@ import org.rubato.rubettes.bigbang.model.Model;
 import org.rubato.rubettes.bigbang.model.TransformationPaths;
 import org.rubato.rubettes.bigbang.model.TransformationProperties;
 import org.rubato.rubettes.bigbang.model.edits.AbstractLocalTransformationEdit;
+import org.rubato.rubettes.bigbang.model.edits.AbstractOperationEdit;
 import org.rubato.rubettes.bigbang.model.edits.AbstractTransformationEdit;
 import org.rubato.rubettes.bigbang.model.edits.ReflectionEdit;
 import org.rubato.rubettes.bigbang.model.edits.RotationEdit;
@@ -72,7 +73,7 @@ public class BigBangView extends Model implements View {
 	private SelectedObjectsPaths selectedObjectsPaths;
 	private boolean inWallpaperMode;
 	private List<Integer> wallpaperRanges;
-	private AbstractTransformationEdit selectedTransformation;
+	private AbstractOperationEdit selectedOperation;
 	
 	public BigBangView(BigBangController controller) {
 		this.controller = controller;
@@ -291,6 +292,8 @@ public class BigBangView extends Model implements View {
 			//this.playObject((Denotator)event.getNewValue());
 		} else if (propertyName.equals(BigBangController.DESELECT_COMPOSITION_STATES)) {
 			this.firePropertyChange(ViewController.DESELECT_COMPOSITION_STATES, null, null);
+		} else if (propertyName.equals(BigBangController.MODIFY_OPERATION)) {
+			this.selectOperation((AbstractOperationEdit)event.getNewValue());
 		}
 	}
 	
@@ -373,14 +376,17 @@ public class BigBangView extends Model implements View {
 		this.controller.deselectCompositionStates();
 	}
 	
-	public void selectTransformation(AbstractTransformationEdit edit) {
-		this.selectedTransformation = edit;
-		if (this.selectedTransformation != null) {
+	public void selectOperation(AbstractOperationEdit edit) {
+		this.selectedOperation = edit;
+		if (this.selectedOperation != null) {
 			//select perspective first
-			this.viewParameters.setSelectedXYViewParameters(edit.getXYViewParameters());
-			//TODO: center view?????
+			if (edit instanceof AbstractTransformationEdit) {
+				AbstractTransformationEdit transformationEdit = (AbstractTransformationEdit)edit;
+				this.viewParameters.setSelectedXYViewParameters(transformationEdit.getXYViewParameters());
+				//TODO: center view?????
 			
-			//TODO: then select notes!!!
+				//TODO: then select notes!!!
+			}
 			
 			//then select displaymode and convert values!!
 			if (edit instanceof TranslationEdit) {
@@ -406,27 +412,33 @@ public class BigBangView extends Model implements View {
 			}
 		} else {
 			this.clearDisplayTool();
-			this.firePropertyChange(ViewController.SELECT_TRANSFORMATION, null, null);
+			this.firePropertyChange(ViewController.SELECT_OPERATION, null, null);
 		}
 	}
 	
-	public void deselectTransformations() {
-		this.selectTransformation(null);
+	public void deselectOperations() {
+		this.selectOperation(null);
 	}
 	
 	public void modifySelectedTransformation(Point2D.Double endingPoint, Boolean inPreviewMode) {
-		this.selectedTransformation.modify(this.getXYDenotatorValues(endingPoint));
+		((AbstractTransformationEdit)this.selectedOperation).modify(this.getXYDenotatorValues(endingPoint));
 		this.controller.modifiedTransformation(inPreviewMode);
 	}
 	
 	public void modifySelectedTransformation(double[] newValues, Boolean inPreviewMode) {
-		this.selectedTransformation.modify(newValues);
+		((AbstractTransformationEdit)this.selectedOperation).modify(newValues);
 		this.controller.modifiedTransformation(inPreviewMode);
 	}
 	
 	public void modifyRotationAngle(Double angle, Boolean inPreviewMode) {
-		((RotationEdit)this.selectedTransformation).modifyAngle(angle);
+		((RotationEdit)this.selectedOperation).modifyAngle(angle);
 		this.controller.modifiedTransformation(inPreviewMode);
+	}
+	
+	public void modifyOperation(Integer operationIndex, Integer midiValue) {
+		//ratio between 0 and 2
+		double ratio = ((double)midiValue)/127*2;
+		this.controller.modifyOperation(operationIndex, ratio);
 	}
 	
 	public void translateSelectedNotes(Point2D.Double center, Point2D.Double endingPoint, Boolean copyAndTransform, Boolean previewMode) {

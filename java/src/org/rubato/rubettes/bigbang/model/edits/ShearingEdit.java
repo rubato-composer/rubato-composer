@@ -25,8 +25,8 @@ public class ShearingEdit extends AbstractLocalTransformationEdit {
 
 	@Override
 	protected RMatrix getMatrix() {
-		double sx = this.shearingFactors[0];
-		double sy = this.shearingFactors[1];
+		double sx = this.modificationRatio*this.shearingFactors[0];
+		double sy = this.modificationRatio*this.shearingFactors[1];
 		return new RMatrix(new double[][]{{1,sx},{sy,1}});
 	}
 	
