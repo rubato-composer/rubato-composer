@@ -79,7 +79,7 @@ public class UndoRedoModel extends Model {
 	}
 	
 	public void modifyOperation(Integer operationIndex, Double ratio) {
-		if (this.operations.getEdgeCount() > operationIndex) {
+		if (operationIndex >= 0 && this.operations.getEdgeCount() > operationIndex) {
 			DijkstraShortestPath<Integer,AbstractOperationEdit> dijkstra = new DijkstraShortestPath<Integer,AbstractOperationEdit>(this.operations);
 		    List<AbstractOperationEdit> shortestPath = dijkstra.getPath(0, this.operations.getEdgeCount());
 		    AbstractOperationEdit operation = shortestPath.get(operationIndex);

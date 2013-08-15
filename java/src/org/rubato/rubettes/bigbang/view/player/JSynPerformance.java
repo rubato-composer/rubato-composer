@@ -7,7 +7,6 @@ import java.util.TreeMap;
 import java.util.TreeSet;
 
 import com.jsyn.devices.AudioDeviceManager;
-import com.jsyn.unitgen.UnitGenerator;
 
 public class JSynPerformance {
 	
@@ -15,6 +14,7 @@ public class JSynPerformance {
 	private JSynScore score;
 	private JSynThreadGroup threads;
 	private List<JSynModule> modules;
+	private double synthTimeAtStartOrChange;
 	private double symbolicTimeAtStartOrChange;
 	private boolean isPlaying;
 	private Integer pitch, velocity;
@@ -38,8 +38,26 @@ public class JSynPerformance {
 		return this.player;
 	}
 	
+	public void setPitch(int pitch) {
+		this.pitch = pitch;
+		this.replaceThreads();
+	}
+	
+	public int getPitch() {
+		return this.pitch;
+	}
+	
+	public void setVelocity(int velocity) {
+		this.velocity = velocity;
+		this.replaceThreads();
+	}
+	
 	public void replaceScore(JSynScore score) {
 		this.score = score;
+		this.replaceThreads();
+	}
+	
+	private void replaceThreads() {
 		JSynThreadGroup newThreads = this.generateThreads(false);
 		this.allocateModules(newThreads);
 		this.threads.stop();
@@ -54,7 +72,7 @@ public class JSynPerformance {
 	public void setPlaybackPosition(double playbackPosition) {
 		boolean restart = playbackPosition < this.symbolicTimeAtStartOrChange;
 		this.symbolicTimeAtStartOrChange = playbackPosition;
-			
+		this.synthTimeAtStartOrChange = this.player.getCurrentSynthTime();
 		//TODO: reinstate!!!!
 		/*if (restart) {
 			this.restartPlaying();
@@ -65,15 +83,15 @@ public class JSynPerformance {
 		this.symbolicTimeAtStartOrChange = symbolicTime;
 	}
 	
-	public void updateSymbolicStartOrChangeTime() {
+	public void updateStartOrChangeTimes() {
 		//symbolic time has to update first since it uses previous synthTimeAtStartOrTempoChange!!!!!
 		this.symbolicTimeAtStartOrChange = this.getCurrentSymbolicTime();
-		//System.out.println("T "+this.symbolicTimeAtStartOrChange + " " + this.synthTimeAtStartOrChange);
+		this.synthTimeAtStartOrChange = this.player.getCurrentSynthTime();
 		//TODO: restartPlaying()????!!!!???
 	}
 	
 	public double getCurrentSymbolicTime() {
-		double timeSinceLastTempoChange = this.player.getCurrentSynthTime()-this.player.getSynthTimeAtStartOrChange();
+		double timeSinceLastTempoChange = this.player.getCurrentSynthTime()-this.synthTimeAtStartOrChange;
 		double currentSymbolicTime = this.symbolicTimeAtStartOrChange+this.player.convertToSymbolicDuration(timeSinceLastTempoChange);
 		if (this.player.isLooping() && this.player.getLastOffset() > 0) {
 			double loopOnset = this.player.getLoopOnset();
@@ -120,6 +138,8 @@ public class JSynPerformance {
 			}
 			
 			this.isPlaying = true;
+			this.synthTimeAtStartOrChange = this.player.getCurrentSynthTime();
+			
 			this.threads = this.generateThreads(false);
 			this.allocateModules(this.threads);
 			this.threads.start();

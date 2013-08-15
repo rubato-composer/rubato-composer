@@ -15,6 +15,7 @@ import org.rubato.rubettes.bigbang.view.controller.ViewController;
 
 public class BigBangMidiReceiver implements Receiver {
 	
+	private final int EWI_BREATH_SENSOR_INDEX = 2;
 	private ViewController controller;
 	private List<MidiDevice> inputDevices;
 	
@@ -60,7 +61,13 @@ public class BigBangMidiReceiver implements Receiver {
 			} else if (shortMessage.getCommand() == ShortMessage.CONTROL_CHANGE) {
 				int controlChangeNumber = shortMessage.getData1();
 				int controlChangeValue = shortMessage.getData2();
-				this.controller.modifyOperation(this.getEmuKnobIndex(controlChangeNumber), controlChangeValue);
+				int emuKnobIndex = this.getEmuKnobIndex(controlChangeNumber);
+				if (emuKnobIndex >= 0) {
+					this.controller.modifyOperation(emuKnobIndex, controlChangeValue);
+				} else if (controlChangeNumber == this.EWI_BREATH_SENSOR_INDEX) {
+					this.controller.changeVelocity(controlChangeValue);
+				}
+				//System.out.println(shortMessage.getCommand() + " " + shortMessage.getData1() + " " + shortMessage.getData2());
 			}
 		}
 	}

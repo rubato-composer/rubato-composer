@@ -777,13 +777,25 @@ public class BigBangView extends Model implements View {
 	
 	public void pressMidiKey(Integer pitch, Integer velocity) {
 		if (this.playingActive) {
-			this.player.playScoreVersion(pitch, velocity);
+			this.player.pressMidiKey(pitch, velocity);
 		}
 	}
 	
 	public void releaseMidiKey(Integer pitch) {
 		if (this.playingActive) {
-			this.player.stopScoreVersion(pitch);
+			this.player.releaseMidiKey(pitch);
+		}
+	}
+	
+	public void changeOctave(Boolean up) {
+		if (this.playingActive) {
+			this.player.transposeAllScoreVersionsByOctave(up);
+		}
+	}
+	
+	public void changeVelocity(Integer velocity) {
+		if (this.playingActive) {
+			this.player.changeVelocity(velocity);
 		}
 	}
 

@@ -33,7 +33,7 @@ public class BigBangPlayer extends Thread {
 	}
 	
 	public double getCurrentSymbolicTime() {
-		return this.player.getCurrentSymbolicTimeOfFirstPerformance();
+		return this.player.getCurrentSymbolicTimeOfLatestPerformance();
 	}
 	
 	public synchronized void startPlaying() {
@@ -48,20 +48,20 @@ public class BigBangPlayer extends Thread {
 		this.startingTime = startingTime;
 	}
 	
-	public synchronized void playScoreVersion(int pitch, int velocity) {
-		if (!this.isRunning) {
-			this.isRunning = true;
-			this.start();
-		}
-		this.player.playScoreVersion(pitch, velocity);
+	public synchronized void pressMidiKey(int pitch, int velocity) {
+		this.player.pressMidiKey(pitch, velocity);
 	}
 	
-	public synchronized void stopScoreVersion(int pitch) {
-		if (!this.isRunning) {
-			this.isRunning = true;
-			this.start();
-		}
-		this.player.stopScoreVersion(pitch);
+	public synchronized void releaseMidiKey(int pitch) {
+		this.player.releaseMidiKey(pitch);
+	}
+	
+	public synchronized void transposeAllScoreVersionsByOctave(boolean up) {
+		this.player.transposeAllScoreVersionsByOctave(up);
+	}
+	
+	public synchronized void changeVelocity(int velocity) {
+		this.player.changeVelocity(velocity);
 	}
 	
 	public void run() {
