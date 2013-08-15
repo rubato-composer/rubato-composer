@@ -1,5 +1,7 @@
 package org.rubato.rubettes.bigbang.view.player;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
@@ -33,7 +35,7 @@ public class JSynPlayer {
 	private boolean isLooping;
 	private double loopOnset;
 	private double loopDuration;
-	private double synthTimeAtStartOrChange;
+	private List<Integer> keysOfCurrentPerformancesInOrder;
 	
 	private boolean inLiveMidiMode;
 	
@@ -45,6 +47,7 @@ public class JSynPlayer {
 		this.isLooping = false;
 		this.inLiveMidiMode = false;
 		this.currentPerformances = new TreeMap<Integer,JSynPerformance>();
+		this.keysOfCurrentPerformancesInOrder = new ArrayList<Integer>();
 	}
 	
 	public void addToSynth(UnitGenerator generator) {
@@ -70,8 +73,8 @@ public class JSynPlayer {
 	
 	public void replaceScore(JSynScore score) {
 		this.setScore(score);
-		this.updateStartOrChangeTimes();
 		for (JSynPerformance performance : this.currentPerformances.values()) {
+			performance.updateStartOrChangeTimes();
 			performance.replaceScore(score);
 		}
 	}
@@ -86,8 +89,8 @@ public class JSynPlayer {
 	
 	public void setTempo(int bpm) {
 		this.tempo = bpm;
-		this.updateStartOrChangeTimes();
 		for (JSynPerformance performance : this.currentPerformances.values()) {
+			performance.updateStartOrChangeTimes();
 			performance.interrupt();
 		}
 		this.bbPlayer.interrupt();
@@ -98,7 +101,6 @@ public class JSynPlayer {
 			for (JSynPerformance performance : this.currentPerformances.values()) {
 				performance.setPlaybackPosition(playbackPosition);
 			}
-			this.synthTimeAtStartOrChange = this.getCurrentSynthTime();
 		//
 	}
 	
@@ -106,23 +108,12 @@ public class JSynPlayer {
 		return this.synth.getCurrentTime();
 	}
 	
-	public double getCurrentSymbolicTimeOfFirstPerformance() {
+	public double getCurrentSymbolicTimeOfLatestPerformance() {
 		if (this.currentPerformances.size() > 0) {
-			return this.currentPerformances.get(0).getCurrentSymbolicTime();
+			int latestPerformance = this.keysOfCurrentPerformancesInOrder.get(this.keysOfCurrentPerformancesInOrder.size()-1);
+			return this.currentPerformances.get(latestPerformance).getCurrentSymbolicTime();
 		}
 		return 0;
-	}
-	
-	private void updateStartOrChangeTimes() {
-		//symbolic time has to update first since it uses previous synthTimeAtStartOrTempoChange!!!!!
-		for (JSynPerformance performance : this.currentPerformances.values()) {
-			performance.updateSymbolicStartOrChangeTime();
-		}
-		this.synthTimeAtStartOrChange = this.getCurrentSynthTime();
-	}
-	
-	public double getSynthTimeAtStartOrChange() {
-		return this.synthTimeAtStartOrChange;
 	}
 	
 	public double getLoopOnset() {
@@ -147,25 +138,69 @@ public class JSynPlayer {
 	
 	public void play(JSynScore score) {
 		this.setScore(score);
-		if (!inLiveMidiMode) {
-			this.synthTimeAtStartOrChange = this.getCurrentSynthTime();
+		if (!this.inLiveMidiMode) {
 			this.playScoreVersion(60, 127);
 		}
 	}
 	
-	public void playScoreVersion(int pitch, int velocity) {
+	public void pressMidiKey(int pitch, int velocity) {
+		if (!this.inLiveMidiMode) {
+			this.stopAllScoreVersions();
+		}
+		this.inLiveMidiMode = true;
+		this.playScoreVersion(pitch, velocity);
+	}
+	
+	private void playScoreVersion(int pitch, int velocity) {
 		JSynPerformance performance = new JSynPerformance(this, this.score, pitch, velocity);
 		if (this.isLooping) {
 			performance.setSymbolicStartOrChangeTime(this.loopOnset);
 		}
 		performance.playScore();
 		this.currentPerformances.put(pitch, performance);
+		this.keysOfCurrentPerformancesInOrder.add(pitch);
 	}
 	
-	public void stopScoreVersion(int pitch) {
+	public void releaseMidiKey(int pitch) {
+		this.inLiveMidiMode = true;
+		this.stopScoreVersion(pitch);
+	}
+	
+	private void stopScoreVersion(int pitch) {
+		this.keysOfCurrentPerformancesInOrder.remove((Integer)pitch);
 		JSynPerformance performance = this.currentPerformances.remove(pitch);
 		performance.stopPlaying(false);
-		this.inLiveMidiMode = true;
+	}
+	
+	private void stopAllScoreVersions() {
+		for (JSynPerformance performance : this.currentPerformances.values()) {
+			performance.stopPlaying(this.isLooping);
+		}
+		this.currentPerformances = new TreeMap<Integer,JSynPerformance>();
+		this.keysOfCurrentPerformancesInOrder = new ArrayList<Integer>();
+	}
+	
+	public void transposeAllScoreVersionsByOctave(boolean up) {
+		List<Integer> pitches = new ArrayList<Integer>(this.currentPerformances.keySet());
+		for (Integer currentPitch : pitches) {
+			int oldPitch = currentPitch;
+			int newPitch;
+			if (up) {
+				newPitch = oldPitch+12;
+			} else {
+				newPitch = oldPitch-12;
+			}
+			JSynPerformance currentPerformance = this.currentPerformances.remove(oldPitch);
+			currentPerformance.setPitch(newPitch);
+			this.currentPerformances.put(newPitch, currentPerformance);
+			this.keysOfCurrentPerformancesInOrder.set(this.keysOfCurrentPerformancesInOrder.indexOf(oldPitch), newPitch);
+		}
+	}
+	
+	public void changeVelocity(int velocity) {
+		for (JSynPerformance performance : this.currentPerformances.values()) {
+			performance.setVelocity(velocity);
+		}
 	}
 	
 	public boolean isPlaying() {
@@ -179,10 +214,7 @@ public class JSynPlayer {
 		if (this.isLooping) {
 			this.bbPlayer.interrupt();
 		}
-		for (JSynPerformance performance : this.currentPerformances.values()) {
-			performance.stopPlaying(this.isLooping);
-		}
-		this.currentPerformances = new TreeMap<Integer,JSynPerformance>();
+		this.stopAllScoreVersions();
 		this.inLiveMidiMode = false;
 		this.synth.stop();
 	}

@@ -6,7 +6,6 @@ import java.awt.FlowLayout;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.GridLayout;
-import java.awt.event.KeyEvent;
 
 import javax.swing.AbstractAction;
 import javax.swing.JButton;
@@ -15,6 +14,7 @@ import javax.swing.JPanel;
 import javax.swing.KeyStroke;
 
 import org.rubato.rubettes.bigbang.controller.BigBangController;
+import org.rubato.rubettes.bigbang.view.controller.ChangeOctaveAction;
 import org.rubato.rubettes.bigbang.view.controller.KeyToMidiAction;
 import org.rubato.rubettes.bigbang.view.controller.ToggleMainOptionsAction;
 import org.rubato.rubettes.bigbang.view.controller.ViewController;
@@ -28,6 +28,7 @@ public class JBigBangPanel extends JPanel {
 	
 	private JMainOptionsPanel mainOptionsPanel;
 	private JBigBangDisplay display;
+	private int currentOctave;
 	
 	public JBigBangPanel(ViewController controller, BigBangController bbController, ViewParameters viewParameters, BigBangPlayer player) {
 		this.setLayout(new BorderLayout());
@@ -39,21 +40,7 @@ public class JBigBangPanel extends JPanel {
 		new JWindowPreferencesDialog(controller);
 		JBigBangPopupMenu popup = new JBigBangPopupMenu(controller);
 		this.setComponentPopupMenu(popup);
-		this.addKeyToMidiActions(controller, 'A', 60);
-		this.addKeyToMidiActions(controller, 'W', 61);
-		this.addKeyToMidiActions(controller, 'S', 62);
-		this.addKeyToMidiActions(controller, 'E', 63);
-		this.addKeyToMidiActions(controller, 'D', 64);
-		//this.addKeyListener(new KeyToMidiAction(controller));
-	}
-	
-	private void addKeyToMidiActions(ViewController controller, char key, int pitch) {
-		String pressedString = "pressed " + key;
-		this.getInputMap(JPanel.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(pressedString), pressedString);
-		this.getActionMap().put(pressedString, new KeyToMidiAction(controller, pitch, true));
-		String releasedString = "released " + key;
-		this.getInputMap(JPanel.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(releasedString), releasedString);
-		this.getActionMap().put(releasedString, new KeyToMidiAction(controller, pitch, false));
+		this.initMidiKeys(controller);
 	}
 	
 	private JPanel createToolBarsPanel(ViewController controller, BigBangController bbController) {
@@ -96,6 +83,47 @@ public class JBigBangPanel extends JPanel {
 	
 	public void toggleTimedRepaint() {
 		this.display.toggleTimedRepaint();
+	}
+	
+	private void initMidiKeys(ViewController controller) {
+		char[] midiKeys = new char[]{'A','W','S','E','D','F','T','G','Z','H','U','J','K','O','L','P','Ö'};
+		int currentMidiValue = 60;
+		for (char currentKey : midiKeys) {
+			this.addKeyToMidiActions(controller, currentKey, currentMidiValue);
+			currentMidiValue++;
+		}
+		this.addChangeOctaveActions(controller);
+		this.currentOctave = 0;
+	}
+	
+	private void addKeyToMidiActions(ViewController controller, char key, int pitch) {
+		String pressedString = "pressed " + key;
+		this.getInputMap(JPanel.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(pressedString), pressedString);
+		this.getActionMap().put(pressedString, new KeyToMidiAction(this, controller, pitch, true));
+		String releasedString = "released " + key;
+		this.getInputMap(JPanel.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(releasedString), releasedString);
+		this.getActionMap().put(releasedString, new KeyToMidiAction(this, controller, pitch, false));
+	}
+	
+	private void addChangeOctaveActions(ViewController controller) {
+		String pressedString = "pressed Y";
+		this.getInputMap(JPanel.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(pressedString), pressedString);
+		this.getActionMap().put(pressedString, new ChangeOctaveAction(this, controller, false));
+		pressedString = "pressed X"; 
+		this.getInputMap(JPanel.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(pressedString), pressedString);
+		this.getActionMap().put(pressedString, new ChangeOctaveAction(this, controller, true));
+	}
+	
+	public void changeOctave(boolean up) {
+		if (up) {
+			this.currentOctave++;
+		} else {
+			this.currentOctave--;
+		}
+	}
+	
+	public int getCurrentOctave() {
+		return this.currentOctave;
 	}
 
 }

@@ -103,6 +103,8 @@ public class ViewController extends Controller {
 	public static final String WAVEFORM = "Waveform";
 	public static final String PRESS_MIDI_KEY = "pressMidiKey";
 	public static final String RELEASE_MIDI_KEY = "releaseMidiKey";
+	public static final String CHANGE_OCTAVE = "changeOctave";
+	public static final String CHANGE_VELOCITY = "changeVelocity";
 	
 	
 	public void changeDisplayMode(DisplayModeAdapter newMode) {
@@ -363,6 +365,14 @@ public class ViewController extends Controller {
 	
 	public void releaseMidiKey(int pitch) {
 		this.callModelMethod(ViewController.RELEASE_MIDI_KEY, pitch);
+	}
+	
+	public void changeOctave(boolean up) {
+		this.callModelMethod(ViewController.CHANGE_OCTAVE, up);
+	}
+	
+	public void changeVelocity(int velocity) {
+		this.callModelMethod(ViewController.CHANGE_VELOCITY, velocity);
 	}
 
 }
