@@ -14,14 +14,12 @@ public class TransformationProperties {
 	private double[] center;
 	private double[] endPoint;
 	private boolean inPreviewMode;
-	private boolean inWallpaperMode;
 	
-	public TransformationProperties(SelectedObjectsPaths objectPaths, List<TransformationPaths> transformationPaths, boolean copyAndTransform, boolean inPreviewMode, boolean inWallpaperMode) {
+	public TransformationProperties(SelectedObjectsPaths objectPaths, List<TransformationPaths> transformationPaths, boolean copyAndTransform, boolean inPreviewMode) {
 		this.objectPaths = objectPaths;
 		this.transformationPaths = transformationPaths;
 		this.copyAndTransform = copyAndTransform;
 		this.inPreviewMode = inPreviewMode;
-		this.inWallpaperMode = inWallpaperMode;
 	}
 	
 	public void updateObjectPaths(List<Map<DenotatorPath,DenotatorPath>> pathDifferences) {
@@ -83,10 +81,6 @@ public class TransformationProperties {
 	
 	public boolean inPreviewMode() {
 		return this.inPreviewMode;
-	}
-	
-	public boolean inWallpaperMode() {
-		return this.inWallpaperMode;
 	}
 
 }

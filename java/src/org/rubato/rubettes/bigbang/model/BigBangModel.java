@@ -15,6 +15,7 @@ import org.rubato.rubettes.bigbang.model.edits.AddWallpaperDimensionEdit;
 import org.rubato.rubettes.bigbang.model.edits.AffineTransformationEdit;
 import org.rubato.rubettes.bigbang.model.edits.CopyObjectsEdit;
 import org.rubato.rubettes.bigbang.model.edits.DeleteObjectsEdit;
+import org.rubato.rubettes.bigbang.model.edits.EndWallpaperEdit;
 import org.rubato.rubettes.bigbang.model.edits.FlattenEdit;
 import org.rubato.rubettes.bigbang.model.edits.ModulatorBuildingEdit;
 import org.rubato.rubettes.bigbang.model.edits.MoveNotesEdit;
@@ -26,6 +27,7 @@ import org.rubato.rubettes.bigbang.model.edits.ScalingEdit;
 import org.rubato.rubettes.bigbang.model.edits.ShapingEdit;
 import org.rubato.rubettes.bigbang.model.edits.ShearingEdit;
 import org.rubato.rubettes.bigbang.model.edits.TranslationEdit;
+import org.rubato.rubettes.bigbang.view.model.SelectedObjectsPaths;
 import org.rubato.rubettes.util.DenotatorPath;
 
 public class BigBangModel extends Model {
@@ -93,35 +95,35 @@ public class BigBangModel extends Model {
 		this.undoRedoModel.postEdit(new CopyObjectsEdit(this.scoreManager, nodePaths));
 	}
 	
-	public void moveNotes(TreeSet<DenotatorPath> nodePaths, Integer layerIndex) {
+	public void moveObjects(TreeSet<DenotatorPath> nodePaths, Integer layerIndex) {
 		this.undoRedoModel.postEdit(new MoveNotesEdit(this.scoreManager, nodePaths, layerIndex));
 	}
 	
-	public void translateNotes(TransformationProperties properties) {
+	public void translateObjects(TransformationProperties properties) {
 		this.doTransformation(properties, new TranslationEdit(this.scoreManager, properties));
 	}
 	
-	public void rotateNotes(TransformationProperties properties, Double angle) {
+	public void rotateObjects(TransformationProperties properties, Double angle) {
 		this.doTransformation(properties, new RotationEdit(this.scoreManager, properties, angle));
 	}
 	
-	public void scaleNotes(TransformationProperties properties, double[] scaleFactors) {
+	public void scaleObjects(TransformationProperties properties, double[] scaleFactors) {
 		this.doTransformation(properties, new ScalingEdit(this.scoreManager, properties, scaleFactors));
 	}
 	
-	public void reflectNotes(TransformationProperties properties, double[] reflectionVector) {
+	public void reflectObjects(TransformationProperties properties, double[] reflectionVector) {
 		this.doTransformation(properties, new ReflectionEdit(this.scoreManager, properties, reflectionVector));
 	}
 	
-	public void shearNotes(TransformationProperties properties, double[] shearingFactors) {
+	public void shearObjects(TransformationProperties properties, double[] shearingFactors) {
 		this.doTransformation(properties, new ShearingEdit(this.scoreManager, properties, shearingFactors));
 	}
 	
-	public void shapeNotes(TransformationProperties properties, TreeMap<Double,Double> shapingLocations) {
+	public void shapeObjects(TransformationProperties properties, TreeMap<Double,Double> shapingLocations) {
 		this.doTransformation(properties, new ShapingEdit(this.scoreManager, properties, shapingLocations));
 	}
 	
-	public void affineTransformNotes(TransformationProperties properties, double[] shift, Double angle, double[] scaleFactors) {
+	public void affineTransformObjects(TransformationProperties properties, double[] shift, Double angle, double[] scaleFactors) {
 		this.doTransformation(properties, new AffineTransformationEdit(this.scoreManager, properties, shift, angle, scaleFactors));
 	}
 	
@@ -137,7 +139,7 @@ public class BigBangModel extends Model {
 		this.undoRedoModel.postEdit(new BuildSatellitesEdit(this.scoreManager, nodePaths, parentNotePath, powersetIndex));
 	}
 	
-	public void flattenNotes(TreeSet<DenotatorPath> nodePaths) {
+	public void flattenObjects(TreeSet<DenotatorPath> nodePaths) {
 		this.undoRedoModel.postEdit(new FlattenEdit(this.scoreManager, nodePaths));
 	}
 	
@@ -145,12 +147,16 @@ public class BigBangModel extends Model {
 		this.undoRedoModel.postEdit(new ModulatorBuildingEdit(this.scoreManager, nodePaths, carrierNotePath));
 	}
 	
-	public void removeNotesFromCarrier(TreeSet<DenotatorPath> nodePaths) {
+	public void removeObjectsFromCarrier(TreeSet<DenotatorPath> nodePaths) {
 		this.undoRedoModel.postEdit(new RemoveNotesFromCarrierEdit(this.scoreManager, nodePaths));
 	}
 	
-	public void addWallpaperDimension(Integer rangeFrom, Integer rangeTo) {
-		this.undoRedoModel.postEdit(new AddWallpaperDimensionEdit(this.scoreManager, rangeFrom, rangeTo));
+	public void addWallpaperDimension(SelectedObjectsPaths objectPaths, Integer rangeFrom, Integer rangeTo) {
+		this.undoRedoModel.postEdit(new AddWallpaperDimensionEdit(this.scoreManager, objectPaths, rangeFrom, rangeTo));
+	}
+	
+	public void endWallpaper() {
+		this.undoRedoModel.postEdit(new EndWallpaperEdit(this.scoreManager));
 	}
 
 }

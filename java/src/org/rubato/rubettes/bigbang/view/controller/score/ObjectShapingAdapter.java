@@ -8,12 +8,12 @@ import javax.swing.event.MouseInputAdapter;
 
 import org.rubato.rubettes.bigbang.view.controller.ViewController;
 
-public class NoteShapingAdapter extends MouseInputAdapter {
+public class ObjectShapingAdapter extends MouseInputAdapter {
 	
 	private ViewController controller;
 	private TreeMap<Integer,Integer> currentPoints;
 	
-	public NoteShapingAdapter(ViewController controller) {
+	public ObjectShapingAdapter(ViewController controller) {
 		this.controller = controller;
 		this.resetCurrentPoints();
 	}
@@ -21,19 +21,19 @@ public class NoteShapingAdapter extends MouseInputAdapter {
 	public void mouseClicked(MouseEvent event) {
 		if (event.getButton() == MouseEvent.BUTTON1 && !event.isPopupTrigger()) {
 			this.updatePoints(event.getPoint());
-			this.controller.shapeSelectedNotes(this.currentPoints, event.isAltDown(), false);
+			this.controller.shapeSelectedObjects(this.currentPoints, event.isAltDown(), false);
 			this.resetCurrentPoints();
 		}
 	}
 	
 	public void mouseDragged(MouseEvent event) {
 		this.updatePoints(event.getPoint());
-		this.controller.shapeSelectedNotes(this.currentPoints, event.isAltDown(), true);
+		this.controller.shapeSelectedObjects(this.currentPoints, event.isAltDown(), true);
 	}
 	
 	public void mouseReleased(MouseEvent event) {
 		this.updatePoints(event.getPoint());
-		this.controller.shapeSelectedNotes(this.currentPoints, event.isAltDown(), false);
+		this.controller.shapeSelectedObjects(this.currentPoints, event.isAltDown(), false);
 		this.resetCurrentPoints();
 	}
 	

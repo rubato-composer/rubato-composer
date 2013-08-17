@@ -50,5 +50,9 @@ public class BigBangTransformation {
 		ModuleMorphism inverseMorphism = RFreeAffineMorphism.make(inverseMatrix, inverseShift);
 		return new BigBangTransformation(inverseMorphism, this.transformationPaths, this.copyAndMap, this.anchorNodePath);
 	}
+	
+	public String toString() {
+		return this.morphism.toString();
+	}
 
 }

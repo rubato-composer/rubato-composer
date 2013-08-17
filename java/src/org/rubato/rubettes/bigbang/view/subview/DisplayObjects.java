@@ -253,18 +253,18 @@ public class DisplayObjects implements View {
 	
 	//------------------------
 	
-	public void tempSelectNotes(Rectangle2D.Double area) {
-		for (DisplayObject currentNote: this.objects) {
-			if (!this.selectedObjects.contains(currentNote)) {
-				currentNote.setSelected(currentNote.intersects(area));
+	public void tempSelectObjects(Rectangle2D.Double area) {
+		for (DisplayObject currentObject: this.objects) {
+			if (!this.selectedObjects.contains(currentObject)) {
+				currentObject.setSelected(currentObject.intersects(area));
 			}
 		}
 	}
 	
-	public int selectNotes(Rectangle2D.Double area) {
-		for (DisplayObject currentNote: this.objects) {
-			if (currentNote.intersects(area)) {
-				this.selectNote(currentNote);
+	public int selectObjects(Rectangle2D.Double area) {
+		for (DisplayObject currentObject: this.objects) {
+			if (currentObject.intersects(area)) {
+				this.selectObject(currentObject);
 			}
 		}
 		return this.selectedObjects.size();
@@ -272,14 +272,14 @@ public class DisplayObjects implements View {
 	
 	private void toggleSelected(DisplayObject note) {
 		if (note.isSelected()) {
-			this.deselectNote(note);
+			this.deselectObject(note);
 		} else {
-			this.selectNote(note);
+			this.selectObject(note);
 		}
 	}
 	
-	public void selectNote(DisplayObject note) {
-		if (this.isNotSelectedAnchorNote(note)) {
+	public void selectObject(DisplayObject note) {
+		if (this.isNotSelectedAnchorObject(note)) {
 			note.setSelected(true);
 			if (!this.selectedObjects.contains(note) && note.isActive()) {
 				this.selectedObjects.add(note);
@@ -289,12 +289,12 @@ public class DisplayObjects implements View {
 		}
 	}
 	
-	private void deselectNote(DisplayObject note) {
+	private void deselectObject(DisplayObject note) {
 		note.setSelected(false);
 		this.selectedObjects.remove(note);
 	}
 	
-	private boolean isNotSelectedAnchorNote(DisplayObject note) {
+	private boolean isNotSelectedAnchorObject(DisplayObject note) {
 		return (this.selectedAnchor != null && !this.selectedAnchor.equals(note))
 			|| this.selectedAnchor == null;
 	}
@@ -302,68 +302,68 @@ public class DisplayObjects implements View {
 	private void deselectParents(DisplayObject note) {
 		DisplayObject parent = note.getParent(); 
 		if (parent != null) {
-			this.deselectNote(parent);
+			this.deselectObject(parent);
 			this.deselectParents(parent);
 		}
 	}
 	
 	private void deselectChildren(DisplayObject note) {
 		for (DisplayObject currentChild: note.getChildren()) {
-			this.deselectNote(currentChild);
+			this.deselectObject(currentChild);
 			this.deselectChildren(currentChild);
 		}
 	}
 	
-	public int selectTopOrDeselectAllNotes(Point location) {
+	public int selectTopOrDeselectAllObjects(Point location) {
 		//notes are saved from bottom to top... just takes one note
-		for (DisplayObject currentNote: this.objects) {
-			if (currentNote.getRectangle().contains(location)) {
-				this.toggleSelected(currentNote);
+		for (DisplayObject currentObject: this.objects) {
+			if (currentObject.getRectangle().contains(location)) {
+				this.toggleSelected(currentObject);
 				return this.selectedObjects.size();
 			}
 		}
-		this.deselectAllNotes();
+		this.deselectAllObjects();
 		return this.selectedObjects.size();
 	}
 	
-	private void deselectAllNotes() {
-		for (DisplayObject currentNote: this.selectedObjects) {
-			currentNote.setSelected(false);
+	private void deselectAllObjects() {
+		for (DisplayObject currentObject: this.selectedObjects) {
+			currentObject.setSelected(false);
 		}
 		this.selectedObjects = new TreeSet<DisplayObject>();
 	}
 	
-	public DisplayObject getNoteAt(Point location) {
-		return this.getNoteAt(location, this.objects);
+	public DisplayObject getObjectAt(Point location) {
+		return this.getObjectAt(location, this.objects);
 	}
 	
-	public boolean hasSelectedNoteAt(Point location) {
-		return this.getNoteAt(location, this.selectedObjects) != null;
+	public boolean hasSelectedObjectAt(Point location) {
+		return this.getObjectAt(location, this.selectedObjects) != null;
 	}
 	
-	private DisplayObject getNoteAt(Point location, Set<DisplayObject> notes) {
-		for (DisplayObject currentNote : notes) {
-			if (currentNote.getRectangle().contains(location)) {
-				return currentNote;
+	private DisplayObject getObjectAt(Point location, Set<DisplayObject> notes) {
+		for (DisplayObject currentObject : notes) {
+			if (currentObject.getRectangle().contains(location)) {
+				return currentObject;
 			}
 		}
 		return null;
 	}
 	
-	public void selectOrDeselectAnchorNote(Point location) {
-		DisplayObject noteInLocation = this.getNoteAt(location);
+	public void selectOrDeselectAnchorObject(Point location) {
+		DisplayObject noteInLocation = this.getObjectAt(location);
 		if (noteInLocation != null) {
 			if (noteInLocation.equals(this.selectedAnchor)) {
 				this.selectedAnchor = null;
 			} else if (noteInLocation.hasChildren()) {
-				this.setSelectedAnchorNote(noteInLocation);
+				this.setSelectedAnchorObject(noteInLocation);
 			}
 		} else {
 			this.selectedAnchor = null;
 		}
 	}
 	
-	public void setSelectedAnchorNote(DisplayObject note) {
+	public void setSelectedAnchorObject(DisplayObject note) {
 		this.selectedAnchor = note;
 		this.selectedObjects.remove(note);
 	}
@@ -410,29 +410,29 @@ public class DisplayObjects implements View {
 	}
 	
 	private void makeAllModulatorsVisible() {
-		for (DisplayObject currentNote: this.objects) {
-			currentNote.setVisibility(LayerState.active);
+		for (DisplayObject currentObject: this.objects) {
+			currentObject.setVisibility(LayerState.active);
 		}
 	}
 	
 	public void updateModulatorVisibility(int modLevel, int siblingNumber) {
-		/*TODO:for (DisplayObject currentNote: this) {
-			if (currentNote.getValue(5) == modLevel
-					&& (siblingNumber == -1 || currentNote.getValue(7) == siblingNumber)) {
-				currentNote.setVisibility(LayerState.active);
+		/*TODO:for (DisplayObject currentObject: this) {
+			if (currentObject.getValue(5) == modLevel
+					&& (siblingNumber == -1 || currentObject.getValue(7) == siblingNumber)) {
+				currentObject.setVisibility(LayerState.active);
 			} else {
-				currentNote.setVisibility(LayerState.invisible);
-				this.deselectNote(currentNote);
+				currentObject.setVisibility(LayerState.invisible);
+				this.deselectObject(currentObject);
 			}
 		}*/
 	}
 	
 	private void updateVisibility(LayerStates states) {
-		for (DisplayObject currentNote: this.objects) {
-			LayerState currentState = states.get(currentNote.getLayer());
-			currentNote.setVisibility(currentState);
+		for (DisplayObject currentObject: this.objects) {
+			LayerState currentState = states.get(currentObject.getLayer());
+			currentObject.setVisibility(currentState);
 			if (!currentState.equals(LayerState.active)) {
-				this.deselectNote(currentNote);
+				this.deselectObject(currentObject);
 			}
 		}
 		
@@ -440,56 +440,56 @@ public class DisplayObjects implements View {
 	}
 	
 	public void updateBounds(double xZoomFactor, double yZoomFactor, int xPosition, int yPosition) {
-		for (DisplayObject currentNote : this.objects) {
-			currentNote.updateBounds(xZoomFactor, yZoomFactor, xPosition, yPosition);
+		for (DisplayObject currentObject : this.objects) {
+			currentObject.updateBounds(xZoomFactor, yZoomFactor, xPosition, yPosition);
 		}
 	}
 	
 	public void paint(AbstractPainter painter) {
 		this.paintConnectors(painter, this.objects);
 		//paint active notes on top of inactive ones
-		this.paintInactiveNotes(painter);
-		this.paintActiveNotes(painter);
+		this.paintInactiveObjects(painter);
+		this.paintActiveObjects(painter);
 		//leads to some flipping problems, but necessary for clearness
-		this.paintSelectedNotes(painter);
-		this.paintSelectedAnchorNote(painter);
+		this.paintSelectedObjects(painter);
+		this.paintSelectedAnchorObject(painter);
 	}
 	
-	public void paintSelectedNotesConnectors(AbstractPainter painter, int parentX, int parentY) {
-		for (DisplayObject currentNote : this.selectedObjects) {
-			currentNote.paintConnectors(painter, parentX, parentY);
+	public void paintSelectedObjectsConnectors(AbstractPainter painter, int parentX, int parentY) {
+		for (DisplayObject currentObject : this.selectedObjects) {
+			currentObject.paintConnectors(painter, parentX, parentY);
 		}
 	}
 	
 	private void paintConnectors(AbstractPainter painter, Set<DisplayObject> notes) {
-		for (DisplayObject currentNote : notes) {
-			currentNote.paintConnectors(painter);
+		for (DisplayObject currentObject : notes) {
+			currentObject.paintConnectors(painter);
 		}
 	}
 	
-	private void paintInactiveNotes(AbstractPainter painter) {
-		for (DisplayObject currentNote : this.objects) {
-			if (!currentNote.isActive()) {
-				currentNote.paint(painter);
+	private void paintInactiveObjects(AbstractPainter painter) {
+		for (DisplayObject currentObject : this.objects) {
+			if (!currentObject.isActive()) {
+				currentObject.paint(painter);
 			}
 		}
 	}
 	
-	private void paintActiveNotes(AbstractPainter painter) {
-		for (DisplayObject currentNote : this.objects) {
-			if (currentNote.isActive()) {
-				currentNote.paint(painter);
+	private void paintActiveObjects(AbstractPainter painter) {
+		for (DisplayObject currentObject : this.objects) {
+			if (currentObject.isActive()) {
+				currentObject.paint(painter);
 			}
 		}
 	}
 	
-	private void paintSelectedNotes(AbstractPainter painter) {
-		for (DisplayObject currentNote : this.selectedObjects) {
-			currentNote.paint(painter);
+	private void paintSelectedObjects(AbstractPainter painter) {
+		for (DisplayObject currentObject : this.selectedObjects) {
+			currentObject.paint(painter);
 		}
 	}
 	
-	private void paintSelectedAnchorNote(AbstractPainter painter) {
+	private void paintSelectedAnchorObject(AbstractPainter painter) {
 		if (this.selectedAnchor != null) {
 			this.selectedAnchor.paintAnchorSelection(painter);
 		}

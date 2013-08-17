@@ -9,15 +9,15 @@ import org.rubato.rubettes.util.DenotatorPath;
 
 public class BigBangWallpaper {
 	
-	private List<DenotatorPath> motif;
+	private SelectedObjectsPaths motif;
 	private List<BigBangWallpaperDimension> dimensions;
 	
-	public BigBangWallpaper(List<DenotatorPath> motif) {
+	public BigBangWallpaper(SelectedObjectsPaths motif) {
 		this.motif = motif;
 		this.dimensions = new ArrayList<BigBangWallpaperDimension>();
 	}
 	
-	public List<DenotatorPath> getMotif() {
+	public SelectedObjectsPaths getMotif() {
 		return this.motif;
 	}
 	
@@ -25,19 +25,13 @@ public class BigBangWallpaper {
 		this.dimensions.add(new BigBangWallpaperDimension(rangeFrom, rangeTo));
 	}
 	
-	public void removeLastDimension() {
-		if (this.dimensions.size() > 0) {
-			this.dimensions.remove(this.dimensions.size()-1);
-		}
+	public List<BigBangWallpaperDimension> getDimensions() {
+		return this.dimensions;
 	}
 	
 	public void addTransformationToLastDimension(BigBangTransformation transformation) {
 		transformation.setCopyAndMap(true);
 		this.dimensions.get(dimensions.size()-1).addTransformation(transformation);
-	}
-	
-	public BigBangTransformation getLastTransformation() {
-		return this.dimensions.get(dimensions.size()-1).getLastTransformation();
 	}
 	
 	public void removeLastTransformation() {
@@ -54,15 +48,17 @@ public class BigBangWallpaper {
 		return null;
 	}
 	
-	public void updateRanges(List<Integer> ranges) {
-		for (int i = 0; i < this.dimensions.size(); i++) {
-			BigBangWallpaperDimension currentDimension = this.dimensions.get(i);
-			currentDimension.setRanges(ranges.get(2*i), ranges.get(2*i+1));
+	public void setRange(int dimension, boolean rangeTo, int value) {
+		BigBangWallpaperDimension currentDimension = this.dimensions.get(dimension);
+		if (rangeTo) {
+			currentDimension.setRangeTo(value);
+		} else {
+			currentDimension.setRangeFrom(value);
 		}
 	}
 	
 	public void applyTo(BigBangScore score) {
-		List<DenotatorPath> currentMotif = this.motif;
+		List<DenotatorPath> currentMotif = this.motif.get(0);
 		for (BigBangWallpaperDimension currentDimension: this.dimensions) {
 			currentMotif = this.mapDimension(score, currentMotif, currentDimension);
 		}
@@ -115,6 +111,10 @@ public class BigBangWallpaper {
 			}
 		}
 		return currentPaths;
+	}
+	
+	public String toString() {
+		return this.dimensions.toString();
 	}
 
 }

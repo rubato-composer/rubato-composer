@@ -9,12 +9,16 @@ public class BigBangWallpaperDimension {
 	private List<BigBangTransformation> transformations;
 	
 	public BigBangWallpaperDimension(int rangeFrom, int rangeTo) {
-		this.setRanges(rangeFrom, rangeTo);
+		this.setRangeFrom(rangeFrom);
+		this.setRangeTo(rangeTo);
 		this.transformations = new ArrayList<BigBangTransformation>();
 	}
 	
-	public void setRanges(int rangeFrom, int rangeTo) {
+	public void setRangeFrom(int rangeFrom) {
 		this.rangeFrom = rangeFrom;
+	}
+	
+	public void setRangeTo(int rangeTo) {
 		this.rangeTo = rangeTo;
 	}
 	
@@ -33,9 +37,8 @@ public class BigBangWallpaperDimension {
 	public BigBangTransformation getLastTransformation() {
 		if (this.transformations.size() > 0) {
 			return this.transformations.get(this.transformations.size()-1);
-		} else {
-			return null;
 		}
+		return null;
 	}
 	
 	public void removeLastTransformation() {
@@ -44,6 +47,10 @@ public class BigBangWallpaperDimension {
 	
 	public List<BigBangTransformation> getTransformations() {
 		return this.transformations;
+	}
+	
+	public String toString() {
+		return this.transformations.toString();
 	}
 
 }

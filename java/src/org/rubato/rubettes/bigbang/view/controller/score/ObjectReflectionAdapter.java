@@ -7,22 +7,22 @@ import java.awt.geom.Point2D;
 import org.rubato.rubettes.bigbang.view.controller.ViewController;
 import org.rubato.rubettes.bigbang.view.model.tools.ReflectionTool;
 
-public class NoteReflectionAdapter extends NoteTransformationAdapter {
+public class ObjectReflectionAdapter extends ObjectTransformationAdapter {
 	
-	public NoteReflectionAdapter(ViewController controller) {
+	public ObjectReflectionAdapter(ViewController controller) {
 		super(controller);
 	}
 	
-	public NoteReflectionAdapter(ViewController controller, double[] startingPoint, double[] endingPoint) {
+	public ObjectReflectionAdapter(ViewController controller, double[] startingPoint, double[] endingPoint) {
 		super(controller, startingPoint, endingPoint);
 	}
 	
 	@Override
-	protected void transformSelectedNotes(MouseEvent event, boolean inPreviewMode) {
+	protected void transformSelectedObjects(MouseEvent event, boolean inPreviewMode) {
 		Point currentPoint = event.getPoint();
 		double[] reflectionVector = this.calculateReflectionVector(currentPoint);
 		Point2D.Double currentEndPoint = new Point2D.Double(currentPoint.x, currentPoint.y);
-		this.controller.reflectSelectedNotes(this.startingPoint, currentEndPoint, reflectionVector, event.isAltDown(), inPreviewMode);
+		this.controller.reflectSelectedObjects(this.startingPoint, currentEndPoint, reflectionVector, event.isAltDown(), inPreviewMode);
 	}
 	
 	@Override

@@ -80,7 +80,7 @@ public class MTBigBangApp extends MTApplication implements View {
 		} else if (propertyName.equals(ViewController.VIEW_PARAMETERS)) {
 			this.contents.setViewParameters((ViewParameters)event.getNewValue());
 			this.repaint();
-		} else if (propertyName.equals(ViewController.DISPLAY_NOTES)) {
+		} else if (propertyName.equals(ViewController.DISPLAY_OBJECTS)) {
 			this.contents.setNotes((DisplayObjects)event.getNewValue());
 			this.repaint(false);
 		} else if (propertyName.equals(ViewController.DISPLAY_TOOL)) {
@@ -95,9 +95,9 @@ public class MTBigBangApp extends MTApplication implements View {
 		} else if (propertyName.equals(ViewController.SELECTED_VIEW_PARAMETERS)) {
 			this.contents.updateNoteBounds();
 			this.repaint();
-		} else if (propertyName.equals(ViewController.NOTE_SELECTION)) {
+		} else if (propertyName.equals(ViewController.OBJECT_SELECTION)) {
 			this.repaint(false);
-		} else if (propertyName.equals(ViewController.ANCHOR_NOTE_SELECTION)) {
+		} else if (propertyName.equals(ViewController.ANCHOR_OBJECT_SELECTION)) {
 			this.repaint();
 		} else if (propertyName.equals(ViewController.SATELLITES_CONNECTED)) {
 			this.contents.setSatellitesConnected((Boolean)event.getNewValue());

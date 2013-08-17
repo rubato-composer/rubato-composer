@@ -16,7 +16,7 @@ public class CopyToNewLayerAction extends AbstractAction {
 	}
 	
 	public void actionPerformed(ActionEvent event) {
-		this.controller.copySelectedNotesToNewLayer();
+		this.controller.copySelectedObjectsToNewLayer();
 	}
 	
 }

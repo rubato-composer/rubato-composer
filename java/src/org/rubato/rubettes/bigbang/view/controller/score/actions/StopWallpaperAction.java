@@ -2,16 +2,21 @@ package org.rubato.rubettes.bigbang.view.controller.score.actions;
 
 import java.awt.event.ActionEvent;
 
-import org.rubato.rubettes.bigbang.view.controller.ViewController;
+import javax.swing.AbstractAction;
 
-public class StopWallpaperAction extends AbstractViewAction {
+import org.rubato.rubettes.bigbang.controller.BigBangController;
+
+public class StopWallpaperAction extends AbstractAction {
 	
-	public StopWallpaperAction(ViewController controller) {
-		super("Wps", controller);
+	private BigBangController controller;
+	
+	public StopWallpaperAction(BigBangController controller) {
+		super("Wps");
+		this.controller = controller;
 	}
 
 	public void actionPerformed(ActionEvent event) {
-		this.controller.stopWallpaper();
+		this.controller.endWallpaper();
 	}
 
 }

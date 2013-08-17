@@ -48,18 +48,18 @@ public class MTBigBangView extends BigBangView {
 	
 	public void selectNotes(SelectionTool tool, Boolean stillSelecting) {
 		//System.out.println(tool.getArea() + " " + this.translateToOpenGLNoteSpaceRectangle(tool.getArea()));
-		this.selectNotes(this.translateToOpenGLNoteSpaceRectangle(tool.getArea()), tool, stillSelecting);
+		this.selectObjects(this.translateToOpenGLNoteSpaceRectangle(tool.getArea()), tool, stillSelecting);
 	}
 	
 	@Override
-	public void affineTransformSelectedNotes(Point2D.Double center, Point2D.Double endPoint, double[] shift, Double angle, double[] scaleFactors, Boolean copyAndTransform, Boolean previewMode) {
+	public void affineTransformSelectedObjects(Point2D.Double center, Point2D.Double endPoint, double[] shift, Double angle, double[] scaleFactors, Boolean copyAndTransform, Boolean previewMode) {
 		//center = this.translateToOpenGLPosition(center);
 		center = new Point2D.Double(center.x, this.translateY(center.y));
 		//System.out.println(center);
 		shift[0] = shift[0]/this.xZoomFactor;
 		shift[1] = shift[1]/this.yZoomFactor;
 		//System.out.println(shift[0] + " " + shift[1] + " " + angle.doubleValue() + " " + scaleFactors[0] + " " + scaleFactors[1]);
-		super.affineTransformSelectedNotes(center, endPoint, shift, angle, scaleFactors, copyAndTransform, previewMode);
+		super.affineTransformSelectedObjects(center, endPoint, shift, angle, scaleFactors, copyAndTransform, previewMode);
 	}
 	
 	private Rectangle2D.Double translateToOpenGLNoteSpaceRectangle(Rectangle2D.Double r) {

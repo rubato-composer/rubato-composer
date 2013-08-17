@@ -42,6 +42,7 @@ public class BigBangScoreManager extends Model {
 	
 	public void resetScore() {
 		this.score.resetScore();
+		this.wallpaper = null;
 	}
 	
 	public boolean setInitialComposition(Denotator newComposition) {
@@ -56,58 +57,91 @@ public class BigBangScoreManager extends Model {
 		return this.score.getComposition();
 	}
 	
-	public void startWallpaper(ArrayList<DenotatorPath> nodePaths) {
-		this.wallpaper = new BigBangWallpaper(nodePaths);
+	public void startWallpaper(SelectedObjectsPaths objectPaths) {
+		this.wallpaper = new BigBangWallpaper(objectPaths);
 	}
 	
-	public void addWallpaperDimensionS(int rangeFrom, int rangeTo) {
-		this.wallpaper.addDimension(rangeFrom, rangeTo);
-	}
-	
-	public void removeLastWallpaperDimension() {
-		this.wallpaper.removeLastDimension();
-	}
-	
-	public SelectedObjectsPaths addWallpaperTransformation(BigBangTransformation transformation, boolean inPreviewMode) {
-		this.wallpaper.addTransformationToLastDimension(transformation);
-		List<DenotatorPath> newPaths = this.createWallpaper(true, !inPreviewMode);
-		if (inPreviewMode) {
-			this.wallpaper.removeLastTransformation();
+	public void addWallpaperDimensionS(SelectedObjectsPaths objectPaths, int rangeFrom, int rangeTo, boolean fireCompositionChange) {
+		if (this.wallpaper == null) {
+			this.startWallpaper(objectPaths);
 		}
-		return new SelectedObjectsPaths(newPaths, transformation.getAnchorNodePath());
+		this.wallpaper.addDimension(rangeFrom, rangeTo);
+		this.firePropertyChange(BigBangController.WALLPAPER, null, this.wallpaper);
+		this.createWallpaper(false, fireCompositionChange);
 	}
 	
-	public void removeLastWallpaperTransformation() {
-		this.wallpaper.removeLastTransformation();
+	public SelectedObjectsPaths addTransformation(SelectedObjectsPaths objectPaths, BigBangTransformation transformation, boolean inPreviewMode, boolean fireCompositionChange) {
+		if (this.wallpaper != null) {
+			return this.addWallpaperTransformation(transformation, inPreviewMode, fireCompositionChange);
+		}
+		return this.mapObjects(objectPaths, transformation, inPreviewMode, fireCompositionChange);
 	}
 	
-	private List<DenotatorPath> createWallpaper(boolean inPreviewMode, boolean selectMotif) {
-		List<DenotatorPath> motifPaths = this.wallpaper.getMotif();
-		List<List<Denotator>> motifNodes = this.score.extractObjects(motifPaths);
+	private SelectedObjectsPaths addWallpaperTransformation(BigBangTransformation transformation, boolean inPreviewMode, boolean fireCompositionChange) {
+		this.wallpaper.addTransformationToLastDimension(transformation);
+		if (fireCompositionChange) {
+			List<DenotatorPath> newPaths = this.createWallpaper(inPreviewMode, fireCompositionChange);
+			if (inPreviewMode) {
+				this.wallpaper.removeLastTransformation();
+			}
+			return new SelectedObjectsPaths(newPaths, transformation.getAnchorNodePath());
+		}
+		this.firePropertyChange(BigBangController.WALLPAPER, null, this.wallpaper);
+		//TODO STUPID just test
+		return this.wallpaper.getMotif();
+	}
+	
+	private List<DenotatorPath> createWallpaper(boolean inPreviewMode, boolean fireCompositionChange) {
+		SelectedObjectsPaths motifPaths = this.wallpaper.getMotif();
+		List<List<Denotator>> motifNodes = this.score.extractObjects(motifPaths.get(0));
 		//CREATE ACTUAL WALLPAPER (to be selected when wallpaper finished)
 		this.wallpaper.applyTo(this.score);
 		DenotatorPath lastAnchorPath = this.wallpaper.getLastAnchorPath();
 		List<DenotatorPath> newMotifPaths = this.score.addObjects(motifNodes);
 		SelectedObjectsPaths newPaths = new SelectedObjectsPaths(newMotifPaths, lastAnchorPath);
-		if (inPreviewMode) {
-			if (selectMotif) {
-				this.fireCompositionChange(newPaths, true);
+		if (fireCompositionChange) {
+			if (inPreviewMode) {
+				/*if (selectMotif) {
+					this.firePreviewCompositionChange(newPaths, true);
+				} else {
+				 */this.firePreviewCompositionChange(newPaths);
+				 //}
 			} else {
-				this.firePreviewCompositionChange(newPaths);
+				//select the original motif. TODO IS THIS RIGHT?
+				this.fireCompositionChange(newPaths, true);
 			}
-		} else {
-			this.fireCompositionChange(newPaths, true);
 		}
 		return newMotifPaths;
 	}
 	
-	public void updateWallpaper(ArrayList<Integer> ranges) {
-		this.wallpaper.updateRanges(ranges);
-		this.createWallpaper(true, true);
+	public void setWallpaperRange(Integer dimension, Boolean rangeTo, Integer value) {
+		this.wallpaper.setRange(dimension, rangeTo, value);
+		this.createWallpaper(false, true);
+		this.firePropertyChange(BigBangController.WALLPAPER, null, this.wallpaper);
 	}
 	
-	public void endWallpaper() {
-		this.createWallpaper(false, false);
+	public void endWallpaper(boolean fireCompositionChange) {
+		this.createWallpaper(false, fireCompositionChange);
+		this.wallpaper = null;
+		this.firePropertyChange(BigBangController.END_WALLPAPER, null, null);
+	}
+	
+	private SelectedObjectsPaths mapObjects(SelectedObjectsPaths objectPaths, BigBangTransformation transformation, boolean inPreviewMode, boolean fireCompositionChange) {
+		//PerformanceCheck.startTask("prepare");
+		//this.updateActualScore(inPreviewMode);
+		//PerformanceCheck.startTask("map");
+		BigBangMapper mapper = new BigBangMapper(this.score, transformation);
+		SelectedObjectsPaths newPaths = mapper.mapCategorizedObjects(objectPaths);
+		//PerformanceCheck.startTask("fire");
+		if (fireCompositionChange) {
+			if (inPreviewMode) {
+				this.firePreviewCompositionChange(objectPaths);
+			} else {
+				this.fireCompositionChange(newPaths, true);
+			}
+		}
+		//PerformanceCheck.startTask("draw");
+		return newPaths;
 	}
 	
 	public void fireAlterationComposition(Integer index) {
@@ -142,24 +176,6 @@ public class BigBangScoreManager extends Model {
 		} else {
 			this.fireCompositionChange(new SelectedObjectsPaths(new TreeSet<DenotatorPath>(), null), true);
 		}
-	}
-	
-	public SelectedObjectsPaths mapObjects(SelectedObjectsPaths objectPaths, BigBangTransformation transformation, boolean inPreviewMode, boolean fireCompositionChange) {
-		//PerformanceCheck.startTask("prepare");
-		//this.updateActualScore(inPreviewMode);
-		//PerformanceCheck.startTask("map");
-		BigBangMapper mapper = new BigBangMapper(this.score, transformation);
-		SelectedObjectsPaths newPaths = mapper.mapCategorizedObjects(objectPaths);
-		//PerformanceCheck.startTask("fire");
-		if (fireCompositionChange) {
-			if (inPreviewMode) {
-				this.firePreviewCompositionChange(objectPaths);
-			} else {
-				this.fireCompositionChange(newPaths, true);
-			}
-		}
-		//PerformanceCheck.startTask("draw");
-		return newPaths;
 	}
 	
 	public List<Map<DenotatorPath,Double>> shapeNotes(TransformationProperties properties, TreeMap<Double,Double> shapingLocations) {

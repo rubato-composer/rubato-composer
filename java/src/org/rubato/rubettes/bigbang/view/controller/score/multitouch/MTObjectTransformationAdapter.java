@@ -11,7 +11,7 @@ import org.rubato.rubettes.bigbang.view.controller.ViewController;
 import org.rubato.rubettes.bigbang.view.model.tools.TransformationTool;
 import org.rubato.rubettes.util.GeometryTools;
 
-public class MTNoteTransformationAdapter implements IGestureEventListener {
+public class MTObjectTransformationAdapter implements IGestureEventListener {
 	
 	private ViewController controller;
 	private TransformationTool transformationTool;
@@ -20,7 +20,7 @@ public class MTNoteTransformationAdapter implements IGestureEventListener {
 	private double startingDistance;
 	private Point2D.Double currentFinger1, currentFinger2;
 	
-	public MTNoteTransformationAdapter(ViewController controller) {
+	public MTObjectTransformationAdapter(ViewController controller) {
 		this.controller = controller;
 	}
 
@@ -72,7 +72,7 @@ public class MTNoteTransformationAdapter implements IGestureEventListener {
 		//System.out.println(shift[0] + " " + shift[1] + " " + arcAngle + " " + scaleFactors[0] + " " + scaleFactors[1]);
 		Point2D.Double center = new Point2D.Double(this.startingFinger1.x, this.startingFinger1.y);
 		Point2D.Double endPoint = new Point2D.Double(finger2.x, finger2.y);
-		this.controller.affineTransformSelectedNotes(center, endPoint, shift, arcAngle, scaleFactors, copyAndTransform, inPreviewMode);
+		this.controller.affineTransformSelectedObjects(center, endPoint, shift, arcAngle, scaleFactors, copyAndTransform, inPreviewMode);
 	}
 	
 	private double[] calculateShift(Point2D.Double currentFinger1) {

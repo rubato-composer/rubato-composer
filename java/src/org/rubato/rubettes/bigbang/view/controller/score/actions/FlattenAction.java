@@ -15,7 +15,7 @@ public class FlattenAction extends AbstractAction {
 	}
 	
 	public void actionPerformed(ActionEvent event) {
-		this.controller.flattenSelectedNotes();
+		this.controller.flattenSelectedObjects();
 	}
 
 }

@@ -5,35 +5,32 @@ import java.awt.geom.Point2D;
 
 import org.rubato.rubettes.bigbang.view.controller.ViewController;
 import org.rubato.rubettes.bigbang.view.model.tools.TranslationTool;
-import org.rubato.rubettes.bigbang.view.subview.JBigBangDisplay;
 
-public class NoteTranslationAdapter extends NoteTransformationAdapter {
+public class ObjectTranslationAdapter extends ObjectTransformationAdapter {
 	
-	public NoteTranslationAdapter(ViewController controller) {
+	public ObjectTranslationAdapter(ViewController controller) {
 		super(controller);
 	}
 	
-	public NoteTranslationAdapter(ViewController controller, double[] startingPoint, double[] endingPoint) {
+	public ObjectTranslationAdapter(ViewController controller, double[] startingPoint, double[] endingPoint) {
 		super(controller, startingPoint, endingPoint);
 	}
 
-	private boolean isTouchingNotes;
-	
-	@Override
+	/*@Override
 	public void mousePressed(MouseEvent event) {
 		super.mousePressed(event);
 		if (event.getButton() == MouseEvent.BUTTON1) {
-			this.isTouchingNotes = ((JBigBangDisplay)event.getSource()).getContents().getDisplayObjects().hasSelectedNoteAt(event.getPoint());
+			this.isTouchingObjects = ((JBigBangDisplay)event.getSource()).getContents().getDisplayObjects().hasSelectedObjectAt(event.getPoint());
 		}
-	}
+	}*/
 	
 	@Override
-	protected void transformSelectedNotes(MouseEvent event, boolean inPreviewMode) {
-		if (this.isTouchingNotes) {
+	protected void transformSelectedObjects(MouseEvent event, boolean inPreviewMode) {
+		//if (this.isTouchingObjects) {
 			boolean copyAndTranslate = event.isAltDown();
 			Point2D.Double currentEndPoint = new Point2D.Double(event.getPoint().x, event.getPoint().y);
-			this.controller.translateSelectedNotes(this.startingPoint, currentEndPoint, copyAndTranslate, inPreviewMode);
-		}
+			this.controller.translateSelectedObjects(this.startingPoint, currentEndPoint, copyAndTranslate, inPreviewMode);
+		//}
 	}
 	
 	@Override

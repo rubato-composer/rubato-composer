@@ -7,13 +7,13 @@ import java.awt.geom.Point2D;
 import org.rubato.rubettes.bigbang.view.controller.ViewController;
 import org.rubato.rubettes.bigbang.view.model.tools.ScalingTool;
 
-public class NoteScalingAdapter extends NoteTransformationAdapter {
+public class ObjectScalingAdapter extends ObjectTransformationAdapter {
 	
-	public NoteScalingAdapter(ViewController controller) {
+	public ObjectScalingAdapter(ViewController controller) {
 		super(controller);
 	}
 	
-	public NoteScalingAdapter(ViewController controller, double[] startingPoint, double[] endingPoint, double[] scaleFactors) {
+	public ObjectScalingAdapter(ViewController controller, double[] startingPoint, double[] endingPoint, double[] scaleFactors) {
 		super(controller, startingPoint, endingPoint);
 		((ScalingTool)this.displayTool).setScalingFactors(scaleFactors);
 	}
@@ -25,10 +25,10 @@ public class NoteScalingAdapter extends NoteTransformationAdapter {
 	}
 	
 	@Override
-	protected void transformSelectedNotes(MouseEvent event, boolean inPreviewMode) {
+	protected void transformSelectedObjects(MouseEvent event, boolean inPreviewMode) {
 		double[] scaleFactors = this.calculateScaleFactors(event);
 		Point2D.Double currentEndPoint = new Point2D.Double(event.getPoint().x, event.getPoint().y);
-		this.controller.scaleSelectedNotes(this.startingPoint, currentEndPoint, scaleFactors, event.isAltDown(), inPreviewMode);
+		this.controller.scaleSelectedObjects(this.startingPoint, currentEndPoint, scaleFactors, event.isAltDown(), inPreviewMode);
 	}
 	
 	@Override

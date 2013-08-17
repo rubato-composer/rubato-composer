@@ -23,6 +23,7 @@ import org.rubato.rubettes.bigbang.model.TransformationProperties;
 import org.rubato.rubettes.bigbang.model.edits.AbstractLocalTransformationEdit;
 import org.rubato.rubettes.bigbang.model.edits.AbstractOperationEdit;
 import org.rubato.rubettes.bigbang.model.edits.AbstractTransformationEdit;
+import org.rubato.rubettes.bigbang.model.edits.AddWallpaperDimensionEdit;
 import org.rubato.rubettes.bigbang.model.edits.ReflectionEdit;
 import org.rubato.rubettes.bigbang.model.edits.RotationEdit;
 import org.rubato.rubettes.bigbang.model.edits.ScalingEdit;
@@ -67,12 +68,10 @@ public class BigBangView extends Model implements View {
 	private Map<String,Double> standardDenotatorValues;
 	private boolean satellitesConnected;
 	DenotatorValueExtractor extractor;
-	protected DisplayObjects displayNotes;
+	protected DisplayObjects displayObjects;
 	private DisplayTool displayTool;
 	//only used in preview mode
 	private SelectedObjectsPaths selectedObjectsPaths;
-	private boolean inWallpaperMode;
-	private List<Integer> wallpaperRanges;
 	private AbstractOperationEdit selectedOperation;
 	
 	public BigBangView(BigBangController controller) {
@@ -92,13 +91,12 @@ public class BigBangView extends Model implements View {
 		this.setTempo(BigBangPlayer.INITIAL_BPM);
 		this.modFilterOn = false;
 		this.modNumber = -1;
-		this.wallpaperRanges = new ArrayList<Integer>();
 	}
 	
 	public void addNewWindow() {
 		Frame parentFrame = JOptionPane.getFrameForComponent(this.panel);
 		new BigBangAdditionalView(this.controller, parentFrame);
-		SelectedObjectsPaths paths = this.displayNotes.getCategorizedSelectedObjectsPaths();
+		SelectedObjectsPaths paths = this.displayObjects.getCategorizedSelectedObjectsPaths();
 		this.controller.newWindowAdded(paths);
 	}
 	
@@ -242,27 +240,27 @@ public class BigBangView extends Model implements View {
 		this.firePropertyChange(ViewController.PLAY_MODE, null, this.playingActive);
 	}
 	
-	public void toggleNoteSelection(Point location) {
-		int selectedNoteCount = this.displayNotes.selectTopOrDeselectAllNotes(location);
-		this.firePropertyChange(ViewController.NOTE_SELECTION, null, selectedNoteCount);
+	public void toggleObjectSelection(Point location) {
+		int selectedObjectCount = this.displayObjects.selectTopOrDeselectAllObjects(location);
+		this.firePropertyChange(ViewController.OBJECT_SELECTION, null, selectedObjectCount);
 	}
 	
-	public void toggleAnchorNoteSelection(Point location) {
-		this.displayNotes.selectOrDeselectAnchorNote(location);
-		this.firePropertyChange(ViewController.ANCHOR_NOTE_SELECTION, null, null);
+	public void toggleAnchorObjectSelection(Point location) {
+		this.displayObjects.selectOrDeselectAnchorObject(location);
+		this.firePropertyChange(ViewController.ANCHOR_OBJECT_SELECTION, null, null);
 	}
 	
-	public void selectNotes(SelectionTool tool, Boolean stillSelecting) {
-		this.selectNotes(tool.getArea(), tool, stillSelecting);
+	public void selectObjects(SelectionTool tool, Boolean stillSelecting) {
+		this.selectObjects(tool.getArea(), tool, stillSelecting);
 	}
 	
-	protected void selectNotes(Rectangle2D.Double area, SelectionTool tool, boolean stillSelecting) {
+	protected void selectObjects(Rectangle2D.Double area, SelectionTool tool, boolean stillSelecting) {
 		if (stillSelecting) {
-			this.displayNotes.tempSelectNotes(area);
+			this.displayObjects.tempSelectObjects(area);
 			this.firePropertyChange(ViewController.DISPLAY_TOOL, null, tool);
 		} else {
-			int selectedNoteCount = this.displayNotes.selectNotes(area);
-			this.firePropertyChange(ViewController.NOTE_SELECTION, null, selectedNoteCount);
+			int selectedObjectCount = this.displayObjects.selectObjects(area);
+			this.firePropertyChange(ViewController.OBJECT_SELECTION, null, selectedObjectCount);
 			this.firePropertyChange(ViewController.DISPLAY_TOOL, null, null);
 		}
 	}
@@ -314,33 +312,33 @@ public class BigBangView extends Model implements View {
 		this.updatePlayerScore(this.extractor.getJSynScore(), notification.playback());
 	}
 	
-	private void updateDisplayObjects(DisplayObjects displayNotes, List<Double> minValues, List<Double> maxValues) {
-		if (this.displayNotes == null || displayNotes.getBaseForm() != this.displayNotes.getBaseForm()) {
-			if (displayNotes.baseFormAllowsForSatellites()) {
-				this.viewParameters.initSelections(displayNotes.getCoordinateSystemValueNames().size()-2);
+	private void updateDisplayObjects(DisplayObjects displayObjects, List<Double> minValues, List<Double> maxValues) {
+		if (this.displayObjects == null || displayObjects.getBaseForm() != this.displayObjects.getBaseForm()) {
+			if (displayObjects.baseFormAllowsForSatellites()) {
+				this.viewParameters.initSelections(displayObjects.getCoordinateSystemValueNames().size()-2);
 			} else {
-				this.viewParameters.initSelections(displayNotes.getCoordinateSystemValueNames().size());
+				this.viewParameters.initSelections(displayObjects.getCoordinateSystemValueNames().size());
 			}
-			this.viewController.removeView(this.displayNotes);
-			this.displayNotes = displayNotes;
-			this.firePropertyChange(ViewController.FORM, null, displayNotes);
-			this.firePropertyChange(ViewController.ACTIVE_COLIMIT_COORDINATE, null, displayNotes.getActiveColimitCoordinates());
+			this.viewController.removeView(this.displayObjects);
+			this.displayObjects = displayObjects;
+			this.firePropertyChange(ViewController.FORM, null, displayObjects);
+			this.firePropertyChange(ViewController.ACTIVE_COLIMIT_COORDINATE, null, displayObjects.getActiveColimitCoordinates());
 		}
 		this.viewParameters.setDenotatorMinAndMaxValues(minValues, maxValues);
 		//do not select parameters for satellite and sibling number...
-		this.firePropertyChange(ViewController.DISPLAY_NOTES, null, this.displayNotes);
+		this.firePropertyChange(ViewController.DISPLAY_OBJECTS, null, this.displayObjects);
 		this.firePropertyChange(ViewController.STANDARD_DENOTATOR_VALUES, null, this.getStandardDenotatorValues());
-		this.firePropertyChange(ViewController.MAX_SATELLITE_LEVEL, null, this.displayNotes.getMaxSatelliteLevelOfActiveObject());
+		this.firePropertyChange(ViewController.MAX_SATELLITE_LEVEL, null, this.displayObjects.getMaxSatelliteLevelOfActiveObject());
 	}
 	
 	public void setStandardDenotatorValue(Integer index, Double value) {
-		this.standardDenotatorValues.put(this.displayNotes.getCoordinateSystemValueNames().get(index), value);
+		this.standardDenotatorValues.put(this.displayObjects.getCoordinateSystemValueNames().get(index), value);
 		this.firePropertyChange(ViewController.STANDARD_DENOTATOR_VALUES, null, this.getStandardDenotatorValues());
 	}
 	
 	public List<Double> getStandardDenotatorValues() {
 		List<Double> values = new ArrayList<Double>();
-		for (String currentValueName : this.displayNotes.getCoordinateSystemValueNames()) {
+		for (String currentValueName : this.displayObjects.getCoordinateSystemValueNames()) {
 			if (this.standardDenotatorValues.containsKey(currentValueName)) {
 				values.add(this.standardDenotatorValues.get(currentValueName));
 			} else {
@@ -351,18 +349,18 @@ public class BigBangView extends Model implements View {
 	}
 	
 	public void setActiveObject(Integer objectTypeIndex) {
-		this.displayNotes.setIndexOfActiveObjectType(objectTypeIndex);
+		this.displayObjects.setIndexOfActiveObjectType(objectTypeIndex);
 		this.firePropertyChange(ViewController.ACTIVE_OBJECT, null, objectTypeIndex);
-		this.firePropertyChange(ViewController.MAX_SATELLITE_LEVEL, null, this.displayNotes.getMaxSatelliteLevelOfActiveObject());
+		this.firePropertyChange(ViewController.MAX_SATELLITE_LEVEL, null, this.displayObjects.getMaxSatelliteLevelOfActiveObject());
 	}
 	
 	public void setActiveColimitCoordinate(Integer colimitIndex, Integer coordinateIndex) {
-		this.displayNotes.setActiveColimitCoordinate(colimitIndex, coordinateIndex);
-		this.firePropertyChange(ViewController.ACTIVE_COLIMIT_COORDINATE, null, this.displayNotes.getActiveColimitCoordinates());
+		this.displayObjects.setActiveColimitCoordinate(colimitIndex, coordinateIndex);
+		this.firePropertyChange(ViewController.ACTIVE_COLIMIT_COORDINATE, null, this.displayObjects.getActiveColimitCoordinates());
 	}
 	
 	public void setActiveSatelliteLevel(Integer satelliteLevel) {
-		this.displayNotes.setActiveSatelliteLevel(satelliteLevel);
+		this.displayObjects.setActiveSatelliteLevel(satelliteLevel);
 		this.firePropertyChange(ViewController.ACTIVE_SATELLITE_LEVEL, null, satelliteLevel);
 	}
 	
@@ -393,7 +391,7 @@ public class BigBangView extends Model implements View {
 				double[] startingPoint = this.getXYDisplayValues(((TranslationEdit)edit).getStartingPoint());
 				double[] endingPoint = this.getXYDisplayValues(((TranslationEdit)edit).getEndingPoint());
 				this.setDisplayMode(new TranslationModeAdapter(this.viewController, startingPoint, endingPoint));
-			} else {
+			} else if (edit instanceof AbstractLocalTransformationEdit) {
 				AbstractLocalTransformationEdit localEdit = (AbstractLocalTransformationEdit)edit;
 				double[] startingPoint = this.getXYDisplayValues(localEdit.getCenter());
 				double[] endingPoint = this.getXYDisplayValues(localEdit.getEndPoint());
@@ -409,6 +407,8 @@ public class BigBangView extends Model implements View {
 				} else if (edit instanceof ReflectionEdit) {
 					this.setDisplayMode(new ReflectionModeAdapter(this.viewController, startingPoint, endingPoint));
 				}
+			} else if (edit instanceof AddWallpaperDimensionEdit) {
+				this.firePropertyChange(ViewController.SELECT_OPERATION, null, this.selectedOperation);
 			}
 		} else {
 			this.clearDisplayTool();
@@ -422,17 +422,17 @@ public class BigBangView extends Model implements View {
 	
 	public void modifySelectedTransformation(Point2D.Double endingPoint, Boolean inPreviewMode) {
 		((AbstractTransformationEdit)this.selectedOperation).modify(this.getXYDenotatorValues(endingPoint));
-		this.controller.modifiedTransformation(inPreviewMode);
+		this.controller.modifiedOperation(inPreviewMode);
 	}
 	
 	public void modifySelectedTransformation(double[] newValues, Boolean inPreviewMode) {
 		((AbstractTransformationEdit)this.selectedOperation).modify(newValues);
-		this.controller.modifiedTransformation(inPreviewMode);
+		this.controller.modifiedOperation(inPreviewMode);
 	}
 	
 	public void modifyRotationAngle(Double angle, Boolean inPreviewMode) {
 		((RotationEdit)this.selectedOperation).modifyAngle(angle);
-		this.controller.modifiedTransformation(inPreviewMode);
+		this.controller.modifiedOperation(inPreviewMode);
 	}
 	
 	public void modifyOperation(Integer operationIndex, Integer midiValue) {
@@ -441,83 +441,52 @@ public class BigBangView extends Model implements View {
 		this.controller.modifyOperation(operationIndex, ratio);
 	}
 	
-	public void translateSelectedNotes(Point2D.Double center, Point2D.Double endingPoint, Boolean copyAndTransform, Boolean previewMode) {
+	public void translateSelectedObjects(Point2D.Double center, Point2D.Double endingPoint, Boolean copyAndTransform, Boolean previewMode) {
 		TransformationProperties properties = this.getLocalTransformationProperties(center, endingPoint, copyAndTransform, previewMode);
-		this.controller.translateNotes(properties);
+		this.controller.translateObjects(properties);
 	}
 	
-	public void rotateSelectedNotes(Point2D.Double center, Point2D.Double endPoint, Double angle, Boolean copyAndTransform, Boolean previewMode) {
+	public void rotateSelectedObjects(Point2D.Double center, Point2D.Double endPoint, Double angle, Boolean copyAndTransform, Boolean previewMode) {
 		TransformationProperties properties = this.getLocalTransformationProperties(center, endPoint, copyAndTransform, previewMode);
-		this.controller.rotateNotes(properties, angle);
+		this.controller.rotateObjects(properties, angle);
 	}
 	
-	public void scaleSelectedNotes(Point2D.Double center, Point2D.Double endPoint, double[] scaleFactors, Boolean copyAndTransform, Boolean previewMode) {
+	public void scaleSelectedObjects(Point2D.Double center, Point2D.Double endPoint, double[] scaleFactors, Boolean copyAndTransform, Boolean previewMode) {
 		TransformationProperties properties = this.getLocalTransformationProperties(center, endPoint, copyAndTransform, previewMode);
-		this.controller.scaleNotes(properties, scaleFactors);
+		this.controller.scaleObjects(properties, scaleFactors);
 	}
 	
-	public void reflectSelectedNotes(Point2D.Double center, Point2D.Double endPoint, double[] reflectionVector, Boolean copyAndTransform, Boolean previewMode) {
+	public void reflectSelectedObjects(Point2D.Double center, Point2D.Double endPoint, double[] reflectionVector, Boolean copyAndTransform, Boolean previewMode) {
 		TransformationProperties properties = this.getLocalTransformationProperties(center, endPoint, copyAndTransform, previewMode);
-		this.controller.reflectNotes(properties, reflectionVector);
+		this.controller.reflectObjects(properties, reflectionVector);
 	}
 	
-	public void shearSelectedNotes(Point2D.Double center, Point2D.Double endPoint, double[] shearingFactors, Boolean copyAndTransform, Boolean previewMode) {
+	public void shearSelectedObjects(Point2D.Double center, Point2D.Double endPoint, double[] shearingFactors, Boolean copyAndTransform, Boolean previewMode) {
 		TransformationProperties properties = this.getLocalTransformationProperties(center, endPoint, copyAndTransform, previewMode);
-		this.controller.shearNotes(properties, shearingFactors);
+		this.controller.shearObjects(properties, shearingFactors);
 	}
 	
-	public void affineTransformSelectedNotes(Point2D.Double center, Point2D.Double endPoint, double[] shift, Double angle, double[] scaleFactors, Boolean copyAndTransform, Boolean previewMode) {
+	public void affineTransformSelectedObjects(Point2D.Double center, Point2D.Double endPoint, double[] shift, Double angle, double[] scaleFactors, Boolean copyAndTransform, Boolean previewMode) {
 		TransformationProperties properties = this.getLocalTransformationProperties(center, endPoint, copyAndTransform, previewMode);
-		this.controller.affineTransformNotes(properties, shift, angle, scaleFactors);
+		this.controller.affineTransformObjects(properties, shift, angle, scaleFactors);
 	}
 	
-	public void shapeSelectedNotes(TreeMap<Integer,Integer> locations, Boolean copyAndTransform, Boolean previewMode) {
+	public void shapeSelectedObjects(TreeMap<Integer,Integer> locations, Boolean copyAndTransform, Boolean previewMode) {
 		TransformationProperties properties = this.getTransformationProperties(copyAndTransform, previewMode);
-		this.controller.shapeNotes(properties, this.getXYDenotatorValues(locations));
+		this.controller.shapeObjects(properties, this.getXYDenotatorValues(locations));
 	}
 	
 	public void addWallpaperDimension() {
-		if (!this.inWallpaperMode) {
-			this.wallpaperRanges = new ArrayList<Integer>();
-			this.inWallpaperMode = true;
-			this.firePropertyChange(ViewController.START_WALLPAPER, null, null);
-			this.controller.startWallpaper(new ArrayList<DenotatorPath>(this.displayNotes.getSelectedObjectsPaths()));
-		} else {
-			this.firePropertyChange(ViewController.ADD_WP_DIMENSION, null, null);
-		}
-		this.wallpaperRanges.add(0);
-		this.wallpaperRanges.add(5);
-		this.controller.addWallpaperDimension(0, 5);
-		this.firePropertyChange(ViewController.RANGE, null, this.wallpaperRanges);
+		this.controller.addWallpaperDimension(this.displayObjects.getCategorizedSelectedObjectsPaths(), 0, 5);
 	}
 	
-	public void endWallpaper() {
-		this.inWallpaperMode = false;
-		this.firePropertyChange(ViewController.END_WALLPAPER, null, null);
-		this.controller.endWallpaper();
-	}
-	
-	public void setRange(Integer dimension, Boolean rangeTo, Integer value) {
-		int oldValue = this.wallpaperRanges.get(this.getRangeIndex(dimension, rangeTo));
-		int otherValue = this.wallpaperRanges.get(this.getRangeIndex(dimension, !rangeTo));
-		if (value != oldValue
-				&& ((rangeTo && otherValue <= value) || (!rangeTo && otherValue >= value))) {
-			this.wallpaperRanges.set(this.getRangeIndex(dimension, rangeTo), value);
-			this.controller.updateWallpaper(this.wallpaperRanges);
-			this.firePropertyChange(ViewController.RANGE, null, this.wallpaperRanges);
-		}
-	}
-	
-	private int getRangeIndex(Integer dimension, boolean rangeTo) {
-		int index = 2*(dimension-1);
-		if (rangeTo) {
-			index++;
-		}
-		return index;
+	public void modifyWallpaperRange(Boolean rangeTo, Integer value) {
+		((AddWallpaperDimensionEdit)this.selectedOperation).setRange(rangeTo, value);
+		this.controller.modifiedOperation(false);
 	}
 	
 	public void setAlterationComposition(Integer index) {
-		Set<DenotatorPath> nodePaths = this.displayNotes.getSelectedObjectsPaths();
+		Set<DenotatorPath> nodePaths = this.displayObjects.getSelectedObjectsPaths();
 		this.controller.setAlterationComposition(index, nodePaths);
 	}
 	
@@ -530,7 +499,7 @@ public class BigBangView extends Model implements View {
 			if (this.selectedObjectsPaths != null) {
 				properties.setAnchorNodePath(this.selectedObjectsPaths.getAnchorPath());
 			}
-			double[] anchorValues = this.getXYDenotatorValues(this.displayNotes.getSelectedAnchorNodeCenter());
+			double[] anchorValues = this.getXYDenotatorValues(this.displayObjects.getSelectedAnchorNodeCenter());
 			denotatorCenter[0] -= anchorValues[0];
 			denotatorCenter[1] -= anchorValues[1];
 		}
@@ -542,16 +511,16 @@ public class BigBangView extends Model implements View {
 	private TransformationProperties getTransformationProperties(boolean copyAndTransform, boolean previewMode) {
 		SelectedObjectsPaths objectsPaths;
 		if (this.selectedObjectsPaths == null) {
-			objectsPaths = this.displayNotes.getCategorizedSelectedObjectsPaths();
+			objectsPaths = this.displayObjects.getCategorizedSelectedObjectsPaths();
 		} else {
 			objectsPaths = this.selectedObjectsPaths;
 		}
 		List<TransformationPaths> valuePaths = this.getXYTransformationPaths();
-		return new TransformationProperties(objectsPaths, valuePaths, copyAndTransform, previewMode, this.inWallpaperMode);
+		return new TransformationProperties(objectsPaths, valuePaths, copyAndTransform, previewMode);
 	}
 	
 	public void addObject(Point2D.Double location) {
-		Map<DenotatorPath,Double> objectValues = this.displayNotes.getActiveObjectStandardValues(this.standardDenotatorValues);
+		Map<DenotatorPath,Double> objectValues = this.displayObjects.getActiveObjectStandardValues(this.standardDenotatorValues);
 		DenotatorPath objectPowersetPath = this.editObjectValuesAndFindClosestPowerset(location, objectValues);
 		
 		//only add object if there are some screen values to be converted
@@ -565,57 +534,57 @@ public class BigBangView extends Model implements View {
 	}
 	
 	public void deleteSelectedObjects() {
-		List<DenotatorPath> paths = new ArrayList<DenotatorPath>(this.displayNotes.getSelectedObjectsPaths());
+		List<DenotatorPath> paths = new ArrayList<DenotatorPath>(this.displayObjects.getSelectedObjectsPaths());
 		if (paths.size() > 0) {
 			this.controller.deleteObjects(paths);
 		}
 	}
 	
-	public void copySelectedNotesTo(Integer layerIndex) {
-		Set<DenotatorPath> objectsPaths = this.displayNotes.getSelectedObjectsPaths();
+	public void copySelectedObjectsTo(Integer layerIndex) {
+		Set<DenotatorPath> objectsPaths = this.displayObjects.getSelectedObjectsPaths();
 		if (objectsPaths.size() > 0) {
-			this.controller.copyNotes(objectsPaths, layerIndex);
+			this.controller.copyObjects(objectsPaths, layerIndex);
 		}
 	}
 	
-	public void copySelectedNotesToNewLayer() {
-		this.copySelectedNotesTo(this.layerStates.size());
+	public void copySelectedObjectsToNewLayer() {
+		this.copySelectedObjectsTo(this.layerStates.size());
 	}
 	
-	public void moveSelectedNotesTo(Integer layerIndex) {
-		Set<DenotatorPath> objectsPaths = this.displayNotes.getSelectedObjectsPaths();
+	public void moveSelectedObjectsTo(Integer layerIndex) {
+		Set<DenotatorPath> objectsPaths = this.displayObjects.getSelectedObjectsPaths();
 		if (objectsPaths.size() > 0) {
-			this.controller.moveNotes(objectsPaths, layerIndex);
+			this.controller.moveObjects(objectsPaths, layerIndex);
 		}
 	}
 	
-	public void moveSelectedNotesToNewLayer() {
-		Set<DenotatorPath> objectsPaths = this.displayNotes.getSelectedObjectsPaths();
+	public void moveSelectedObjectsToNewLayer() {
+		Set<DenotatorPath> objectsPaths = this.displayObjects.getSelectedObjectsPaths();
 		if (objectsPaths.size() > 0) {
-			this.controller.moveNotes(objectsPaths, this.layerStates.size());
+			this.controller.moveObjects(objectsPaths, this.layerStates.size());
 		}
 	}
 	
-	public void addSelectedNotesAsSatellitesTo(DisplayObject anchorObject, Integer powersetIndex) {
-		Set<DenotatorPath> satellitePaths = this.displayNotes.getSelectedObjectsPaths();
+	public void addSelectedObjectsAsSatellitesTo(DisplayObject anchorObject, Integer powersetIndex) {
+		Set<DenotatorPath> satellitePaths = this.displayObjects.getSelectedObjectsPaths();
 		DenotatorPath anchorPath = anchorObject.getTopDenotatorPath();
 		this.controller.buildSatellites(satellitePaths, anchorPath, powersetIndex);
 	}
 	
-	public void flattenSelectedNotes() {
-		Set<DenotatorPath> objectsPaths = this.displayNotes.getSelectedObjectsPaths();
-		this.controller.flattenNotes(objectsPaths);
+	public void flattenSelectedObjects() {
+		Set<DenotatorPath> objectsPaths = this.displayObjects.getSelectedObjectsPaths();
+		this.controller.flattenObjects(objectsPaths);
 	}
 	
-	/*public void addSelectedNotesAsModulatorsTo(DisplayObject parentNote) {
-		Set<NotePath> modulatorNodePaths = this.displayNotes.getSelectedNodePaths();
-		NotePath parentNodePath = parentNote.getOriginalPath();
+	/*public void addSelectedObjectsAsModulatorsTo(DisplayObject parentObject) {
+		Set<ObjectPath> modulatorNodePaths = this.displayObjects.getSelectedNodePaths();
+		ObjectPath parentNodePath = parentObject.getOriginalPath();
 		this.controller.addAsModulators(modulatorNodePaths, parentNodePath);
 	}*/
 	
-	public void removeSelectedNotesFromCarrier() {
-		Set<DenotatorPath> objectsPaths = this.displayNotes.getSelectedObjectsPaths();
-		this.controller.removeNotesFromCarrier(objectsPaths);
+	public void removeSelectedObjectsFromCarrier() {
+		Set<DenotatorPath> objectsPaths = this.displayObjects.getSelectedObjectsPaths();
+		this.controller.removeObjectsFromCarrier(objectsPaths);
 	}
 	
 	private TreeMap<Double,Double> getXYDenotatorValues(TreeMap<Integer,Integer> locations) {
@@ -642,10 +611,10 @@ public class BigBangView extends Model implements View {
 	}
 	
 	private DenotatorPath editObjectValuesAndFindClosestPowerset(Point2D.Double location, Map<DenotatorPath,Double> denotatorValues) {
-		DenotatorPath parentPowersetPath = this.displayNotes.getActiveObjectAndLevelPowersetPath();
+		DenotatorPath parentPowersetPath = this.displayObjects.getActiveObjectAndLevelPowersetPath();
 		int[] xyParameters = this.viewParameters.getSelectedXYViewParameters();
-		int xValueIndex = this.displayNotes.getActiveObjectValueIndex(xyParameters[0]);
-		int yValueIndex = this.displayNotes.getActiveObjectValueIndex(xyParameters[1]);
+		int xValueIndex = this.displayObjects.getActiveObjectValueIndex(xyParameters[0]);
+		int yValueIndex = this.displayObjects.getActiveObjectValueIndex(xyParameters[1]);
 		double[] xyDenotatorValues = new double[2];
 		xyDenotatorValues[0] = this.getDenotatorValue(location.x, 0, this.displayPosition.x, this.xZoomFactor);
 		xyDenotatorValues[1] = this.getDenotatorValue(location.y, 1, this.displayPosition.y, this.yZoomFactor);
@@ -662,7 +631,7 @@ public class BigBangView extends Model implements View {
 	
 	private void replaceDenotatorValue(double displayValue, int valueIndex, int parameterIndex, int position, double zoomFactor, Map<DenotatorPath,Double> values) {
 		double denotatorValue = this.getDenotatorValue(displayValue, parameterIndex, position, zoomFactor);
-		DenotatorPath associatedPath = this.displayNotes.getActiveObjectValuePathAt(valueIndex);
+		DenotatorPath associatedPath = this.displayObjects.getActiveObjectValuePathAt(valueIndex);
 		//null happens when parent value, satellite/sibling level is selected, or when path not in active colimits
 		if (associatedPath != null) {
 			values.put(associatedPath, denotatorValue);
@@ -671,7 +640,7 @@ public class BigBangView extends Model implements View {
 	
 	private DenotatorPath findClosestPowersetPath(int[] valueIndices, double[] denotatorValues, DenotatorPath parentPowersetPath) {
 		if (parentPowersetPath != null) {
-			DisplayObject closestObject = this.displayNotes.getClosestObject(valueIndices, denotatorValues, parentPowersetPath);
+			DisplayObject closestObject = this.displayObjects.getClosestObject(valueIndices, denotatorValues, parentPowersetPath);
 			if (closestObject != null) {
 				return closestObject.getTopDenotatorPath().getDescendantPathAccordingTo(parentPowersetPath);
 			}
@@ -692,7 +661,7 @@ public class BigBangView extends Model implements View {
 	private List<TransformationPaths> getXYTransformationPaths() {
 		List<TransformationPaths> paths = new ArrayList<TransformationPaths>();
 		int[] xyParameters = this.viewParameters.getSelectedXYViewParameters();
-		for (int i = 0; i < this.displayNotes.getObjectTypes().size(); i++) {
+		for (int i = 0; i < this.displayObjects.getObjectTypes().size(); i++) {
 			TransformationPaths currentPaths = new TransformationPaths();
 			//TODO: bad so redundant
 			currentPaths.setXYCoordinates(xyParameters);
@@ -701,7 +670,7 @@ public class BigBangView extends Model implements View {
 		//only one parameter might be selected... TODO does the list need to be null or can it just be empty??
 		for (int i = 0; i < xyParameters.length; i++) {
 			if (xyParameters[i] >= 0) {
-				List<List<DenotatorPath>> currentPaths = this.displayNotes.getAllObjectConfigurationsValuePathsAt(xyParameters[i]);
+				List<List<DenotatorPath>> currentPaths = this.displayObjects.getAllObjectConfigurationsValuePathsAt(xyParameters[i]);
 				for (int j = 0; j < currentPaths.size(); j++) {
 					paths.get(j).setDomainPaths(i, currentPaths.get(j));
 					paths.get(j).setCodomainPaths(i, currentPaths.get(j));
@@ -758,7 +727,7 @@ public class BigBangView extends Model implements View {
 	}
 	
 	public void setPlaybackPosition(Point2D.Double location) {
-		int timeAxisIndex = this.displayNotes.getTimeAxisIndex(this.viewParameters);
+		int timeAxisIndex = this.displayObjects.getTimeAxisIndex(this.viewParameters);
 		if (timeAxisIndex != -1) {
 			double[] xyDenotatorValues = this.getXYDenotatorValues(location);
 			this.player.setPlaybackPosition(xyDenotatorValues[timeAxisIndex]);

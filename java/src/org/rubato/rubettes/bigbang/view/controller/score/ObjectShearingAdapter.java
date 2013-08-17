@@ -7,13 +7,13 @@ import java.awt.geom.Point2D;
 import org.rubato.rubettes.bigbang.view.controller.ViewController;
 import org.rubato.rubettes.bigbang.view.model.tools.ShearingTool;
 
-public class NoteShearingAdapter extends NoteTransformationAdapter {
+public class ObjectShearingAdapter extends ObjectTransformationAdapter {
 	
-	public NoteShearingAdapter(ViewController controller) {
+	public ObjectShearingAdapter(ViewController controller) {
 		super(controller);
 	}
 	
-	public NoteShearingAdapter(ViewController controller, double[] startingPoint, double[] endingPoint, double[] shearingFactors) {
+	public ObjectShearingAdapter(ViewController controller, double[] startingPoint, double[] endingPoint, double[] shearingFactors) {
 		super(controller, startingPoint, endingPoint);
 		((ShearingTool)this.displayTool).setShearingFactors(shearingFactors);
 	}
@@ -25,10 +25,10 @@ public class NoteShearingAdapter extends NoteTransformationAdapter {
 	}
 	
 	@Override
-	protected void transformSelectedNotes(MouseEvent event, boolean inPreviewMode) {
+	protected void transformSelectedObjects(MouseEvent event, boolean inPreviewMode) {
 		double[] shearingFactors = this.calculateShearingFactors(event);
 		Point2D.Double currentEndPoint = new Point2D.Double(event.getPoint().x, event.getPoint().y);
-		this.controller.shearSelectedNotes(this.startingPoint, currentEndPoint, shearingFactors, event.isAltDown(), inPreviewMode);
+		this.controller.shearSelectedObjects(this.startingPoint, currentEndPoint, shearingFactors, event.isAltDown(), inPreviewMode);
 	}
 	
 	@Override

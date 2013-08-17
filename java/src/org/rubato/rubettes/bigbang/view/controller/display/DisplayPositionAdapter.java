@@ -23,7 +23,7 @@ public class DisplayPositionAdapter extends MouseInputAdapter {
 		if (event.getButton() == MouseEvent.BUTTON1) {
 			Point startingPoint = event.getPoint();
 			JBigBangDisplay source = ((JBigBangDisplay)event.getSource());
-			this.movingDisplay = !source.getContents().getDisplayObjects().hasSelectedNoteAt(startingPoint);
+			this.movingDisplay = !source.getContents().getDisplayObjects().hasSelectedObjectAt(startingPoint);
 			if (this.movingDisplay) {
 				this.previousPosition = event.getPoint();
 			}

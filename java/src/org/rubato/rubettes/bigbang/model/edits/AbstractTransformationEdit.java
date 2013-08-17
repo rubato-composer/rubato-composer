@@ -75,21 +75,8 @@ public abstract class AbstractTransformationEdit extends AbstractOperationEdit {
 		DenotatorPath anchorNodePath = this.properties.getAnchorNodePath();
 		boolean inPreviewMode = this.properties.inPreviewMode();
 		boolean copyAndTransform = this.properties.copyAndTransform();
-		boolean inWallpaperMode = this.properties.inWallpaperMode();
 		BigBangTransformation transformation = new BigBangTransformation(this.transformation, transformationPaths, copyAndTransform, anchorNodePath);
-		SelectedObjectsPaths resultPaths;
-		if (inWallpaperMode) {
-			//TODO: include sendCompositionChange
-			resultPaths = this.scoreManager.addWallpaperTransformation(transformation, inPreviewMode);
-		} else {
-			resultPaths = this.scoreManager.mapObjects(objectsPaths, transformation, inPreviewMode, sendCompositionChange);
-		}
-		if (copyAndTransform || inWallpaperMode) {
-			//this.copyPaths = resultPaths;
-		} else {
-			//WOW not at all compatible with dynamic score mapping!!
-			//this.properties.setNodePaths(resultPaths);
-		}
+		SelectedObjectsPaths resultPaths = this.scoreManager.addTransformation(objectsPaths, transformation, inPreviewMode, sendCompositionChange);
 		List<Map<DenotatorPath,DenotatorPath>> newDifferences = this.getPathDifferences(this.previousResultPaths, resultPaths);
 		this.previousResultPaths = resultPaths;
 		return newDifferences;
