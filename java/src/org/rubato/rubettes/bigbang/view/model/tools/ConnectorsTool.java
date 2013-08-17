@@ -20,7 +20,7 @@ public class ConnectorsTool extends DisplayTool {
 	public void paint(AbstractPainter painter) {
 		if (this.display != null && this.point != null) {
 			DisplayObjects notes = this.display.getDisplayObjects();
-			notes.paintSelectedNotesConnectors(painter, this.point.x, this.point.y);
+			notes.paintSelectedObjectsConnectors(painter, this.point.x, this.point.y);
 			//notes.paintSelectedNotes(painter);
 		}
 	}

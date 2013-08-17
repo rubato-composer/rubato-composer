@@ -27,9 +27,9 @@ public class BuildSatellitesAdapter extends MouseInputAdapter {
 	
 	public void mouseClicked(MouseEvent event) {
 		Point location = event.getPoint();
-		DisplayObject noteInLocation = ((JBigBangDisplay)event.getSource()).getContents().getDisplayObjects().getNoteAt(location);
+		DisplayObject noteInLocation = ((JBigBangDisplay)event.getSource()).getContents().getDisplayObjects().getObjectAt(location);
 		if (noteInLocation != null) {
-			this.controller.addSelectedNotesAsSatellitesTo(noteInLocation, this.powerset);
+			this.controller.addSelectedObjectsAsSatellitesTo(noteInLocation, this.powerset);
 			this.mode.goBackToPreviousMode();
 		}
 	}

@@ -5,7 +5,7 @@ import org.mt4j.input.inputProcessors.componentProcessors.zoomProcessor.ZoomProc
 import org.rubato.rubettes.bigbang.view.controller.ViewController;
 import org.rubato.rubettes.bigbang.view.controller.display.multitouch.BigBangPanAction;
 import org.rubato.rubettes.bigbang.view.controller.display.multitouch.BigBangZoomAction;
-import org.rubato.rubettes.bigbang.view.controller.score.multitouch.MTNoteSelectionAdapter;
+import org.rubato.rubettes.bigbang.view.controller.score.multitouch.MTObjectSelectionAdapter;
 import org.rubato.rubettes.bigbang.view.subview.multitouch.BigBangScene;
 
 public class MTNavigationModeAdapter extends MTDisplayModeAdapter {
@@ -23,7 +23,7 @@ public class MTNavigationModeAdapter extends MTDisplayModeAdapter {
 		//this.addProcessorAndListener(scene.getLassoProcessor(), new DefaultLassoAction(scene.getMTApplication(), scene.getCanvas().getClusterManager(), scene.getCanvas()));
 		
 		//add note selector for now...
-		this.addProcessorAndListener(scene.getLassoProcessor(), new MTNoteSelectionAdapter(controller));
+		this.addProcessorAndListener(scene.getLassoProcessor(), new MTObjectSelectionAdapter(controller));
 	}
 
 }

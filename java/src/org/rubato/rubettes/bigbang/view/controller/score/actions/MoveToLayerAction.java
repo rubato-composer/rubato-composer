@@ -17,7 +17,7 @@ public class MoveToLayerAction extends AbstractAction {
 	}
 	
 	public void actionPerformed(ActionEvent event) {
-		this.controller.moveSelectedNotesTo(this.layerIndex);
+		this.controller.moveSelectedObjectsTo(this.layerIndex);
 	}
 	
 }

@@ -10,22 +10,22 @@ import org.rubato.rubettes.bigbang.view.controller.ViewController;
 import org.rubato.rubettes.bigbang.view.model.tools.SelectionTool;
 import org.rubato.rubettes.bigbang.view.subview.JBigBangDisplay;
 
-public class NoteSelectionAdapter extends MouseInputAdapter {
+public class ObjectSelectionAdapter extends MouseInputAdapter {
 	
 	private ViewController controller;
 	private Point2D.Double startingPoint;
 	private SelectionTool selectionTool;
 	
-	public NoteSelectionAdapter(ViewController controller) {
+	public ObjectSelectionAdapter(ViewController controller) {
 		this.controller = controller;
 	}
 	
 	public void mouseClicked(MouseEvent event) {
 		if (event.getButton() == MouseEvent.BUTTON1 && !event.isPopupTrigger()) {
 			if (event.isAltDown()) {
-				this.controller.toggleAnchorNoteSelection(event.getPoint());
+				this.controller.toggleAnchorObjectSelection(event.getPoint());
 			} else {
-				this.controller.toggleNoteSelection(event.getPoint());
+				this.controller.toggleObjectSelection(event.getPoint());
 			}
 		}
 	}
@@ -33,7 +33,7 @@ public class NoteSelectionAdapter extends MouseInputAdapter {
 	public void mousePressed(MouseEvent event) {
 		if (event.getButton() == MouseEvent.BUTTON1 && !event.isPopupTrigger()) {
 			Point location = event.getPoint();
-			if (!((JBigBangDisplay)event.getSource()).getContents().getDisplayObjects().hasSelectedNoteAt(location)) {
+			if (!((JBigBangDisplay)event.getSource()).getContents().getDisplayObjects().hasSelectedObjectAt(location)) {
 				this.startingPoint = new Point2D.Double(location.x, location.y);
 				this.selectionTool = new SelectionTool();
 				this.selectionTool.setStartingPoint(this.startingPoint);
@@ -55,7 +55,7 @@ public class NoteSelectionAdapter extends MouseInputAdapter {
 		if (this.startingPoint != null) {
 			Point currentPoint = event.getPoint();
 			this.selectionTool.setEndingPoint(new Point2D.Double(currentPoint.x, currentPoint.y));
-			this.controller.selectNotes(this.selectionTool, stillSelecting);
+			this.controller.selectObjects(this.selectionTool, stillSelecting);
 			if (!stillSelecting) {
 				this.startingPoint = null;
 			}

@@ -8,16 +8,16 @@ import org.rubato.rubettes.bigbang.view.controller.ViewController;
 import org.rubato.rubettes.bigbang.view.model.tools.RotationTool;
 import org.rubato.rubettes.util.GeometryTools;
 
-public class NoteRotationAdapter extends NoteTransformationAdapter {
+public class ObjectRotationAdapter extends ObjectTransformationAdapter {
 	
 	private Point2D.Double center;
 	private double startingAngle;
 	
-	public NoteRotationAdapter(ViewController controller) {
+	public ObjectRotationAdapter(ViewController controller) {
 		super(controller);
 	}
 	
-	public NoteRotationAdapter(ViewController controller, double[] center, double[] endingPoint, double angle) {
+	public ObjectRotationAdapter(ViewController controller, double[] center, double[] endingPoint, double angle) {
 		super(controller, center, endingPoint);
 		this.updateCenter(center[0], center[1]);
 		Point2D.Double endingPoint2D = new Point2D.Double(endingPoint[0], endingPoint[1]);
@@ -50,10 +50,10 @@ public class NoteRotationAdapter extends NoteTransformationAdapter {
 	}
 	
 	@Override
-	protected void transformSelectedNotes(MouseEvent event, boolean inPreviewMode) {
+	protected void transformSelectedObjects(MouseEvent event, boolean inPreviewMode) {
 		Point2D.Double currentEndingPoint = new Point2D.Double(event.getPoint().x, event.getPoint().y);
 		double arcAngle = this.calculateArcAngle(currentEndingPoint);
-		this.controller.rotateSelectedNotes(this.center, currentEndingPoint, arcAngle, event.isAltDown(), inPreviewMode);
+		this.controller.rotateSelectedObjects(this.center, currentEndingPoint, arcAngle, event.isAltDown(), inPreviewMode);
 	}
 	
 	@Override

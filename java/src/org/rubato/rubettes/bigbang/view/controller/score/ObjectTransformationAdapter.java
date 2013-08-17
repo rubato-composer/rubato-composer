@@ -8,7 +8,7 @@ import javax.swing.event.MouseInputAdapter;
 import org.rubato.rubettes.bigbang.view.controller.ViewController;
 import org.rubato.rubettes.bigbang.view.model.tools.DisplayTool;
 
-public abstract class NoteTransformationAdapter extends MouseInputAdapter {
+public abstract class ObjectTransformationAdapter extends MouseInputAdapter {
 	
 	protected ViewController controller;
 	protected Point2D.Double startingPoint;
@@ -16,12 +16,12 @@ public abstract class NoteTransformationAdapter extends MouseInputAdapter {
 	protected boolean inModificationMode;
 	protected boolean dragging;
 	
-	public NoteTransformationAdapter(ViewController controller) {
+	public ObjectTransformationAdapter(ViewController controller) {
 		this.init(controller);
 		this.inModificationMode = false;
 	}
 	
-	public NoteTransformationAdapter(ViewController controller, double[] startingPoint, double[] endingPoint) {
+	public ObjectTransformationAdapter(ViewController controller, double[] startingPoint, double[] endingPoint) {
 		this.init(controller);
 		this.updateStartingPoint(startingPoint[0], startingPoint[1]);
 		Point2D.Double endingPoint2D = new Point2D.Double(endingPoint[0], endingPoint[1]);
@@ -78,11 +78,11 @@ public abstract class NoteTransformationAdapter extends MouseInputAdapter {
 		if (this.inModificationMode) {
 			this.modifySelectedTransformation(event, inPreviewMode);
 		} else {
-			this.transformSelectedNotes(event, inPreviewMode);
+			this.transformSelectedObjects(event, inPreviewMode);
 		}
 	}
 	
-	protected abstract void transformSelectedNotes(MouseEvent event, boolean inPreviewMode);
+	protected abstract void transformSelectedObjects(MouseEvent event, boolean inPreviewMode);
 	
 	protected void modifySelectedTransformation(MouseEvent event, boolean inPreviewMode) {
 		Point2D.Double currentEndPoint = new Point2D.Double(event.getPoint().x, event.getPoint().y);

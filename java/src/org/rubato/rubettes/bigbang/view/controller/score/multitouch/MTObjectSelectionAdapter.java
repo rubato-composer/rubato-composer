@@ -9,13 +9,13 @@ import org.mt4j.input.inputProcessors.componentProcessors.lassoProcessor.LassoEv
 import org.rubato.rubettes.bigbang.view.controller.ViewController;
 import org.rubato.rubettes.bigbang.view.model.tools.SelectionTool;
 
-public class MTNoteSelectionAdapter implements IGestureEventListener {
+public class MTObjectSelectionAdapter implements IGestureEventListener {
 	
 	private ViewController controller;
 	private SelectionTool selectionTool;
 	private Point2D.Double startingPoint;
 	
-	public MTNoteSelectionAdapter(ViewController controller) {
+	public MTObjectSelectionAdapter(ViewController controller) {
 		this.controller = controller;
 	}
 
@@ -43,7 +43,7 @@ public class MTNoteSelectionAdapter implements IGestureEventListener {
 	private void updateSelection(Point2D.Double finger, boolean stillSelecting) {
 		if (this.startingPoint != null) {
 			this.selectionTool.setEndingPoint(finger);
-			this.controller.selectNotes(this.selectionTool, stillSelecting);
+			this.controller.selectObjects(this.selectionTool, stillSelecting);
 			if (!stillSelecting) {
 				this.startingPoint = null;
 			}

@@ -112,7 +112,7 @@ public class JBigBangPopupMenu extends JPopupMenu implements View {
 			this.updateUndoRedoItems(event);
 		} else if (propertyName.equals(ViewController.REDO)) {
 			this.updateUndoRedoItems(event);
-		} else if (propertyName.equals(ViewController.NOTE_SELECTION)) {
+		} else if (propertyName.equals(ViewController.OBJECT_SELECTION)) {
 			this.enableEditItems((Integer)event.getNewValue() > 0);
 		} else if (propertyName.equals(ViewController.LAYERS)) {
 			this.updateLayerMenus((LayerStates)event.getNewValue());

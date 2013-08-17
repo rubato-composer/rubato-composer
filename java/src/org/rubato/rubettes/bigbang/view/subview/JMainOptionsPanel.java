@@ -42,6 +42,8 @@ public class JMainOptionsPanel extends JPanel implements ActionListener, View {
 	public JMainOptionsPanel(ViewController controller, BigBangController bigBangController, ViewParameters viewParameters) {
 		this.viewController = controller;
 		this.bigBangController = bigBangController;
+		this.viewController.addView(this);
+		this.bigBangController.addView(this);
 		this.setLayout(new BorderLayout(0,0));
 		this.initNorthernPanel(controller);
 		this.initCenterPanel(controller, viewParameters);

@@ -15,7 +15,6 @@ public class BigBangController extends Controller {
 	public static final String NEW_WINDOW = "newWindowAdded";
 	public static final String UNDO = "undo";
 	public static final String REDO = "redo";
-	public static final String POST_EDIT = "postEdit";
 	public static final String GRAPH = "graph";
 	public static final String MODIFIED_OPERATION = "modifiedOperation";
 	public static final String MODIFY_OPERATION = "modifyOperation";
@@ -27,24 +26,23 @@ public class BigBangController extends Controller {
 	public static final String COMPOSITION = "Composition";
 	public static final String ADD_OBJECT = "addObject";
 	public static final String DELETE_OBJECTS = "deleteObjects";
-	public static final String COPY_NOTES = "copyNotes";
-	public static final String MOVE_NOTES = "moveNotes";
-	public static final String TRANSLATE_NOTES = "translateNotes";
-	public static final String ROTATE_NOTES = "rotateNotes";
-	public static final String SCALE_NOTES = "scaleNotes";
-	public static final String REFLECT_NOTES = "reflectNotes";
-	public static final String SHEAR_NOTES = "shearNotes";
-	public static final String AFFINE_TRANSFORM_NOTES = "affineTransformNotes";
-	public static final String SHAPE_NOTES = "shapeNotes";
-	public static final String SATELLITE_NOTES = "buildSatellites";
-	public static final String FLATTEN_NOTES = "flattenNotes";
-	public static final String ADD_AS_MODULATOR_NOTES = "buildModulators";
-	public static final String REMOVE_NOTES_FROM_CARRIER = "removeNotesFromCarrier";
+	public static final String COPY_OBJECTS = "copyObjects";
+	public static final String MOVE_OBJECTS = "moveObjects";
+	public static final String TRANSLATE_OBJECTS = "translateObjects";
+	public static final String ROTATE_OBJECTS = "rotateObjects";
+	public static final String SCALE_OBJECTS = "scaleObjects";
+	public static final String REFLECT_OBJECTS = "reflectObjects";
+	public static final String SHEAR_OBJECTS = "shearObjects";
+	public static final String AFFINE_TRANSFORM_OBJECTS = "affineTransformObjects";
+	public static final String SHAPE_OBJECTS = "shapeObjects";
+	public static final String SATELLITE_OBJECTS = "buildSatellites";
+	public static final String FLATTEN_OBJECTS = "flattenObjects";
+	public static final String REMOVE_OBJECTS_FROM_CARRIER = "removeObjectsFromCarrier";
 	
-	public static final String START_WALLPAPER = "startWallpaper";
 	public static final String ADD_DIMENSION = "addWallpaperDimension";
-	public static final String UPDATE_WALLPAPER = "updateWallpaper";
+	public static final String SET_WALLPAPER_RANGE = "setWallpaperRange";
 	public static final String END_WALLPAPER = "endWallpaper";
+	public static final String WALLPAPER = "wallpaper";
 	
 	public static final String TOGGLE_ALTERATION_MODE = "toggleAlterationMode";
 	public static final String ENTER_ALTERATION_MODE = "enterAlterationMode";
@@ -68,7 +66,7 @@ public class BigBangController extends Controller {
 		this.callModelMethod(BigBangController.REDO);
 	}
 	
-	public void modifiedTransformation(boolean inPreviewMode) {
+	public void modifiedOperation(boolean inPreviewMode) {
 		this.callModelMethod(BigBangController.MODIFIED_OPERATION, inPreviewMode);
 	}
 	
@@ -108,68 +106,60 @@ public class BigBangController extends Controller {
 		this.callModelMethod(BigBangController.DELETE_OBJECTS, objectsPaths);
 	}
 	
-	public void copyNotes(Set<DenotatorPath> objectsPaths, int layerIndex) {
-		this.callModelMethod(BigBangController.COPY_NOTES, objectsPaths, layerIndex);
+	public void copyObjects(Set<DenotatorPath> objectsPaths, int layerIndex) {
+		this.callModelMethod(BigBangController.COPY_OBJECTS, objectsPaths, layerIndex);
 	}
 	
-	public void moveNotes(Set<DenotatorPath> objectsPaths, int layerIndex) {
-		this.callModelMethod(BigBangController.MOVE_NOTES, objectsPaths, layerIndex);
+	public void moveObjects(Set<DenotatorPath> objectsPaths, int layerIndex) {
+		this.callModelMethod(BigBangController.MOVE_OBJECTS, objectsPaths, layerIndex);
 	}
 	
-	public void translateNotes(TransformationProperties properties) {
-		this.callModelMethod(BigBangController.TRANSLATE_NOTES, properties);
+	public void translateObjects(TransformationProperties properties) {
+		this.callModelMethod(BigBangController.TRANSLATE_OBJECTS, properties);
 	}
 	
-	public void rotateNotes(TransformationProperties properties, double angle) {
-		this.callModelMethod(BigBangController.ROTATE_NOTES, properties, angle);
+	public void rotateObjects(TransformationProperties properties, double angle) {
+		this.callModelMethod(BigBangController.ROTATE_OBJECTS, properties, angle);
 	}
 	
-	public void scaleNotes(TransformationProperties properties, double[] scaleFactors) {
-		this.callModelMethod(BigBangController.SCALE_NOTES, properties, scaleFactors);
+	public void scaleObjects(TransformationProperties properties, double[] scaleFactors) {
+		this.callModelMethod(BigBangController.SCALE_OBJECTS, properties, scaleFactors);
 	}
 	
-	public void reflectNotes(TransformationProperties properties, double[] reflectionVector) {
-		this.callModelMethod(BigBangController.REFLECT_NOTES, properties, reflectionVector);
+	public void reflectObjects(TransformationProperties properties, double[] reflectionVector) {
+		this.callModelMethod(BigBangController.REFLECT_OBJECTS, properties, reflectionVector);
 	}
 	
-	public void shearNotes(TransformationProperties properties, double[] shearingFactors) {
-		this.callModelMethod(BigBangController.SHEAR_NOTES, properties, shearingFactors);
+	public void shearObjects(TransformationProperties properties, double[] shearingFactors) {
+		this.callModelMethod(BigBangController.SHEAR_OBJECTS, properties, shearingFactors);
 	}
 	
-	public void shapeNotes(TransformationProperties properties, TreeMap<Double,Double> shapingLocations) {
-		this.callModelMethod(BigBangController.SHAPE_NOTES, properties, shapingLocations);
+	public void shapeObjects(TransformationProperties properties, TreeMap<Double,Double> shapingLocations) {
+		this.callModelMethod(BigBangController.SHAPE_OBJECTS, properties, shapingLocations);
 	}
 	
-	public void affineTransformNotes(TransformationProperties properties, double[] shift, double angle, double[] scaleFactors) {
-		this.callModelMethod(BigBangController.AFFINE_TRANSFORM_NOTES, properties, shift, angle, scaleFactors);
+	public void affineTransformObjects(TransformationProperties properties, double[] shift, double angle, double[] scaleFactors) {
+		this.callModelMethod(BigBangController.AFFINE_TRANSFORM_OBJECTS, properties, shift, angle, scaleFactors);
 	}
 	
-	public void buildSatellites(Set<DenotatorPath> satelliteNodePaths, DenotatorPath anchorNodePath, int powersetIndex) {
-		this.callModelMethod(BigBangController.SATELLITE_NOTES, satelliteNodePaths, anchorNodePath, powersetIndex);
+	public void buildSatellites(Set<DenotatorPath> satellitePaths, DenotatorPath anchorNodePath, int powersetIndex) {
+		this.callModelMethod(BigBangController.SATELLITE_OBJECTS, satellitePaths, anchorNodePath, powersetIndex);
 	}
 	
-	public void flattenNotes(Set<DenotatorPath> satelliteNodePaths) {
-		this.callModelMethod(BigBangController.FLATTEN_NOTES, satelliteNodePaths);
+	public void flattenObjects(Set<DenotatorPath> satellitePaths) {
+		this.callModelMethod(BigBangController.FLATTEN_OBJECTS, satellitePaths);
 	}
 	
-	public void addAsModulators(Set<DenotatorPath> modulatorNodePaths, DenotatorPath carrierNodePath) {
-		this.callModelMethod(BigBangController.ADD_AS_MODULATOR_NOTES, modulatorNodePaths, carrierNodePath);
+	public void removeObjectsFromCarrier(Set<DenotatorPath> modulatorNodePaths) {
+		this.callModelMethod(BigBangController.REMOVE_OBJECTS_FROM_CARRIER, modulatorNodePaths);
 	}
 	
-	public void removeNotesFromCarrier(Set<DenotatorPath> modulatorNodePaths) {
-		this.callModelMethod(BigBangController.REMOVE_NOTES_FROM_CARRIER, modulatorNodePaths);
+	public void addWallpaperDimension(SelectedObjectsPaths paths, int rangeFrom, int rangeTo) {
+		this.callModelMethod(BigBangController.ADD_DIMENSION, paths, rangeFrom, rangeTo);
 	}
 	
-	public void startWallpaper(List<DenotatorPath> nodePaths) {
-		this.callModelMethod(BigBangController.START_WALLPAPER, nodePaths);
-	}
-	
-	public void addWallpaperDimension(int rangeFrom, int rangeTo) {
-		this.callModelMethod(BigBangController.ADD_DIMENSION, rangeFrom, rangeTo);
-	}
-	
-	public void updateWallpaper(List<Integer> ranges) {
-		this.callModelMethod(BigBangController.UPDATE_WALLPAPER, ranges);
+	public void setWallpaperRange(int dimension, boolean rangeTo, int value) {
+		this.callModelMethod(BigBangController.SET_WALLPAPER_RANGE, dimension, rangeTo, value);
 	}
 	
 	public void endWallpaper() {

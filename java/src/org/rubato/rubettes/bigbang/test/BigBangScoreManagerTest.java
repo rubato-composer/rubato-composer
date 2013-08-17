@@ -76,7 +76,7 @@ public class BigBangScoreManagerTest extends TestCase {
 		this.scoreManager.setInitialComposition(this.objects.flatMacroScore);
 		BigBangTransformation translation = this.makeTranslation(-1,-2, this.nodePaths);
 		SelectedObjectsPaths notePaths = this.makeNotePaths(new int[]{0}, new int[]{2});
-		SelectedObjectsPaths newPaths = this.scoreManager.mapObjects(notePaths, translation, false, false);
+		SelectedObjectsPaths newPaths = this.scoreManager.addTransformation(notePaths, translation, false, false);
 		TestCase.assertEquals(new DenotatorPath(this.objects.SOUND_SCORE_FORM, new int[]{0}), newPaths.get(0).get(0));
 		TestCase.assertEquals(new DenotatorPath(this.objects.SOUND_SCORE_FORM, new int[]{1}), newPaths.get(0).get(1));
 	}
@@ -88,7 +88,7 @@ public class BigBangScoreManagerTest extends TestCase {
 		triplesPath.add(new DenotatorPath(this.objects.RATIONAL_TRIPLES_FORM, new int[]{0}));
 		triplesPath.add(new DenotatorPath(this.objects.RATIONAL_TRIPLES_FORM, new int[]{1}));
 		triplesPath.add(new DenotatorPath(this.objects.RATIONAL_TRIPLES_FORM, new int[]{3}));
-		SelectedObjectsPaths newPaths = this.scoreManager.mapObjects(new SelectedObjectsPaths(triplesPath, null), translation, false, false);
+		SelectedObjectsPaths newPaths = this.scoreManager.addTransformation(new SelectedObjectsPaths(triplesPath, null), translation, false, false);
 		TestCase.assertEquals(new DenotatorPath(this.objects.RATIONAL_TRIPLES_FORM, new int[]{0}), newPaths.get(0).get(0));
 		TestCase.assertEquals(new DenotatorPath(this.objects.RATIONAL_TRIPLES_FORM, new int[]{1}), newPaths.get(0).get(1));
 		TestCase.assertEquals(new DenotatorPath(this.objects.RATIONAL_TRIPLES_FORM, new int[]{3}), newPaths.get(0).get(2));
@@ -106,7 +106,7 @@ public class BigBangScoreManagerTest extends TestCase {
 		List<DenotatorPath> triplesPath = new ArrayList<DenotatorPath>();
 		triplesPath.add(new DenotatorPath(this.objects.REAL_TRIPLES_FORM, new int[]{1}));
 		triplesPath.add(new DenotatorPath(this.objects.REAL_TRIPLES_FORM, new int[]{2}));
-		SelectedObjectsPaths newPaths = this.scoreManager.mapObjects(new SelectedObjectsPaths(triplesPath, null), translation, false, false);
+		SelectedObjectsPaths newPaths = this.scoreManager.addTransformation(new SelectedObjectsPaths(triplesPath, null), translation, false, false);
 		TestCase.assertEquals(new DenotatorPath(this.objects.REAL_TRIPLES_FORM, new int[]{0}), newPaths.get(0).get(0));
 		TestCase.assertEquals(new DenotatorPath(this.objects.REAL_TRIPLES_FORM, new int[]{2}), newPaths.get(0).get(1));
 		Denotator expectedTriple = this.objects.createRealTriple(new double[]{0,1,2});
@@ -123,7 +123,7 @@ public class BigBangScoreManagerTest extends TestCase {
 		BigBangTransformation translation = this.makeTranslation(-2,-3, this.realTriplesPaths);
 		List<DenotatorPath> emptyPath = new ArrayList<DenotatorPath>();
 		emptyPath.add(new DenotatorPath(this.objects.REAL_TRIPLE_FORM, new int[]{}));
-		SelectedObjectsPaths newPaths = this.scoreManager.mapObjects(new SelectedObjectsPaths(emptyPath, null), translation, false, false);
+		SelectedObjectsPaths newPaths = this.scoreManager.addTransformation(new SelectedObjectsPaths(emptyPath, null), translation, false, false);
 		TestCase.assertEquals(new DenotatorPath(this.objects.REAL_TRIPLES_FORM, new int[]{}), newPaths.get(0).get(0));
 		Denotator expectedTriple = this.objects.createRealTriple(new double[]{0,1,2});
 		this.objects.assertEqualNonPowerDenotators(expectedTriple, this.scoreManager.getComposition());
@@ -137,7 +137,7 @@ public class BigBangScoreManagerTest extends TestCase {
 		TestCase.assertTrue(notes.size() == 2);
 		List<NotePath> retrievedPaths = this.scoreManager.getNotePaths(notes);
 		System.out.println(retrievedPaths);*/
-		SelectedObjectsPaths newPaths = this.scoreManager.mapObjects(notePaths, translation, false, false);
+		SelectedObjectsPaths newPaths = this.scoreManager.addTransformation(notePaths, translation, false, false);
 		TestCase.assertEquals(new DenotatorPath(this.objects.SOUND_SCORE_FORM, new int[]{1}), newPaths.get(0).get(0));
 		TestCase.assertEquals(new DenotatorPath(this.objects.SOUND_SCORE_FORM, new int[]{2}), newPaths.get(0).get(1));
 		/*retrievedPaths = this.scoreManager.getNotePaths(notes);
@@ -150,14 +150,14 @@ public class BigBangScoreManagerTest extends TestCase {
 		this.scoreManager.setInitialComposition(this.objects.multiLevelMacroScore);
 		BigBangTransformation translation = this.makeTranslation(-2, -1, this.nodePaths);
 		SelectedObjectsPaths nodePaths = this.makeNotePaths(new int[]{1}, new int[]{0,1,0});
-		SelectedObjectsPaths newPaths = this.scoreManager.mapObjects(nodePaths, translation, false, false);
+		SelectedObjectsPaths newPaths = this.scoreManager.addTransformation(nodePaths, translation, false, false);
 		TestCase.assertEquals(new DenotatorPath(this.objects.SOUND_SCORE_FORM, new int[]{0}), newPaths.get(0).get(0));
 		TestCase.assertEquals(new DenotatorPath(this.objects.SOUND_SCORE_FORM, new int[]{1,1,0}), newPaths.get(0).get(1));
 		LimitDenotator expectedNode = this.objects.createMultilevelNode(new double[][]{{-1,2,-4,0,0,0},{1,-3,5,0,1,0}});
 		this.objects.assertEqualNonPowerDenotators(expectedNode, this.scoreManager.getComposition().get(new int[]{1,1,0}));
 		
 		nodePaths = this.makeNotePaths(new int[]{0}, new int[]{1,1,0});
-		newPaths = this.scoreManager.mapObjects(nodePaths, translation, false, false);
+		newPaths = this.scoreManager.addTransformation(nodePaths, translation, false, false);
 		TestCase.assertEquals(new DenotatorPath(this.objects.SOUND_SCORE_FORM, new int[]{0}), newPaths.get(0).get(0));
 		TestCase.assertEquals(new DenotatorPath(this.objects.SOUND_SCORE_FORM, new int[]{1,1,0}), newPaths.get(0).get(1));
 		expectedNode = this.objects.createMultilevelNode(new double[][]{{-3,1,-4,0,0,0},{1,-3,5,0,1,0}});
@@ -174,7 +174,7 @@ public class BigBangScoreManagerTest extends TestCase {
 		
 		BigBangTransformation translation = this.makeTranslation(-2, -1, this.notePaths);
 		SelectedObjectsPaths nodePaths = this.makeNotePaths(new int[]{0,0,6,0,6,0});
-		SelectedObjectsPaths newPaths = this.scoreManager.mapObjects(nodePaths, translation, false, false);
+		SelectedObjectsPaths newPaths = this.scoreManager.addTransformation(nodePaths, translation, false, false);
 		TestCase.assertEquals(newPaths.get(0).get(0), new DenotatorPath(this.objects.SOUND_SCORE_FORM, new int[]{0,0,6,0,6,0}));
 		LimitDenotator expectedNote = this.objects.generator.createNoteDenotator(new double[]{-1,-4,5,0,1,0});
 		this.objects.assertEqualNonPowerDenotators(expectedNote, this.scoreManager.getComposition().get(new int[]{0,0,6,0,6,0}));
@@ -300,7 +300,7 @@ public class BigBangScoreManagerTest extends TestCase {
 		paths.add(new DenotatorPath(this.objects.SOUND_SCORE_FORM, new int[]{1}));
 		paths.add(new DenotatorPath(this.objects.SOUND_SCORE_FORM, new int[]{2}));
 		
-		TransformationProperties properties = new TransformationProperties(new SelectedObjectsPaths(paths, null), Arrays.asList(this.nodePaths), false, false, false);
+		TransformationProperties properties = new TransformationProperties(new SelectedObjectsPaths(paths, null), Arrays.asList(this.nodePaths), false, false);
 		TreeMap<Double,Double> shapingLocations = new TreeMap<Double,Double>();
 		shapingLocations.put(-0.3, 69.0);
 		shapingLocations.put(0.5, 71.0);
@@ -323,7 +323,7 @@ public class BigBangScoreManagerTest extends TestCase {
 		paths.add(new DenotatorPath(this.objects.RATIONAL_TRIPLES_FORM, new int[]{2}));
 		paths.add(new DenotatorPath(this.objects.RATIONAL_TRIPLES_FORM, new int[]{3}));
 		
-		TransformationProperties properties = new TransformationProperties(new SelectedObjectsPaths(paths, null), Arrays.asList(this.rationalTriplesPaths), false, false, false);
+		TransformationProperties properties = new TransformationProperties(new SelectedObjectsPaths(paths, null), Arrays.asList(this.rationalTriplesPaths), false, false);
 		TreeMap<Double,Double> shapingLocations = new TreeMap<Double,Double>();
 		shapingLocations.put(0.7, 1.0);
 		shapingLocations.put(2.3, 11.0);
@@ -351,7 +351,7 @@ public class BigBangScoreManagerTest extends TestCase {
 		paths.add(new DenotatorPath(this.objects.REAL_TRIPLES_FORM, new int[]{1}));
 		paths.add(new DenotatorPath(this.objects.REAL_TRIPLES_FORM, new int[]{2}));
 		
-		TransformationProperties properties = new TransformationProperties(new SelectedObjectsPaths(paths, null), Arrays.asList(this.realTriplesPaths), false, false, false);
+		TransformationProperties properties = new TransformationProperties(new SelectedObjectsPaths(paths, null), Arrays.asList(this.realTriplesPaths), false, false);
 		TreeMap<Double,Double> shapingLocations = new TreeMap<Double,Double>();
 		shapingLocations.put(1.2, 1.0);
 		shapingLocations.put(3.0, 11.0);

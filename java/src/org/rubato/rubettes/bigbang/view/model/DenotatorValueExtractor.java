@@ -132,11 +132,11 @@ public class DenotatorValueExtractor {
 		this.displayObjects.addObject(displayObject);
 		if (this.selectObjects && this.selectedPaths != null) {
 			if (this.selectedPaths.containsObjectPath(path)) {
-				this.displayObjects.selectNote(displayObject);
+				this.displayObjects.selectObject(displayObject);
 			}
 			DenotatorPath selectedAnchorPath = this.selectedPaths.getAnchorPath();
 			if (selectedAnchorPath != null && selectedAnchorPath.equals(path)) {
-				this.displayObjects.setSelectedAnchorNote(displayObject);
+				this.displayObjects.setSelectedAnchorObject(displayObject);
 			}
 		}
 		return displayObject;

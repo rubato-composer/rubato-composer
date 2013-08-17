@@ -55,7 +55,6 @@ public class JBigBangPanel extends JPanel {
 	private void initMenuComponents(JBigBangDisplay display, ViewController controller, BigBangController bbController, ViewParameters viewParameters) {
 		display.setLayout(new FlowLayout(FlowLayout.RIGHT));
 		this.mainOptionsPanel = new JMainOptionsPanel(controller, bbController, viewParameters);
-		controller.addView(this.mainOptionsPanel);
 		display.add(this.mainOptionsPanel);
 	}
 	

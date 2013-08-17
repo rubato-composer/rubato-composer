@@ -60,9 +60,9 @@ public class JGraphToolBar extends JToolBar implements View {
 			Graph<Integer,AbstractOperationEdit> graph = ((Graph<Integer,AbstractOperationEdit>)event.getNewValue());
 			this.updateGraph(graph);
 		} else if (propertyName.equals(ViewController.SELECT_OPERATION)) {
-			//TODO never called except for deselection...
-			AbstractTransformationEdit transformation = (AbstractTransformationEdit)event.getNewValue();
-			this.selectTransformation(transformation);
+			//TODO never called except for deselection and wpdim...
+			AbstractOperationEdit transformation = (AbstractOperationEdit)event.getNewValue();
+			this.selectOperation(transformation);
 		} else if (propertyName.equals(ViewController.SELECT_COMPOSITION_STATE)) {
 			this.selectVertex((Integer)event.getNewValue());
 		} else if (propertyName.equals(ViewController.DESELECT_COMPOSITION_STATES)) {
@@ -70,9 +70,9 @@ public class JGraphToolBar extends JToolBar implements View {
 		}
 	}
 	
-	private void selectTransformation(AbstractTransformationEdit transformation) {
-		if (transformation != null) {
-			this.operationGraph.getPickedEdgeState().pick(transformation, true);
+	private void selectOperation(AbstractOperationEdit operation) {
+		if (operation != null) {
+			this.operationGraph.getPickedEdgeState().pick(operation, true);
 		} else {
 			this.operationGraph.getPickedEdgeState().clear();
 		}

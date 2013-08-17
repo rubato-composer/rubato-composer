@@ -49,10 +49,10 @@ public class ViewController extends Controller {
 	
 	//score manipulation - display
 	public static final String FORM = "Form";
-	public static final String DISPLAY_NOTES = "DisplayNotes";
-	public static final String NOTE_SELECTION = "toggleNoteSelection";
-	public static final String ANCHOR_NOTE_SELECTION = "toggleAnchorNoteSelection";
-	public static final String SELECT_NOTES = "selectNotes";
+	public static final String DISPLAY_OBJECTS = "DisplayObjects";
+	public static final String OBJECT_SELECTION = "toggleObjectSelection";
+	public static final String ANCHOR_OBJECT_SELECTION = "toggleAnchorObjectSelection";
+	public static final String SELECT_OBJECTS = "selectObjects";
 	public static final String DISPLAY_TOOL = "setDisplayTool";
 	public static final String CLEAR_DISPLAY_TOOL = "clearDisplayTool";
 	
@@ -64,32 +64,28 @@ public class ViewController extends Controller {
 	public static final String ACTIVE_SATELLITE_LEVEL = "setActiveSatelliteLevel";
 	public static final String ADD_OBJECT = "addObject";
 	public static final String DELETE_OBJECTS = "deleteSelectedObjects";
-	public static final String COPY_NOTES = "copySelectedNotesTo";
-	public static final String COPY_NOTES_NEW = "copySelectedNotesToNewLayer";
-	public static final String MOVE_NOTES = "moveSelectedNotesTo";
-	public static final String MOVE_NOTES_NEW = "moveSelectedNotesToNewLayer";
-	public static final String SATELLITE_NOTES = "addSelectedNotesAsSatellitesTo";
-	public static final String FLATTEN_NOTES = "flattenSelectedNotes";
-	public static final String MODULATOR_NOTES = "addSelectedNotesAsModulatorsTo";
-	public static final String REMOVE_NOTES_FROM_CARRIER = "removeSelectedNotesFromCarrier";
+	public static final String COPY_OBJECTS = "copySelectedObjectsTo";
+	public static final String COPY_OBJECTS_NEW = "copySelectedObjectsToNewLayer";
+	public static final String MOVE_OBJECTS = "moveSelectedObjectsTo";
+	public static final String MOVE_OBJECTS_NEW = "moveSelectedObjectsToNewLayer";
+	public static final String SATELLITE_OBJECTS = "addSelectedObjectsAsSatellitesTo";
+	public static final String FLATTEN_OBJECTS = "flattenSelectedObjects";
 	
 	//score manipulation - transformations
-	public static final String TRANSLATE_NOTES = "translateSelectedNotes";
-	public static final String ROTATE_NOTES = "rotateSelectedNotes";
-	public static final String SCALE_NOTES = "scaleSelectedNotes";
-	public static final String REFLECT_NOTES = "reflectSelectedNotes";
-	public static final String SHEAR_NOTES = "shearSelectedNotes";
-	public static final String SHAPE_NOTES = "shapeSelectedNotes";
-	public static final String AFFINE_TRANSFORM_NOTES = "affineTransformSelectedNotes";
+	public static final String TRANSLATE_OBJECTS = "translateSelectedObjects";
+	public static final String ROTATE_OBJECTS = "rotateSelectedObjects";
+	public static final String SCALE_OBJECTS = "scaleSelectedObjects";
+	public static final String REFLECT_OBJECTS = "reflectSelectedObjects";
+	public static final String SHEAR_OBJECTS = "shearSelectedObjects";
+	public static final String SHAPE_OBJECTS = "shapeSelectedObjects";
+	public static final String AFFINE_TRANSFORM_OBJECTS = "affineTransformSelectedObjects";
 	public static final String MODIFY_OPERATION = "modifyOperation";
 	public static final String MODIFY_SELECTED_TRANSFORMATION = "modifySelectedTransformation";
 	public static final String MODIFY_ROTATION = "modifyRotationAngle";
 	
 	//score manipulation - wallpaper
-	public static final String START_WALLPAPER = "startWallpaper";
 	public static final String ADD_WP_DIMENSION = "addWallpaperDimension";
-	public static final String END_WALLPAPER = "endWallpaper";
-	public static final String RANGE = "setRange";
+	public static final String MODIFY_WALLPAPER_RANGE = "modifyWallpaperRange";
 	
 	//score manipulation - alteration
 	public static final String ALTERATION_COMPOSITION = "setAlterationComposition";
@@ -183,16 +179,16 @@ public class ViewController extends Controller {
 		this.callModelMethod("setDisplayPosition", center);
 	}
 	
-	public void toggleNoteSelection(Point location) {
-		this.callModelMethod(ViewController.NOTE_SELECTION, location);
+	public void toggleObjectSelection(Point location) {
+		this.callModelMethod(ViewController.OBJECT_SELECTION, location);
 	}
 	
-	public void toggleAnchorNoteSelection(Point location) {
-		this.callModelMethod(ViewController.ANCHOR_NOTE_SELECTION, location);
+	public void toggleAnchorObjectSelection(Point location) {
+		this.callModelMethod(ViewController.ANCHOR_OBJECT_SELECTION, location);
 	}
 	
-	public void selectNotes(SelectionTool tool, boolean stillSelecting) {
-		this.callModelMethod(ViewController.SELECT_NOTES, tool, stillSelecting);
+	public void selectObjects(SelectionTool tool, boolean stillSelecting) {
+		this.callModelMethod(ViewController.SELECT_OBJECTS, tool, stillSelecting);
 	}
 	
 	public void changeDisplayTool(DisplayTool tool) {
@@ -219,32 +215,32 @@ public class ViewController extends Controller {
 		this.callModelMethod(ViewController.MODIFY_ROTATION, angle, inPreviewMode);
 	}
 	
-	public void translateSelectedNotes(Point2D.Double center, Point2D.Double endPoint, boolean copyAndTranslate, boolean previewMode) {
-		this.callModelMethod(ViewController.TRANSLATE_NOTES, center, endPoint, copyAndTranslate, previewMode);
+	public void translateSelectedObjects(Point2D.Double center, Point2D.Double endPoint, boolean copyAndTranslate, boolean previewMode) {
+		this.callModelMethod(ViewController.TRANSLATE_OBJECTS, center, endPoint, copyAndTranslate, previewMode);
 	}
 	
-	public void rotateSelectedNotes(Point2D.Double center, Point2D.Double endPoint, double angle, boolean copyAndTranslate, boolean previewMode) {
-		this.callModelMethod(ViewController.ROTATE_NOTES, center, endPoint, angle, copyAndTranslate, previewMode);
+	public void rotateSelectedObjects(Point2D.Double center, Point2D.Double endPoint, double angle, boolean copyAndTranslate, boolean previewMode) {
+		this.callModelMethod(ViewController.ROTATE_OBJECTS, center, endPoint, angle, copyAndTranslate, previewMode);
 	}
 	
-	public void scaleSelectedNotes(Point2D.Double center, Point2D.Double endPoint, double[] scaleFactors, boolean copyAndTranslate, boolean previewMode) {
-		this.callModelMethod(ViewController.SCALE_NOTES, center, endPoint, scaleFactors, copyAndTranslate, previewMode);
+	public void scaleSelectedObjects(Point2D.Double center, Point2D.Double endPoint, double[] scaleFactors, boolean copyAndTranslate, boolean previewMode) {
+		this.callModelMethod(ViewController.SCALE_OBJECTS, center, endPoint, scaleFactors, copyAndTranslate, previewMode);
 	}
 	
-	public void reflectSelectedNotes(Point2D.Double center, Point2D.Double endPoint, double[] reflectionVector, boolean copyAndTranslate, boolean previewMode) {
-		this.callModelMethod(ViewController.REFLECT_NOTES, center, endPoint, reflectionVector, copyAndTranslate, previewMode);
+	public void reflectSelectedObjects(Point2D.Double center, Point2D.Double endPoint, double[] reflectionVector, boolean copyAndTranslate, boolean previewMode) {
+		this.callModelMethod(ViewController.REFLECT_OBJECTS, center, endPoint, reflectionVector, copyAndTranslate, previewMode);
 	}
 	
-	public void shearSelectedNotes(Point2D.Double center, Point2D.Double endPoint, double[] shearingFactors, boolean copyAndTranslate, boolean previewMode) {
-		this.callModelMethod(ViewController.SHEAR_NOTES, center, endPoint, shearingFactors, copyAndTranslate, previewMode);
+	public void shearSelectedObjects(Point2D.Double center, Point2D.Double endPoint, double[] shearingFactors, boolean copyAndTranslate, boolean previewMode) {
+		this.callModelMethod(ViewController.SHEAR_OBJECTS, center, endPoint, shearingFactors, copyAndTranslate, previewMode);
 	}
 	
-	public void affineTransformSelectedNotes(Point2D.Double center, Point2D.Double endPoint, double[] shift, double angle, double[] scaleFactors, boolean copyAndTransform, boolean previewMode) {
-		this.callModelMethod(ViewController.AFFINE_TRANSFORM_NOTES, center, endPoint, shift, angle, scaleFactors, copyAndTransform, previewMode);
+	public void affineTransformSelectedObjects(Point2D.Double center, Point2D.Double endPoint, double[] shift, double angle, double[] scaleFactors, boolean copyAndTransform, boolean previewMode) {
+		this.callModelMethod(ViewController.AFFINE_TRANSFORM_OBJECTS, center, endPoint, shift, angle, scaleFactors, copyAndTransform, previewMode);
 	}
 	
-	public void shapeSelectedNotes(TreeMap<Integer,Integer> location, boolean copyAndTransform, boolean previewMode) {
-		this.callModelMethod(ViewController.SHAPE_NOTES, location, copyAndTransform, previewMode);
+	public void shapeSelectedObjects(TreeMap<Integer,Integer> location, boolean copyAndTransform, boolean previewMode) {
+		this.callModelMethod(ViewController.SHAPE_OBJECTS, location, copyAndTransform, previewMode);
 	}
 	
 	public void addObject(Point2D.Double location) {
@@ -255,48 +251,36 @@ public class ViewController extends Controller {
 		this.callModelMethod(ViewController.DELETE_OBJECTS);
 	}
 	
-	public void copySelectedNotesTo(int layerIndex) {
-		this.callModelMethod(ViewController.COPY_NOTES, layerIndex);
+	public void copySelectedObjectsTo(int layerIndex) {
+		this.callModelMethod(ViewController.COPY_OBJECTS, layerIndex);
 	}
 	
-	public void copySelectedNotesToNewLayer() {
-		this.callModelMethod(ViewController.COPY_NOTES_NEW);
+	public void copySelectedObjectsToNewLayer() {
+		this.callModelMethod(ViewController.COPY_OBJECTS_NEW);
 	}
 	
-	public void moveSelectedNotesTo(int layerIndex) {
-		this.callModelMethod(ViewController.MOVE_NOTES, layerIndex);
+	public void moveSelectedObjectsTo(int layerIndex) {
+		this.callModelMethod(ViewController.MOVE_OBJECTS, layerIndex);
 	}
 	
-	public void moveSelectedNotesToNewLayer() {
-		this.callModelMethod(ViewController.MOVE_NOTES_NEW);
+	public void moveSelectedObjectsToNewLayer() {
+		this.callModelMethod(ViewController.MOVE_OBJECTS_NEW);
 	}
 	
-	public void addSelectedNotesAsSatellitesTo(DisplayObject parentNote, int powersetIndex) {
-		this.callModelMethod(ViewController.SATELLITE_NOTES, parentNote, powersetIndex);
+	public void addSelectedObjectsAsSatellitesTo(DisplayObject parentObject, int powersetIndex) {
+		this.callModelMethod(ViewController.SATELLITE_OBJECTS, parentObject, powersetIndex);
 	}
 	
-	public void flattenSelectedNotes() {
-		this.callModelMethod(ViewController.FLATTEN_NOTES);
-	}
-	
-	public void addSelectedNotesAsModulatorsTo(DisplayObject parentNote) {
-		this.callModelMethod(ViewController.MODULATOR_NOTES, parentNote);
-	}
-	
-	public void removeSelectedNotesFromCarrier() {
-		this.callModelMethod(ViewController.REMOVE_NOTES_FROM_CARRIER);
+	public void flattenSelectedObjects() {
+		this.callModelMethod(ViewController.FLATTEN_OBJECTS);
 	}
 	
 	public void addWallpaperDimension() {
 		this.callModelMethod(ViewController.ADD_WP_DIMENSION);
 	}
 	
-	public void stopWallpaper() {
-		this.callModelMethod(ViewController.END_WALLPAPER);
-	}
-	
-	public void changeWallpaperRange(int dimension, boolean rangeTo, int value) {
-		this.callModelMethod(ViewController.RANGE, dimension, rangeTo, value);
+	public void modifyWallpaperRange(boolean rangeTo, int value) {
+		this.callModelMethod(ViewController.MODIFY_WALLPAPER_RANGE, rangeTo, value);
 	}
 	
 	public void changeAlterationComposition(int index) {
