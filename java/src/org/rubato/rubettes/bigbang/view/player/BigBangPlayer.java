@@ -6,8 +6,9 @@ public class BigBangPlayer extends Thread {
 	public static final int MAX_BPM = 5000;
 	public static final int INITIAL_BPM = 100;
 	
-	
-	private boolean isRunning;
+	//needs separate variable since player only starts after a brief delay
+	private boolean isPlaying;
+	private boolean threadRunning;
 	private long startingTime;
 	private JSynPlayer player;
 	
@@ -19,21 +20,30 @@ public class BigBangPlayer extends Thread {
 		this.setTempo(this.bpm);
 		this.setWaveform(JSynPlayer.WAVEFORMS[0]);
 		this.startingTime = 0;
+		this.isPlaying = false;
 	}
 	
 	public synchronized void setScore(JSynScore score) {
 		this.score = score;
-		if (this.player.isPlaying()) {
+		if (this.isPlaying) {
 			this.player.replaceScore(score);
 		}
 	}
 	
 	public boolean isPlaying() {
-		return this.player.isPlaying();
+		return this.isPlaying;
 	}
 	
 	public double getCurrentSymbolicTime() {
 		return this.player.getCurrentSymbolicTimeOfLatestPerformance();
+	}
+	
+	public synchronized void togglePlayMode() {
+		if (!this.isPlaying()) {
+			this.startPlaying();
+		} else {
+			this.stopPlaying();
+		}
 	}
 	
 	public synchronized void startPlaying() {
@@ -41,31 +51,40 @@ public class BigBangPlayer extends Thread {
 	}
 	
 	private synchronized void startPlaying(long startingTime) {
-		if (!this.isRunning) {
-			this.isRunning = true;
+		if (!this.threadRunning) {
+			this.threadRunning = true;
 			this.start();
 		}
 		this.startingTime = startingTime;
+		this.isPlaying = true;
 	}
 	
-	public synchronized void pressMidiKey(int pitch, int velocity) {
-		this.player.pressMidiKey(pitch, velocity);
+	public synchronized void pressMidiKey(int pitch, int velocity, boolean recording) {
+		if (this.isPlaying()) {
+			this.player.pressMidiKey(pitch, velocity, recording);
+		}
 	}
 	
-	public synchronized void releaseMidiKey(int pitch) {
-		this.player.releaseMidiKey(pitch);
+	public synchronized void releaseMidiKey(int pitch, boolean recording) {
+		if (this.isPlaying()) {
+			this.player.releaseMidiKey(pitch, recording);
+		}
 	}
 	
 	public synchronized void transposeAllScoreVersionsByOctave(boolean up) {
-		this.player.transposeAllScoreVersionsByOctave(up);
+		if (this.isPlaying()) {
+			this.player.transposeAllScoreVersionsByOctave(up);
+		}
 	}
 	
 	public synchronized void changeVelocity(int velocity) {
-		this.player.changeVelocity(velocity);
+		if (this.isPlaying()) {
+			this.player.changeVelocity(velocity);
+		}
 	}
 	
 	public void run() {
-		while(this.isRunning) {
+		while(this.threadRunning) {
 			try { Thread.sleep(100); } catch (InterruptedException e) { } //e.printStackTrace(); }
 			if (this.startingTime != 0 && System.currentTimeMillis() >= this.startingTime
 					&& this.score != null && !this.player.isPlaying()) {
@@ -77,6 +96,7 @@ public class BigBangPlayer extends Thread {
 	
 	public void stopPlaying() {
 		this.player.stopPlaying();
+		this.isPlaying = false;
 		this.interrupt(); //interrupt to stop thread and stop looping immediately in jsynplayer
 		this.startingTime = 0;
 	}

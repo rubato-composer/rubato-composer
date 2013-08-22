@@ -18,6 +18,7 @@ import org.rubato.rubettes.bigbang.view.View;
 import org.rubato.rubettes.bigbang.view.controller.ViewController;
 import org.rubato.rubettes.bigbang.view.controller.general.ModFilterButtonAction;
 import org.rubato.rubettes.bigbang.view.controller.general.PlayButtonAction;
+import org.rubato.rubettes.bigbang.view.controller.general.RecordButtonAction;
 import org.rubato.rubettes.bigbang.view.controller.score.ModFilterSpinnersListener;
 import org.rubato.rubettes.bigbang.view.controller.score.TempoListener;
 import org.rubato.rubettes.bigbang.view.model.LayerState;
@@ -27,7 +28,7 @@ import org.rubato.rubettes.bigbang.view.player.BigBangPlayer;
 public class JLayersToolBar extends JToolBar implements ActionListener, View {
 	
 	private ViewController controller;
-	private JButton playButton;
+	private JButton playButton, recordButton;
 	private JCheckBox isLoopingCheckBox;
 	private JSlider tempoSlider;
 	private JButton modFilterButton;
@@ -38,7 +39,9 @@ public class JLayersToolBar extends JToolBar implements ActionListener, View {
 		this.controller = controller;
 		controller.addView(this);
 		this.playButton = new JButton(new PlayButtonAction(controller));
+		this.recordButton = new JButton(new RecordButtonAction(controller));
 		this.add(this.playButton);
+		this.add(this.recordButton);
 		this.isLoopingCheckBox = new JCheckBox("Loop");
 		this.isLoopingCheckBox.addActionListener(this);
 		this.add(this.isLoopingCheckBox);
@@ -81,6 +84,8 @@ public class JLayersToolBar extends JToolBar implements ActionListener, View {
 			this.updateLayerButtons(event);
 		} else if (propertyName.equals(ViewController.PLAY_MODE)) {
 			this.playButton.setSelected((Boolean)event.getNewValue());
+		} else if (propertyName.equals(ViewController.RECORD_MODE)) {
+			this.recordButton.setSelected((Boolean)event.getNewValue());
 		} else if (propertyName.equals(ViewController.IS_LOOPING)) {
 			this.isLoopingCheckBox.setSelected((Boolean)event.getNewValue());
 		} else if (propertyName.equals(ViewController.TEMPO)) {
