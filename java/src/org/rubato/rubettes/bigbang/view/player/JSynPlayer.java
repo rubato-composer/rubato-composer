@@ -1,9 +1,12 @@
 package org.rubato.rubettes.bigbang.view.player;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
+
+import org.rubato.rubettes.util.CoolFormRegistrant;
 
 import com.jsyn.JSyn;
 import com.jsyn.Synthesizer;
@@ -29,7 +32,7 @@ public class JSynPlayer {
 	private BigBangPlayer bbPlayer;
 	private Synthesizer synth;
 	private JSynScore score;
-	private Map<Integer,JSynPerformance> currentPerformances;
+	private Map<Integer,JSynPerformance> currentPerformances, currentMonitorPitches;
 	private String waveform;
 	private double tempo; //in bpm
 	private boolean isLooping;
@@ -47,6 +50,7 @@ public class JSynPlayer {
 		this.isLooping = false;
 		this.inLiveMidiMode = false;
 		this.currentPerformances = new TreeMap<Integer,JSynPerformance>();
+		this.currentMonitorPitches = new TreeMap<Integer,JSynPerformance>();
 		this.keysOfCurrentPerformancesInOrder = new ArrayList<Integer>();
 	}
 	
@@ -143,12 +147,16 @@ public class JSynPlayer {
 		}
 	}
 	
-	public void pressMidiKey(int pitch, int velocity) {
-		if (!this.inLiveMidiMode) {
-			this.stopAllScoreVersions();
+	public void pressMidiKey(int pitch, int velocity, boolean recording) {
+		if (recording) {
+			this.playMonitorPitch(pitch, velocity);
+		} else {
+			if (!this.inLiveMidiMode) {
+				this.stopAllScoreVersions();
+			}
+			this.inLiveMidiMode = true;
+			this.playScoreVersion(pitch, velocity);
 		}
-		this.inLiveMidiMode = true;
-		this.playScoreVersion(pitch, velocity);
 	}
 	
 	private void playScoreVersion(int pitch, int velocity) {
@@ -156,14 +164,28 @@ public class JSynPlayer {
 		if (this.isLooping) {
 			performance.setSymbolicStartOrChangeTime(this.loopOnset);
 		}
-		performance.playScore();
 		this.currentPerformances.put(pitch, performance);
 		this.keysOfCurrentPerformancesInOrder.add(pitch);
+		performance.playScore();
 	}
 	
-	public void releaseMidiKey(int pitch) {
-		this.inLiveMidiMode = true;
-		this.stopScoreVersion(pitch);
+	private void playMonitorPitch(int pitch, int velocity) {
+		JSynScore recordingMonitorScore = new JSynScore();
+		JSynObject recordingMonitor = recordingMonitorScore.addNewObject(null, null);
+		recordingMonitor.addValues(CoolFormRegistrant.PITCH_FORM, Arrays.asList(new Double(pitch)));
+		recordingMonitor.addValues(CoolFormRegistrant.LOUDNESS_FORM, Arrays.asList(new Double(velocity)));
+		JSynPerformance performance = new JSynPerformance(this, recordingMonitorScore);
+		this.currentMonitorPitches.put(pitch, performance);
+		performance.playScore();
+	}
+	
+	public void releaseMidiKey(int pitch, boolean recording) {
+		if (recording) {
+			JSynPerformance performance = this.currentMonitorPitches.remove(pitch);
+			performance.stopPlaying(false);
+		} else {
+			this.stopScoreVersion(pitch);
+		}
 	}
 	
 	private void stopScoreVersion(int pitch) {
@@ -204,7 +226,7 @@ public class JSynPlayer {
 	}
 	
 	public boolean isPlaying() {
-		return this.currentPerformances.size() > 0;
+		return this.currentPerformances.size() > 0 || this.inLiveMidiMode;
 	}
 
 	/*

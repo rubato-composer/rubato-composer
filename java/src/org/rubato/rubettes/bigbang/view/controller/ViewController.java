@@ -92,6 +92,7 @@ public class ViewController extends Controller {
 	
 	//playback feature
 	public static final String PLAY_MODE = "togglePlayMode";
+	public static final String RECORD_MODE = "toggleRecordMode";
 	public static final String IS_LOOPING = "setIsLooping";
 	public static final String TEMPO = "setTempo";
 	public static final String PLAYBACK_POSITION = "setPlaybackPosition";
@@ -321,6 +322,10 @@ public class ViewController extends Controller {
 	
 	public void togglePlayMode() {
 		this.callModelMethod(ViewController.PLAY_MODE);
+	}
+	
+	public void toggleRecordMode() {
+		this.callModelMethod(ViewController.RECORD_MODE);
 	}
 	
 	public void setIsLooping(boolean isLooping) {

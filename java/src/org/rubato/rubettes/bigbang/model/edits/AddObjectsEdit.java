@@ -34,8 +34,10 @@ public class AddObjectsEdit extends AbstractOperationEdit {
 	}
 	
 	public boolean addObject(Map<DenotatorPath,Double> pathsWithValues, DenotatorPath powersetPath) {
-		if (powersetPath.getChildPath(0).getEndForm().equals(this.objectForm)) {
-			if (this.powersetPaths.get(this.powersetPaths.size()-1).equals(powersetPath)) {
+		if (powersetPath == null || powersetPath.getChildPath(0).getEndForm().equals(this.objectForm)) {
+			
+			if (this.powersetPaths.get(this.powersetPaths.size()-1) == null
+					|| this.powersetPaths.get(this.powersetPaths.size()-1).equals(powersetPath)) {
 				this.pathsWithValues.get(this.pathsWithValues.size()-1).add(pathsWithValues);
 			} else {
 				this.powersetPaths.add(powersetPath);

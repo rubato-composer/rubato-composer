@@ -43,6 +43,7 @@ import org.rubato.rubettes.bigbang.view.model.tools.DisplayTool;
 import org.rubato.rubettes.bigbang.view.model.tools.SelectionTool;
 import org.rubato.rubettes.bigbang.view.player.BigBangMidiReceiver;
 import org.rubato.rubettes.bigbang.view.player.BigBangPlayer;
+import org.rubato.rubettes.bigbang.view.player.BigBangRecorder;
 import org.rubato.rubettes.bigbang.view.player.JSynScore;
 import org.rubato.rubettes.bigbang.view.subview.DisplayObjects;
 import org.rubato.rubettes.bigbang.view.subview.JBigBangPanel;
@@ -53,8 +54,8 @@ public class BigBangView extends Model implements View {
 	private BigBangController controller;
 	protected ViewController viewController;
 	protected BigBangPlayer player;
+	protected BigBangRecorder recorder;
 	protected BigBangMidiReceiver midiReceiver;
-	private boolean playingActive;
 	protected JBigBangPanel panel;
 	private LayerStates layerStates;
 	private DisplayModeAdapter displayMode;
@@ -77,7 +78,7 @@ public class BigBangView extends Model implements View {
 	public BigBangView(BigBangController controller) {
 		this.controller = controller;
 		this.controller.addView(this);
-		this.initBigBangPlayer();
+		this.player = new BigBangPlayer();
 		this.initViewMVC();
 		this.initViewParameterControls();
 		this.initStandardDenotatorValues();
@@ -88,6 +89,7 @@ public class BigBangView extends Model implements View {
 		this.setDisplayPosition(new Point(20, 560));
 		this.setZoomFactors(5.0, 5.0);
 		this.midiReceiver = new BigBangMidiReceiver(this.viewController);
+		this.recorder = new BigBangRecorder(this.player, this.controller);
 		this.setTempo(BigBangPlayer.INITIAL_BPM);
 		this.modFilterOn = false;
 		this.modNumber = -1;
@@ -102,11 +104,6 @@ public class BigBangView extends Model implements View {
 	
 	public void dispose() {
 		this.controller.removeView(this);
-	}
-	
-	private void initBigBangPlayer() {
-		this.player = new BigBangPlayer();
-		this.playingActive = false;
 	}
 	
 	private void initViewMVC() {
@@ -230,14 +227,22 @@ public class BigBangView extends Model implements View {
 	}
 	
 	public void togglePlayMode() {
-		if (!this.playingActive) {
-			this.player.startPlaying();
-		} else {
-			this.player.stopPlaying();
-		}
-		this.playingActive = !this.playingActive;
+		this.player.togglePlayMode();
 		this.panel.toggleTimedRepaint();
-		this.firePropertyChange(ViewController.PLAY_MODE, null, this.playingActive);
+		this.firePropertyChange(ViewController.PLAY_MODE, null, this.player.isPlaying());
+		//stop recording if playing stopped
+		if (!this.player.isPlaying() && this.recorder.isRecording()) {
+			this.toggleRecordMode();
+		}
+	}
+	
+	public void toggleRecordMode() {
+		this.recorder.toggleRecordMode();
+		this.firePropertyChange(ViewController.RECORD_MODE, null, this.recorder.isRecording());
+		//start playing if recording started
+		if (this.recorder.isRecording() && !this.player.isPlaying()) {
+			this.togglePlayMode();
+		}
 	}
 	
 	public void toggleObjectSelection(Point location) {
@@ -703,9 +708,9 @@ public class BigBangView extends Model implements View {
 	
 	private void updatePlayerScore(JSynScore score, boolean play) {
 		this.player.setScore(score);
-		if (play && this.playingActive && !this.player.isPlaying()) {
+		/*if (play && this.playingActive && !this.player.isPlaying()) {
 			this.player.startPlaying();
-		}
+		}*/
 	}
 	
 	//not every sounding object makes sense to be played alone (e.g. modulator, or overtone)
@@ -745,27 +750,29 @@ public class BigBangView extends Model implements View {
 	}
 	
 	public void pressMidiKey(Integer pitch, Integer velocity) {
-		if (this.playingActive) {
-			this.player.pressMidiKey(pitch, velocity);
+		if (this.recorder.isRecording()) {
+			this.recorder.pressMidiKey(pitch, velocity);
+			this.player.pressMidiKey(pitch, velocity, true);
+		} else {
+			this.player.pressMidiKey(pitch, velocity, false);
 		}
 	}
 	
 	public void releaseMidiKey(Integer pitch) {
-		if (this.playingActive) {
-			this.player.releaseMidiKey(pitch);
+		if (this.recorder.isRecording()) {
+			this.recorder.releaseMidiKey(pitch);
+			this.player.releaseMidiKey(pitch, true);
+		} else {
+			this.player.releaseMidiKey(pitch, false);
 		}
 	}
 	
 	public void changeOctave(Boolean up) {
-		if (this.playingActive) {
-			this.player.transposeAllScoreVersionsByOctave(up);
-		}
+		this.player.transposeAllScoreVersionsByOctave(up);
 	}
 	
 	public void changeVelocity(Integer velocity) {
-		if (this.playingActive) {
-			this.player.changeVelocity(velocity);
-		}
+		this.player.changeVelocity(velocity);
 	}
 
 }
