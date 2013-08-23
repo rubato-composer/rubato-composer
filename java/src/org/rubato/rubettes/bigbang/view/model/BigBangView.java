@@ -135,6 +135,7 @@ public class BigBangView extends Model implements View {
 		this.standardDenotatorValues.put("Pitch Q", 60.0);
 		this.standardDenotatorValues.put("Loudness Z", 120.0);
 		this.standardDenotatorValues.put("Duration R", 1.0);
+		this.standardDenotatorValues.put("Pan R", 64.0);
 	}
 	
 	public void setDisplayPosition(Point position) {

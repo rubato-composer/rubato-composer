@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.jsyn.unitgen.LineOut;
+import com.jsyn.unitgen.Pan;
 
 public class JSynModule {
 	
@@ -11,13 +12,17 @@ public class JSynModule {
 	private JSynPlayer player;
 	private List<SmoothOscillator> carriers;
 	private LineOut lineOut;
+	private Pan pan;
 	
 	
 	public JSynModule(JSynPerformance performance) {
 		this.performance = performance;
 		this.player = performance.getPlayer();
+		this.player.addToSynth(this.pan = new Pan());
 	 	//TODO: why one line out PER module????
 	 	this.player.addToSynth(this.lineOut = new LineOut());
+	 	this.pan.output.connect(0, this.lineOut.input, 0);
+		this.pan.output.connect(1, this.lineOut.input, 1);
 	 	this.carriers = new ArrayList<SmoothOscillator>();
 	 	this.addCarrier();
 	 	this.start();
@@ -25,8 +30,7 @@ public class JSynModule {
 	
 	private void addCarrier() {
 		SmoothOscillator newCarrier = new SmoothOscillator(this.player);
-		newCarrier.getOutput().connect(0, this.lineOut.input, 0);
-		newCarrier.getOutput().connect(0, this.lineOut.input, 1);
+		newCarrier.getOutput().connect(0, this.pan.input, 0);
 		this.carriers.add(newCarrier);
 	}
 	
@@ -54,6 +58,7 @@ public class JSynModule {
 		//adjust frequency and amplitude
 		oscillator.setFrequency(frequency);
 		oscillator.setAmplitude(object.getAmplitude()*this.player.getRecommendedAmplitude()*modulatorAmplitudeFactor);
+		this.pan.pan.set(object.getPan());
 		//adjust or schedule time
 		double currentSymbolicTime = this.performance.getCurrentSymbolicTime();
 		if (object.isPlayable()) {

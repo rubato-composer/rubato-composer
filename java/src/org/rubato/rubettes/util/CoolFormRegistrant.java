@@ -34,6 +34,7 @@ public class CoolFormRegistrant {
 	public static SimpleForm BEAT_CLASS_FORM;
 	public static LimitForm REST_FORM;
 	public static ColimitForm NOTE_OR_REST_FORM;
+	public static SimpleForm PAN_FORM;
 	public static SimpleForm OVERTONE_INDEX_FORM;
 	public static LimitForm FM_NODE_FORM;
 	public static LimitForm SOUND_NOTE_FORM;
@@ -79,7 +80,8 @@ public class CoolFormRegistrant {
 	
 	public void registerSoundForms() {
 		//SoundSpectrum
-		LimitForm partial = this.registerLimitForm("Partial", LOUDNESS_FORM, PITCH_FORM);
+		PAN_FORM = this.registerRModuleForm("Pan");
+		LimitForm partial = this.registerLimitForm("Partial", LOUDNESS_FORM, PITCH_FORM, PAN_FORM);
 		PowerForm spectrum = this.registerPowerForm("Spectrum", partial);
 		
 		//HarmonicSpectrum
@@ -165,14 +167,14 @@ public class CoolFormRegistrant {
 	private LimitForm registerLimitForm(String name, Form... coordinateForms) {
 		List<String> labels = this.generateLabels(coordinateForms);
 		LimitForm newForm = FormFactory.makeLimitForm(name, coordinateForms);
-		newForm.setLabels(labels);
+		//newForm.setLabels(labels);
 		return (LimitForm)this.register(newForm);
 	}
 	
 	private ColimitForm registerColimitForm(String name, Form... coordinateForms) {
 		List<String> labels = this.generateLabels(coordinateForms);
 		ColimitForm newForm = FormFactory.makeColimitForm(name, coordinateForms);
-		newForm.setLabels(labels);
+		//newForm.setLabels(labels);
 		return (ColimitForm)this.register(newForm);
 	}
 	

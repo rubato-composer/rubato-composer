@@ -16,6 +16,7 @@ import javax.swing.KeyStroke;
 import org.rubato.rubettes.bigbang.controller.BigBangController;
 import org.rubato.rubettes.bigbang.view.controller.ChangeOctaveAction;
 import org.rubato.rubettes.bigbang.view.controller.KeyToMidiAction;
+import org.rubato.rubettes.bigbang.view.controller.KeyToStateAction;
 import org.rubato.rubettes.bigbang.view.controller.ToggleMainOptionsAction;
 import org.rubato.rubettes.bigbang.view.controller.ViewController;
 import org.rubato.rubettes.bigbang.view.model.ViewParameters;
@@ -41,6 +42,7 @@ public class JBigBangPanel extends JPanel {
 		JBigBangPopupMenu popup = new JBigBangPopupMenu(controller);
 		this.setComponentPopupMenu(popup);
 		this.initMidiKeys(controller);
+		this.initStateKeys(controller);
 	}
 	
 	private JPanel createToolBarsPanel(ViewController controller, BigBangController bbController) {
@@ -95,6 +97,14 @@ public class JBigBangPanel extends JPanel {
 		this.currentOctave = 0;
 	}
 	
+	private void initStateKeys(ViewController controller) {
+		for (int currentState = 0; currentState <= 9; currentState++) {
+			this.addKeyToStateAction(controller, (char)(currentState+48), currentState);
+		}
+		this.addChangeOctaveActions(controller);
+		this.currentOctave = 0;
+	}
+	
 	private void addKeyToMidiActions(ViewController controller, char key, int pitch) {
 		String pressedString = "pressed " + key;
 		this.getInputMap(JPanel.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(pressedString), pressedString);
@@ -102,6 +112,12 @@ public class JBigBangPanel extends JPanel {
 		String releasedString = "released " + key;
 		this.getInputMap(JPanel.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(releasedString), releasedString);
 		this.getActionMap().put(releasedString, new KeyToMidiAction(this, controller, pitch, false));
+	}
+	
+	private void addKeyToStateAction(ViewController controller, char key, int state) {
+		String pressedString = "pressed " + key;
+		this.getInputMap(JPanel.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(pressedString), pressedString);
+		this.getActionMap().put(pressedString, new KeyToStateAction(controller, state));
 	}
 	
 	private void addChangeOctaveActions(ViewController controller) {

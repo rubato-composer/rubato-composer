@@ -16,6 +16,7 @@ public class JSynObject {
 	private Double duration;
 	private Integer voice;
 	private Double onset;
+	private Double pan;
 	private List<JSynObject> modulators;
 	
 	public JSynObject(JSynObject parent) {
@@ -49,6 +50,8 @@ public class JSynObject {
 			this.setVoice((int)this.getSingleValue(values));
 		} else if (form.equals(CoolFormRegistrant.QUALITY_FORM)) {
 			this.setTriadQuality((int)this.getSingleValue(values));
+		} else if (form.equals(CoolFormRegistrant.PAN_FORM)) {
+			this.pan = this.getSingleValue(values);
 		}
 	}
 	
@@ -225,6 +228,19 @@ public class JSynObject {
 	}
 	
 	
+	//PAN
+	public double getPan() {
+		if (this.pan != null) {
+			return this.midiToPan(this.pan);
+		}
+		return 0;
+	}
+	
+	private void setPan(Double pan) {
+		this.pan = pan;
+	}
+	
+	
 	//MODULATORS
 	
 	public JSynObject addModulator() {
@@ -254,6 +270,12 @@ public class JSynObject {
 		return loudness/127;
 	}
 	
+	private double midiToPan(double pan) {
+		pan = Math.min(pan, 127);
+		pan = Math.max(pan, 0);
+		return (pan/64)-1;
+	}
+	
 	private double intervalToRatio(double interval) {
 		return Math.pow(Math.sqrt(Math.sqrt(Math.cbrt(2))), interval); //12th root of two
 	}
@@ -265,7 +287,8 @@ public class JSynObject {
 		clone.setFrequencies(new ArrayList<Double>(this.frequencies));
 		clone.setAmplitude(this.amplitude);
 		clone.setDuration(this.duration);
-		clone.setVoice(voice);
+		clone.setVoice(this.voice);
+		clone.setPan(this.pan);
 		if (this.modulators.size() > 0) {
 			List<JSynObject> clonedModulators = new ArrayList<JSynObject>();
 			for (JSynObject currentModulator : this.modulators) {
