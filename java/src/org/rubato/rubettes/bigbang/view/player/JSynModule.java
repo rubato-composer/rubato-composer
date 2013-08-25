@@ -38,6 +38,14 @@ public class JSynModule {
 		return this.carriers.get(0).getFrequency();
 	}
 	
+	public double getMainCarrierAmplitude() {
+		return this.carriers.get(0).getAmplitude();
+	}
+	
+	public double getPan() {
+		return this.pan.pan.get();
+	}
+	
 	public void playOrAdjustObject(JSynObject object, boolean playInNextLoop) {
 		this.playOrAdjustObject(object, 1, playInNextLoop);
 	}

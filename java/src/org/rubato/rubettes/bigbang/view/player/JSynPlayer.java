@@ -10,6 +10,7 @@ import org.rubato.rubettes.util.CoolFormRegistrant;
 
 import com.jsyn.JSyn;
 import com.jsyn.Synthesizer;
+import com.jsyn.devices.AudioDeviceManager;
 import com.jsyn.unitgen.SawtoothOscillator;
 import com.jsyn.unitgen.SineOscillator;
 import com.jsyn.unitgen.SquareOscillator;
@@ -22,7 +23,7 @@ import com.jsyn.unitgen.UnitOscillator;
 public class JSynPlayer {
 	
 	public static final int BASE_A4 = 440; // A4 tuning in Hz
-	public static final int SAMPLE_RATE = 44100;
+	public static final int SAMPLE_RATE = 48000;
 	public static final double DEFAULT_ADVANCE = 0.05; //seconds
 	public final int MAX_NUMBER_OF_THREADS = 200;
 	
@@ -45,13 +46,19 @@ public class JSynPlayer {
 	public JSynPlayer(BigBangPlayer bbPlayer) {
 		this.bbPlayer = bbPlayer;
 		this.synth = JSyn.createSynthesizer();
-		//this.synth.add( lag = new LinearRamp() );
 		this.setWaveform(JSynPlayer.WAVEFORMS[0]);
 		this.isLooping = false;
 		this.inLiveMidiMode = false;
 		this.currentPerformances = new TreeMap<Integer,JSynPerformance>();
 		this.currentMonitorPitches = new TreeMap<Integer,JSynPerformance>();
 		this.keysOfCurrentPerformancesInOrder = new ArrayList<Integer>();
+	}
+	
+	public void startSynth() {
+		if (!this.synth.isRunning()) {
+			this.synth.getAudioDeviceManager().setSuggestedOutputLatency(.2);
+			this.synth.start(JSynPlayer.SAMPLE_RATE, AudioDeviceManager.USE_DEFAULT_DEVICE, 2, AudioDeviceManager.USE_DEFAULT_DEVICE, 2);
+		}
 	}
 	
 	public void addToSynth(UnitGenerator generator) {

@@ -167,6 +167,7 @@ public class CoolFormRegistrant {
 	private LimitForm registerLimitForm(String name, Form... coordinateForms) {
 		List<String> labels = this.generateLabels(coordinateForms);
 		LimitForm newForm = FormFactory.makeLimitForm(name, coordinateForms);
+		//unfortunately there's a bug in rubato when saving/loading labels to/from xml..
 		//newForm.setLabels(labels);
 		return (LimitForm)this.register(newForm);
 	}
@@ -174,6 +175,7 @@ public class CoolFormRegistrant {
 	private ColimitForm registerColimitForm(String name, Form... coordinateForms) {
 		List<String> labels = this.generateLabels(coordinateForms);
 		ColimitForm newForm = FormFactory.makeColimitForm(name, coordinateForms);
+		//unfortunately there's a bug in rubato when saving/loading labels to/from xml..
 		//newForm.setLabels(labels);
 		return (ColimitForm)this.register(newForm);
 	}
