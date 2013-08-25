@@ -76,6 +76,10 @@ public class SmoothOscillator {
 		this.amplitudeSweeper.input.set(amplitude);
 	}
 	
+	public double getAmplitude() {
+		return this.amplitudeSweeper.input.get();
+	}
+	
 	public UnitOutputPort getOutput() {
 		return this.oscillator.output;
 	}

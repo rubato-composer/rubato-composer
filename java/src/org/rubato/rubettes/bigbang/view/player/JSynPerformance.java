@@ -1,12 +1,7 @@
 package org.rubato.rubettes.bigbang.view.player;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
-import java.util.TreeMap;
-import java.util.TreeSet;
-
-import com.jsyn.devices.AudioDeviceManager;
 
 public class JSynPerformance {
 	
@@ -130,9 +125,7 @@ public class JSynPerformance {
 	public void playScore() {
 		if (this.score != null) {
 			if (!this.isPlaying) {
-				if (!this.player.getSynth().isRunning()) {
-					this.player.getSynth().start(JSynPlayer.SAMPLE_RATE, AudioDeviceManager.USE_DEFAULT_DEVICE, 2, AudioDeviceManager.USE_DEFAULT_DEVICE, 2);
-				}
+				this.player.startSynth();
 			} else {
 				this.threads.stop();
 			}
@@ -228,18 +221,8 @@ public class JSynPerformance {
 	//reallocate sound modules in a way to get as few glitches as possible
 	private synchronized void allocateModules(JSynThreadGroup threads) {
 		
-		//order all voices by their distance from one of the module's playing pitch
-		TreeMap<Double,List<JSynModule>> remainingModules = new TreeMap<Double,List<JSynModule>>();
-		for (JSynModule currentModule : this.modules) {
-			double currentFrequency = currentModule.getMainCarrierFrequency();
-			if (remainingModules.keySet().contains(currentFrequency)) {
-				remainingModules.get(currentFrequency).add(currentModule);
-			} else {
-				remainingModules.put(currentFrequency, new ArrayList<JSynModule>(Arrays.asList(currentModule)));
-			}
-		}
-		
 		//associate closest modules or create new ones
+		List<JSynModule> remainingModules = new ArrayList<JSynModule>(this.modules);
 		double currentTime = this.player.getSynth().getCurrentTime();
 		List<JSynThread> notPlayingThreads = new ArrayList<JSynThread>();
 		for (JSynThread currentThread : threads) {
@@ -247,8 +230,7 @@ public class JSynPerformance {
 			JSynModule closestModule = null;
 			//System.out.println(remainingModules);
 			if (objectAtCurrentTime != null) {
-				double currentFrequency = objectAtCurrentTime.getMainFrequency();
-				closestModule = this.getModuleWithClosestFrequency(currentFrequency, remainingModules);
+				closestModule = this.getModuleWithClosestParameters(objectAtCurrentTime, remainingModules);
 				if (closestModule != null) {
 					currentThread.setModule(closestModule);
 					//System.out.println(currentFrequency + " " + closestModule.getCarrierFrequency());
@@ -264,14 +246,12 @@ public class JSynPerformance {
 		}
 		
 		//remove unused modules from this.modules
-		for (List<JSynModule> currentRemainingModules : remainingModules.values()) {
-			for (JSynModule currentRemainingModule : currentRemainingModules) {
-				if (notPlayingThreads.size() > 0) {
-					notPlayingThreads.remove(0).setModule(currentRemainingModule);
-				} else {
-					this.modules.remove(currentRemainingModule);
-					currentRemainingModule.finalize();
-				}
+		for (JSynModule currentRemainingModule : remainingModules) {
+			if (notPlayingThreads.size() > 0) {
+				notPlayingThreads.remove(0).setModule(currentRemainingModule);
+			} else {
+				this.modules.remove(currentRemainingModule);
+				currentRemainingModule.finalize();
 			}
 		}
 		
@@ -283,35 +263,32 @@ public class JSynPerformance {
 		}
 	}
 	
-	//returns the module whose frequency is closest to the one of thread
-	private JSynModule getModuleWithClosestFrequency(double frequency, TreeMap<Double,List<JSynModule>> modules) {
-		TreeSet<Double> frequencies = new TreeSet<Double>(modules.keySet());
-		if (frequencies.contains(frequency)) {
-			return this.removeFirstInSet(frequency, modules);
+	private JSynModule getModuleWithClosestParameters(JSynObject object, List<JSynModule> modules) {
+		//TODO: MAYBE NORMALIZE DISTANCE??
+		JSynModule closestModule = null;
+		double closestDistance = Double.MAX_VALUE;
+		double[] objectValues = new double[]{object.getMainFrequency(), object.getAmplitude(), object.getPan()};
+		for (JSynModule currentModule : modules) {
+			double[] moduleValues = new double[]{currentModule.getMainCarrierFrequency(), currentModule.getMainCarrierAmplitude(), currentModule.getPan()};
+			double currentDistance = this.calculateEuclideanDistance(objectValues, moduleValues);
+			if (currentDistance < closestDistance) {
+				closestDistance = currentDistance;
+				closestModule = currentModule;
+			}
 		}
-		double headFrequency = -1, tailFrequency = -1;
-		if (frequencies.headSet(frequency).size() > 0) {
-			headFrequency = frequencies.headSet(frequency).last();
-		}
-		if (frequencies.tailSet(frequency).size() > 0) {
-			tailFrequency = frequencies.tailSet(frequency).first();
-		}
-		if ((headFrequency != -1 && tailFrequency != -1 && frequency-headFrequency < tailFrequency-frequency)
-				|| (headFrequency != -1 && tailFrequency == -1)) {
-			return this.removeFirstInSet(headFrequency, modules); 
-		} else if (tailFrequency != -1) {
-			return this.removeFirstInSet(tailFrequency, modules);
-		}
-		return null;
+		//System.out.println(objectValues + " " + closestDistance + " " + closestModule);
+		modules.remove(closestModule);
+		return closestModule;
 	}
 	
-	private JSynModule removeFirstInSet(double frequency, TreeMap<Double,List<JSynModule>> modules) {
-		List<JSynModule> moduleWithFrequency = modules.get(frequency);
-		JSynModule closestModule = moduleWithFrequency.remove(0); 
-		if (moduleWithFrequency.size() == 0) {
-			modules.remove(frequency);
+	private double calculateEuclideanDistance(double[] p1, double[] p2) {
+		double sum = 0;
+		if (p1.length > 0 && p1.length == p2.length) {
+			for (int i = 0; i < p1.length; i++) {
+				sum += Math.pow(p1[i]-p2[i], 2);
+			}
 		}
-		return closestModule;
+		return Math.sqrt(sum);
 	}
 
 }
