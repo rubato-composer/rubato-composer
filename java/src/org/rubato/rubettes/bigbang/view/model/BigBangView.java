@@ -13,7 +13,6 @@ import java.util.Set;
 import java.util.TreeMap;
 
 import javax.swing.JOptionPane;
-import javax.swing.JPanel;
 
 import org.rubato.rubettes.bigbang.controller.BigBangController;
 import org.rubato.rubettes.bigbang.controller.ScoreChangedNotification;
@@ -47,6 +46,7 @@ import org.rubato.rubettes.bigbang.view.player.BigBangRecorder;
 import org.rubato.rubettes.bigbang.view.player.JSynScore;
 import org.rubato.rubettes.bigbang.view.subview.DisplayObjects;
 import org.rubato.rubettes.bigbang.view.subview.JBigBangPanel;
+import org.rubato.rubettes.bigbang.view.subview.toolbars.JGraphPanel;
 import org.rubato.rubettes.util.DenotatorPath;
 
 public class BigBangView extends Model implements View {
@@ -97,9 +97,11 @@ public class BigBangView extends Model implements View {
 	
 	public void addNewWindow() {
 		Frame parentFrame = JOptionPane.getFrameForComponent(this.panel);
-		new BigBangAdditionalView(this.controller, parentFrame);
+		BigBangAdditionalView newView = new BigBangAdditionalView(this.controller, parentFrame);
 		SelectedObjectsPaths paths = this.displayObjects.getCategorizedSelectedObjectsPaths();
 		this.controller.newWindowAdded(paths);
+		newView.pack();
+		newView.setVisible(true);
 	}
 	
 	public void dispose() {
@@ -703,7 +705,7 @@ public class BigBangView extends Model implements View {
 		this.controller.changeInputActive(inputActive);
 	}
 	
-	public JPanel getPanel() {
+	public JBigBangPanel getPanel() {
 		return this.panel;
 	}
 	

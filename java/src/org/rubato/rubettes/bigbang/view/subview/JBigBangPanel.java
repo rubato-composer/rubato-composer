@@ -6,12 +6,15 @@ import java.awt.FlowLayout;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.GridLayout;
+import java.awt.Point;
 
 import javax.swing.AbstractAction;
 import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
+import javax.swing.JToolBar;
 import javax.swing.KeyStroke;
+import javax.swing.plaf.basic.BasicToolBarUI;
 
 import org.rubato.rubettes.bigbang.controller.BigBangController;
 import org.rubato.rubettes.bigbang.view.controller.ChangeOctaveAction;
@@ -21,11 +24,13 @@ import org.rubato.rubettes.bigbang.view.controller.ToggleMainOptionsAction;
 import org.rubato.rubettes.bigbang.view.controller.ViewController;
 import org.rubato.rubettes.bigbang.view.model.ViewParameters;
 import org.rubato.rubettes.bigbang.view.player.BigBangPlayer;
+import org.rubato.rubettes.bigbang.view.subview.toolbars.JGraphPanel;
 import org.rubato.rubettes.bigbang.view.subview.toolbars.JLayersToolBar;
 import org.rubato.rubettes.bigbang.view.subview.toolbars.JMainToolBar;
-import org.rubato.rubettes.bigbang.view.subview.toolbars.JGraphToolBar;
 
 public class JBigBangPanel extends JPanel {
+	
+	public static final int CENTER_PANEL_HEIGHT = 575;
 	
 	private JMainOptionsPanel mainOptionsPanel;
 	private JBigBangDisplay display;
@@ -38,19 +43,20 @@ public class JBigBangPanel extends JPanel {
 		this.initMenuComponents(this.display, controller, bbController, viewParameters);
 		this.add(this.display, BorderLayout.CENTER);
 		this.add(this.makeButtonPanel(controller), BorderLayout.EAST);
+		this.add(new JGraphPanel(controller, bbController), BorderLayout.WEST);
 		new JWindowPreferencesDialog(controller);
 		JBigBangPopupMenu popup = new JBigBangPopupMenu(controller);
 		this.setComponentPopupMenu(popup);
 		this.initMidiKeys(controller);
 		this.initStateKeys(controller);
+		//this.graphDialog.setVisible(true);
 	}
 	
 	private JPanel createToolBarsPanel(ViewController controller, BigBangController bbController) {
 		JPanel toolBarsPanel = new JPanel();
-		toolBarsPanel.setLayout(new GridLayout(3, 1));
+		toolBarsPanel.setLayout(new GridLayout(2, 1));
 		toolBarsPanel.add(new JMainToolBar(controller, bbController));
 		toolBarsPanel.add(new JLayersToolBar(controller));
-		toolBarsPanel.add(new JGraphToolBar(controller, bbController));
 		return toolBarsPanel;
 	}
 	
@@ -87,7 +93,7 @@ public class JBigBangPanel extends JPanel {
 	}
 	
 	private void initMidiKeys(ViewController controller) {
-		char[] midiKeys = new char[]{'A','W','S','E','D','F','T','G','Z','H','U','J','K','O','L','P','Ö'};
+		char[] midiKeys = new char[]{'A','W','S','E','D','F','T','G','Z','H','U','J','K','O','L','P'};
 		int currentMidiValue = 60;
 		for (char currentKey : midiKeys) {
 			this.addKeyToMidiActions(controller, currentKey, currentMidiValue);
