@@ -63,7 +63,7 @@ public class JBigBangDisplay extends JPanel implements View {
     }
 	
 	public Dimension getPreferredSize() {
-        return new Dimension(920, 575);
+        return new Dimension(920, JBigBangPanel.CENTER_PANEL_HEIGHT);
     }
 
 	public void modelPropertyChange(PropertyChangeEvent event) {

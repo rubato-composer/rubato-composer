@@ -122,7 +122,7 @@ public class CoolFormRegistrant {
 		//SoundNote
 		SimpleForm layer = this.registerZModuleForm("Layer");
 		Form modulators = new FormReference("Modulators", Form.POWER);
-		SOUND_NOTE_FORM = this.registerLimitForm("SoundNote", ONSET_FORM, PITCH_FORM, LOUDNESS_FORM, DURATION_FORM, VOICE_FORM, layer, modulators);
+		SOUND_NOTE_FORM = this.registerLimitForm("SoundNote", ONSET_FORM, PITCH_FORM, LOUDNESS_FORM, DURATION_FORM, VOICE_FORM, PAN_FORM, layer, modulators);
 		modulators = this.registerPowerForm("Modulators", SOUND_NOTE_FORM);
 		modulators.resolveReferences(REPOSITORY);
 		
