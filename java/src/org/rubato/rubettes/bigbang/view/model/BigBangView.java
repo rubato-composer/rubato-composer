@@ -38,9 +38,10 @@ import org.rubato.rubettes.bigbang.view.controller.mode.ScalingModeAdapter;
 import org.rubato.rubettes.bigbang.view.controller.mode.ShearingModeAdapter;
 import org.rubato.rubettes.bigbang.view.controller.mode.TranslationModeAdapter;
 import org.rubato.rubettes.bigbang.view.controller.mode.temp.TemporaryDisplayMode;
+import org.rubato.rubettes.bigbang.view.input.BigBangMidiReceiver;
+import org.rubato.rubettes.bigbang.view.input.LeapMotionIn;
 import org.rubato.rubettes.bigbang.view.model.tools.DisplayTool;
 import org.rubato.rubettes.bigbang.view.model.tools.SelectionTool;
-import org.rubato.rubettes.bigbang.view.player.BigBangMidiReceiver;
 import org.rubato.rubettes.bigbang.view.player.BigBangPlayer;
 import org.rubato.rubettes.bigbang.view.player.BigBangRecorder;
 import org.rubato.rubettes.bigbang.view.subview.DisplayObjects;
@@ -91,6 +92,7 @@ public class BigBangView extends Model implements View {
 		this.setTempo(BigBangPlayer.INITIAL_BPM);
 		this.modFilterOn = false;
 		this.modNumber = -1;
+		new LeapMotionIn(this.viewController);
 	}
 	
 	public void addNewWindow() {
@@ -529,15 +531,17 @@ public class BigBangView extends Model implements View {
 	}
 	
 	public void addObject(Point2D.Double location) {
-		Map<DenotatorPath,Double> objectValues = this.displayObjects.getActiveObjectStandardValues(this.standardDenotatorValues);
-		DenotatorPath objectPowersetPath = this.editObjectValuesAndFindClosestPowerset(location, objectValues);
-		
-		//only add object if there are some screen values to be converted
-		if (!objectValues.isEmpty()) {
-			if (objectPowersetPath != null) {
-				this.controller.addObject(objectValues, objectPowersetPath);
-			} else {
-				this.controller.addObject(objectValues);
+		if (this.displayObjects != null) {
+			Map<DenotatorPath,Double> objectValues = this.displayObjects.getActiveObjectStandardValues(this.standardDenotatorValues);
+			DenotatorPath objectPowersetPath = this.editObjectValuesAndFindClosestPowerset(location, objectValues);
+			
+			//only add object if there are some screen values to be converted
+			if (!objectValues.isEmpty()) {
+				if (objectPowersetPath != null) {
+					this.controller.addObject(objectValues, objectPowersetPath);
+				} else {
+					this.controller.addObject(objectValues);
+				}
 			}
 		}
 	}

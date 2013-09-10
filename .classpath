@@ -14,5 +14,10 @@
 	<classpathentry kind="lib" path="java/jar/collections-generic-4.01.jar"/>
 	<classpathentry kind="lib" path="java/jar/jung-visualization-2.0.1.jar"/>
 	<classpathentry kind="lib" path="java/jar/jung-algorithms-2.0.1.jar"/>
+	<classpathentry kind="lib" path="java/jar/LeapJava.jar">
+		<attributes>
+			<attribute name="org.eclipse.jdt.launching.CLASSPATH_ATTR_LIBRARY_PATH_ENTRY" value="rubatocomposer/java/jar"/>
+		</attributes>
+	</classpathentry>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
