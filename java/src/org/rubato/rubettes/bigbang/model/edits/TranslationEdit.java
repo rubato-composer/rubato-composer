@@ -38,7 +38,7 @@ public class TranslationEdit extends AbstractTransformationEdit {
 	}
 	
 	public double[] getEndingPoint() {
-		return this.endingPoint;
+		return new double[]{this.startingPoint[0]+this.shift[0],this.startingPoint[1]+this.shift[1]};
 	}
 
 }

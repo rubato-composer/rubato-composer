@@ -8,6 +8,7 @@ import java.beans.PropertyChangeEvent;
 
 import javax.swing.Box;
 import javax.swing.BoxLayout;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 
 import org.rubato.rubettes.bigbang.controller.BigBangController;
@@ -32,6 +33,7 @@ import edu.uci.ics.jung.algorithms.layout.util.Relaxer;
 import edu.uci.ics.jung.algorithms.layout.util.VisRunner;
 import edu.uci.ics.jung.graph.DirectedSparseGraph;
 import edu.uci.ics.jung.graph.Graph;
+import edu.uci.ics.jung.visualization.GraphZoomScrollPane;
 import edu.uci.ics.jung.visualization.VisualizationViewer;
 import edu.uci.ics.jung.visualization.control.DefaultModalGraphMouse;
 import edu.uci.ics.jung.visualization.control.ModalGraphMouse;
@@ -45,27 +47,31 @@ public class JGraphPanel extends JPanel implements View {
 	private ViewController controller;
 	private FRLayout2<Integer,AbstractOperationEdit> layout;
 	private VisualizationViewer<Integer,AbstractOperationEdit> graphViewer;
+	private JLabel statusBar;
+	private Integer pickedState;
+	private AbstractOperationEdit pickedOperation;
 	
 	public JGraphPanel(ViewController controller, BigBangController bbController) {
 		controller.addView(this);
 		bbController.addView(this);
 		this.controller = controller;
+		this.statusBar = new JLabel();
 	}
 	
 	private void initLayoutAndViewer() {
 		//init layout and viewer
 		this.layout = new FRLayout2<Integer,AbstractOperationEdit>(new DirectedSparseGraph<Integer,AbstractOperationEdit>());
-		this.layout.setSize(new Dimension(300-50,JBigBangPanel.CENTER_PANEL_HEIGHT-50));
+		this.layout.setSize(new Dimension(300,JBigBangPanel.CENTER_PANEL_HEIGHT-40));
 		//this.layout.setForceMultiplier(.02);
 		//this.layout.setRepulsionRange(30);
-		this.layout.setAttractionMultiplier(15);
+		//this.layout.setAttractionMultiplier(1);
 		Relaxer relaxer = new VisRunner(this.layout);
 		relaxer.stop();
 		relaxer.prerelax();
 		//Layout<Integer,AbstractOperationEdit> staticLayout = new StaticLayout<Integer,AbstractOperationEdit>(g, this.layout);
 		this.graphViewer = new VisualizationViewer<Integer,AbstractOperationEdit>(this.layout);
-		this.graphViewer.setPreferredSize(new Dimension(300-25,JBigBangPanel.CENTER_PANEL_HEIGHT-25));
-		this.graphViewer.getModel().getRelaxer().setSleepTime(10);
+		this.graphViewer.setMinimumSize(new Dimension(300,JBigBangPanel.CENTER_PANEL_HEIGHT-40));
+		//this.graphViewer.getModel().getRelaxer().setSleepTime(10);
 		
 		//init labels
 		this.graphViewer.getRenderContext().setVertexLabelTransformer(new ToStringLabeller<Integer>());
@@ -93,8 +99,9 @@ public class JGraphPanel extends JPanel implements View {
 		verticalBox.add(Box.createVerticalGlue());*/
 		//add to center
 		this.setPreferredSize(new Dimension(300,JBigBangPanel.CENTER_PANEL_HEIGHT));
-		this.setLayout(new GridBagLayout());
-		this.add(this.graphViewer, new GridBagConstraints());
+		this.setLayout(new BorderLayout());
+		this.add(this.graphViewer, BorderLayout.CENTER);
+		this.add(this.statusBar, BorderLayout.SOUTH);
 	}
 	
 	private void updateGraph(Graph<Integer,AbstractOperationEdit> graph) {
@@ -128,26 +135,56 @@ public class JGraphPanel extends JPanel implements View {
 			AbstractOperationEdit transformation = (AbstractOperationEdit)event.getNewValue();
 			this.selectOperation(transformation);
 		} else if (propertyName.equals(ViewController.SELECT_COMPOSITION_STATE)) {
-			this.selectVertex((Integer)event.getNewValue());
+			this.selectState((Integer)event.getNewValue());
 		} else if (propertyName.equals(ViewController.DESELECT_COMPOSITION_STATES)) {
-			this.selectVertex(null);
+			this.selectState(null);
 		}
 	}
 	
 	private void selectOperation(AbstractOperationEdit operation) {
 		if (operation != null) {
-			this.graphViewer.getPickedEdgeState().pick(operation, true);
+			if (this.pickedOperation != operation) {
+				if (this.pickedOperation != null) {
+					this.graphViewer.getPickedEdgeState().pick(this.pickedOperation, false);
+				}
+				this.graphViewer.getPickedEdgeState().pick(operation, true);
+				this.pickedOperation = operation;
+			}
 		} else {
 			this.graphViewer.getPickedEdgeState().clear();
+			this.pickedOperation = null;
 		}
+		this.updateStatusBar();
 	}
 	
-	private void selectVertex(Integer vertex) {
-		if (vertex != null) {
-			this.graphViewer.getPickedVertexState().pick(vertex, true);
+	private void selectState(Integer state) {
+		if (state != null) {
+			if (this.pickedState != state) {
+				if (this.pickedState != null) {
+					this.graphViewer.getPickedVertexState().pick(this.pickedState, false);
+				}
+				this.graphViewer.getPickedVertexState().pick(state, true);
+				this.pickedState = state;
+			}
 		} else {
 			this.graphViewer.getPickedVertexState().clear();
+			this.pickedState = null;
 		}
+		this.updateStatusBar();
+	}
+	
+	private void updateStatusBar() {
+		StringBuilder text = new StringBuilder();
+		if (this.pickedState != null) {
+			text.append("State: " + this.pickedState);
+			if (this.pickedOperation != null) {
+				text.append(", ");
+			}
+		}
+		if (this.pickedOperation != null) {
+			text.append("Operation: " + this.pickedOperation.toString());
+		}
+		this.statusBar.setText(text.toString());
 	}
 
 }

@@ -43,10 +43,8 @@ import org.rubato.rubettes.bigbang.view.model.tools.SelectionTool;
 import org.rubato.rubettes.bigbang.view.player.BigBangMidiReceiver;
 import org.rubato.rubettes.bigbang.view.player.BigBangPlayer;
 import org.rubato.rubettes.bigbang.view.player.BigBangRecorder;
-import org.rubato.rubettes.bigbang.view.player.JSynScore;
 import org.rubato.rubettes.bigbang.view.subview.DisplayObjects;
 import org.rubato.rubettes.bigbang.view.subview.JBigBangPanel;
-import org.rubato.rubettes.bigbang.view.subview.toolbars.JGraphPanel;
 import org.rubato.rubettes.util.DenotatorPath;
 
 public class BigBangView extends Model implements View {
@@ -89,7 +87,7 @@ public class BigBangView extends Model implements View {
 		this.setDisplayPosition(new Point(20, 560));
 		this.setZoomFactors(5.0, 5.0);
 		this.midiReceiver = new BigBangMidiReceiver(this.viewController);
-		this.recorder = new BigBangRecorder(this.player, this.controller);
+		this.recorder = new BigBangRecorder(this, this.player, this.controller);
 		this.setTempo(BigBangPlayer.INITIAL_BPM);
 		this.modFilterOn = false;
 		this.modNumber = -1;
@@ -98,8 +96,7 @@ public class BigBangView extends Model implements View {
 	public void addNewWindow() {
 		Frame parentFrame = JOptionPane.getFrameForComponent(this.panel);
 		BigBangAdditionalView newView = new BigBangAdditionalView(this.controller, parentFrame);
-		SelectedObjectsPaths paths = this.displayObjects.getCategorizedSelectedObjectsPaths();
-		this.controller.newWindowAdded(paths);
+		this.controller.newWindowAdded();
 		newView.pack();
 		newView.setVisible(true);
 	}
@@ -317,7 +314,7 @@ public class BigBangView extends Model implements View {
 			this.selectedObjectsPaths = null;
 		}
 		this.updateDisplayObjects(newObjects, this.extractor.getMinValues(), this.extractor.getMaxValues());
-		this.updatePlayerScore(this.extractor.getJSynScore(), notification.playback());
+		this.player.setScore(this.extractor.getJSynScore());
 	}
 	
 	private void updateDisplayObjects(DisplayObjects displayObjects, List<Double> minValues, List<Double> maxValues) {
@@ -337,6 +334,10 @@ public class BigBangView extends Model implements View {
 		this.firePropertyChange(ViewController.DISPLAY_OBJECTS, null, this.displayObjects);
 		this.firePropertyChange(ViewController.STANDARD_DENOTATOR_VALUES, null, this.getStandardDenotatorValues());
 		this.firePropertyChange(ViewController.MAX_SATELLITE_LEVEL, null, this.displayObjects.getMaxSatelliteLevelOfActiveObject());
+	}
+	
+	public DisplayObjects getDisplayObjects() {
+		return this.displayObjects;
 	}
 	
 	public void setStandardDenotatorValue(Integer index, Double value) {
@@ -401,23 +402,23 @@ public class BigBangView extends Model implements View {
 				this.setDisplayMode(new TranslationModeAdapter(this.viewController, startingPoint, endingPoint));
 			} else if (edit instanceof AbstractLocalTransformationEdit) {
 				AbstractLocalTransformationEdit localEdit = (AbstractLocalTransformationEdit)edit;
-				double[] startingPoint = this.getXYDisplayValues(localEdit.getCenter());
+				double[] center = this.getXYDisplayValues(localEdit.getCenter());
 				double[] endingPoint = this.getXYDisplayValues(localEdit.getEndPoint());
 				if (edit instanceof RotationEdit) {
+					double[] startingPoint = ((RotationEdit)edit).getStartingPoint();
 					double angle = ((RotationEdit)edit).getAngle();
-					this.setDisplayMode(new RotationModeAdapter(this.viewController, startingPoint, endingPoint, angle));
+					this.setDisplayMode(new RotationModeAdapter(this.viewController, center, startingPoint, endingPoint, angle));
 				} else if (edit instanceof ScalingEdit) {
 					double[] scaleFactors = ((ScalingEdit)edit).getScaleFactors();
-					this.setDisplayMode(new ScalingModeAdapter(this.viewController, startingPoint, endingPoint, scaleFactors));
+					this.setDisplayMode(new ScalingModeAdapter(this.viewController, center, endingPoint, scaleFactors));
 				} else if (edit instanceof ShearingEdit) {
 					double[] shearingFactors = ((ShearingEdit)edit).getShearingFactors();
-					this.setDisplayMode(new ShearingModeAdapter(this.viewController, startingPoint, endingPoint, shearingFactors));
+					this.setDisplayMode(new ShearingModeAdapter(this.viewController, center, endingPoint, shearingFactors));
 				} else if (edit instanceof ReflectionEdit) {
-					this.setDisplayMode(new ReflectionModeAdapter(this.viewController, startingPoint, endingPoint));
+					this.setDisplayMode(new ReflectionModeAdapter(this.viewController, center, endingPoint));
 				}
-			} else if (edit instanceof AddWallpaperDimensionEdit) {
-				this.firePropertyChange(ViewController.SELECT_OPERATION, null, this.selectedOperation);
 			}
+			this.firePropertyChange(ViewController.SELECT_OPERATION, null, this.selectedOperation);
 		} else {
 			this.clearDisplayTool();
 			this.firePropertyChange(ViewController.SELECT_OPERATION, null, null);
@@ -454,9 +455,9 @@ public class BigBangView extends Model implements View {
 		this.controller.translateObjects(properties);
 	}
 	
-	public void rotateSelectedObjects(Point2D.Double center, Point2D.Double endPoint, Double angle, Boolean copyAndTransform, Boolean previewMode) {
+	public void rotateSelectedObjects(Point2D.Double center, Point2D.Double startPoint, Point2D.Double endPoint, Double angle, Boolean copyAndTransform, Boolean previewMode) {
 		TransformationProperties properties = this.getLocalTransformationProperties(center, endPoint, copyAndTransform, previewMode);
-		this.controller.rotateObjects(properties, angle);
+		this.controller.rotateObjects(properties, new double[]{startPoint.x,startPoint.y}, angle);
 	}
 	
 	public void scaleSelectedObjects(Point2D.Double center, Point2D.Double endPoint, double[] scaleFactors, Boolean copyAndTransform, Boolean previewMode) {
@@ -709,21 +710,6 @@ public class BigBangView extends Model implements View {
 		return this.panel;
 	}
 	
-	private void updatePlayerScore(JSynScore score, boolean play) {
-		this.player.setScore(score);
-		/*if (play && this.playingActive && !this.player.isPlaying()) {
-			this.player.startPlaying();
-		}*/
-	}
-	
-	//not every sounding object makes sense to be played alone (e.g. modulator, or overtone)
-	/*private void playObject(Denotator object) {
-		if (this.playingActive) {
-			DenotatorValueExtractor extractor = new DenotatorValueExtractor(object);
-			this.player.playObject(extractor.getJSynScore().getObjects().get(0));
-		}
-	}*/
-	
 	public void setIsLooping(Boolean isLooping) {
 		this.player.setIsLooping(isLooping);
 		this.firePropertyChange(ViewController.IS_LOOPING, null, isLooping);
@@ -771,7 +757,9 @@ public class BigBangView extends Model implements View {
 	}
 	
 	public void changeOctave(Boolean up) {
-		this.player.transposeAllScoreVersionsByOctave(up);
+		if (!this.recorder.isRecording()) {
+			this.player.transposeAllScoreVersionsByOctave(up);
+		}
 	}
 	
 	public void changeVelocity(Integer velocity) {

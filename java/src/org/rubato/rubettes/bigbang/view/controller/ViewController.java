@@ -220,8 +220,8 @@ public class ViewController extends Controller {
 		this.callModelMethod(ViewController.TRANSLATE_OBJECTS, center, endPoint, copyAndTranslate, previewMode);
 	}
 	
-	public void rotateSelectedObjects(Point2D.Double center, Point2D.Double endPoint, double angle, boolean copyAndTranslate, boolean previewMode) {
-		this.callModelMethod(ViewController.ROTATE_OBJECTS, center, endPoint, angle, copyAndTranslate, previewMode);
+	public void rotateSelectedObjects(Point2D.Double center, Point2D.Double startPoint, Point2D.Double endPoint, double angle, boolean copyAndTranslate, boolean previewMode) {
+		this.callModelMethod(ViewController.ROTATE_OBJECTS, center, startPoint, endPoint, angle, copyAndTranslate, previewMode);
 	}
 	
 	public void scaleSelectedObjects(Point2D.Double center, Point2D.Double endPoint, double[] scaleFactors, boolean copyAndTranslate, boolean previewMode) {

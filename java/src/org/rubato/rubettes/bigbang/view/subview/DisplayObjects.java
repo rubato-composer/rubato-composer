@@ -13,6 +13,7 @@ import java.util.TreeSet;
 
 import org.rubato.math.yoneda.ColimitForm;
 import org.rubato.math.yoneda.Form;
+import org.rubato.math.yoneda.SimpleForm;
 import org.rubato.rubettes.bigbang.view.View;
 import org.rubato.rubettes.bigbang.view.controller.ViewController;
 import org.rubato.rubettes.bigbang.view.model.DenotatorValueExtractor;
@@ -248,6 +249,10 @@ public class DisplayObjects implements View {
 	
 	public int getActiveObjectValueIndex(int coordinateSystemValueIndex) {
 		return this.finder.getActiveObjectValueIndex(coordinateSystemValueIndex, this.indexOfActiveObjectType, this.activeColimitCoordinates);
+	}
+	
+	public int getActiveObjectFirstValueIndex(SimpleForm form) {
+		return this.finder.getActiveObjectFirstValueIndex(form, this.indexOfActiveObjectType, this.activeColimitCoordinates);
 	}
 	
 	

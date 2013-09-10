@@ -54,8 +54,8 @@ public class BigBangController extends Controller {
 	public static final String ALTERATION_END_DEGREE = "setAlterationEndDegree";
 	public static final String END_ALTERATION = "endAlteration";
 	
-	public void newWindowAdded(SelectedObjectsPaths paths) {
-		this.callModelMethod(BigBangController.NEW_WINDOW, paths);
+	public void newWindowAdded() {
+		this.callModelMethod(BigBangController.NEW_WINDOW);
 	}
 	
 	public void undo() {
@@ -118,8 +118,8 @@ public class BigBangController extends Controller {
 		this.callModelMethod(BigBangController.TRANSLATE_OBJECTS, properties);
 	}
 	
-	public void rotateObjects(TransformationProperties properties, double angle) {
-		this.callModelMethod(BigBangController.ROTATE_OBJECTS, properties, angle);
+	public void rotateObjects(TransformationProperties properties, double[] startingPoint, double angle) {
+		this.callModelMethod(BigBangController.ROTATE_OBJECTS, properties, startingPoint, angle);
 	}
 	
 	public void scaleObjects(TransformationProperties properties, double[] scaleFactors) {

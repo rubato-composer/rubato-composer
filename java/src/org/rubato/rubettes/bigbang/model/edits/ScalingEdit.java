@@ -25,13 +25,14 @@ public class ScalingEdit extends AbstractLocalTransformationEdit {
 
 	@Override
 	protected RMatrix getMatrix() {
-		double sx = this.modificationRatio*this.scaleFactors[0];
-		double sy = this.modificationRatio*this.scaleFactors[1];
+		double[] modifiedFactors = this.getScaleFactors();
+		double sx = modifiedFactors[0];
+		double sy = modifiedFactors[1];
 		return new RMatrix(new double[][]{{sx,0},{0,sy}});
 	}
 	
 	public double[] getScaleFactors() {
-		return this.scaleFactors;
+		return new double[]{this.modificationRatio*this.scaleFactors[0],this.modificationRatio*this.scaleFactors[1]};
 	}
 
 }

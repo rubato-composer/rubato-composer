@@ -17,12 +17,13 @@ public class ObjectRotationAdapter extends ObjectTransformationAdapter {
 		super(controller);
 	}
 	
-	public ObjectRotationAdapter(ViewController controller, double[] center, double[] endingPoint, double angle) {
+	public ObjectRotationAdapter(ViewController controller, double[] center, double[] startingPoint, double[] endingPoint, double angle) {
 		super(controller, center, endingPoint);
 		this.updateCenter(center[0], center[1]);
-		Point2D.Double endingPoint2D = new Point2D.Double(endingPoint[0], endingPoint[1]);
-		this.updateStartAngle(endingPoint2D, angle);
+		Point2D.Double startingPoint2D = new Point2D.Double(startingPoint[0], startingPoint[1]);
+		this.updateStartAngle(startingPoint2D);
 		this.updateArcAngle(angle);
+		this.updateEndingPoint(GeometryTools.calculatePoint(this.center, startingPoint2D, angle));
 	}
 	
 	public void mouseClicked(MouseEvent event) {
@@ -53,7 +54,7 @@ public class ObjectRotationAdapter extends ObjectTransformationAdapter {
 	protected void transformSelectedObjects(MouseEvent event, boolean inPreviewMode) {
 		Point2D.Double currentEndingPoint = new Point2D.Double(event.getPoint().x, event.getPoint().y);
 		double arcAngle = this.calculateArcAngle(currentEndingPoint);
-		this.controller.rotateSelectedObjects(this.center, currentEndingPoint, arcAngle, event.isAltDown(), inPreviewMode);
+		this.controller.rotateSelectedObjects(this.center, this.startingPoint, currentEndingPoint, arcAngle, event.isAltDown(), inPreviewMode);
 	}
 	
 	@Override
@@ -63,9 +64,8 @@ public class ObjectRotationAdapter extends ObjectTransformationAdapter {
 		this.controller.modifyRotationAngle(arcAngle, inPreviewMode);
 	}
 	
-	private double calculateStartingAngle(Point2D.Double endPoint, double arcAngle) {
-		double endAngle = GeometryTools.calculateAngle(this.center, endPoint);
-		return endAngle-arcAngle;
+	private double calculateStartingAngle(Point2D.Double startingPoint) {
+		return GeometryTools.calculateAngle(this.center, startingPoint);
 	}
 	
 	private double calculateArcAngle(Point2D.Double endingPoint) {
@@ -90,8 +90,8 @@ public class ObjectRotationAdapter extends ObjectTransformationAdapter {
 		}
 	}
 	
-	private void updateStartAngle(Point2D.Double endingPoint, double arcAngle) {
-		this.startingAngle = this.calculateStartingAngle(endingPoint, arcAngle);
+	private void updateStartAngle(Point2D.Double startingPoint) {
+		this.startingAngle = this.calculateStartingAngle(startingPoint);
 		((RotationTool)this.displayTool).setStartingAngle(Math.toDegrees(this.startingAngle));
 	}
 	

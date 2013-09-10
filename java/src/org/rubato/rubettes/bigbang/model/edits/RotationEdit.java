@@ -6,10 +6,12 @@ import org.rubato.rubettes.bigbang.model.TransformationProperties;
 
 public class RotationEdit extends AbstractLocalTransformationEdit {
 	
+	private double[] startingPoint;
 	private double angle;
 	
-	public RotationEdit(BigBangScoreManager scoreLayers, TransformationProperties properties, double angle) {
+	public RotationEdit(BigBangScoreManager scoreLayers, TransformationProperties properties, double[] startingPoint, double angle) {
 		super(scoreLayers, properties);
+		this.startingPoint = startingPoint;
 		this.angle = angle;
 		this.initTransformation();
 	}
@@ -27,8 +29,8 @@ public class RotationEdit extends AbstractLocalTransformationEdit {
 	
 	@Override
 	protected RMatrix getMatrix() {
-		double sin = Math.sin(this.modificationRatio*this.angle);
-		double cos = Math.cos(this.modificationRatio*this.angle);
+		double sin = Math.sin(this.getAngle());
+		double cos = Math.cos(this.getAngle());
 		return new RMatrix(new double[][]{{cos,-1*sin},{sin,cos}});
 	}
 	
@@ -37,7 +39,12 @@ public class RotationEdit extends AbstractLocalTransformationEdit {
 	}
 	
 	public double getAngle() {
-		return this.angle;
+		System.out.println(this.modificationRatio + " " + this.modificationRatio*this.angle);
+		return this.modificationRatio*this.angle;
+	}
+	
+	public double[] getStartingPoint() {
+		return this.startingPoint;
 	}
 
 }

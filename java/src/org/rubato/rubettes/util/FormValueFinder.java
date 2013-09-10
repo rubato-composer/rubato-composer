@@ -107,6 +107,11 @@ public class FormValueFinder {
 		return -1;
 	}
 	
+	public int getActiveObjectFirstValueIndex(SimpleForm form, int objectIndex, List<Integer> colimitCofiguration) {
+		String coordinateSystemValueName = FormValueFinder.makeValueName(form.getNameString(), form.getModule(), "");
+		return this.objectsInFoundOrder.get(objectIndex).getIndexOfNthInstanceOfConfigurationValueName(colimitCofiguration, coordinateSystemValueName, 0);
+	}
+	
 	public int getInstanceNumberOfCoordinateValueName(int coordinateSystemValueIndex) {
 		String nameInCoordinateSystem = this.getCoordinateSystemValueNames().get(coordinateSystemValueIndex);
 		return this.getPreviousOccurrencesInCoordinateSystem(nameInCoordinateSystem, coordinateSystemValueIndex);
