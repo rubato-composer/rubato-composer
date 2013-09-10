@@ -10,7 +10,6 @@ import org.rubato.rubettes.util.CoolFormRegistrant;
 
 import com.jsyn.JSyn;
 import com.jsyn.Synthesizer;
-import com.jsyn.devices.AudioDeviceManager;
 import com.jsyn.unitgen.SawtoothOscillator;
 import com.jsyn.unitgen.SineOscillator;
 import com.jsyn.unitgen.SquareOscillator;
@@ -56,8 +55,9 @@ public class JSynPlayer {
 	
 	public void startSynth() {
 		if (!this.synth.isRunning()) {
-			this.synth.getAudioDeviceManager().setSuggestedOutputLatency(.2);
-			this.synth.start(JSynPlayer.SAMPLE_RATE, AudioDeviceManager.USE_DEFAULT_DEVICE, 2, AudioDeviceManager.USE_DEFAULT_DEVICE, 2);
+			//this.synth.getAudioDeviceManager().setSuggestedOutputLatency(.2);
+			this.synth.start(JSynPlayer.SAMPLE_RATE);
+			//this.synth.start(JSynPlayer.SAMPLE_RATE, AudioDeviceManager.USE_DEFAULT_DEVICE, 2, AudioDeviceManager.USE_DEFAULT_DEVICE, 2);
 		}
 	}
 	
