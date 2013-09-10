@@ -7,10 +7,11 @@ public class GeometryTools {
 	
 	public static double calculateArcAngle(Point2D.Double center, double startAngle, Point2D.Double endPoint) {
 		double endAngle = calculateAngle(center, endPoint);
-		/*if (endAngle < startAngle) {
-			endAngle += 2*Math.PI;
-		}*/
-		return endAngle - startAngle;
+		double angle = endAngle - startAngle;
+		if (angle > Math.PI) {
+			angle = -1*((2*Math.PI)-angle);
+		}
+		return angle;
 	}
 	
 	public static double calculateAngle(Point2D.Double center, Point2D.Double p) {
@@ -30,6 +31,12 @@ public class GeometryTools {
 		double d2 = p2.distance(p1);
 		double d3 = p3.distance(p1);
 		return Math.acos(((x2*x3)+(y2*y3))/(Math.abs(d2)*Math.abs(d3)));
+	}
+	
+	public static Point2D.Double calculatePoint(Point2D.Double center, Point2D.Double p, double angle) {
+		angle += calculateAngle(center, p)+(Math.PI/2);
+		double r = Math.sqrt(Math.pow(p.x-center.x, 2)+Math.pow(p.y-center.y, 2));
+		return new Point2D.Double(center.x + (r*Math.sin(angle)), center.y + (r*Math.cos(angle)));
 	}
 	
 	public static Rectangle2D.Double getRectangle(Point2D.Double p1, Point2D.Double p2) {

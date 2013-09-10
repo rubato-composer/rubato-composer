@@ -1,17 +1,16 @@
 package org.rubato.rubettes.bigbang.model;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.undo.AbstractUndoableEdit;
 import javax.swing.undo.UndoManager;
 import javax.swing.undo.UndoableEditSupport;
 
+import org.rubato.math.yoneda.Form;
 import org.rubato.rubettes.bigbang.controller.BigBangController;
 import org.rubato.rubettes.bigbang.controller.Controller;
 import org.rubato.rubettes.bigbang.model.edits.AbstractOperationEdit;
 import org.rubato.rubettes.bigbang.model.edits.AbstractTransformationEdit;
-import org.rubato.rubettes.bigbang.view.model.SelectedObjectsPaths;
 
 import edu.uci.ics.jung.algorithms.shortestpath.DijkstraShortestPath;
 
@@ -32,7 +31,12 @@ public class UndoRedoModel extends Model {
 		this.firePropertyChange(BigBangController.GRAPH, null, this.operations);
 	}
 	
-	public void newWindowAdded(SelectedObjectsPaths paths) {
+	//called in BigBangController
+	public void setForm(@SuppressWarnings("unused") Form form) {
+		this.reset();
+	}
+	
+	public void newWindowAdded() {
 		this.firePropertyChange(BigBangController.GRAPH, null, this.operations);
 	}
 	
@@ -86,7 +90,7 @@ public class UndoRedoModel extends Model {
 			if (operation instanceof AbstractTransformationEdit) {
 				((AbstractTransformationEdit)operation).modify(ratio);
 				this.operations.updateComposition(true);
-				//this.firePropertyChange(BigBangController.MODIFY_OPERATION, null, operation);
+				this.firePropertyChange(BigBangController.MODIFY_OPERATION, null, operation);
 			}
 		}
 	}

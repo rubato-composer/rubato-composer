@@ -7,7 +7,6 @@ import java.util.TreeSet;
 import javax.swing.undo.AbstractUndoableEdit;
 
 import org.rubato.math.yoneda.Denotator;
-import org.rubato.math.yoneda.Form;
 import org.rubato.rubettes.bigbang.controller.BigBangController;
 import org.rubato.rubettes.bigbang.model.edits.AbstractOperationEdit;
 import org.rubato.rubettes.bigbang.model.edits.AddObjectsEdit;
@@ -42,10 +41,6 @@ public class BigBangModel extends Model {
 		this.undoRedoModel = new UndoRedoModel(controller);
 		this.scoreManager = new BigBangScoreManager(controller);
 		this.setInputActive(true);
-	}
-	
-	public void setForm(Form form) {
-		this.undoRedoModel.reset();
 	}
 	
 	public void setInputActive(Boolean inputActive) {
@@ -103,8 +98,8 @@ public class BigBangModel extends Model {
 		this.doTransformation(properties, new TranslationEdit(this.scoreManager, properties));
 	}
 	
-	public void rotateObjects(TransformationProperties properties, Double angle) {
-		this.doTransformation(properties, new RotationEdit(this.scoreManager, properties, angle));
+	public void rotateObjects(TransformationProperties properties, double[] startingPoint, Double angle) {
+		this.doTransformation(properties, new RotationEdit(this.scoreManager, properties, startingPoint, angle));
 	}
 	
 	public void scaleObjects(TransformationProperties properties, double[] scaleFactors) {

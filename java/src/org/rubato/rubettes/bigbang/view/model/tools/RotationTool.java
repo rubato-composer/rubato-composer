@@ -8,7 +8,7 @@ public class RotationTool extends DisplayTool {
 	
 	private Point2D.Double center;
 	private double startingAngle;
-	private double arcAngle;
+	private Double arcAngle;
 	
 	public void setCenter(Point2D.Double center) {
 		if (this.center != null && this.endingPoint != null) {
@@ -32,7 +32,7 @@ public class RotationTool extends DisplayTool {
 		if (this.center != null) {
 			painter.setColor(this.DARK);
 			painter.fillOval(this.center.x-2, this.center.y-2, 4, 4);
-			if (this.endingPoint != null) {
+			if (this.arcAngle != null) {
 				double radius = this.endingPoint.distance(this.center);
 				double x = this.center.x-radius;
 				double y = this.center.y-radius;

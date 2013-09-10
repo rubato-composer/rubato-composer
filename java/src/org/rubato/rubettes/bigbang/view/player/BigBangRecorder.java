@@ -3,16 +3,15 @@ package org.rubato.rubettes.bigbang.view.player;
 import java.util.Map;
 import java.util.TreeMap;
 
+import org.rubato.math.yoneda.SimpleForm;
 import org.rubato.rubettes.bigbang.controller.BigBangController;
+import org.rubato.rubettes.bigbang.view.model.BigBangView;
 import org.rubato.rubettes.util.CoolFormRegistrant;
 import org.rubato.rubettes.util.DenotatorPath;
 
 public class BigBangRecorder extends Thread {
 	
-	public static final int MIN_BPM = 1;
-	public static final int MAX_BPM = 5000;
-	public static final int INITIAL_BPM = 100;
-	
+	private BigBangView view;
 	private BigBangPlayer player;
 	private BigBangController controller;
 	private boolean threadRunning, isRecording;
@@ -20,7 +19,8 @@ public class BigBangRecorder extends Thread {
 	private Map<Integer,Double> currentKeyOnsets;
 	private Map<Integer,Integer> currentKeyVelocities;
 	
-	public BigBangRecorder(BigBangPlayer player, BigBangController controller) {
+	public BigBangRecorder(BigBangView view, BigBangPlayer player, BigBangController controller) {
+		this.view = view;
 		this.player = player;
 		this.controller = controller;
 		this.currentKeyOnsets = new TreeMap<Integer,Double>();
@@ -63,14 +63,23 @@ public class BigBangRecorder extends Thread {
 		if (this.isRecording) {
 			//TODO make flexible for other forms!!!!
 			Map<DenotatorPath,Double> denotatorValues = new TreeMap<DenotatorPath,Double>();
-			denotatorValues.put(new DenotatorPath(CoolFormRegistrant.NOTE_FORM, new int[]{0}), this.currentKeyOnsets.get(pitch));
-			denotatorValues.put(new DenotatorPath(CoolFormRegistrant.NOTE_FORM, new int[]{1}), new Double(pitch));
-			denotatorValues.put(new DenotatorPath(CoolFormRegistrant.NOTE_FORM, new int[]{2}), this.currentKeyVelocities.get(pitch).doubleValue());
+			this.putDenotatorValueIfFormPresent(CoolFormRegistrant.ONSET_FORM, this.currentKeyOnsets.get(pitch), denotatorValues);
+			this.putDenotatorValueIfFormPresent(CoolFormRegistrant.PITCH_FORM, new Double(pitch), denotatorValues);
+			this.putDenotatorValueIfFormPresent(CoolFormRegistrant.LOUDNESS_FORM, this.currentKeyVelocities.get(pitch).doubleValue(), denotatorValues);
 			double duration = this.player.getCurrentSymbolicTime()-this.currentKeyOnsets.get(pitch);
-			denotatorValues.put(new DenotatorPath(CoolFormRegistrant.NOTE_FORM, new int[]{3}), duration);
-			this.controller.addObject(denotatorValues, new DenotatorPath(CoolFormRegistrant.SCORE_FORM, new int[]{}));
+			this.putDenotatorValueIfFormPresent(CoolFormRegistrant.DURATION_FORM, duration, denotatorValues);
+			
+			this.controller.addObject(denotatorValues, this.view.getDisplayObjects().getActiveObjectType().getPath().getParentPath());
 			this.currentKeyOnsets.remove(pitch);
 			this.currentKeyVelocities.remove(pitch);
+		}
+	}
+	
+	private void putDenotatorValueIfFormPresent(SimpleForm form, double value, Map<DenotatorPath,Double> denotatorValues) {
+		Integer valueIndex = this.view.getDisplayObjects().getActiveObjectFirstValueIndex(form);
+		if (valueIndex >= 0) {
+			DenotatorPath valuePath = this.view.getDisplayObjects().getActiveObjectValuePathAt(valueIndex);
+			denotatorValues.put(valuePath, value);
 		}
 	}
 	

@@ -69,7 +69,7 @@ public abstract class ObjectTransformationAdapter extends MouseInputAdapter {
 		this.updateEndingPoint(endingPoint);
 	}
 	
-	private void updateEndingPoint(Point2D.Double endingPoint) {
+	protected void updateEndingPoint(Point2D.Double endingPoint) {
 		this.displayTool.setEndingPoint(endingPoint);
 		this.updateDisplayTool();
 	}
