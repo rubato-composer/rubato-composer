@@ -19,6 +19,8 @@ import org.rubato.rubettes.bigbang.view.player.BigBangPlayer;
 
 public class JBigBangDisplay extends JPanel implements View {
 	
+	public static final int DISPLAY_WIDTH = 920;
+	
 	private DisplayContents contents;
 	private DisplayModeAdapter modeAdapter;
 	private Timer timer;
@@ -63,7 +65,7 @@ public class JBigBangDisplay extends JPanel implements View {
     }
 	
 	public Dimension getPreferredSize() {
-        return new Dimension(920, JBigBangPanel.CENTER_PANEL_HEIGHT);
+        return new Dimension(JBigBangDisplay.DISPLAY_WIDTH, JBigBangPanel.CENTER_PANEL_HEIGHT);
     }
 
 	public void modelPropertyChange(PropertyChangeEvent event) {

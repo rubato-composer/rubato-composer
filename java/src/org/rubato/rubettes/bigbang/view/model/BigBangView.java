@@ -67,7 +67,7 @@ public class BigBangView extends Model implements View {
 	protected ViewParameters viewParameters;
 	private Map<String,Double> standardDenotatorValues;
 	private boolean satellitesConnected;
-	DenotatorValueExtractor extractor;
+	private DenotatorValueExtractor extractor;
 	protected DisplayObjects displayObjects;
 	private DisplayTool displayTool;
 	//only used in preview mode
@@ -83,7 +83,7 @@ public class BigBangView extends Model implements View {
 		this.initStandardDenotatorValues();
 		this.extractor = new DenotatorValueExtractor(this.layerStates);
 		this.setSatellitesConnected(true);
-		this.setDisplayMode(new DrawingModeAdapter(viewController));
+		this.setDisplayMode(new DrawingModeAdapter(this.viewController));
 		//TODO:make this automatic when displaynotes loaded!!! depending on max/min and window size
 		this.setDisplayPosition(new Point(20, 560));
 		this.setZoomFactors(5.0, 5.0);
@@ -92,7 +92,7 @@ public class BigBangView extends Model implements View {
 		this.setTempo(BigBangPlayer.INITIAL_BPM);
 		this.modFilterOn = false;
 		this.modNumber = -1;
-		new LeapMotionIn(this.viewController);
+		new LeapMotionIn(this, this.viewController);
 	}
 	
 	public void addNewWindow() {
@@ -165,6 +165,10 @@ public class BigBangView extends Model implements View {
 		}
 		this.displayMode = newMode;
 		this.firePropertyChange(ViewController.DISPLAY_MODE, null, newMode);
+	}
+	
+	public boolean inDrawingMode() {
+		return this.displayMode instanceof DrawingModeAdapter;
 	}
 	
 	public void toggleMainOptionsVisible() {
