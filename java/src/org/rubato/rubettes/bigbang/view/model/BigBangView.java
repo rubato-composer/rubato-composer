@@ -49,6 +49,9 @@ import org.rubato.rubettes.bigbang.view.subview.DisplayObjects;
 import org.rubato.rubettes.bigbang.view.subview.JBigBangPanel;
 import org.rubato.rubettes.util.DenotatorPath;
 
+import com.leapmotion.leap.Controller;
+import com.leapmotion.leap.Gesture;
+
 public class BigBangView extends Model implements View {
 	
 	private BigBangController controller;
@@ -74,6 +77,8 @@ public class BigBangView extends Model implements View {
 	//only used in preview mode
 	private SelectedObjectsPaths selectedObjectsPaths;
 	private AbstractOperationEdit selectedOperation;
+	private Controller leapController;
+	private LeapMotionIn leapListener;
 	
 	public BigBangView(BigBangController controller) {
 		this.controller = controller;
@@ -94,7 +99,12 @@ public class BigBangView extends Model implements View {
 		this.modFilterOn = false;
 		this.modNumber = -1;
 		//TODO: crashes even if there's no device connected!!!!!!
-		//new LeapMotionIn(this, this.viewController);
+		
+		this.leapController = new Controller();
+		this.leapListener = new LeapMotionIn(this, this.viewController);
+		leapController.addListener(leapListener);
+		this.leapController.enableGesture(Gesture.Type.TYPE_KEY_TAP);
+		this.leapController.enableGesture(Gesture.Type.TYPE_SCREEN_TAP);
 	}
 	
 	public void addNewWindow() {
