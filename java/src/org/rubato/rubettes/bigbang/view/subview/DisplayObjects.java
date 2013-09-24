@@ -5,6 +5,7 @@ import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.beans.PropertyChangeEvent;
 import java.util.ArrayList;
+import java.util.ConcurrentModificationException;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -406,8 +407,8 @@ public class DisplayObjects implements View {
 		return new SelectedObjectsPaths(selectedObjectPaths, this.getSelectedAnchorObjectPath());
 	}
 	
-	public Set<DenotatorPath> getSelectedObjectsPaths() {
-		TreeSet<DenotatorPath> objectPaths = new TreeSet<DenotatorPath>();
+	public List<DenotatorPath> getSelectedObjectsPaths() {
+		List<DenotatorPath> objectPaths = new ArrayList<DenotatorPath>();
 		for (DisplayObject currentObject : this.selectedObjects) {
 			objectPaths.add(currentObject.getTopDenotatorPath());
 		}
@@ -451,10 +452,14 @@ public class DisplayObjects implements View {
 	}
 	
 	public void paint(AbstractPainter painter) {
-		this.paintConnectors(painter, this.objects);
-		//paint active notes on top of inactive ones
-		this.paintInactiveObjects(painter);
-		this.paintActiveObjects(painter);
+		try {
+			this.paintConnectors(painter, this.objects);
+			//paint active notes on top of inactive ones
+			this.paintInactiveObjects(painter);
+			this.paintActiveObjects(painter);
+		} catch (ConcurrentModificationException e) {
+			return;
+		}
 		//leads to some flipping problems, but necessary for clearness
 		this.paintSelectedObjects(painter);
 		this.paintSelectedAnchorObject(painter);
@@ -472,7 +477,7 @@ public class DisplayObjects implements View {
 		}
 	}
 	
-	private void paintInactiveObjects(AbstractPainter painter) {
+	private void paintInactiveObjects(AbstractPainter painter) throws ConcurrentModificationException {
 		for (DisplayObject currentObject : this.objects) {
 			if (!currentObject.isActive()) {
 				currentObject.paint(painter);
@@ -480,7 +485,7 @@ public class DisplayObjects implements View {
 		}
 	}
 	
-	private void paintActiveObjects(AbstractPainter painter) {
+	private void paintActiveObjects(AbstractPainter painter) throws ConcurrentModificationException {
 		for (DisplayObject currentObject : this.objects) {
 			if (currentObject.isActive()) {
 				currentObject.paint(painter);

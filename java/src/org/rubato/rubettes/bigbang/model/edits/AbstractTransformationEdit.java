@@ -21,24 +21,15 @@ public abstract class AbstractTransformationEdit extends AbstractOperationEdit {
 	protected TransformationProperties properties;
 	private SelectedObjectsPaths previousResultPaths;
 	private ModuleMorphism transformation;
-	protected double modificationRatio;
 	
 	public AbstractTransformationEdit(BigBangScoreManager scoreManager, TransformationProperties properties) {
 		super(scoreManager);
 		this.properties = properties;
-		this.modificationRatio = 1;
 	}
-	
-	protected abstract void initTransformation();
 	
 	public void modify(double[] newValues) {
 		this.properties.setEndPoint(newValues);
-		this.initTransformation();
-	}
-	
-	public void modify(double ratio) {
-		this.modificationRatio = ratio;
-		this.initTransformation();
+		this.updateOperation();
 	}
 	
 	public void setInPreviewMode(boolean inPreviewMode) {
@@ -77,9 +68,10 @@ public abstract class AbstractTransformationEdit extends AbstractOperationEdit {
 		boolean copyAndTransform = this.properties.copyAndTransform();
 		BigBangTransformation transformation = new BigBangTransformation(this.transformation, transformationPaths, copyAndTransform, anchorNodePath);
 		SelectedObjectsPaths resultPaths = this.scoreManager.addTransformation(objectsPaths, transformation, inPreviewMode, sendCompositionChange);
-		List<Map<DenotatorPath,DenotatorPath>> newDifferences = this.getPathDifferences(this.previousResultPaths, resultPaths);
+		//List<Map<DenotatorPath,DenotatorPath>> newDifferences = this.getPathDifferences(this.previousResultPaths, resultPaths);
 		this.previousResultPaths = resultPaths;
-		return newDifferences;
+		//return newDifferences;
+		return pathDifferences;
 	}
 	
 	private List<Map<DenotatorPath,DenotatorPath>> getPathDifferences(SelectedObjectsPaths oldPaths, SelectedObjectsPaths newPaths) {

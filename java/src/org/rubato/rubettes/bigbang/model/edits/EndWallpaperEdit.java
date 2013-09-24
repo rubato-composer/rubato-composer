@@ -15,9 +15,8 @@ public class EndWallpaperEdit extends AbstractOperationEdit {
 		this.scoreManager = manager;
 	}
 	
-	public String getPresentationName() {
-		return "End Wallpaper";
-	}
+	//not changed by modification!!
+	protected void updateOperation() { }
 
 	@Override
 	public List<Map<DenotatorPath, DenotatorPath>> execute(List<Map<DenotatorPath, DenotatorPath>> pathDifferences, boolean fireCompositionChange) {
@@ -28,6 +27,11 @@ public class EndWallpaperEdit extends AbstractOperationEdit {
 	@Override
 	public void setInPreviewMode(boolean inPreviewMode) {
 		//do nothing for now
+	}
+	
+	@Override
+	public String getPresentationName() {
+		return "End Wallpaper";
 	}
 
 }

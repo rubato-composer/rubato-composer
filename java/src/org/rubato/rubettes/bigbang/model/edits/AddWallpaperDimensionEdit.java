@@ -21,6 +21,9 @@ public class AddWallpaperDimensionEdit extends AbstractOperationEdit {
 		this.rangeTo = rangeTo;
 	}
 	
+	//not changed by modification!!
+	protected void updateOperation() { }
+	
 	public String getPresentationName() {
 		return "Add Wallpaper Dimension (" + this.rangeFrom + "," + this.rangeTo + ")";
 	}

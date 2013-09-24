@@ -93,7 +93,10 @@ public class JSynModule {
 				//TODO: one modulator may have several frequencies! go through all
 				this.playOrAdjustObject(modulators.get(i), currentModulator, currentModulator.getMainFrequency(), 2000, playInNextLoop);
 			}
-			//TODO: remove exceeding ones!!!!
+			//remove exceeding ones
+			while (modulators.size() < oscillator.getModulators().size()) {
+				oscillator.removeLastModulator();
+			}
 		}
 	}
 	
@@ -109,11 +112,21 @@ public class JSynModule {
 	
 	@Override
 	protected void finalize() {
-		this.mute();
-		this.player.removeFromSynthAndStop(this.lineOut);
-		for (SmoothOscillator oscillator : this.carriers) {
-			oscillator.removeFromSynthAndStop();
-		}
+		//lame but works!
+		new Thread() {
+			public void run() {
+				//first mute and wait for ramps to go down to not get glitches
+				mute();
+				try {
+					player.getSynth().sleepFor(SmoothOscillator.RAMP_DURATION*1000);
+				} catch (InterruptedException e) { e.printStackTrace();	}
+				//then remove
+				for (SmoothOscillator oscillator : carriers) {
+					oscillator.removeFromSynthAndStop();
+				}
+				player.removeFromSynthAndStop(lineOut);
+			}
+		}.start();
 	}
 
 }

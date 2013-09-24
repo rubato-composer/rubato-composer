@@ -73,7 +73,7 @@ public class BigBangTransformationGraph extends DirectedSparseGraph<Integer,Abst
 			    List<AbstractOperationEdit> shortestPath = dijkstra.getPath(0, shownState);
 			    for (int i = 0; i < shortestPath.size(); i++) {
 					//only send composition change with last one!!!!!!
-					pathDifferences = shortestPath.get(i).execute(pathDifferences, i==shortestPath.size()-1);
+			    	pathDifferences = shortestPath.get(i).execute(pathDifferences, i==shortestPath.size()-1);
 				}
 			} else {
 				lastEdge.getScoreManager().fireCompositionChange();

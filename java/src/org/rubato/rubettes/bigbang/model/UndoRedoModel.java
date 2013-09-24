@@ -84,14 +84,13 @@ public class UndoRedoModel extends Model {
 	
 	public void modifyOperation(Integer operationIndex, Double ratio) {
 		if (operationIndex >= 0 && this.operations.getEdgeCount() > operationIndex) {
+			//TODO: WHY???
 			DijkstraShortestPath<Integer,AbstractOperationEdit> dijkstra = new DijkstraShortestPath<Integer,AbstractOperationEdit>(this.operations);
 		    List<AbstractOperationEdit> shortestPath = dijkstra.getPath(0, this.operations.getEdgeCount());
 		    AbstractOperationEdit operation = shortestPath.get(operationIndex);
-			if (operation instanceof AbstractTransformationEdit) {
-				((AbstractTransformationEdit)operation).modify(ratio);
-				this.operations.updateComposition(true);
-				this.firePropertyChange(BigBangController.MODIFY_OPERATION, null, operation);
-			}
+		    operation.modify(ratio);
+			this.operations.updateComposition(true);
+			this.firePropertyChange(BigBangController.MODIFY_OPERATION, null, operation);
 		}
 	}
 	

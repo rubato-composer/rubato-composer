@@ -13,7 +13,7 @@ import com.softsynth.shared.time.TimeStamp;
 
 public class SmoothOscillator {
 	
-	private final double RAMP_DURATION = .007;
+	public static final double RAMP_DURATION = .007;
 	private final double ATTACK = 0.002;
 	private final double DECAY = 0.03;
 	private final double RELEASE = 0.1;
@@ -23,7 +23,7 @@ public class SmoothOscillator {
 	private LinearRamp frequencySweeper;
 	private LinearRamp amplitudeSweeper;
 	private VariableRateMonoReader envelopePlayer;
-	private Add currentAddUnit;
+	private List<Add> addUnits;
 	List<SmoothOscillator> modulators;
 	
 	public SmoothOscillator(JSynPlayer player) {
@@ -33,35 +33,52 @@ public class SmoothOscillator {
 		this.player.addToSynth(this.amplitudeSweeper = new LinearRamp());
 		this.player.addToSynth(this.envelopePlayer = new VariableRateMonoReader());
 		
-		this.player.addToSynth(this.currentAddUnit = new Add());
-		this.currentAddUnit.output.connect(this.oscillator.frequency);
+		this.addUnits = new ArrayList<Add>();
+		this.addUnits.add(new Add());
+		this.player.addToSynth(this.getCurrentAddUnit());
+		this.getCurrentAddUnit().output.connect(this.oscillator.frequency);
 		
 		//control frequency with a ramp 
-	 	this.frequencySweeper.output.connect(this.currentAddUnit.inputA);
-	 	this.frequencySweeper.time.set(this.RAMP_DURATION);
+	 	this.frequencySweeper.output.connect(this.getCurrentAddUnit().inputA);
+	 	this.frequencySweeper.time.set(RAMP_DURATION);
 	 	
 	 	//control carrier amplitude with an envelope
 	 	this.envelopePlayer.output.connect(this.oscillator.amplitude);
 	 	
 	 	//control envelope amplitude with a ramp 
 	 	this.amplitudeSweeper.output.connect(this.envelopePlayer.amplitude);
-	 	this.amplitudeSweeper.time.set(this.RAMP_DURATION);
+	 	this.amplitudeSweeper.time.set(RAMP_DURATION);
 	 	
 	 	this.modulators = new ArrayList<SmoothOscillator>();
+	}
+	
+	private Add getCurrentAddUnit() {
+		if (this.addUnits.size() > 0) {
+			return this.addUnits.get(this.addUnits.size()-1);
+		}
+		return null;
 	}
 	
 	public void addModulator() {
 		SmoothOscillator modulator = new SmoothOscillator(this.player);
 		Add newAddUnit = new Add();
 		this.player.addToSynth(newAddUnit);
-		newAddUnit.output.connect(this.currentAddUnit.inputB);
+		newAddUnit.output.connect(this.getCurrentAddUnit().inputB);
 		modulator.getOutput().connect(newAddUnit.inputA);
 		this.modulators.add(modulator);
-		this.currentAddUnit = newAddUnit;
+		this.addUnits.add(newAddUnit);
 	}
 	
 	public List<SmoothOscillator> getModulators() {
 		return this.modulators;
+	}
+	
+	public void removeLastModulator() {
+		SmoothOscillator lastModulator = this.modulators.remove(this.modulators.size()-1);
+		lastModulator.removeFromSynthAndStop();
+		Add lastAddUnit = this.getCurrentAddUnit();
+		this.addUnits.remove(lastAddUnit);
+		this.player.removeFromSynthAndStop(lastAddUnit);
 	}
 	
 	public void setFrequency(double frequency) {
@@ -124,9 +141,11 @@ public class SmoothOscillator {
 		this.player.removeFromSynthAndStop(this.frequencySweeper);
 		this.player.removeFromSynthAndStop(this.amplitudeSweeper);
 		this.player.removeFromSynthAndStop(this.envelopePlayer);
-		this.player.removeFromSynthAndStop(this.currentAddUnit);
-		for (SmoothOscillator oscillator : this.modulators) {
-			oscillator.removeFromSynthAndStop();
+		for (SmoothOscillator currentOscillator : this.modulators) {
+			currentOscillator.removeFromSynthAndStop();
+		}
+		for (Add currentAdd : this.addUnits) {
+			this.player.removeFromSynthAndStop(currentAdd);
 		}
 	}
 

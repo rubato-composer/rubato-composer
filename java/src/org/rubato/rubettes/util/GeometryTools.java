@@ -2,6 +2,9 @@ package org.rubato.rubettes.util;
 
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
+import java.util.ArrayList;
+import java.util.List;
+import org.apache.commons.math3.analysis.polynomials.PolynomialFunctionLagrangeForm;
 
 public class GeometryTools {
 	
@@ -45,6 +48,39 @@ public class GeometryTools {
 		double width = Math.abs(p2.x - p1.x);
 		double height = Math.abs(p2.y - p1.y);
 		return new Rectangle2D.Double(x, y, width, height);
+	}
+	
+	public static List<Double> lagrangePredictValues(List<Double> values, int numberOfValues) {
+		double[] x = new double[values.size()];
+		double[] y = new double[values.size()];
+		double sum = 0, min = Double.MAX_VALUE, max = -1*Double.MAX_VALUE;
+		//calculate function
+		for (int i = 0; i < values.size(); i++) {
+			x[i] = i;
+			y[i] = values.get(i);
+			sum += y[i];
+			min = Math.min(min, y[i]);
+			max = Math.max(max, y[i]);
+		}
+		double average = sum/values.size();
+		double range = max-min;
+		PolynomialFunctionLagrangeForm function = new PolynomialFunctionLagrangeForm(x, y);
+		//calculate additional values
+		List<Double> predictedValues = new ArrayList<Double>();
+		for (int i = 0; i < numberOfValues; i++) {
+			double currentValue = function.value(values.size()+i);
+			//normalize a little
+			double signum = Math.signum(currentValue);
+			double normedValue = Math.abs(currentValue-average);
+			
+			double currentCorrectedValue = signum*(average+(range*3*deform((normedValue/(normedValue+1)), function.degree()/2)));
+			predictedValues.add(currentCorrectedValue);
+		}
+		return predictedValues;
+	}
+	
+	private static double deform(double x, double t) {
+		return x/(Math.pow(Math.E, 2*t) - x*(Math.pow(Math.E, 2*t) - 1));
 	}
 
 }

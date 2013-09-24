@@ -19,5 +19,6 @@
 			<attribute name="org.eclipse.jdt.launching.CLASSPATH_ATTR_LIBRARY_PATH_ENTRY" value="rubatocomposer/java/jar"/>
 		</attributes>
 	</classpathentry>
+	<classpathentry kind="lib" path="java/jar/commons-math3-3.2.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

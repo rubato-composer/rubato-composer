@@ -1,30 +1,25 @@
 package org.rubato.rubettes.bigbang.model.edits;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.TreeSet;
 
 import org.rubato.rubettes.bigbang.model.BigBangScoreManager;
 import org.rubato.rubettes.util.DenotatorPath;
 
-public class BuildSatellitesEdit extends AbstractOperationEdit {
+public class BuildSatellitesEdit extends AbstractPathBasedOperationEdit {
 	
-	private List<DenotatorPath> oldSatellitePaths;
 	private DenotatorPath anchorPath;
-	private List<DenotatorPath> newSatellitePaths;
 	private int powersetIndex;
 	
-	public BuildSatellitesEdit(BigBangScoreManager scoreManager, TreeSet<DenotatorPath> oldSatellitePaths, DenotatorPath anchorPath, int powersetIndex) {
-		super(scoreManager);
-		this.oldSatellitePaths = new ArrayList<DenotatorPath>(oldSatellitePaths);
+	public BuildSatellitesEdit(BigBangScoreManager scoreManager, List<DenotatorPath> objectPaths, DenotatorPath anchorPath, int powersetIndex) {
+		super(scoreManager, objectPaths);
 		this.anchorPath = anchorPath;
 		this.powersetIndex = powersetIndex;
 	}
 	
 	@Override
 	public List<Map<DenotatorPath,DenotatorPath>> execute(List<Map<DenotatorPath, DenotatorPath>> pathDifferences, boolean fireCompositionChange) {
-		this.newSatellitePaths = this.scoreManager.moveObjectsToParent(this.oldSatellitePaths, this.anchorPath, this.powersetIndex, fireCompositionChange);
+		this.scoreManager.moveObjectsToParent(this.modifiedObjectPaths, this.anchorPath, this.powersetIndex, fireCompositionChange);
 		return pathDifferences;
 	}
 	

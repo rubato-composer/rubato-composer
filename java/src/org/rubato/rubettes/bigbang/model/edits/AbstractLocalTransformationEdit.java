@@ -17,9 +17,9 @@ public abstract class AbstractLocalTransformationEdit extends AbstractTransforma
 		super(scoreLayers, properties);
 	}
 	
-	public void initTransformation() {
-		this.center = properties.getCenter();
-		this.endPoint = properties.getEndPoint();
+	public void updateOperation() {
+		this.center = this.properties.getCenter();
+		this.endPoint = this.properties.getEndPoint();
 		this.shift1 = new double[]{-1*this.center[0],-1*this.center[1]};
 		this.shift2 = new double[]{this.center[0],this.center[1]};
 		this.initTransformation(this.getMatrix(), this.getShift());

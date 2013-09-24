@@ -16,10 +16,8 @@ import org.rubato.rubettes.bigbang.model.edits.CopyObjectsEdit;
 import org.rubato.rubettes.bigbang.model.edits.DeleteObjectsEdit;
 import org.rubato.rubettes.bigbang.model.edits.EndWallpaperEdit;
 import org.rubato.rubettes.bigbang.model.edits.FlattenEdit;
-import org.rubato.rubettes.bigbang.model.edits.ModulatorBuildingEdit;
 import org.rubato.rubettes.bigbang.model.edits.MoveNotesEdit;
 import org.rubato.rubettes.bigbang.model.edits.ReflectionEdit;
-import org.rubato.rubettes.bigbang.model.edits.RemoveNotesFromCarrierEdit;
 import org.rubato.rubettes.bigbang.model.edits.RotationEdit;
 import org.rubato.rubettes.bigbang.model.edits.BuildSatellitesEdit;
 import org.rubato.rubettes.bigbang.model.edits.ScalingEdit;
@@ -130,20 +128,12 @@ public class BigBangModel extends Model {
 		}
 	}
 	
-	public void buildSatellites(TreeSet<DenotatorPath> nodePaths, DenotatorPath parentNotePath, Integer powersetIndex) {
+	public void buildSatellites(ArrayList<DenotatorPath> nodePaths, DenotatorPath parentNotePath, Integer powersetIndex) {
 		this.undoRedoModel.postEdit(new BuildSatellitesEdit(this.scoreManager, nodePaths, parentNotePath, powersetIndex));
 	}
 	
-	public void flattenObjects(TreeSet<DenotatorPath> nodePaths) {
+	public void flattenObjects(ArrayList<DenotatorPath> nodePaths) {
 		this.undoRedoModel.postEdit(new FlattenEdit(this.scoreManager, nodePaths));
-	}
-	
-	public void buildModulators(TreeSet<DenotatorPath> nodePaths, DenotatorPath carrierNotePath) {
-		this.undoRedoModel.postEdit(new ModulatorBuildingEdit(this.scoreManager, nodePaths, carrierNotePath));
-	}
-	
-	public void removeObjectsFromCarrier(TreeSet<DenotatorPath> nodePaths) {
-		this.undoRedoModel.postEdit(new RemoveNotesFromCarrierEdit(this.scoreManager, nodePaths));
 	}
 	
 	public void addWallpaperDimension(SelectedObjectsPaths objectPaths, Integer rangeFrom, Integer rangeTo) {
@@ -152,6 +142,10 @@ public class BigBangModel extends Model {
 	
 	public void endWallpaper() {
 		this.undoRedoModel.postEdit(new EndWallpaperEdit(this.scoreManager));
+	}
+	
+	public UndoRedoModel getUndoRedoModel() {
+		return this.undoRedoModel;
 	}
 
 }

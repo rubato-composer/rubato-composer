@@ -329,7 +329,7 @@ public class BigBangScoreManager extends Model {
 	}
 	
 	private void fireCompositionChange(SelectedObjectsPaths paths, boolean preview, boolean playback) {
-		Denotator changedComposition = this.score.getLayeredComposition();
+		Denotator changedComposition = this.score.getComposition();
 		ScoreChangedNotification notification = new ScoreChangedNotification(changedComposition, paths, preview, playback);
 		this.firePropertyChange(BigBangController.COMPOSITION, null, notification);
 	}

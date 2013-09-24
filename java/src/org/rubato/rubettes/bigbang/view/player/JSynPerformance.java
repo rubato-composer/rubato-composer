@@ -218,7 +218,7 @@ public class JSynPerformance {
 		}
 	}
 	
-	//reallocate sound modules in a way to get as few glitches as possible
+	//reallocate sound modules in order to get as few glitches as possible
 	private synchronized void allocateModules(JSynThreadGroup threads) {
 		
 		//associate closest modules or create new ones
