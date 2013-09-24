@@ -11,12 +11,12 @@ public class ReflectionEdit extends AbstractLocalTransformationEdit {
 	public ReflectionEdit(BigBangScoreManager scoreLayers, TransformationProperties properties, double[] reflectionVector) {
 		super(scoreLayers, properties);
 		this.reflectionVector = reflectionVector;
-		this.initTransformation();
+		this.updateOperation();
 	}
 	
 	public void modify(double[] newValues) {
 		this.reflectionVector = newValues;
-		this.initTransformation();
+		this.updateOperation();
 	}
 	
 	public String getPresentationName() {

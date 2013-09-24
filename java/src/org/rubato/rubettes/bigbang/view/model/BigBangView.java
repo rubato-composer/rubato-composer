@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
+import java.util.TreeSet;
 
 import javax.swing.JOptionPane;
 
@@ -92,7 +93,8 @@ public class BigBangView extends Model implements View {
 		this.setTempo(BigBangPlayer.INITIAL_BPM);
 		this.modFilterOn = false;
 		this.modNumber = -1;
-		new LeapMotionIn(this, this.viewController);
+		//TODO: crashes even if there's no device connected!!!!!!
+		//new LeapMotionIn(this, this.viewController);
 	}
 	
 	public void addNewWindow() {
@@ -501,8 +503,9 @@ public class BigBangView extends Model implements View {
 	}
 	
 	public void setAlterationComposition(Integer index) {
-		Set<DenotatorPath> nodePaths = this.displayObjects.getSelectedObjectsPaths();
-		this.controller.setAlterationComposition(index, nodePaths);
+		List<DenotatorPath> nodePaths = this.displayObjects.getSelectedObjectsPaths();
+		//TODO MAKE LIST!!!
+		this.controller.setAlterationComposition(index, new TreeSet<DenotatorPath>(nodePaths));
 	}
 	
 	private TransformationProperties getLocalTransformationProperties(Point2D.Double center, Point2D.Double endPoint, boolean copyAndTransform, boolean previewMode) {
@@ -558,7 +561,7 @@ public class BigBangView extends Model implements View {
 	}
 	
 	public void copySelectedObjectsTo(Integer layerIndex) {
-		Set<DenotatorPath> objectsPaths = this.displayObjects.getSelectedObjectsPaths();
+		Set<DenotatorPath> objectsPaths = new TreeSet<DenotatorPath>(this.displayObjects.getSelectedObjectsPaths());
 		if (objectsPaths.size() > 0) {
 			this.controller.copyObjects(objectsPaths, layerIndex);
 		}
@@ -569,39 +572,28 @@ public class BigBangView extends Model implements View {
 	}
 	
 	public void moveSelectedObjectsTo(Integer layerIndex) {
-		Set<DenotatorPath> objectsPaths = this.displayObjects.getSelectedObjectsPaths();
+		Set<DenotatorPath> objectsPaths = new TreeSet<DenotatorPath>(this.displayObjects.getSelectedObjectsPaths());
 		if (objectsPaths.size() > 0) {
 			this.controller.moveObjects(objectsPaths, layerIndex);
 		}
 	}
 	
 	public void moveSelectedObjectsToNewLayer() {
-		Set<DenotatorPath> objectsPaths = this.displayObjects.getSelectedObjectsPaths();
+		Set<DenotatorPath> objectsPaths = new TreeSet<DenotatorPath>(this.displayObjects.getSelectedObjectsPaths());
 		if (objectsPaths.size() > 0) {
 			this.controller.moveObjects(objectsPaths, this.layerStates.size());
 		}
 	}
 	
 	public void addSelectedObjectsAsSatellitesTo(DisplayObject anchorObject, Integer powersetIndex) {
-		Set<DenotatorPath> satellitePaths = this.displayObjects.getSelectedObjectsPaths();
+		List<DenotatorPath> satellitePaths = this.displayObjects.getSelectedObjectsPaths();
 		DenotatorPath anchorPath = anchorObject.getTopDenotatorPath();
 		this.controller.buildSatellites(satellitePaths, anchorPath, powersetIndex);
 	}
 	
 	public void flattenSelectedObjects() {
-		Set<DenotatorPath> objectsPaths = this.displayObjects.getSelectedObjectsPaths();
+		List<DenotatorPath> objectsPaths = this.displayObjects.getSelectedObjectsPaths();
 		this.controller.flattenObjects(objectsPaths);
-	}
-	
-	/*public void addSelectedObjectsAsModulatorsTo(DisplayObject parentObject) {
-		Set<ObjectPath> modulatorNodePaths = this.displayObjects.getSelectedNodePaths();
-		ObjectPath parentNodePath = parentObject.getOriginalPath();
-		this.controller.addAsModulators(modulatorNodePaths, parentNodePath);
-	}*/
-	
-	public void removeSelectedObjectsFromCarrier() {
-		Set<DenotatorPath> objectsPaths = this.displayObjects.getSelectedObjectsPaths();
-		this.controller.removeObjectsFromCarrier(objectsPaths);
 	}
 	
 	private TreeMap<Double,Double> getXYDenotatorValues(TreeMap<Integer,Integer> locations) {

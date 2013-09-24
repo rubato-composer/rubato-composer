@@ -5,7 +5,6 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.TreeMap;
 import java.util.TreeSet;
 
 import org.rubato.base.RubatoException;
@@ -71,12 +70,7 @@ public class BigBangScore implements Cloneable {
 		}
 	}
 	
-	public Denotator getLayeredComposition() {
-		return this.score;
-	}
-	
 	public Denotator getComposition() {
-		//return this.noteGenerator.convertMacroScoreToScore(this.score);
 		return this.score;
 	}
 	
@@ -180,9 +174,12 @@ public class BigBangScore implements Cloneable {
 	public List<DenotatorPath> moveObjectsToParent(List<DenotatorPath> objectPaths, DenotatorPath parentPath, int powersetIndex) {
 		//System.out.println(objectPaths+ " "+parentPath + " " +powersetIndex);
 		List<Denotator> parentObjects = this.extractObjects(parentPath);
-		List<Denotator> newNotes = this.removeObjects(objectPaths);
-		DenotatorPath newParentPath = this.findPath(parentObjects);
-		return this.addObjectsToParent(newNotes, newParentPath, powersetIndex);
+		if (!parentObjects.contains(null)) {
+			List<Denotator> newNotes = this.removeObjects(objectPaths);
+			DenotatorPath newParentPath = this.findPath(parentObjects);
+			return this.addObjectsToParent(newNotes, newParentPath, powersetIndex);
+		}
+		return objectPaths;
 	}
 	
 	/**
@@ -407,13 +404,18 @@ public class BigBangScore implements Cloneable {
 		List<Denotator> currentSiblings = new ArrayList<Denotator>();
 		
 		DenotatorPath parentPath = currentObjectPath.getAnchorPath();
-		Denotator currentNote = this.getObject(currentObjectPath, remove);
-		currentSiblings.add(currentNote);
+		Denotator currentObject = this.getObject(currentObjectPath, remove);
+		if (currentObject != null) {
+			currentSiblings.add(currentObject);
+		}
 		
 		while (objectPathsIterator.hasNext()) {
 			currentObjectPath = objectPathsIterator.next();
 			if (currentObjectPath.isSatelliteOf(parentPath)) {
-				currentSiblings.add(this.getObject(currentObjectPath, remove));
+				currentObject = this.getObject(currentObjectPath, remove);
+				if (currentObject != null) {
+					currentSiblings.add(currentObject);
+				}
 			} else {
 				absoluteObjects.addAll(this.makeObjectsAbsolute(currentSiblings, parentPath));
 				return currentObjectPath;
@@ -453,7 +455,9 @@ public class BigBangScore implements Cloneable {
 			if (powersetPath != null) {
 				int objectIndex = objectPath.getObjectIndex();
 				PowerDenotator powerset = (PowerDenotator)this.score.get(powersetPath.toIntArray());
-				return powerset.removeFactor(objectIndex);
+				if (powerset.getFactorCount() > objectIndex) {
+					return powerset.removeFactor(objectIndex);
+				}
 			}
 		} catch (RubatoException e) {
 			e.printStackTrace();
@@ -542,7 +546,7 @@ public class BigBangScore implements Cloneable {
 	
 	public Denotator getAbsoluteObject(DenotatorPath objectPath) {
 		List<DenotatorPath> parentPaths = objectPath.getAnchorPaths();
-		if (parentPaths.size() <= 0) {
+		if (parentPaths.isEmpty()) {
 			return this.extractObject(objectPath);
 		}
 		Collections.reverse(parentPaths);
@@ -550,7 +554,11 @@ public class BigBangScore implements Cloneable {
 		for (int i = 1; i < parentPaths.size(); i++) {
 			currentAbsoluteParent = this.objectGenerator.makeObjectAbsolute(this.extractObject(parentPaths.get(i)), currentAbsoluteParent);
 		}
-		return this.objectGenerator.makeObjectAbsolute(this.extractObject(objectPath), currentAbsoluteParent);
+		Denotator extractedObject = this.extractObject(objectPath);
+		if (extractedObject != null) {
+			return this.objectGenerator.makeObjectAbsolute(extractedObject, currentAbsoluteParent);
+		}
+		return null;
 	}
 	
 	public Denotator getObject(DenotatorPath objectPath) {

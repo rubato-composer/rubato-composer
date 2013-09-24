@@ -60,8 +60,11 @@ public class BigBangMapper extends BigBangScoreManipulator {
 		List<Denotator> siblings = new ArrayList<Denotator>();
 		List<DenotatorPath> siblingsPaths = new ArrayList<DenotatorPath>();
 		
-		siblingsPaths.add(firstSiblingPath);
-		siblings.add(this.score.getAbsoluteObject(firstSiblingPath));
+		Denotator firstSibling = this.score.getAbsoluteObject(firstSiblingPath);
+		if (firstSibling != null) {
+			siblingsPaths.add(firstSiblingPath);
+			siblings.add(firstSibling);
+		}
 		DenotatorPath siblingsAnchorPath = firstSiblingPath.getAnchorPath();
 		ModuleMorphism siblingsMorphism = this.morphism;
 		if (this.relative) {
@@ -74,8 +77,11 @@ public class BigBangMapper extends BigBangScoreManipulator {
 			currentSiblingPath = objectPathsIterator.next();
 			//PerformanceCheck.startTask(".next_sibs");
 			if (currentSiblingPath.isSatelliteOf(siblingsAnchorPath)) {
-				siblingsPaths.add(currentSiblingPath);
-				siblings.add(this.score.getAbsoluteObject(currentSiblingPath));
+				Denotator currentSibling = this.score.getAbsoluteObject(currentSiblingPath);
+				if (currentSibling != null) {
+					siblingsPaths.add(currentSiblingPath);
+					siblings.add(currentSibling);
+				}
 			} else {
 				this.removeMapAndAdd(newObjects, siblings, siblingsAnchorPath, siblingsPaths, siblingsMorphism, transformationPaths);
 				return currentSiblingPath;

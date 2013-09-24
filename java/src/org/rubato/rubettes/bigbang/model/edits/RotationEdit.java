@@ -13,18 +13,18 @@ public class RotationEdit extends AbstractLocalTransformationEdit {
 		super(scoreLayers, properties);
 		this.startingPoint = startingPoint;
 		this.angle = angle;
-		this.initTransformation();
+		this.updateOperation();
 	}
 	
 	@Override
 	public void modify(double[] newValues) {
 		this.properties.setCenter(newValues);
-		this.initTransformation();
+		this.updateOperation();
 	}
 	
 	public void modifyAngle(double angle) {
 		this.angle = angle;
-		this.initTransformation();
+		this.updateOperation();
 	}
 	
 	@Override

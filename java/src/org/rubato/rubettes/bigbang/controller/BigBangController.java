@@ -35,9 +35,8 @@ public class BigBangController extends Controller {
 	public static final String SHEAR_OBJECTS = "shearObjects";
 	public static final String AFFINE_TRANSFORM_OBJECTS = "affineTransformObjects";
 	public static final String SHAPE_OBJECTS = "shapeObjects";
-	public static final String SATELLITE_OBJECTS = "buildSatellites";
+	public static final String BUILD_SATELLITES = "buildSatellites";
 	public static final String FLATTEN_OBJECTS = "flattenObjects";
-	public static final String REMOVE_OBJECTS_FROM_CARRIER = "removeObjectsFromCarrier";
 	
 	public static final String ADD_DIMENSION = "addWallpaperDimension";
 	public static final String SET_WALLPAPER_RANGE = "setWallpaperRange";
@@ -142,16 +141,12 @@ public class BigBangController extends Controller {
 		this.callModelMethod(BigBangController.AFFINE_TRANSFORM_OBJECTS, properties, shift, angle, scaleFactors);
 	}
 	
-	public void buildSatellites(Set<DenotatorPath> satellitePaths, DenotatorPath anchorNodePath, int powersetIndex) {
-		this.callModelMethod(BigBangController.SATELLITE_OBJECTS, satellitePaths, anchorNodePath, powersetIndex);
+	public void buildSatellites(List<DenotatorPath> satellitePaths, DenotatorPath anchorNodePath, int powersetIndex) {
+		this.callModelMethod(BigBangController.BUILD_SATELLITES, satellitePaths, anchorNodePath, powersetIndex);
 	}
 	
-	public void flattenObjects(Set<DenotatorPath> satellitePaths) {
+	public void flattenObjects(List<DenotatorPath> satellitePaths) {
 		this.callModelMethod(BigBangController.FLATTEN_OBJECTS, satellitePaths);
-	}
-	
-	public void removeObjectsFromCarrier(Set<DenotatorPath> modulatorNodePaths) {
-		this.callModelMethod(BigBangController.REMOVE_OBJECTS_FROM_CARRIER, modulatorNodePaths);
 	}
 	
 	public void addWallpaperDimension(SelectedObjectsPaths paths, int rangeFrom, int rangeTo) {

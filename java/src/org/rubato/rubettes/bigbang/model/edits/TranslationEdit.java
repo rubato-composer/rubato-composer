@@ -12,11 +12,11 @@ public class TranslationEdit extends AbstractTransformationEdit {
 	
 	public TranslationEdit(BigBangScoreManager scoreLayers, TransformationProperties properties) {
 		super(scoreLayers, properties);
-		this.initTransformation();
+		this.updateOperation();
 	}
 	
 	@Override
-	protected void initTransformation() {
+	protected void updateOperation() {
 		this.startingPoint = this.properties.getCenter();
 		this.endingPoint = this.properties.getEndPoint();
 		this.shift = new double[]{this.modificationRatio*(this.endingPoint[0]-this.startingPoint[0]),
