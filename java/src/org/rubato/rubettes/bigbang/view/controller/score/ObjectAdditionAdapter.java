@@ -2,6 +2,7 @@ package org.rubato.rubettes.bigbang.view.controller.score;
 
 import java.awt.event.MouseEvent;
 import java.awt.geom.Point2D;
+import java.util.ArrayList;
 
 import javax.swing.event.MouseInputAdapter;
 
@@ -27,8 +28,9 @@ public class ObjectAdditionAdapter extends MouseInputAdapter {
 	
 	private void drawNote(MouseEvent event) {
 		if (event.getButton() == this.mouseButton) {
-			Point2D.Double point = new Point2D.Double(event.getPoint().x, event.getPoint().y);
-			this.controller.addObject(point);
+			ArrayList<Point2D.Double> pointList = new ArrayList<Point2D.Double>(); 
+			pointList.add(new Point2D.Double(event.getPoint().x, event.getPoint().y));
+			this.controller.addObjects(pointList, false);
 		}
 	}
 

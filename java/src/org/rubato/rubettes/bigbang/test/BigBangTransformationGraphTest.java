@@ -3,6 +3,7 @@ package org.rubato.rubettes.bigbang.test;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.TreeMap;
 
 import junit.framework.TestCase;
@@ -31,10 +32,8 @@ public class BigBangTransformationGraphTest extends TestCase {
 	
 	public void testModifyLeadingToTooManyPaths() {
 		this.model.setInitialComposition(this.objects.generator.createEmptyScore());
-		this.model.addObject(this.createNodePathAndValuesMap(0, 60), new DenotatorPath(this.objects.SOUND_SCORE_FORM, new int[]{}));
-		this.model.addObject(this.createNodePathAndValuesMap(1, 65), new DenotatorPath(this.objects.SOUND_SCORE_FORM, new int[]{}));
-		this.model.addObject(this.createNodePathAndValuesMap(2, 66), new DenotatorPath(this.objects.SOUND_SCORE_FORM, new int[]{}));
-		this.model.addObject(this.createNodePathAndValuesMap(3, 67), new DenotatorPath(this.objects.SOUND_SCORE_FORM, new int[]{}));
+		this.model.addObjects(this.createNodePathAndValuesMapList(new double[]{0,1,2,3}, new double[]{60,65,66,67}),
+				this.createPathsList(new DenotatorPath(this.objects.SOUND_SCORE_FORM, new int[]{}), 4), false);
 		TestCase.assertTrue(this.model.getUndoRedoModel().getLastEdit() instanceof AddObjectsEdit);
 		TestCase.assertEquals(4, ((PowerDenotator)this.model.getComposition()).getFactorCount());
 		
@@ -48,10 +47,8 @@ public class BigBangTransformationGraphTest extends TestCase {
 	
 	public void testModifyWithSatellites() {
 		this.model.setInitialComposition(this.objects.generator.createEmptyScore());
-		this.model.addObject(this.createNodePathAndValuesMap(0, 60), new DenotatorPath(this.objects.SOUND_SCORE_FORM, new int[]{}));
-		this.model.addObject(this.createNodePathAndValuesMap(1, 65), new DenotatorPath(this.objects.SOUND_SCORE_FORM, new int[]{}));
-		this.model.addObject(this.createNodePathAndValuesMap(2, 66), new DenotatorPath(this.objects.SOUND_SCORE_FORM, new int[]{}));
-		this.model.addObject(this.createNodePathAndValuesMap(3, 67), new DenotatorPath(this.objects.SOUND_SCORE_FORM, new int[]{}));
+		this.model.addObjects(this.createNodePathAndValuesMapList(new double[]{0,1,2,3}, new double[]{60,65,66,67}),
+				this.createPathsList(new DenotatorPath(this.objects.SOUND_SCORE_FORM, new int[]{}), 4), false);
 		TestCase.assertTrue(this.model.getUndoRedoModel().getLastEdit() instanceof AddObjectsEdit);
 		TestCase.assertEquals(4, ((PowerDenotator)this.model.getComposition()).getFactorCount());
 		
@@ -68,8 +65,24 @@ public class BigBangTransformationGraphTest extends TestCase {
 		TestCase.assertEquals(2, ((PowerDenotator)this.model.getComposition()).getFactorCount());
 	}
 	
-	private TreeMap<DenotatorPath,Double> createNodePathAndValuesMap(double onset, double pitch) {
-		TreeMap<DenotatorPath,Double> valuesMap = new TreeMap<DenotatorPath,Double>();
+	private ArrayList<Map<DenotatorPath,Double>> createNodePathAndValuesMapList(double[] onsets, double[] pitches) {
+		ArrayList<Map<DenotatorPath,Double>> list = new ArrayList<Map<DenotatorPath,Double>>();
+		for (int i = 0; i < onsets.length; i++) {
+			list.add(this.createNodePathAndValuesMap(onsets[i], pitches[i]));
+		}
+		return list;
+	}
+	
+	private ArrayList<DenotatorPath> createPathsList(DenotatorPath path, int amount) {
+		ArrayList<DenotatorPath> list = new ArrayList<DenotatorPath>();
+		for (int i = 0; i < amount; i++) {
+			list.add(path);
+		}
+		return list;
+	}
+	
+	private Map<DenotatorPath,Double> createNodePathAndValuesMap(double onset, double pitch) {
+		Map<DenotatorPath,Double> valuesMap = new TreeMap<DenotatorPath,Double>();
 		valuesMap.put(new DenotatorPath(this.objects.SOUND_NODE_FORM, new int[]{0,0}), onset);
 		valuesMap.put(new DenotatorPath(this.objects.SOUND_NODE_FORM, new int[]{0,1}), pitch);
 		return valuesMap;

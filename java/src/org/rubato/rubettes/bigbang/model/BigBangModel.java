@@ -1,6 +1,7 @@
 package org.rubato.rubettes.bigbang.model;
 
 import java.util.ArrayList;
+import java.util.Map;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
@@ -64,20 +65,16 @@ public class BigBangModel extends Model {
 		return this.scoreManager.getComposition();
 	}
 	
-	public void addObject(TreeMap<DenotatorPath,Double> pathsWithValues) {
-		this.addObject(pathsWithValues, null);
-	}
-	
-	public void addObject(TreeMap<DenotatorPath,Double> pathsWithValues, DenotatorPath powersetPath) {
+	public void addObjects(ArrayList<Map<DenotatorPath,Double>> pathsWithValues, ArrayList<DenotatorPath> powersetPaths, Boolean inPreviewMode) {
 		AbstractOperationEdit lastEdit = this.undoRedoModel.getLastEdit();
 		if (lastEdit != null && lastEdit instanceof AddObjectsEdit) {
 			AddObjectsEdit addEdit = (AddObjectsEdit) lastEdit;
-			if (addEdit.addObject(pathsWithValues, powersetPath)) {
+			if (addEdit.addObjects(pathsWithValues, powersetPaths, inPreviewMode)) {
 				this.undoRedoModel.modifiedOperation(false);
 				return;
 			}
 		}
-		this.undoRedoModel.postEdit(new AddObjectsEdit(this.scoreManager, powersetPath, pathsWithValues));
+		this.undoRedoModel.postEdit(new AddObjectsEdit(this.scoreManager, pathsWithValues, powersetPaths));
 	}
 	
 	public void deleteObjects(ArrayList<DenotatorPath> objectPaths) {

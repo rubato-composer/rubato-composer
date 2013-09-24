@@ -1,5 +1,6 @@
 package org.rubato.rubettes.bigbang.view.player;
 
+import java.util.Arrays;
 import java.util.Map;
 import java.util.TreeMap;
 
@@ -69,7 +70,7 @@ public class BigBangRecorder extends Thread {
 			double duration = this.player.getCurrentSymbolicTime()-this.currentKeyOnsets.get(pitch);
 			this.putDenotatorValueIfFormPresent(CoolFormRegistrant.DURATION_FORM, duration, denotatorValues);
 			
-			this.controller.addObject(denotatorValues, this.view.getDisplayObjects().getActiveObjectType().getPath().getParentPath());
+			this.controller.addObjects(Arrays.asList(denotatorValues), Arrays.asList(this.view.getDisplayObjects().getActiveObjectType().getPath().getParentPath()), false);
 			this.currentKeyOnsets.remove(pitch);
 			this.currentKeyVelocities.remove(pitch);
 		}

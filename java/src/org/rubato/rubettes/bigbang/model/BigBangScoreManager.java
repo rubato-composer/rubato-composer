@@ -1,6 +1,7 @@
 package org.rubato.rubettes.bigbang.model;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -207,7 +208,6 @@ public class BigBangScoreManager extends Model {
 		
 		if (fireCompositionChange) {
 			this.firePreviewCompositionChange(null);
-			//this.firePropertyChange(BigBangController.ADD_OBJECT, null, this.score.getObject(newPath));
 		}
 		return newPaths;
 	}

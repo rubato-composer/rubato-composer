@@ -3,6 +3,7 @@ package org.rubato.rubettes.bigbang.view.controller;
 import java.awt.Dimension;
 import java.awt.Point;
 import java.awt.geom.Point2D;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.TreeMap;
 
@@ -62,7 +63,7 @@ public class ViewController extends Controller {
 	public static final String ACTIVE_COLIMIT_COORDINATE = "setActiveColimitCoordinate";
 	public static final String MAX_SATELLITE_LEVEL = "setSatelliteLevels";
 	public static final String ACTIVE_SATELLITE_LEVEL = "setActiveSatelliteLevel";
-	public static final String ADD_OBJECT = "addObject";
+	public static final String ADD_OBJECTS = "addObjects";
 	public static final String DELETE_OBJECTS = "deleteSelectedObjects";
 	public static final String COPY_OBJECTS = "copySelectedObjectsTo";
 	public static final String COPY_OBJECTS_NEW = "copySelectedObjectsToNewLayer";
@@ -244,8 +245,8 @@ public class ViewController extends Controller {
 		this.callModelMethod(ViewController.SHAPE_OBJECTS, location, copyAndTransform, previewMode);
 	}
 	
-	public void addObject(Point2D.Double location) {
-		this.callModelMethod(ViewController.ADD_OBJECT, location);
+	public void addObjects(ArrayList<Point2D.Double> locations, boolean inPreviewMode) {
+		this.callModelMethod(ViewController.ADD_OBJECTS, locations, inPreviewMode);
 	}
 	
 	public void deleteSelectedObjects() {

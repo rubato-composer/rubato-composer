@@ -15,15 +15,19 @@ public class AddObjectsEdit extends AbstractOperationEdit {
 	private List<List<Map<DenotatorPath,Double>>> modifiedPathsWithValues;
 	private Form objectForm;
 	
-	public AddObjectsEdit(BigBangScoreManager scoreManager, DenotatorPath powersetPath, Map<DenotatorPath,Double> pathsWithValues) {
+	public AddObjectsEdit(BigBangScoreManager scoreManager, List<Map<DenotatorPath,Double>> pathsWithValues, List<DenotatorPath> powersetPaths) {
 		super(scoreManager);
-		this.powersetPaths = new ArrayList<DenotatorPath>();
-		this.pathsWithValues = new ArrayList<List<Map<DenotatorPath,Double>>>();
-		this.setObjectForm(powersetPath);
-		this.addObject(pathsWithValues, powersetPath);
+		this.initPathsWithValuesAndPowersets();
+		this.setObjectForm(powersetPaths.get(0));
+		this.addObjects(pathsWithValues, powersetPaths, false);
 		this.minModRatio = 0.0;
 		this.maxModRatio = 1.0;
 		this.updateOperation();
+	}
+	
+	private void initPathsWithValuesAndPowersets() {
+		this.powersetPaths = new ArrayList<DenotatorPath>();
+		this.pathsWithValues = new ArrayList<List<Map<DenotatorPath,Double>>>();
 	}
 	
 	private void setObjectForm(DenotatorPath powersetPath) {
@@ -74,18 +78,22 @@ public class AddObjectsEdit extends AbstractOperationEdit {
 		return this.objectForm;
 	}
 	
-	
-	public boolean addObject(Map<DenotatorPath,Double> pathsWithValues, DenotatorPath powersetPath) {
-		if (powersetPath == null || powersetPath.getChildPath(0).getEndForm().equals(this.objectForm)) {
-			if (this.powersetPaths.size() > 0
-					&& (this.powersetPaths.get(this.powersetPaths.size()-1) == null
-							|| this.powersetPaths.get(this.powersetPaths.size()-1).equals(powersetPath))) {
-				this.pathsWithValues.get(this.pathsWithValues.size()-1).add(pathsWithValues);
-			} else {
-				this.powersetPaths.add(powersetPath);
-				List<Map<DenotatorPath,Double>> pathsWithValuesList = new ArrayList<Map<DenotatorPath,Double>>();
-				pathsWithValuesList.add(pathsWithValues);
-				this.pathsWithValues.add(pathsWithValuesList);
+	public boolean addObjects(List<Map<DenotatorPath,Double>> pathsWithValues, List<DenotatorPath> powersetPaths, boolean inPreviewMode) {
+		if (inPreviewMode) {
+			this.initPathsWithValuesAndPowersets();
+		}
+		if (powersetPaths.get(0) == null || powersetPaths.get(0).getChildPath(0).getEndForm().equals(this.objectForm)) {
+			for (int i = 0; i < pathsWithValues.size(); i++) {
+				DenotatorPath currentPowersetPath = powersetPaths.get(i);
+				Map<DenotatorPath,Double> currentPathsWithValues = pathsWithValues.get(i);
+				if (this.powersetPaths.contains(currentPowersetPath)) {
+					this.pathsWithValues.get(this.powersetPaths.indexOf(currentPowersetPath)).add(currentPathsWithValues);
+				} else {
+					this.powersetPaths.add(currentPowersetPath);
+					List<Map<DenotatorPath,Double>> pathsWithValuesList = new ArrayList<Map<DenotatorPath,Double>>();
+					pathsWithValuesList.add(currentPathsWithValues);
+					this.pathsWithValues.add(pathsWithValuesList);
+				}
 			}
 			this.updateOperation();
 			return true;
@@ -94,7 +102,7 @@ public class AddObjectsEdit extends AbstractOperationEdit {
 	}
 	
 	public void setInPreviewMode(boolean inPreviewMode) {
-		//do nothing for now
+		//TODO nothing for now... preview mode works directly with add...
 	}
 	
 	public List<Map<DenotatorPath,DenotatorPath>> execute(List<Map<DenotatorPath,DenotatorPath>> pathDifferences, boolean fireCompositionChange) {

@@ -24,7 +24,7 @@ public class BigBangController extends Controller {
 	public static final String INPUT_ACTIVE = "InputActive";
 	public static final String FORM = "setForm";
 	public static final String COMPOSITION = "Composition";
-	public static final String ADD_OBJECT = "addObject";
+	public static final String ADD_OBJECTS = "addObjects";
 	public static final String DELETE_OBJECTS = "deleteObjects";
 	public static final String COPY_OBJECTS = "copyObjects";
 	public static final String MOVE_OBJECTS = "moveObjects";
@@ -93,12 +93,8 @@ public class BigBangController extends Controller {
 		this.setModelProperty(BigBangController.MULTITOUCH, multiTouch);
 	}
 	
-	public void addObject(Map<DenotatorPath,Double> denotatorValues) {
-		this.callModelMethod(BigBangController.ADD_OBJECT, denotatorValues);
-	}
-	
-	public void addObject(Map<DenotatorPath,Double> denotatorValues, DenotatorPath powersetPath) {
-		this.callModelMethod(BigBangController.ADD_OBJECT, denotatorValues, powersetPath);
+	public void addObjects(List<Map<DenotatorPath,Double>> denotatorValues, List<DenotatorPath> powersetPaths, boolean inPreviewMode) {
+		this.callModelMethod(BigBangController.ADD_OBJECTS, denotatorValues, powersetPaths, inPreviewMode);
 	}
 	
 	public void deleteObjects(List<DenotatorPath> objectsPaths) {

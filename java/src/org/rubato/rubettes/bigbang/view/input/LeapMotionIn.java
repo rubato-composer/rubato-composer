@@ -1,6 +1,7 @@
 package org.rubato.rubettes.bigbang.view.input;
 
 import java.awt.geom.Point2D;
+import java.util.ArrayList;
 import java.util.Iterator;
 
 import org.rubato.rubettes.bigbang.view.controller.ViewController;
@@ -51,7 +52,7 @@ public class LeapMotionIn extends Listener {
 	}
 	
 	public void onFrame(Controller controller) {
-		Frame frame = controller.frame();
+		/*Frame frame = controller.frame();
 		if (this.view.inDrawingMode()) {
 			GestureList gestureList;
 //			System.out.println("gestures");
@@ -87,12 +88,27 @@ public class LeapMotionIn extends Listener {
 							tapPosition.getY() <= this.topEdge) {
 						double x = (tapPosition.getX()+(this.AREA_WIDTH/2))/this.AREA_WIDTH*JBigBangDisplay.DISPLAY_WIDTH;
 						double y = (this.AREA_HEIGHT-(tapPosition.getY()-this.AREA_BOTTOM_EDGE))/this.AREA_HEIGHT*JBigBangPanel.CENTER_PANEL_HEIGHT;
-						this.viewController.addObject(new Point2D.Double(x, y));
+						ArrayList<Point2D.Double> pointList = new ArrayList<Point2D.Double>(); 
+						pointList.add(new Point2D.Double(x, y));
+						this.viewController.addObjects(pointList, true);
 					}
 				}
 			}
 		}
-		this.lastFrame = frame;
+		this.lastFrame = frame;*/
+		ArrayList<Point2D.Double> pointList = new ArrayList<Point2D.Double>();
+		for (int i = 0; i < controller.frame().fingers().count(); i++) {
+			Vector currentTipPosition = controller.frame().fingers().get(i).tipPosition();
+			if (this.view.inDrawingMode() && currentTipPosition.getZ() <= this.PLANE_Z_POSITION) {
+				if (this.leftEdge <= currentTipPosition.getX() && currentTipPosition.getX() <= this.rightEdge
+						&& this.AREA_BOTTOM_EDGE <= currentTipPosition.getY() && currentTipPosition.getY() <= this.topEdge) {
+					double x = (currentTipPosition.getX()+(this.AREA_WIDTH/2))/this.AREA_WIDTH*JBigBangDisplay.DISPLAY_WIDTH;
+					double y = (this.AREA_HEIGHT-(currentTipPosition.getY()-this.AREA_BOTTOM_EDGE))/this.AREA_HEIGHT*JBigBangPanel.CENTER_PANEL_HEIGHT;
+					pointList.add(new Point2D.Double(x, y));
+				}
+			}
+		}
+		this.viewController.addObjects(pointList, true);
 	}
 	
 }
