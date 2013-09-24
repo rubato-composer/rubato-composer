@@ -308,7 +308,7 @@ public class BigBangView extends Model implements View {
 			this.firePropertyChange(ViewController.REDO, null, event.getNewValue());
 		} else if (propertyName.equals(BigBangController.INPUT_ACTIVE)) {
 			this.firePropertyChange(ViewController.INPUT_ACTIVE, null, event.getNewValue());
-		} else if (propertyName.equals(BigBangController.ADD_OBJECT)) {
+		} else if (propertyName.equals(BigBangController.ADD_OBJECTS)) {
 			//not every sounding object makes sense to be played alone (e.g. modulator, or overtone)
 			//this.playObject((Denotator)event.getNewValue());
 		} else if (propertyName.equals(BigBangController.DESELECT_COMPOSITION_STATES)) {
@@ -547,21 +547,26 @@ public class BigBangView extends Model implements View {
 		return new TransformationProperties(objectsPaths, valuePaths, copyAndTransform, previewMode);
 	}
 	
-	public void addObject(Point2D.Double location) {
+	public void addObjects(ArrayList<Point2D.Double> locations, Boolean inPreviewMode) {
 		if (this.displayObjects != null) {
-			Map<DenotatorPath,Double> objectValues = this.displayObjects.getActiveObjectStandardValues(this.standardDenotatorValues);
-			DenotatorPath objectPowersetPath = this.editObjectValuesAndFindClosestPowerset(location, objectValues);
-			
-			//only add object if there are some screen values to be converted
-			if (!objectValues.isEmpty()) {
-				if (objectPowersetPath != null) {
-					this.controller.addObject(objectValues, objectPowersetPath);
-				} else {
-					this.controller.addObject(objectValues);
+			List<Map<DenotatorPath,Double>> objectValues = new ArrayList<Map<DenotatorPath,Double>>();
+			List<DenotatorPath> powersetPaths = new ArrayList<DenotatorPath>();
+			for (Point2D.Double currentLocation : locations) {
+				Map<DenotatorPath,Double> currentValues = this.displayObjects.getActiveObjectStandardValues(this.standardDenotatorValues);
+				//only add object if there are some screen values to be converted
+				if (!currentValues.isEmpty()) {
+					objectValues.add(currentValues);
+					powersetPaths.add(this.editObjectValuesAndFindClosestPowerset(currentLocation, currentValues));
 				}
+			}
+			
+			if (!objectValues.isEmpty()) {
+				this.controller.addObjects(objectValues, powersetPaths, inPreviewMode);
 			}
 		}
 	}
+	
+	
 	
 	public void deleteSelectedObjects() {
 		List<DenotatorPath> paths = new ArrayList<DenotatorPath>(this.displayObjects.getSelectedObjectsPaths());
