@@ -64,14 +64,11 @@ public class BigBangTransformationGraph extends DirectedSparseGraph<Integer,Abst
 			lastEdge.setInPreviewMode(inPreviewMode);
 			//TODO pretty bad...
 			lastEdge.getScoreManager().resetScore();
-			int shownState = this.getEdgeCount();
-			if (!inPreviewMode && this.selectedCompositionState != null) {
-				shownState = this.selectedCompositionState;
-			}
-			if (shownState > 0) {
-				DijkstraShortestPath<Integer,AbstractOperationEdit> dijkstra = new DijkstraShortestPath<Integer,AbstractOperationEdit>(this);
-			    List<AbstractOperationEdit> shortestPath = dijkstra.getPath(0, shownState);
-			    for (int i = 0; i < shortestPath.size(); i++) {
+			
+			List<AbstractOperationEdit> shortestPath = this.getCurrentShortestPath();
+			
+			if (shortestPath != null) {
+				for (int i = 0; i < shortestPath.size(); i++) {
 					//only send composition change with last one!!!!!!
 			    	pathDifferences = shortestPath.get(i).execute(pathDifferences, i==shortestPath.size()-1);
 				}
@@ -79,6 +76,18 @@ public class BigBangTransformationGraph extends DirectedSparseGraph<Integer,Abst
 				lastEdge.getScoreManager().fireCompositionChange();
 			}
 		}
+	}
+	
+	public List<AbstractOperationEdit> getCurrentShortestPath() {
+		int shownState = this.getEdgeCount();
+		if (this.selectedCompositionState != null) {
+			shownState = this.selectedCompositionState;
+		}
+		if (shownState > 0) {
+			DijkstraShortestPath<Integer,AbstractOperationEdit> dijkstra = new DijkstraShortestPath<Integer,AbstractOperationEdit>(this);
+			return dijkstra.getPath(0, shownState);
+		}
+		return null;
 	}
 	
 	public AbstractOperationEdit removeLast() {

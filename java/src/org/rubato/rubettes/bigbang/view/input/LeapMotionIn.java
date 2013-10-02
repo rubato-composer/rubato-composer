@@ -22,7 +22,7 @@ public class LeapMotionIn extends Listener {
 	
 	private final int AREA_WIDTH = 400;
 	private final int AREA_HEIGHT = 300;
-	private final int AREA_BOTTOM_EDGE = 50;
+	private final int AREA_BOTTOM_EDGE = 0;
 	private final int PLANE_Z_POSITION = 0;
 	
 	BigBangView view;

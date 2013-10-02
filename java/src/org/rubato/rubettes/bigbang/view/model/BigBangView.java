@@ -401,12 +401,11 @@ public class BigBangView extends Model implements View {
 		this.controller.deselectCompositionStates();
 	}
 	
-	public void selectOperation(AbstractOperationEdit edit) {
-		this.selectedOperation = edit;
-		if (this.selectedOperation != null) {
+	public void selectOperation(AbstractOperationEdit operation) {
+		if (operation != null && !operation.equals(this.selectedOperation)) {
 			//select perspective first
-			if (edit instanceof AbstractTransformationEdit) {
-				AbstractTransformationEdit transformationEdit = (AbstractTransformationEdit)edit;
+			if (operation instanceof AbstractTransformationEdit) {
+				AbstractTransformationEdit transformationEdit = (AbstractTransformationEdit)operation;
 				this.viewParameters.setSelectedXYViewParameters(transformationEdit.getXYViewParameters());
 				//TODO: center view?????
 			
@@ -414,41 +413,49 @@ public class BigBangView extends Model implements View {
 			}
 			
 			//then select displaymode and convert values!!
-			if (edit instanceof TranslationEdit) {
-				double[] startingPoint = this.getXYDisplayValues(((TranslationEdit)edit).getStartingPoint());
-				double[] endingPoint = this.getXYDisplayValues(((TranslationEdit)edit).getEndingPoint());
+			if (operation instanceof TranslationEdit) {
+				double[] startingPoint = this.getXYDisplayValues(((TranslationEdit)operation).getStartingPoint());
+				double[] endingPoint = this.getXYDisplayValues(((TranslationEdit)operation).getEndingPoint());
 				this.setDisplayMode(new TranslationModeAdapter(this.viewController, startingPoint, endingPoint));
-			} else if (edit instanceof AbstractLocalTransformationEdit) {
-				AbstractLocalTransformationEdit localEdit = (AbstractLocalTransformationEdit)edit;
+			} else if (operation instanceof AbstractLocalTransformationEdit) {
+				AbstractLocalTransformationEdit localEdit = (AbstractLocalTransformationEdit)operation;
 				double[] center = this.getXYDisplayValues(localEdit.getCenter());
 				double[] endingPoint = this.getXYDisplayValues(localEdit.getEndPoint());
-				if (edit instanceof RotationEdit) {
-					double[] startingPoint = ((RotationEdit)edit).getStartingPoint();
-					double angle = ((RotationEdit)edit).getAngle();
+				if (operation instanceof RotationEdit) {
+					double[] startingPoint = ((RotationEdit)operation).getStartingPoint();
+					double angle = ((RotationEdit)operation).getAngle();
 					this.setDisplayMode(new RotationModeAdapter(this.viewController, center, startingPoint, endingPoint, angle));
-				} else if (edit instanceof ScalingEdit) {
-					double[] scaleFactors = ((ScalingEdit)edit).getScaleFactors();
+				} else if (operation instanceof ScalingEdit) {
+					double[] scaleFactors = ((ScalingEdit)operation).getScaleFactors();
 					this.setDisplayMode(new ScalingModeAdapter(this.viewController, center, endingPoint, scaleFactors));
-				} else if (edit instanceof ShearingEdit) {
-					double[] shearingFactors = ((ShearingEdit)edit).getShearingFactors();
+				} else if (operation instanceof ShearingEdit) {
+					double[] shearingFactors = ((ShearingEdit)operation).getShearingFactors();
 					this.setDisplayMode(new ShearingModeAdapter(this.viewController, center, endingPoint, shearingFactors));
-				} else if (edit instanceof ReflectionEdit) {
+				} else if (operation instanceof ReflectionEdit) {
 					this.setDisplayMode(new ReflectionModeAdapter(this.viewController, center, endingPoint));
 				}
 			}
-			this.firePropertyChange(ViewController.SELECT_OPERATION, null, this.selectedOperation);
-		} else {
-			this.clearDisplayTool();
-			this.firePropertyChange(ViewController.SELECT_OPERATION, null, null);
+			this.selectedOperation = operation;
+			this.firePropertyChange(ViewController.SELECT_OPERATION, null, operation);
+		} else if (operation == null && this.selectedOperation != null) {
+			this.deselectOperations();
 		}
 	}
 	
 	public void deselectOperations() {
-		this.selectOperation(null);
+		this.selectedOperation = null;
+		this.clearDisplayTool();
+		this.firePropertyChange(ViewController.SELECT_OPERATION, null, null);
 	}
 	
-	public void modifySelectedTransformation(Point2D.Double endingPoint, Boolean inPreviewMode) {
-		((AbstractTransformationEdit)this.selectedOperation).modify(this.getXYDenotatorValues(endingPoint));
+	public void modifyCenterOfSelectedTransformation(Point2D.Double newCenter, Boolean inPreviewMode) {
+		((AbstractTransformationEdit)this.selectedOperation).modifyCenter(this.getXYDenotatorValues(newCenter));
+		this.controller.modifiedOperation(inPreviewMode);
+	}
+	
+	public void modifyEndPointOfSelectedTransformation(Point2D.Double newEndPoint, Boolean inPreviewMode) {
+		//TODO not great: only used in transformation
+		((AbstractTransformationEdit)this.selectedOperation).modify(this.getXYDenotatorValues(newEndPoint));
 		this.controller.modifiedOperation(inPreviewMode);
 	}
 	
@@ -512,6 +519,10 @@ public class BigBangView extends Model implements View {
 		this.controller.modifiedOperation(false);
 	}
 	
+	public void addAlteration() {
+		this.controller.addAlteration();
+	}
+	
 	public void setAlterationComposition(Integer index) {
 		List<DenotatorPath> nodePaths = this.displayObjects.getSelectedObjectsPaths();
 		//TODO MAKE LIST!!!
@@ -560,9 +571,9 @@ public class BigBangView extends Model implements View {
 				}
 			}
 			
-			if (!objectValues.isEmpty()) {
+			//if (!objectValues.isEmpty()) {
 				this.controller.addObjects(objectValues, powersetPaths, inPreviewMode);
-			}
+			//}
 		}
 	}
 	

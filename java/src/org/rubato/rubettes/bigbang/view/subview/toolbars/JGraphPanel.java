@@ -8,6 +8,7 @@ import java.beans.PropertyChangeEvent;
 
 import javax.swing.Box;
 import javax.swing.BoxLayout;
+import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
@@ -15,6 +16,7 @@ import org.rubato.rubettes.bigbang.controller.BigBangController;
 import org.rubato.rubettes.bigbang.model.edits.AbstractOperationEdit;
 import org.rubato.rubettes.bigbang.view.View;
 import org.rubato.rubettes.bigbang.view.controller.ViewController;
+import org.rubato.rubettes.bigbang.view.controller.general.AnimateButtonAction;
 import org.rubato.rubettes.bigbang.view.controller.score.GraphListener;
 import org.rubato.rubettes.bigbang.view.subview.JBigBangPanel;
 
@@ -47,6 +49,7 @@ public class JGraphPanel extends JPanel implements View {
 	private ViewController controller;
 	private FRLayout2<Integer,AbstractOperationEdit> layout;
 	private VisualizationViewer<Integer,AbstractOperationEdit> graphViewer;
+	private JButton animateButton;
 	private JLabel statusBar;
 	private Integer pickedState;
 	private AbstractOperationEdit pickedOperation;
@@ -55,6 +58,7 @@ public class JGraphPanel extends JPanel implements View {
 		controller.addView(this);
 		bbController.addView(this);
 		this.controller = controller;
+		this.animateButton = new JButton(new AnimateButtonAction(bbController));
 		this.statusBar = new JLabel();
 	}
 	
@@ -100,6 +104,7 @@ public class JGraphPanel extends JPanel implements View {
 		//add to center
 		this.setPreferredSize(new Dimension(300,JBigBangPanel.CENTER_PANEL_HEIGHT));
 		this.setLayout(new BorderLayout());
+		this.add(this.animateButton, BorderLayout.NORTH);
 		this.add(this.graphViewer, BorderLayout.CENTER);
 		this.add(this.statusBar, BorderLayout.SOUTH);
 	}
@@ -143,7 +148,7 @@ public class JGraphPanel extends JPanel implements View {
 	
 	private void selectOperation(AbstractOperationEdit operation) {
 		if (operation != null) {
-			if (this.pickedOperation != operation) {
+			if (this.pickedOperation == null || !this.pickedOperation.equals(operation)) {
 				if (this.pickedOperation != null) {
 					this.graphViewer.getPickedEdgeState().pick(this.pickedOperation, false);
 				}

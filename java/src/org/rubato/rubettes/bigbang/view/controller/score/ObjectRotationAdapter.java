@@ -26,6 +26,7 @@ public class ObjectRotationAdapter extends ObjectTransformationAdapter {
 		this.updateEndingPoint(GeometryTools.calculatePoint(this.center, startingPoint2D, angle));
 	}
 	
+	@Override
 	public void mouseClicked(MouseEvent event) {
 		Point clickedPoint = event.getPoint();
 		this.updateCenter(clickedPoint.x, clickedPoint.y);
@@ -86,7 +87,7 @@ public class ObjectRotationAdapter extends ObjectTransformationAdapter {
 		}
 		this.controller.changeDisplayTool(this.displayTool);
 		if (this.inModificationMode) {
-			this.controller.modifySelectedTransformation(this.center, false);
+			this.controller.modifyCenterOfSelectedTransformation(this.center, false);
 		}
 	}
 	

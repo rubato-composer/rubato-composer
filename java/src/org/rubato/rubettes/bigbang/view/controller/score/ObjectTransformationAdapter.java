@@ -1,5 +1,6 @@
 package org.rubato.rubettes.bigbang.view.controller.score;
 
+import java.awt.Point;
 import java.awt.event.MouseEvent;
 import java.awt.geom.Point2D;
 
@@ -7,6 +8,7 @@ import javax.swing.event.MouseInputAdapter;
 
 import org.rubato.rubettes.bigbang.view.controller.ViewController;
 import org.rubato.rubettes.bigbang.view.model.tools.DisplayTool;
+import org.rubato.rubettes.bigbang.view.model.tools.RotationTool;
 
 public abstract class ObjectTransformationAdapter extends MouseInputAdapter {
 	
@@ -33,6 +35,11 @@ public abstract class ObjectTransformationAdapter extends MouseInputAdapter {
 		this.controller = controller;
 		this.dragging = false;
 		this.initDisplayTool();
+	}
+	
+	public void mouseClicked(MouseEvent event) {
+		Point clickedPoint = event.getPoint();
+		this.updateStartingPoint(clickedPoint.x, clickedPoint.y);
 	}
 	
 	public void mousePressed(MouseEvent event) {
@@ -62,6 +69,9 @@ public abstract class ObjectTransformationAdapter extends MouseInputAdapter {
 		this.startingPoint = new Point2D.Double(x, y);
 		this.displayTool.setStartingPoint(this.startingPoint);
 		this.updateDisplayTool();
+		if (this.inModificationMode) {
+			this.controller.modifyCenterOfSelectedTransformation(this.startingPoint, false);
+		}
 	}
 	
 	protected void updateEndingPoint(MouseEvent event) {
@@ -84,10 +94,7 @@ public abstract class ObjectTransformationAdapter extends MouseInputAdapter {
 	
 	protected abstract void transformSelectedObjects(MouseEvent event, boolean inPreviewMode);
 	
-	protected void modifySelectedTransformation(MouseEvent event, boolean inPreviewMode) {
-		Point2D.Double currentEndPoint = new Point2D.Double(event.getPoint().x, event.getPoint().y);
-		this.controller.modifySelectedTransformation(currentEndPoint, inPreviewMode);
-	}
+	protected abstract void modifySelectedTransformation(MouseEvent event, boolean inPreviewMode);
 	
 	protected abstract void initDisplayTool();
 	

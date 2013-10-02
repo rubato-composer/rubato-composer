@@ -15,9 +15,8 @@ public class AlterationAction extends AbstractBigBangAction {
 
 	@Override
 	public void actionPerformed(ActionEvent event) {
-		this.controller.toggleAlterationMode();
 		if (!((JButton) event.getSource()).isSelected()) {
-			this.controller.endAlteration();
+			this.controller.addAlteration();
 		}
 	}
 

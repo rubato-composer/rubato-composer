@@ -7,19 +7,16 @@ import java.util.TreeSet;
 
 import org.rubato.math.yoneda.Denotator;
 import org.rubato.rubettes.alteration.Alterator;
-import org.rubato.rubettes.bigbang.controller.BigBangController;
 import org.rubato.rubettes.util.DenotatorPath;
 
-public class BigBangAlteration extends Model {
+public class BigBangAlteration {
 	
-	private boolean active;
 	private List<Set<DenotatorPath>> compositions;
 	private List<Integer> selectedCoordinates;
 	private double startDegree, endDegree;
 	private Alterator alterator;
 	
-	public BigBangAlteration(BigBangController controller) {
-		controller.addModel(this);
+	public BigBangAlteration() {
 		this.reset();
 		this.alterator = new Alterator();
 	}
@@ -34,11 +31,6 @@ public class BigBangAlteration extends Model {
 		}
 	}
 	
-	public void toggleAlterationMode() {
-		this.active = !this.active;
-		this.fireActivity();
-	}
-	
 	public Set<DenotatorPath> getComposition(int index) {
 		try {
 			return this.compositions.get(index);
@@ -47,15 +39,15 @@ public class BigBangAlteration extends Model {
 		}
 	}
 	
-	public void setAlterationComposition(TreeSet<DenotatorPath> nodePaths, Integer index) {
+	public void setAlterationComposition(Set<DenotatorPath> nodePaths, Integer index) {
 		this.compositions.set(index, nodePaths);
 		this.resetDegrees();
 	}
 	
-	public void setAlterationCoordinates(ArrayList<Integer> selectedCoordinates) {
+	public void setAlterationCoordinates(List<Integer> selectedCoordinates) {
 		this.resetDegrees();
 		this.selectedCoordinates = selectedCoordinates;
-		this.firePropertyChange(BigBangController.ALTERATION_COORDINATES, null, this.selectedCoordinates);
+		//this.firePropertyChange(BigBangController.ALTERATION_COORDINATES, null, this.selectedCoordinates);
 	}
 	
 	public void resetDegrees() {
@@ -65,14 +57,14 @@ public class BigBangAlteration extends Model {
 	
 	public void setStartDegree(double value) {
 		this.startDegree = value;
-		this.firePropertyChange(BigBangController.FIRE_ALTERATION_COMPOSITION, null, -1);
-		this.firePropertyChange(BigBangController.ALTERATION_START_DEGREE, null, value);
+		/*this.firePropertyChange(BigBangController.FIRE_ALTERATION_COMPOSITION, null, -1);
+		this.firePropertyChange(BigBangController.ALTERATION_START_DEGREE, null, value);*/
 	}
 	
 	public void setEndDegree(double value) {
 		this.endDegree = value;
-		this.firePropertyChange(BigBangController.FIRE_ALTERATION_COMPOSITION, null, -1);
-		this.firePropertyChange(BigBangController.ALTERATION_END_DEGREE, null, value);
+		/*this.firePropertyChange(BigBangController.FIRE_ALTERATION_COMPOSITION, null, -1);
+		this.firePropertyChange(BigBangController.ALTERATION_END_DEGREE, null, value);*/
 	}
 	
 	public void alter(BigBangScore score) {
@@ -104,7 +96,7 @@ public class BigBangAlteration extends Model {
 		return denotators;
 	}
 	
-	public void fireState() {
+	/*public void fireState() {
 		this.fireActivity();
 	}
 	
@@ -114,6 +106,6 @@ public class BigBangAlteration extends Model {
 		} else {
 			this.firePropertyChange(BigBangController.EXIT_ALTERATION_MODE, null, null);
 		}
-	}
+	}*/
 
 }
