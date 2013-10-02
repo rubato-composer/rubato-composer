@@ -14,6 +14,7 @@ public class ScalingEdit extends AbstractLocalTransformationEdit {
 		this.updateOperation();
 	}
 	
+	@Override
 	public void modify(double[] newValues) {
 		this.scaleFactors = newValues;
 		this.updateOperation();
@@ -32,7 +33,11 @@ public class ScalingEdit extends AbstractLocalTransformationEdit {
 	}
 	
 	public double[] getScaleFactors() {
-		return new double[]{this.modificationRatio*this.scaleFactors[0],this.modificationRatio*this.scaleFactors[1]};
+		return new double[]{this.getModifiedScaleFactor(this.scaleFactors[0]),this.getModifiedScaleFactor(this.scaleFactors[1])};
+	}
+	
+	private double getModifiedScaleFactor(double scaleFactor) {
+		return 1+(this.modificationRatio*(scaleFactor-1));
 	}
 
 }

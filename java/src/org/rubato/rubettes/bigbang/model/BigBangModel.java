@@ -13,6 +13,7 @@ import org.rubato.rubettes.bigbang.model.edits.AbstractOperationEdit;
 import org.rubato.rubettes.bigbang.model.edits.AddObjectsEdit;
 import org.rubato.rubettes.bigbang.model.edits.AddWallpaperDimensionEdit;
 import org.rubato.rubettes.bigbang.model.edits.AffineTransformationEdit;
+import org.rubato.rubettes.bigbang.model.edits.AlterationEdit;
 import org.rubato.rubettes.bigbang.model.edits.CopyObjectsEdit;
 import org.rubato.rubettes.bigbang.model.edits.DeleteObjectsEdit;
 import org.rubato.rubettes.bigbang.model.edits.EndWallpaperEdit;
@@ -135,10 +136,16 @@ public class BigBangModel extends Model {
 	
 	public void addWallpaperDimension(SelectedObjectsPaths objectPaths, Integer rangeFrom, Integer rangeTo) {
 		this.undoRedoModel.postEdit(new AddWallpaperDimensionEdit(this.scoreManager, objectPaths, rangeFrom, rangeTo));
+		this.firePropertyChange(BigBangController.MODIFY_OPERATION, null, this.undoRedoModel.getLastEdit());
 	}
 	
 	public void endWallpaper() {
 		this.undoRedoModel.postEdit(new EndWallpaperEdit(this.scoreManager));
+	}
+	
+	public void addAlteration() {
+		this.undoRedoModel.postEdit(new AlterationEdit(this.scoreManager));
+		this.firePropertyChange(BigBangController.MODIFY_OPERATION, null, this.undoRedoModel.getLastEdit());
 	}
 	
 	public UndoRedoModel getUndoRedoModel() {

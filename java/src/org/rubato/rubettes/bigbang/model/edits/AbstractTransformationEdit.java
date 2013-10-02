@@ -27,6 +27,11 @@ public abstract class AbstractTransformationEdit extends AbstractOperationEdit {
 		this.properties = properties;
 	}
 	
+	public void modifyCenter(double[] newValues) {
+		this.properties.setCenter(newValues);
+		this.updateOperation();
+	}
+	
 	public void modify(double[] newValues) {
 		this.properties.setEndPoint(newValues);
 		this.updateOperation();

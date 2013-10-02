@@ -3,6 +3,7 @@ package org.rubato.rubettes.bigbang.view.subview.toolbars;
 import java.awt.Dimension;
 import java.beans.PropertyChangeEvent;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import javax.swing.JButton;
@@ -14,6 +15,7 @@ import javax.swing.event.ChangeListener;
 import org.rubato.rubettes.bigbang.BigBangRubette;
 import org.rubato.rubettes.bigbang.controller.BigBangController;
 import org.rubato.rubettes.bigbang.model.edits.AddWallpaperDimensionEdit;
+import org.rubato.rubettes.bigbang.model.edits.AlterationEdit;
 import org.rubato.rubettes.bigbang.view.View;
 import org.rubato.rubettes.bigbang.view.controller.ViewController;
 import org.rubato.rubettes.bigbang.view.controller.general.AddWindowAction;
@@ -68,24 +70,15 @@ public class JMainToolBar extends JToolBar implements View {
 		String propertyName = event.getPropertyName();
 		if (propertyName.equals(ViewController.DISPLAY_MODE)) {
 			this.selectModeButton(event);
-		} /*else if (propertyName.equals(BigBangController.WALLPAPER)) {
-			this.updateWallpaper((BigBangWallpaper)event.getNewValue());
-		} else if (propertyName.equals(BigBangController.END_WALLPAPER)) {
-			this.endWallpaper();
-		} */else if (propertyName.equals(ViewController.SELECT_OPERATION)) {
+		} else if (propertyName.equals(ViewController.SELECT_OPERATION)) {
 			if (event.getNewValue() == null) {
-				this.resetRangeSpinners();
+				this.reset();
 			} else if (event.getNewValue() instanceof AddWallpaperDimensionEdit) {
-				this.wallpaperDimensionSelected((AddWallpaperDimensionEdit)event.getNewValue());
+				AddWallpaperDimensionEdit edit = (AddWallpaperDimensionEdit)event.getNewValue();
+				this.wallpaperDimensionSelected(edit.getRangeFrom(), edit.getRangeTo());
+			} else if (event.getNewValue() instanceof AlterationEdit) {
+				this.enterAlterationMode((AlterationEdit)event.getNewValue());
 			}
-		} else if (propertyName.equals(BigBangController.ENTER_ALTERATION_MODE)) {
-			this.alterationButton.setSelected(true);
-			this.add(this.alterationPanel);
-			this.repaint();
-		} else if (propertyName.equals(BigBangController.EXIT_ALTERATION_MODE)) {
-			this.alterationButton.setSelected(false);
-			this.remove(this.alterationPanel);
-			this.repaint();
 		} /*else if (propertyName.equals(BigBangController.MULTITOUCH)) {
 			this.initModeButtons((Boolean)event.getNewValue());
 			this.repaint();
@@ -100,48 +93,13 @@ public class JMainToolBar extends JToolBar implements View {
 		}
 	}
 	
-	private void wallpaperDimensionSelected(AddWallpaperDimensionEdit edit) {
+	private void wallpaperDimensionSelected(int rangeFrom, int rangeTo) {
 		this.addNewRangeSpinner(new WallpaperRangeListener(this.viewController, false));
 		this.addNewRangeSpinner(new WallpaperRangeListener(this.viewController, true));
 		//update values
-		this.rangeSpinners.get(0).setValue(edit.getRangeFrom());
-		this.rangeSpinners.get(1).setValue(edit.getRangeTo());
+		this.rangeSpinners.get(0).setValue(rangeFrom);
+		this.rangeSpinners.get(1).setValue(rangeTo);
 	}
-	
-	/*private void updateWallpaper(BigBangWallpaper wallpaper) {
-		this.startWallpaperButton.setSelected(true);
-		this.modeButtons.enableSelectionAndDrawingModes(false);
-		this.updateRangeSpinners(wallpaper);
-	}
-	
-	private void endWallpaper() {
-		this.startWallpaperButton.setSelected(false);
-		this.modeButtons.enableSelectionAndDrawingModes(true);
-		this.resetRangeSpinners();
-	}*/
-	
-	private void resetRangeSpinners() {
-		for (JSpinner currentSpinner: this.rangeSpinners) {
-			this.remove(currentSpinner);
-			this.repaint();
-		}
-		this.rangeSpinners = new ArrayList<JSpinner>();
-	}
-	
-	/*private void updateRangeSpinners(BigBangWallpaper wallpaper) {
-		//add spinners if not enough
-		while (wallpaper.getDimensions().size() > this.rangeSpinners.size()/2) {
-			int nextDimension = this.rangeSpinners.size()/2;
-			this.addNewRangeSpinner(new WallpaperRangeListener(this.bbController, nextDimension, false));
-			this.addNewRangeSpinner(new WallpaperRangeListener(this.bbController, nextDimension, true));
-		}
-		//update values
-		for (int i = 0; i < wallpaper.getDimensions().size(); i++) {
-			BigBangWallpaperDimension currentDimension = wallpaper.getDimensions().get(i);
-			this.rangeSpinners.get(i*2).setValue(currentDimension.getRangeFrom());
-			this.rangeSpinners.get(i*2+1).setValue(currentDimension.getRangeTo());
-		}
-	}*/
 	
 	private void addNewRangeSpinner(ChangeListener listener) {
 		JSpinner newSpinner = new JSpinner(new SpinnerNumberModel(0, -100, 100, 1));
@@ -150,6 +108,39 @@ public class JMainToolBar extends JToolBar implements View {
 		newSpinner.addChangeListener(listener);
 		this.rangeSpinners.add(newSpinner);
 		this.add(newSpinner);
+	}
+	
+	private void enterAlterationMode(AlterationEdit edit) {
+		if (!Arrays.asList(this.getComponents()).contains(this.alterationPanel)) {
+			this.alterationButton.setSelected(true);
+			this.alterationPanel.updateCoordinateBoxes(edit.getAlterationCoordinates());
+			this.alterationPanel.setStartDegree(edit.getStartDegree());
+			this.alterationPanel.setEndDegree(edit.getEndDegree());
+			this.alterationButton.setSelected(true);
+			this.add(this.alterationPanel);
+			this.repaint();
+		}
+	}
+	
+	private void reset() {
+		this.resetRangeSpinnersIfNecessary();
+		this.resetAlterationIfNecessary();
+	}
+	
+	private void resetRangeSpinnersIfNecessary() {
+		for (JSpinner currentSpinner: this.rangeSpinners) {
+			this.remove(currentSpinner);
+			this.repaint();
+		}
+		this.rangeSpinners = new ArrayList<JSpinner>();
+	}
+	
+	private void resetAlterationIfNecessary() {
+		if (this.alterationButton.isSelected()) {
+			this.alterationButton.setSelected(false);
+			this.remove(this.alterationPanel);
+			this.repaint();
+		}
 	}
 
 }

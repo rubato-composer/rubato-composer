@@ -1,7 +1,6 @@
 package org.rubato.rubettes.bigbang.model;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -28,12 +27,11 @@ public class BigBangScoreManager extends Model {
 		Form standardForm = Repository.systemRepository().getForm(BigBangRubette.STANDARD_FORM_NAME);
 		this.score = new BigBangScore(standardForm);
 		this.setForm(standardForm);
-		this.alteration = new BigBangAlteration(controller);
 	}
 	
 	public void newWindowAdded(SelectedObjectsPaths paths) {
 		this.fireCompositionChange(paths, false);
-		this.alteration.fireState();
+		//this.alteration.fireState();
 	}
 	
 	public void setForm(Form form) {
@@ -58,6 +56,31 @@ public class BigBangScoreManager extends Model {
 		return this.score.getComposition();
 	}
 	
+	public SelectedObjectsPaths addTransformation(SelectedObjectsPaths objectPaths, BigBangTransformation transformation, boolean inPreviewMode, boolean fireCompositionChange) {
+		if (this.wallpaper != null) {
+			return this.addWallpaperTransformation(transformation, inPreviewMode, fireCompositionChange);
+		}
+		return this.mapObjects(objectPaths, transformation, inPreviewMode, fireCompositionChange);
+	}
+	
+	private SelectedObjectsPaths mapObjects(SelectedObjectsPaths objectPaths, BigBangTransformation transformation, boolean inPreviewMode, boolean fireCompositionChange) {
+		//PerformanceCheck.startTask("prepare");
+		//this.updateActualScore(inPreviewMode);
+		//PerformanceCheck.startTask("map");
+		BigBangMapper mapper = new BigBangMapper(this.score, transformation);
+		SelectedObjectsPaths newPaths = mapper.mapCategorizedObjects(objectPaths);
+		//PerformanceCheck.startTask("fire");
+		if (fireCompositionChange) {
+			if (inPreviewMode) {
+				this.firePreviewCompositionChange(objectPaths);
+			} else {
+				this.fireCompositionChange(newPaths, true);
+			}
+		}
+		//PerformanceCheck.startTask("draw");
+		return newPaths;
+	}
+	
 	public void startWallpaper(SelectedObjectsPaths objectPaths) {
 		this.wallpaper = new BigBangWallpaper(objectPaths);
 	}
@@ -67,15 +90,8 @@ public class BigBangScoreManager extends Model {
 			this.startWallpaper(objectPaths);
 		}
 		this.wallpaper.addDimension(rangeFrom, rangeTo);
-		this.firePropertyChange(BigBangController.WALLPAPER, null, this.wallpaper);
+		//this.firePropertyChange(BigBangController.WALLPAPER, null, this.wallpaper);
 		this.createWallpaper(false, fireCompositionChange);
-	}
-	
-	public SelectedObjectsPaths addTransformation(SelectedObjectsPaths objectPaths, BigBangTransformation transformation, boolean inPreviewMode, boolean fireCompositionChange) {
-		if (this.wallpaper != null) {
-			return this.addWallpaperTransformation(transformation, inPreviewMode, fireCompositionChange);
-		}
-		return this.mapObjects(objectPaths, transformation, inPreviewMode, fireCompositionChange);
 	}
 	
 	private SelectedObjectsPaths addWallpaperTransformation(BigBangTransformation transformation, boolean inPreviewMode, boolean fireCompositionChange) {
@@ -87,7 +103,7 @@ public class BigBangScoreManager extends Model {
 			}
 			return new SelectedObjectsPaths(newPaths, transformation.getAnchorNodePath());
 		}
-		this.firePropertyChange(BigBangController.WALLPAPER, null, this.wallpaper);
+		//this.firePropertyChange(BigBangController.WALLPAPER, null, this.wallpaper);
 		//TODO STUPID just test
 		return this.wallpaper.getMotif();
 	}
@@ -118,7 +134,7 @@ public class BigBangScoreManager extends Model {
 	public void setWallpaperRange(Integer dimension, Boolean rangeTo, Integer value) {
 		this.wallpaper.setRange(dimension, rangeTo, value);
 		this.createWallpaper(false, true);
-		this.firePropertyChange(BigBangController.WALLPAPER, null, this.wallpaper);
+		//this.firePropertyChange(BigBangController.WALLPAPER, null, this.wallpaper);
 	}
 	
 	public void endWallpaper(boolean fireCompositionChange) {
@@ -127,44 +143,21 @@ public class BigBangScoreManager extends Model {
 		this.firePropertyChange(BigBangController.END_WALLPAPER, null, null);
 	}
 	
-	private SelectedObjectsPaths mapObjects(SelectedObjectsPaths objectPaths, BigBangTransformation transformation, boolean inPreviewMode, boolean fireCompositionChange) {
-		//PerformanceCheck.startTask("prepare");
-		//this.updateActualScore(inPreviewMode);
-		//PerformanceCheck.startTask("map");
-		BigBangMapper mapper = new BigBangMapper(this.score, transformation);
-		SelectedObjectsPaths newPaths = mapper.mapCategorizedObjects(objectPaths);
-		//PerformanceCheck.startTask("fire");
-		if (fireCompositionChange) {
-			if (inPreviewMode) {
-				this.firePreviewCompositionChange(objectPaths);
-			} else {
-				this.fireCompositionChange(newPaths, true);
-			}
-		}
-		//PerformanceCheck.startTask("draw");
-		return newPaths;
+	public void addAlteration(List<DenotatorPath> foregroundComposition, List<DenotatorPath> backgroundComposition, List<Integer> alterationCoordinates, double startDegree, double endDegree, boolean sendCompositionChange) {
+		this.alteration = new BigBangAlteration();
+		this.alteration.setAlterationComposition(new TreeSet<DenotatorPath>(foregroundComposition), 0);
+		this.alteration.setAlterationComposition(new TreeSet<DenotatorPath>(backgroundComposition), 1);
+		this.alteration.setAlterationCoordinates(alterationCoordinates);
+		this.alteration.setStartDegree(startDegree);
+		this.alteration.setEndDegree(endDegree);
+		this.alter(true);
 	}
 	
 	public void fireAlterationComposition(Integer index) {
 		this.alteration.resetDegrees();
 		Set<DenotatorPath> selectedNodesPaths = this.alteration.getComposition(index);
 		this.fireCompositionChange(new SelectedObjectsPaths(selectedNodesPaths, null), true);
-		this.firePropertyChange(BigBangController.FIRE_ALTERATION_COMPOSITION, null, index);
-	}
-	
-	public void setAlterationStartDegree(Double value) {
-		this.alteration.setStartDegree(value);
-		this.alter(true);
-	}
-	
-	public void setAlterationEndDegree(Double value) {
-		this.alteration.setEndDegree(value);
-		this.alter(true);
-	}
-	
-	public void endAlteration() {
-		this.alter(false);
-		this.alteration.reset();
+		//this.firePropertyChange(BigBangController.FIRE_ALTERATION_COMPOSITION, null, index);
 	}
 	
 	private void alter(boolean inPreviewMode) {

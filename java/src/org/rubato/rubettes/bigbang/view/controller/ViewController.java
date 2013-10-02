@@ -40,13 +40,13 @@ public class ViewController extends Controller {
 	public static final String MOD_FILTER_VALUES = "changeModFilter";
 	
 	//general functionality
+	public static final String INPUT_ACTIVE = "InputActive";
 	public static final String UNDO = "undo";
 	public static final String REDO = "redo";
 	public static final String SELECT_OPERATION = "selectOperation";
 	public static final String DESELECT_OPERATIONS = "deselectOperations";
 	public static final String SELECT_COMPOSITION_STATE = "selectCompositionState";
 	public static final String DESELECT_COMPOSITION_STATES = "deselectCompositionStates";
-	public static final String INPUT_ACTIVE = "InputActive";
 	
 	//score manipulation - display
 	public static final String FORM = "Form";
@@ -81,6 +81,8 @@ public class ViewController extends Controller {
 	public static final String SHAPE_OBJECTS = "shapeSelectedObjects";
 	public static final String AFFINE_TRANSFORM_OBJECTS = "affineTransformSelectedObjects";
 	public static final String MODIFY_OPERATION = "modifyOperation";
+	public static final String MODIFY_CENTER_OF_SELECTED_TRANSFORMATION = "modifyCenterOfSelectedTransformation";
+	public static final String MODIFY_ENDPOINT_OF_SELECTED_TRANSFORMATION = "modifyEndPointOfSelectedTransformation";
 	public static final String MODIFY_SELECTED_TRANSFORMATION = "modifySelectedTransformation";
 	public static final String MODIFY_ROTATION = "modifyRotationAngle";
 	
@@ -205,8 +207,12 @@ public class ViewController extends Controller {
 		this.callModelMethod(ViewController.MODIFY_OPERATION, operationNumber, midiValue);
 	}
 	
-	public void modifySelectedTransformation(Point2D.Double endingPoint, boolean inPreviewMode) {
-		this.callModelMethod(ViewController.MODIFY_SELECTED_TRANSFORMATION, endingPoint, inPreviewMode);
+	public void modifyCenterOfSelectedTransformation(Point2D.Double newCenter, boolean inPreviewMode) {
+		this.callModelMethod(ViewController.MODIFY_CENTER_OF_SELECTED_TRANSFORMATION, newCenter, inPreviewMode);
+	}
+	
+	public void modifyEndPointOfSelectedTransformation(Point2D.Double newEndPoint, boolean inPreviewMode) {
+		this.callModelMethod(ViewController.MODIFY_ENDPOINT_OF_SELECTED_TRANSFORMATION, newEndPoint, inPreviewMode);
 	}
 	
 	public void modifySelectedTransformation(double[] newValues, boolean inPreviewMode) {
@@ -289,6 +295,10 @@ public class ViewController extends Controller {
 		this.callModelMethod(ViewController.ALTERATION_COMPOSITION, index);
 	}
 	
+	public void changeInputActive(boolean inputActive) {
+		this.setModelProperty(ViewController.INPUT_ACTIVE, inputActive);
+	}
+	
 	public void undo() {
 		this.callModelMethod(ViewController.UNDO);
 	}
@@ -311,10 +321,6 @@ public class ViewController extends Controller {
 	
 	public void deselectCompositionStates() {
 		this.callModelMethod(ViewController.DESELECT_COMPOSITION_STATES);
-	}
-	
-	public void changeInputActive(boolean inputActive) {
-		this.setModelProperty(ViewController.INPUT_ACTIVE, inputActive);
 	}
 	
 	public List<View> getViews() {

@@ -15,14 +15,12 @@ public class ObjectTranslationAdapter extends ObjectTransformationAdapter {
 	public ObjectTranslationAdapter(ViewController controller, double[] startingPoint, double[] endingPoint) {
 		super(controller, startingPoint, endingPoint);
 	}
-
-	/*@Override
-	public void mousePressed(MouseEvent event) {
-		super.mousePressed(event);
-		if (event.getButton() == MouseEvent.BUTTON1) {
-			this.isTouchingObjects = ((JBigBangDisplay)event.getSource()).getContents().getDisplayObjects().hasSelectedObjectAt(event.getPoint());
-		}
-	}*/
+	
+	@Override
+	protected void modifySelectedTransformation(MouseEvent event, boolean inPreviewMode) {
+		Point2D.Double currentEndPoint = new Point2D.Double(event.getPoint().x, event.getPoint().y);
+		this.controller.modifyEndPointOfSelectedTransformation(currentEndPoint, inPreviewMode);
+	}
 	
 	@Override
 	protected void transformSelectedObjects(MouseEvent event, boolean inPreviewMode) {

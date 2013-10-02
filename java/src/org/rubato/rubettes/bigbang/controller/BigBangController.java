@@ -7,6 +7,7 @@ import java.util.TreeMap;
 
 import org.rubato.math.yoneda.Form;
 import org.rubato.rubettes.bigbang.model.TransformationProperties;
+import org.rubato.rubettes.bigbang.view.controller.ViewController;
 import org.rubato.rubettes.bigbang.view.model.SelectedObjectsPaths;
 import org.rubato.rubettes.util.DenotatorPath;
 
@@ -20,6 +21,8 @@ public class BigBangController extends Controller {
 	public static final String MODIFY_OPERATION = "modifyOperation";
 	public static final String SELECT_COMPOSITION_STATE = "selectCompositionState";
 	public static final String DESELECT_COMPOSITION_STATES = "deselectCompositionStates";
+	public static final String ANIMATE_GRAPH = "animateGraph";
+	
 	public static final String MULTITOUCH = "MultiTouch";
 	public static final String INPUT_ACTIVE = "InputActive";
 	public static final String FORM = "setForm";
@@ -39,19 +42,14 @@ public class BigBangController extends Controller {
 	public static final String FLATTEN_OBJECTS = "flattenObjects";
 	
 	public static final String ADD_DIMENSION = "addWallpaperDimension";
-	public static final String SET_WALLPAPER_RANGE = "setWallpaperRange";
 	public static final String END_WALLPAPER = "endWallpaper";
-	public static final String WALLPAPER = "wallpaper";
 	
-	public static final String TOGGLE_ALTERATION_MODE = "toggleAlterationMode";
-	public static final String ENTER_ALTERATION_MODE = "enterAlterationMode";
-	public static final String EXIT_ALTERATION_MODE = "exitAlterationMode";
+	public static final String ADD_ALTERATION = "addAlteration";
 	public static final String SET_ALTERATION_COMPOSITION = "setAlterationComposition";
 	public static final String FIRE_ALTERATION_COMPOSITION = "fireAlterationComposition";
 	public static final String ALTERATION_COORDINATES = "setAlterationCoordinates";
 	public static final String ALTERATION_START_DEGREE = "setAlterationStartDegree";
 	public static final String ALTERATION_END_DEGREE = "setAlterationEndDegree";
-	public static final String END_ALTERATION = "endAlteration";
 	
 	public void newWindowAdded() {
 		this.callModelMethod(BigBangController.NEW_WINDOW);
@@ -79,6 +77,10 @@ public class BigBangController extends Controller {
 	
 	public void deselectCompositionStates() {
 		this.callModelMethod(BigBangController.DESELECT_COMPOSITION_STATES);
+	}
+	
+	public void animateGraph() {
+		this.callModelMethod(BigBangController.ANIMATE_GRAPH);
 	}
 	
 	public void changeInputActive(boolean inputActive) {
@@ -149,16 +151,12 @@ public class BigBangController extends Controller {
 		this.callModelMethod(BigBangController.ADD_DIMENSION, paths, rangeFrom, rangeTo);
 	}
 	
-	public void setWallpaperRange(int dimension, boolean rangeTo, int value) {
-		this.callModelMethod(BigBangController.SET_WALLPAPER_RANGE, dimension, rangeTo, value);
-	}
-	
 	public void endWallpaper() {
 		this.callModelMethod(BigBangController.END_WALLPAPER);
 	}
 	
-	public void toggleAlterationMode() {
-		this.callModelMethod(BigBangController.TOGGLE_ALTERATION_MODE);
+	public void addAlteration() {
+		this.callModelMethod(BigBangController.ADD_ALTERATION);
 	}
 	
 	public void setAlterationComposition(int index, Set<DenotatorPath> nodePaths) {
@@ -179,10 +177,6 @@ public class BigBangController extends Controller {
 	
 	public void changeAlterationEndDegree(double value) {
 		this.callModelMethod(BigBangController.ALTERATION_END_DEGREE, value);
-	}
-	
-	public void endAlteration() {
-		this.callModelMethod(BigBangController.END_ALTERATION);
 	}
 
 }

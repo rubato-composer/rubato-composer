@@ -18,7 +18,7 @@ public class DisplayModeAction extends AbstractAction {
 
 	public void actionPerformed(ActionEvent e) {
 		this.controller.clearDisplayTool();
-		this.controller.deselectOperations();
+		//TODO WHY AGAIN? this.controller.deselectOperations();
 		this.controller.changeDisplayMode(this.adapter);
 	}
 

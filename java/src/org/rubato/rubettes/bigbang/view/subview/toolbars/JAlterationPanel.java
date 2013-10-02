@@ -70,6 +70,7 @@ public class JAlterationPanel extends JPanel implements View, ActionListener, It
 	}
 
 	@SuppressWarnings("unchecked")
+	//TODO get rid of all this!!!!!!
     public void modelPropertyChange(PropertyChangeEvent event) {
 		String propertyName = event.getPropertyName();
 		if (propertyName.equals(BigBangController.ALTERATION_START_DEGREE)) {
@@ -81,6 +82,14 @@ public class JAlterationPanel extends JPanel implements View, ActionListener, It
 		} else if (propertyName.equals(BigBangController.ALTERATION_COORDINATES)) {
 			this.updateCoordinateBoxes((List<Integer>)event.getNewValue());
 		}
+	}
+	
+	public void setStartDegree(double startDegree) {
+		this.updateSliderValue(this.startSlider, startDegree);
+	}
+	
+	public void setEndDegree(double endDegree) {
+		this.updateSliderValue(this.endSlider, endDegree);
 	}
 	
 	private void updateSliderValue(JSlider slider, double value) {
@@ -132,7 +141,7 @@ public class JAlterationPanel extends JPanel implements View, ActionListener, It
 				selectedCoordinates.add(i);
 			}
 		}
-		this.bbController.setAlterationCoordinates(selectedCoordinates);
+		//this.bbController.setAlterationCoordinates(selectedCoordinates);
 	}
 	
 	private int selectedCompositionButtonIndex() {
@@ -144,7 +153,7 @@ public class JAlterationPanel extends JPanel implements View, ActionListener, It
 		return -1;
 	}
 	
-	private void updateCoordinateBoxes(List<Integer> selectedCoordinates) {
+	public void updateCoordinateBoxes(List<Integer> selectedCoordinates) {
 		for (int i = 0; i < this.coordinateBoxes.size(); i++) {
 			this.coordinateBoxes.get(i).setSelected(selectedCoordinates.contains(i));
 		}

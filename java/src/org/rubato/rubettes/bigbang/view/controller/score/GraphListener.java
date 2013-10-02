@@ -21,7 +21,7 @@ public class GraphListener implements ItemListener {
 	public void itemStateChanged(ItemEvent event) {
 		if (event.getItem() instanceof AbstractOperationEdit) {
 			AbstractOperationEdit edge = (AbstractOperationEdit)event.getItem();
-            if (this.viewer.getPickedEdgeState().isPicked(edge)) {
+			if (this.viewer.getPickedEdgeState().isPicked(edge)) {
             	this.controller.selectOperation(edge);
     		} else {
     			this.controller.deselectOperations();

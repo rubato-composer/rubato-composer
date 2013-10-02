@@ -40,6 +40,11 @@ public class UndoRedoModel extends Model {
 		this.firePropertyChange(BigBangController.GRAPH, null, this.operations);
 	}
 	
+	public void animateGraph() {
+		System.out.println("animate!!!!");
+		new BigBangGraphAnimator(this.operations, this).start();
+	}
+	
 	public void undo() {
 		//try {
 		//this.undoManager.undo();
@@ -84,7 +89,6 @@ public class UndoRedoModel extends Model {
 	
 	public void modifyOperation(Integer operationIndex, Double ratio) {
 		if (operationIndex >= 0 && this.operations.getEdgeCount() > operationIndex) {
-			//TODO: WHY???
 			DijkstraShortestPath<Integer,AbstractOperationEdit> dijkstra = new DijkstraShortestPath<Integer,AbstractOperationEdit>(this.operations);
 		    List<AbstractOperationEdit> shortestPath = dijkstra.getPath(0, this.operations.getEdgeCount());
 		    AbstractOperationEdit operation = shortestPath.get(operationIndex);

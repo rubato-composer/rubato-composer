@@ -18,7 +18,9 @@ public class AddObjectsEdit extends AbstractOperationEdit {
 	public AddObjectsEdit(BigBangScoreManager scoreManager, List<Map<DenotatorPath,Double>> pathsWithValues, List<DenotatorPath> powersetPaths) {
 		super(scoreManager);
 		this.initPathsWithValuesAndPowersets();
-		this.setObjectForm(powersetPaths.get(0));
+		if (!powersetPaths.isEmpty()) {
+			this.setObjectForm(powersetPaths.get(0));
+		}
 		this.addObjects(pathsWithValues, powersetPaths, false);
 		this.minModRatio = 0.0;
 		this.maxModRatio = 1.0;
@@ -79,10 +81,17 @@ public class AddObjectsEdit extends AbstractOperationEdit {
 	}
 	
 	public boolean addObjects(List<Map<DenotatorPath,Double>> pathsWithValues, List<DenotatorPath> powersetPaths, boolean inPreviewMode) {
+		if (this.objectForm == null && !powersetPaths.isEmpty()) {
+			this.setObjectForm(powersetPaths.get(0));
+		}
 		if (inPreviewMode) {
 			this.initPathsWithValuesAndPowersets();
+			if (pathsWithValues.isEmpty()) {
+				this.updateOperation();
+				return true;
+			}
 		}
-		if (powersetPaths.get(0) == null || powersetPaths.get(0).getChildPath(0).getEndForm().equals(this.objectForm)) {
+		if (!pathsWithValues.isEmpty() && (powersetPaths.get(0) == null || powersetPaths.get(0).getChildPath(0).getEndForm().equals(this.objectForm))) {
 			for (int i = 0; i < pathsWithValues.size(); i++) {
 				DenotatorPath currentPowersetPath = powersetPaths.get(i);
 				Map<DenotatorPath,Double> currentPathsWithValues = pathsWithValues.get(i);
@@ -106,6 +115,9 @@ public class AddObjectsEdit extends AbstractOperationEdit {
 	}
 	
 	public List<Map<DenotatorPath,DenotatorPath>> execute(List<Map<DenotatorPath,DenotatorPath>> pathDifferences, boolean fireCompositionChange) {
+		if (this.powersetPaths.isEmpty() && fireCompositionChange) {
+			this.scoreManager.fireCompositionChange();
+		}
 		for (int i = 0; i < this.powersetPaths.size(); i++) {
 			List<DenotatorPath> objectPaths = this.scoreManager.addObjects(this.powersetPaths.get(i), this.modifiedPathsWithValues.get(i), fireCompositionChange);
 			/*for (DenotatorPath currentPath : objectPaths) {
@@ -126,11 +138,14 @@ public class AddObjectsEdit extends AbstractOperationEdit {
 	}*/
 	
 	public String getPresentationName() {
-		String presentationName = "Add " + this.objectForm.getNameString();
-		if (this.pathsWithValues.size() > 1) {
-			presentationName += "s";
+		if (this.objectForm != null) {
+			String presentationName = "Add " + this.objectForm.getNameString();
+			if (this.pathsWithValues.size() > 1) {
+				presentationName += "s";
+			}
+			return presentationName;
 		}
-		return presentationName;
+		return "Add";
 	}
 
 }

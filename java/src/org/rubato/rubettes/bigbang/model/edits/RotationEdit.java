@@ -16,12 +16,6 @@ public class RotationEdit extends AbstractLocalTransformationEdit {
 		this.updateOperation();
 	}
 	
-	@Override
-	public void modify(double[] newValues) {
-		this.properties.setCenter(newValues);
-		this.updateOperation();
-	}
-	
 	public void modifyAngle(double angle) {
 		this.angle = angle;
 		this.updateOperation();
@@ -39,7 +33,6 @@ public class RotationEdit extends AbstractLocalTransformationEdit {
 	}
 	
 	public double getAngle() {
-		System.out.println(this.modificationRatio + " " + this.modificationRatio*this.angle);
 		return this.modificationRatio*this.angle;
 	}
 	

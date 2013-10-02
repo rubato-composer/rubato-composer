@@ -25,20 +25,15 @@ public class ReflectionEdit extends AbstractLocalTransformationEdit {
 
 	@Override
 	protected RMatrix getMatrix() {
-		double[] modifiedVector = this.getReflectionVector();
-		double x = modifiedVector[0];
-		double y = modifiedVector[1];
+		double x = this.reflectionVector[0];
+		double y = this.reflectionVector[1];
 		double x2 = Math.pow(x, 2);
 		double y2 = Math.pow(y, 2);
 		double q = x2 + y2;
-		double m11 = (x2 - y2) / q;
-		double m12 = (2*x*y)/q;
-		double m22 = (y2 - x2)/q;
+		double m11 = (this.modificationRatio*(x2 - y2)/q)+(1-this.modificationRatio);
+		double m12 = this.modificationRatio*(2*x*y)/q;
+		double m22 = (this.modificationRatio*(y2 - x2)/q)+(1-this.modificationRatio);
 		return new RMatrix(new double[][]{{m11, m12}, {m12, m22}});
-	}
-	
-	public double[] getReflectionVector() {
-		return new double[]{this.modificationRatio*this.reflectionVector[0],this.modificationRatio*this.reflectionVector[1]};
 	}
 
 }
