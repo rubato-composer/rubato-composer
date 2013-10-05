@@ -116,7 +116,7 @@ public class JGraphPanel extends JPanel implements View {
 			}
 			this.layout.setGraph(graph);
 			//this.layout.initialize();
-			Relaxer relaxer = new VisRunner(layout);
+			Relaxer relaxer = new VisRunner(this.layout);
 			relaxer.stop();
 			relaxer.prerelax();
 			StaticLayout<Integer,AbstractOperationEdit> staticLayout = new StaticLayout<Integer,AbstractOperationEdit>(graph, this.layout);
@@ -135,6 +135,7 @@ public class JGraphPanel extends JPanel implements View {
 		if (propertyName.equals(BigBangController.GRAPH)) {
 			Graph<Integer,AbstractOperationEdit> graph = ((Graph<Integer,AbstractOperationEdit>)event.getNewValue());
 			this.updateGraph(graph);
+			this.updateStatusBar();
 		} else if (propertyName.equals(ViewController.SELECT_OPERATION)) {
 			//TODO never called except for deselection and wpdim...
 			AbstractOperationEdit transformation = (AbstractOperationEdit)event.getNewValue();

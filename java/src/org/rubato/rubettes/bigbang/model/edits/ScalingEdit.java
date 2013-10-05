@@ -21,7 +21,7 @@ public class ScalingEdit extends AbstractLocalTransformationEdit {
 	}
 	
 	public String getPresentationName() {
-		return "Scaling " + super.getPresentationName();
+		return "Scaling " + super.round(this.getScaleFactors()[0]) + ", " + super.round(this.getScaleFactors()[1]);
 	}
 
 	@Override

@@ -49,8 +49,10 @@ public abstract class AbstractLocalTransformationEdit extends AbstractTransforma
 		return this.center;
 	}
 	
-	public double[] getEndPoint() {
-		return this.endPoint;
+	public double[] getEndingPoint() {
+		double x = this.center[0]+(this.endPoint[0]-this.center[0])*this.modificationRatio;
+		double y = this.center[1]+(this.endPoint[1]-this.center[0])*this.modificationRatio;
+		return new double[]{x,y};
 	}
 	
 	protected double[] getShift() {

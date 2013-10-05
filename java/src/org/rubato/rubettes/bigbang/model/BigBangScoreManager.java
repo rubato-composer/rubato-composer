@@ -30,13 +30,13 @@ public class BigBangScoreManager extends Model {
 	}
 	
 	public void newWindowAdded(SelectedObjectsPaths paths) {
-		this.fireCompositionChange(paths, false);
+		this.fireCompositionChange(paths);
 		//this.alteration.fireState();
 	}
 	
 	public void setForm(Form form) {
 		this.score.setForm(form);
-		this.fireCompositionChange(null);
+		this.fireCompositionChange();
 	}
 	
 	public void resetScore() {
@@ -74,7 +74,7 @@ public class BigBangScoreManager extends Model {
 			if (inPreviewMode) {
 				this.firePreviewCompositionChange(objectPaths);
 			} else {
-				this.fireCompositionChange(newPaths, true);
+				this.fireCompositionChange(newPaths);
 			}
 		}
 		//PerformanceCheck.startTask("draw");
@@ -125,7 +125,7 @@ public class BigBangScoreManager extends Model {
 				 //}
 			} else {
 				//select the original motif. TODO IS THIS RIGHT?
-				this.fireCompositionChange(newPaths, true);
+				this.fireCompositionChange(newPaths);
 			}
 		}
 		return newMotifPaths;
@@ -156,7 +156,7 @@ public class BigBangScoreManager extends Model {
 	public void fireAlterationComposition(Integer index) {
 		this.alteration.resetDegrees();
 		Set<DenotatorPath> selectedNodesPaths = this.alteration.getComposition(index);
-		this.fireCompositionChange(new SelectedObjectsPaths(selectedNodesPaths, null), true);
+		this.fireCompositionChange(new SelectedObjectsPaths(selectedNodesPaths, null));
 		//this.firePropertyChange(BigBangController.FIRE_ALTERATION_COMPOSITION, null, index);
 	}
 	
@@ -168,7 +168,7 @@ public class BigBangScoreManager extends Model {
 		if (inPreviewMode) {
 			this.firePreviewCompositionChange(new SelectedObjectsPaths(new TreeSet<DenotatorPath>(), null));
 		} else {
-			this.fireCompositionChange(new SelectedObjectsPaths(new TreeSet<DenotatorPath>(), null), true);
+			this.fireCompositionChange(new SelectedObjectsPaths(new TreeSet<DenotatorPath>(), null));
 		}
 	}
 	
@@ -183,7 +183,7 @@ public class BigBangScoreManager extends Model {
 			for (Map<DenotatorPath,Double> currentMap : newPathsAndOldYValues) {
 				newPaths.add(new ArrayList<DenotatorPath>(currentMap.keySet()));
 			}
-			this.fireCompositionChange(new SelectedObjectsPaths(newPaths, null), true);
+			this.fireCompositionChange(new SelectedObjectsPaths(newPaths, null));
 		}
 		return newPathsAndOldYValues;
 	}
@@ -200,7 +200,8 @@ public class BigBangScoreManager extends Model {
 		}*/
 		
 		if (fireCompositionChange) {
-			this.firePreviewCompositionChange(null);
+			//select the objects just added
+			this.fireCompositionChange(new SelectedObjectsPaths(newPaths, null));
 		}
 		return newPaths;
 	}
@@ -310,20 +311,20 @@ public class BigBangScoreManager extends Model {
 	}
 	
 	private void fireCompositionChange(Set<DenotatorPath> selectedNodesPaths) {
-		this.fireCompositionChange(new SelectedObjectsPaths(selectedNodesPaths, null), false);
+		this.fireCompositionChange(new SelectedObjectsPaths(selectedNodesPaths, null));
 	}
 	
 	private void firePreviewCompositionChange(SelectedObjectsPaths paths) {
-		this.fireCompositionChange(paths, true, true);
+		this.fireCompositionChange(paths, true);
 	}
 	
-	private void fireCompositionChange(SelectedObjectsPaths paths, boolean playback) {
-		this.fireCompositionChange(paths, false, playback);
+	private void fireCompositionChange(SelectedObjectsPaths paths) {
+		this.fireCompositionChange(paths, false);
 	}
 	
-	private void fireCompositionChange(SelectedObjectsPaths paths, boolean preview, boolean playback) {
+	private void fireCompositionChange(SelectedObjectsPaths paths, boolean preview) {
 		Denotator changedComposition = this.score.getComposition();
-		ScoreChangedNotification notification = new ScoreChangedNotification(changedComposition, paths, preview, playback);
+		ScoreChangedNotification notification = new ScoreChangedNotification(changedComposition, paths, preview);
 		this.firePropertyChange(BigBangController.COMPOSITION, null, notification);
 	}
 

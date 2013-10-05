@@ -29,7 +29,7 @@ public class RotationEdit extends AbstractLocalTransformationEdit {
 	}
 	
 	public String getPresentationName() {
-		return "Rotation " + super.getPresentationName();
+		return "Rotation " + super.round(this.getAngle());
 	}
 	
 	public double getAngle() {

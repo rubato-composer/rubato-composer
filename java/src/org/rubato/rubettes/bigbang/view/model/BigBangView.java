@@ -402,7 +402,7 @@ public class BigBangView extends Model implements View {
 	}
 	
 	public void selectOperation(AbstractOperationEdit operation) {
-		if (operation != null && !operation.equals(this.selectedOperation)) {
+		if (operation != null) { //&& !operation.equals(this.selectedOperation)) {
 			//select perspective first
 			if (operation instanceof AbstractTransformationEdit) {
 				AbstractTransformationEdit transformationEdit = (AbstractTransformationEdit)operation;
@@ -420,7 +420,7 @@ public class BigBangView extends Model implements View {
 			} else if (operation instanceof AbstractLocalTransformationEdit) {
 				AbstractLocalTransformationEdit localEdit = (AbstractLocalTransformationEdit)operation;
 				double[] center = this.getXYDisplayValues(localEdit.getCenter());
-				double[] endingPoint = this.getXYDisplayValues(localEdit.getEndPoint());
+				double[] endingPoint = this.getXYDisplayValues(localEdit.getEndingPoint());
 				if (operation instanceof RotationEdit) {
 					double[] startingPoint = ((RotationEdit)operation).getStartingPoint();
 					double angle = ((RotationEdit)operation).getAngle();
@@ -432,7 +432,8 @@ public class BigBangView extends Model implements View {
 					double[] shearingFactors = ((ShearingEdit)operation).getShearingFactors();
 					this.setDisplayMode(new ShearingModeAdapter(this.viewController, center, endingPoint, shearingFactors));
 				} else if (operation instanceof ReflectionEdit) {
-					this.setDisplayMode(new ReflectionModeAdapter(this.viewController, center, endingPoint));
+					double[] reflectionVector = ((ReflectionEdit)operation).getReflectionVector();
+					this.setDisplayMode(new ReflectionModeAdapter(this.viewController, center, reflectionVector));
 				}
 			}
 			this.selectedOperation = operation;
