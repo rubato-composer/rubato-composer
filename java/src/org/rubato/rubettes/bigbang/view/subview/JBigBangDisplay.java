@@ -59,6 +59,11 @@ public class JBigBangDisplay extends JPanel implements View {
 		}
 	}
 	
+	@Override
+	public void update(Graphics g) {
+		this.paint(g);
+	}
+	
 	public void paintComponent(Graphics g) {
         super.paintComponent(g);
         this.contents.paint(new AWTPainter(g), this.getWidth(), this.getHeight());

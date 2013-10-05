@@ -14,13 +14,11 @@ public class ScoreChangedNotification {
 	private SelectedObjectsPaths selectedObjectsPaths;
 	//private DenotatorPath anchorToBeSelected;
 	private boolean preview;
-	private boolean playback;
 	
-	public ScoreChangedNotification(Denotator score, SelectedObjectsPaths selectedObjectsPaths, boolean preview, boolean playback) {
+	public ScoreChangedNotification(Denotator score, SelectedObjectsPaths selectedObjectsPaths, boolean preview) {
 		this.score = score;
 		this.selectedObjectsPaths = selectedObjectsPaths;
 		this.preview = preview;
-		this.playback = playback;
 	}
 	
 	public ScoreChangedNotification(PowerDenotator score) {
@@ -42,10 +40,6 @@ public class ScoreChangedNotification {
 	
 	public boolean preview() {
 		return this.preview;
-	}
-	
-	public boolean playback() {
-		return this.playback;
 	}
 
 }

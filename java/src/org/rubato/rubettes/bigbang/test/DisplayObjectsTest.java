@@ -51,7 +51,7 @@ public class DisplayObjectsTest extends TestCase {
 	
 	private DisplayObjects extractDisplayObjects(Denotator denotator) {
 		SelectedObjectsPaths noPaths = new SelectedObjectsPaths(new TreeSet<DenotatorPath>(), null);
-		ScoreChangedNotification notification = new ScoreChangedNotification(denotator, noPaths, false, false);
+		ScoreChangedNotification notification = new ScoreChangedNotification(denotator, noPaths, false);
 		this.extractor = new DenotatorValueExtractor(new LayerStates(this.viewController));
 		return this.extractor.extractValues(this.viewController, notification, false);
 	}

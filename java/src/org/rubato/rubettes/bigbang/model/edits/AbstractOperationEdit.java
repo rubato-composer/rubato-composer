@@ -13,10 +13,12 @@ public abstract class AbstractOperationEdit extends AbstractUndoableEdit {
 	protected BigBangScoreManager scoreManager;
 	protected double modificationRatio;
 	protected Double minModRatio, maxModRatio;
+	protected boolean isAnimatable;
 	
 	public AbstractOperationEdit(BigBangScoreManager scoreManager) {
 		this.scoreManager = scoreManager;
 		this.modificationRatio = 1;
+		this.isAnimatable = true;
 	}
 	
 	public BigBangScoreManager getScoreManager() {
@@ -42,6 +44,10 @@ public abstract class AbstractOperationEdit extends AbstractUndoableEdit {
 	
 	public String toString() {
 		return this.getPresentationName();
+	}
+	
+	public boolean isAnimatable() {
+		return this.isAnimatable;
 	}
 
 }

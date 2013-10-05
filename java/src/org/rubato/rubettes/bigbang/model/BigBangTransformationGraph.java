@@ -42,7 +42,16 @@ public class BigBangTransformationGraph extends DirectedSparseGraph<Integer,Abst
 	
 	private boolean add(AbstractOperationEdit edit, boolean inPreviewMode) {
 		//startingVertex is either current selected vertex or the last vertex
-		Integer startingVertex = this.selectedCompositionState != null? this.selectedCompositionState : this.getVertexCount()-1;
+		Integer startingVertex;
+		Integer previouslySelectedCompositionState = this.selectedCompositionState;
+		if (this.selectedCompositionState != null) {
+			startingVertex = this.selectedCompositionState;
+			//delete selectedCompositionState for appropriate preview to be shown
+			this.selectedCompositionState = null;
+		} else {
+			startingVertex = this.getVertexCount()-1;
+		}
+		
 		Integer endingVertex = this.getVertexCount();
 		this.addVertex(endingVertex);
 		boolean added = this.addEdge(edit, startingVertex, endingVertex);
@@ -52,6 +61,11 @@ public class BigBangTransformationGraph extends DirectedSparseGraph<Integer,Abst
 				this.model.deselectCompositionStates();
 			}
 			this.updateComposition(inPreviewMode);
+		}
+		
+		//restore selected composition state
+		if (inPreviewMode == true && previouslySelectedCompositionState != null) {
+			this.selectedCompositionState = previouslySelectedCompositionState;
 		}
 		return added;
 	}

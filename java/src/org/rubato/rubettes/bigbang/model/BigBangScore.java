@@ -483,7 +483,10 @@ public class BigBangScore implements Cloneable {
 		//PerformanceCheck.startTask("..e1");
 		List<List<Denotator>> anchorObjects = new ArrayList<List<Denotator>>();
 		for (DenotatorPath currentNodePath: objectPaths) {
-			anchorObjects.add(this.extractObjects(currentNodePath));
+			List<Denotator> objects = this.extractObjects(currentNodePath);
+			if (objects != null) {
+				anchorObjects.add(this.extractObjects(currentNodePath));
+			}
 		}
 		return anchorObjects;
 	}
@@ -497,8 +500,13 @@ public class BigBangScore implements Cloneable {
 		//PerformanceCheck.startTask("..e2");
 		List<Denotator> parentObjects = new ArrayList<Denotator>();
 		while (objectPath != null && objectPath.size() > 0) {
-			parentObjects.add(0, this.extractObject(objectPath));
-			objectPath = objectPath.getAnchorPath(); 
+			Denotator currentObject = this.extractObject(objectPath);
+			if (currentObject != null) {
+				parentObjects.add(0, currentObject);
+				objectPath = objectPath.getAnchorPath();
+			} else {
+				return null;
+			}
 		}
 		return parentObjects;
 	}

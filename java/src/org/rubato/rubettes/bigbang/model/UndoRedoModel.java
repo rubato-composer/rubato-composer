@@ -41,7 +41,6 @@ public class UndoRedoModel extends Model {
 	}
 	
 	public void animateGraph() {
-		System.out.println("animate!!!!");
 		new BigBangGraphAnimator(this.operations, this).start();
 	}
 	
@@ -85,6 +84,7 @@ public class UndoRedoModel extends Model {
 	
 	public void modifiedOperation(Boolean inPreviewMode) {
 		this.operations.updateComposition(inPreviewMode);
+		this.firePropertyChange(BigBangController.GRAPH, null, this.operations);
 	}
 	
 	public void modifyOperation(Integer operationIndex, Double ratio) {

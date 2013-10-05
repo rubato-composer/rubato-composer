@@ -20,7 +20,7 @@ public class ReflectionEdit extends AbstractLocalTransformationEdit {
 	}
 	
 	public String getPresentationName() {
-		return "Reflection " + super.getPresentationName();
+		return "Reflection " + super.round(this.reflectionVector[0]) + ", " + super.round(this.reflectionVector[1]);
 	}
 
 	@Override
@@ -34,6 +34,10 @@ public class ReflectionEdit extends AbstractLocalTransformationEdit {
 		double m12 = this.modificationRatio*(2*x*y)/q;
 		double m22 = (this.modificationRatio*(y2 - x2)/q)+(1-this.modificationRatio);
 		return new RMatrix(new double[][]{{m11, m12}, {m12, m22}});
+	}
+	
+	public double[] getReflectionVector() {
+		return this.reflectionVector;
 	}
 
 }

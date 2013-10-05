@@ -13,8 +13,8 @@ public class ObjectReflectionAdapter extends ObjectTransformationAdapter {
 		super(controller);
 	}
 	
-	public ObjectReflectionAdapter(ViewController controller, double[] startingPoint, double[] endingPoint) {
-		super(controller, startingPoint, endingPoint);
+	public ObjectReflectionAdapter(ViewController controller, double[] startingPoint, double[] reflectionVector) {
+		super(controller, startingPoint, new double[]{startingPoint[0]+reflectionVector[0], startingPoint[1]-reflectionVector[1]});
 	}
 	
 	@Override

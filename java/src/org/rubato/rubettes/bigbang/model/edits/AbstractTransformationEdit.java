@@ -109,12 +109,9 @@ public abstract class AbstractTransformationEdit extends AbstractOperationEdit {
 		return this.properties.getTransformationPaths().get(0).getXYCoordinates();
 	}
 	
-	@Override
-	public String getPresentationName() {
-		return this.round(this.properties.getEndPoint()[0]) + "," + this.round(this.properties.getEndPoint()[1]);
-	}
+	public abstract double[] getEndingPoint();
 	
-	private double round(double number) {
+	protected double round(double number) {
 		return ((double)Math.round(number*10))/10;
 	}
 

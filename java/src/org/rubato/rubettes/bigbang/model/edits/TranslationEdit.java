@@ -29,7 +29,7 @@ public class TranslationEdit extends AbstractTransformationEdit {
 	}
 	
 	public String getPresentationName() {
-		return "Translation " + super.getPresentationName();
+		return "Translation " + super.round(this.shift[0]) + ", " + super.round(this.shift[1]);
 	}
 	
 	public double[] getStartingPoint() {
