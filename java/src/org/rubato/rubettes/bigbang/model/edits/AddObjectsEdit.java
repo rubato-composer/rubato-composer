@@ -81,6 +81,7 @@ public class AddObjectsEdit extends AbstractOperationEdit {
 	}
 	
 	public boolean addObjects(List<Map<DenotatorPath,Double>> pathsWithValues, List<DenotatorPath> powersetPaths, boolean inPreviewMode) {
+		//System.out.println(pathsWithValues + " " + inPreviewMode);
 		if (this.objectForm == null && !powersetPaths.isEmpty()) {
 			this.setObjectForm(powersetPaths.get(0));
 		}

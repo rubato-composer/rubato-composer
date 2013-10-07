@@ -118,7 +118,7 @@ public class JSynModule {
 				//first mute and wait for ramps to go down to not get glitches
 				mute();
 				try {
-					player.getSynth().sleepFor(SmoothOscillator.RAMP_DURATION*1000);
+					player.getSynth().sleepFor(SmoothOscillator.RAMP_DURATION*2);
 				} catch (InterruptedException e) { e.printStackTrace();	}
 				//then remove
 				for (SmoothOscillator oscillator : carriers) {

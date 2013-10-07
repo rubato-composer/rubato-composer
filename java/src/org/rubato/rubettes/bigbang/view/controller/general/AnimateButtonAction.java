@@ -3,9 +3,9 @@ package org.rubato.rubettes.bigbang.view.controller.general;
 import java.awt.event.ActionEvent;
 
 import javax.swing.AbstractAction;
+import javax.swing.JButton;
 
 import org.rubato.rubettes.bigbang.controller.BigBangController;
-import org.rubato.rubettes.bigbang.view.controller.ViewController;
 
 public class AnimateButtonAction extends AbstractAction {
 	
@@ -17,7 +17,9 @@ public class AnimateButtonAction extends AbstractAction {
 	}
 
 	public void actionPerformed(ActionEvent event) {
-		this.controller.animateGraph();
+		//JButton source = (JButton)event.getSource();
+		//source.setSelected(!source.isSelected());
+		this.controller.toggleGraphAnimation();
 	}
 
 }

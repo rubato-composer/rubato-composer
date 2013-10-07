@@ -20,6 +20,7 @@ public class UndoRedoModel extends Model {
 	private UndoableEditSupport undoSupport;
 	private BigBangTransformationGraph operations;
 	private List<AbstractOperationEdit> undoneOperations;
+	private BigBangGraphAnimator animator;
 	
 	public UndoRedoModel(Controller controller) {
 		controller.addModel(this);
@@ -40,8 +41,14 @@ public class UndoRedoModel extends Model {
 		this.firePropertyChange(BigBangController.GRAPH, null, this.operations);
 	}
 	
-	public void animateGraph() {
-		new BigBangGraphAnimator(this.operations, this).start();
+	public void toggleGraphAnimation() {
+		if (this.animator == null || !this.animator.isAlive()) {
+			this.animator = new BigBangGraphAnimator(this.operations, this);
+			this.animator.start();
+		} else {
+			this.animator.end();
+			this.animator = null;
+		}
 	}
 	
 	public void undo() {

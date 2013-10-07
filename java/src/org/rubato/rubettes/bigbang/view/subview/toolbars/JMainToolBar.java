@@ -23,6 +23,7 @@ import org.rubato.rubettes.bigbang.view.controller.mode.DisplayModeAdapter;
 import org.rubato.rubettes.bigbang.view.controller.score.WallpaperRangeListener;
 import org.rubato.rubettes.bigbang.view.controller.score.actions.AddWallpaperDimensionAction;
 import org.rubato.rubettes.bigbang.view.controller.score.actions.StopWallpaperAction;
+import org.rubato.rubettes.bigbang.view.subview.DisplayObjects;
 
 public class JMainToolBar extends JToolBar implements View {
 	
@@ -68,7 +69,9 @@ public class JMainToolBar extends JToolBar implements View {
 
 	public void modelPropertyChange(PropertyChangeEvent event) {
 		String propertyName = event.getPropertyName();
-		if (propertyName.equals(ViewController.DISPLAY_MODE)) {
+		if (propertyName.equals(ViewController.FORM)) {
+			this.alterationPanel.updateCoordinateBoxes((DisplayObjects)event.getNewValue());
+		} else if (propertyName.equals(ViewController.DISPLAY_MODE)) {
 			this.selectModeButton(event);
 		} else if (propertyName.equals(ViewController.SELECT_OPERATION)) {
 			if (event.getNewValue() == null) {
@@ -113,7 +116,7 @@ public class JMainToolBar extends JToolBar implements View {
 	private void enterAlterationMode(AlterationEdit edit) {
 		if (!Arrays.asList(this.getComponents()).contains(this.alterationPanel)) {
 			this.alterationButton.setSelected(true);
-			this.alterationPanel.updateCoordinateBoxes(edit.getAlterationCoordinates());
+			this.alterationPanel.updateCoordinateSelections(edit.getAlterationCoordinates());
 			this.alterationPanel.setStartDegree(edit.getStartDegree());
 			this.alterationPanel.setEndDegree(edit.getEndDegree());
 			this.alterationButton.setSelected(true);
