@@ -15,6 +15,7 @@ import org.rubato.rubettes.bigbang.view.model.DisplayObject;
 import org.rubato.rubettes.bigbang.view.model.ZoomChange;
 import org.rubato.rubettes.bigbang.view.model.tools.DisplayTool;
 import org.rubato.rubettes.bigbang.view.model.tools.SelectionTool;
+import org.rubato.rubettes.util.Point3D;
 
 public class ViewController extends Controller {
 	
@@ -64,6 +65,7 @@ public class ViewController extends Controller {
 	public static final String MAX_SATELLITE_LEVEL = "setSatelliteLevels";
 	public static final String ACTIVE_SATELLITE_LEVEL = "setActiveSatelliteLevel";
 	public static final String ADD_OBJECTS = "addObjects";
+	public static final String ADD_OBJECTS3D = "addObjects3D";
 	public static final String DELETE_OBJECTS = "deleteSelectedObjects";
 	public static final String COPY_OBJECTS = "copySelectedObjectsTo";
 	public static final String COPY_OBJECTS_NEW = "copySelectedObjectsToNewLayer";
@@ -253,6 +255,10 @@ public class ViewController extends Controller {
 	
 	public void addObjects(ArrayList<Point2D.Double> locations, boolean inPreviewMode) {
 		this.callModelMethod(ViewController.ADD_OBJECTS, locations, inPreviewMode);
+	}
+	
+	public void addObjects3D(ArrayList<Point3D> locations, boolean inPreviewMode) {
+		this.callModelMethod(ViewController.ADD_OBJECTS3D, locations, inPreviewMode);
 	}
 	
 	public void deleteSelectedObjects() {

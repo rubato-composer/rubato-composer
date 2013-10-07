@@ -8,6 +8,7 @@ import org.rubato.rubettes.bigbang.view.controller.ViewController;
 import org.rubato.rubettes.bigbang.view.model.BigBangView;
 import org.rubato.rubettes.bigbang.view.subview.JBigBangDisplay;
 import org.rubato.rubettes.bigbang.view.subview.JBigBangPanel;
+import org.rubato.rubettes.util.Point3D;
 
 import com.leapmotion.leap.Controller;
 import com.leapmotion.leap.Frame;
@@ -96,7 +97,22 @@ public class LeapMotionIn extends Listener {
 			}
 		}
 		this.lastFrame = frame;*/
-		ArrayList<Point2D.Double> pointList = new ArrayList<Point2D.Double>();
+		
+//		ArrayList<Point2D.Double> pointList = new ArrayList<Point2D.Double>();
+//		for (int i = 0; i < controller.frame().fingers().count(); i++) {
+//			Vector currentTipPosition = controller.frame().fingers().get(i).tipPosition();
+//			if (this.view.inDrawingMode() && currentTipPosition.getZ() <= this.PLANE_Z_POSITION) {
+//				if (this.leftEdge <= currentTipPosition.getX() && currentTipPosition.getX() <= this.rightEdge
+//						&& this.AREA_BOTTOM_EDGE <= currentTipPosition.getY() && currentTipPosition.getY() <= this.topEdge) {
+//					double x = (currentTipPosition.getX()+(this.AREA_WIDTH/2))/this.AREA_WIDTH*JBigBangDisplay.DISPLAY_WIDTH;
+//					double y = (this.AREA_HEIGHT-(currentTipPosition.getY()-this.AREA_BOTTOM_EDGE))/this.AREA_HEIGHT*JBigBangPanel.CENTER_PANEL_HEIGHT;
+//					pointList.add(new Point2D.Double(x, y));
+//				}
+//			}
+//		}
+//		this.viewController.addObjects(pointList, true);
+		
+		ArrayList<Point3D> pointList3D = new ArrayList<Point3D>();
 		for (int i = 0; i < controller.frame().fingers().count(); i++) {
 			Vector currentTipPosition = controller.frame().fingers().get(i).tipPosition();
 			if (this.view.inDrawingMode() && currentTipPosition.getZ() <= this.PLANE_Z_POSITION) {
@@ -104,11 +120,12 @@ public class LeapMotionIn extends Listener {
 						&& this.AREA_BOTTOM_EDGE <= currentTipPosition.getY() && currentTipPosition.getY() <= this.topEdge) {
 					double x = (currentTipPosition.getX()+(this.AREA_WIDTH/2))/this.AREA_WIDTH*JBigBangDisplay.DISPLAY_WIDTH;
 					double y = (this.AREA_HEIGHT-(currentTipPosition.getY()-this.AREA_BOTTOM_EDGE))/this.AREA_HEIGHT*JBigBangPanel.CENTER_PANEL_HEIGHT;
-					pointList.add(new Point2D.Double(x, y));
+					double z = (currentTipPosition.getZ()+(this.AREA_WIDTH/2))/this.AREA_WIDTH*JBigBangDisplay.DISPLAY_WIDTH;
+					pointList3D.add(new Point3D(x, y, z));
 				}
 			}
 		}
-		this.viewController.addObjects(pointList, true);
+		this.viewController.addObjects3D(pointList3D, true);
 	}
 	
 }
