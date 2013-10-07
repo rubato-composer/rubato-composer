@@ -102,6 +102,10 @@ public class ViewParameters extends Model {
 		return new int[]{this.selectedViewParameters[0], this.selectedViewParameters[1]};
 	}
 	
+	public int[] getSelectedXYZViewParameters() {
+		return new int[]{this.selectedViewParameters[0], this.selectedViewParameters[1], this.selectedViewParameters[2]};
+	}
+	
 	//sets the first given number of view parameters diagonally
 	public void initSelections(int numberOfSelectedOnes) {
 		int[] newSelections = new int[this.size()];

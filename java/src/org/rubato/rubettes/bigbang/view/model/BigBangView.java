@@ -51,6 +51,7 @@ import org.rubato.rubettes.bigbang.view.player.BigBangRecorder;
 import org.rubato.rubettes.bigbang.view.subview.DisplayObjects;
 import org.rubato.rubettes.bigbang.view.subview.JBigBangPanel;
 import org.rubato.rubettes.util.DenotatorPath;
+import org.rubato.rubettes.util.Point3D;
 
 import com.leapmotion.leap.Controller;
 import com.leapmotion.leap.Gesture;
@@ -593,6 +594,29 @@ public class BigBangView extends Model implements View {
 		}
 	}
 	
+	public void addObjects3D(ArrayList<Point3D> locations, Boolean inPreviewMode) {
+		if (this.displayObjects != null && this.displayMode instanceof DrawingModeAdapter) {
+			List<Map<DenotatorPath,Double>> objectValues = new ArrayList<Map<DenotatorPath,Double>>();
+			List<DenotatorPath> powersetPaths = new ArrayList<DenotatorPath>();
+			for (Point3D currentLocation : locations) {
+				Map<DenotatorPath,Double> currentValues = this.displayObjects.getActiveObjectStandardValues(this.standardDenotatorValues);
+				//only add object if there are some screen values to be converted
+				if (!currentValues.isEmpty()) {
+					objectValues.add(currentValues);
+					powersetPaths.add(this.editObjectValuesAndFindClosestPowerset3D(currentLocation, currentValues));
+				}
+			}
+			if (this.selectedOperation instanceof AddObjectsEdit) {
+				((AddObjectsEdit)this.selectedOperation).addObjects(objectValues, powersetPaths, inPreviewMode);
+				this.controller.modifiedOperation(false);
+			} else {
+				this.controller.addObjects(objectValues, powersetPaths, inPreviewMode);
+			}
+		}
+	}
+	
+	
+	
 	public void deleteSelectedObjects() {
 		List<DenotatorPath> paths = new ArrayList<DenotatorPath>(this.displayObjects.getSelectedObjectsPaths());
 		if (paths.size() > 0) {
@@ -678,6 +702,29 @@ public class BigBangView extends Model implements View {
 		return closestPowersetPath;
 	}
 	
+	private DenotatorPath editObjectValuesAndFindClosestPowerset3D(Point3D location, Map<DenotatorPath,Double> denotatorValues) {
+		DenotatorPath parentPowersetPath = this.displayObjects.getActiveObjectAndLevelPowersetPath();
+		int[] xyzParameters = this.viewParameters.getSelectedXYZViewParameters(); 
+		int xValueIndex = this.displayObjects.getActiveObjectValueIndex(xyzParameters[0]);
+		int yValueIndex = this.displayObjects.getActiveObjectValueIndex(xyzParameters[1]);
+		int zValueIndex = this.displayObjects.getActiveObjectValueIndex(xyzParameters[2]);
+		double[] xyzDenotatorValues = new double[3];
+		xyzDenotatorValues[0] = this.getDenotatorValue(location.x, 0, this.displayPosition.x, this.xZoomFactor);
+		xyzDenotatorValues[1] = this.getDenotatorValue(location.y, 1, this.displayPosition.y, this.yZoomFactor);
+		xyzDenotatorValues[2] = this.getDenotatorValue(location.z, 2, 0, 2); // TODO fix zoom and display position
+		if (xValueIndex >= 0) {
+			this.replaceDenotatorValue(location.x, xValueIndex, 0, this.displayPosition.x, this.xZoomFactor, denotatorValues);
+		}
+		if (yValueIndex >= 0 && (xValueIndex < 0 || yValueIndex != xValueIndex)) {
+			this.replaceDenotatorValue(location.y, yValueIndex, 1, this.displayPosition.y, this.yZoomFactor, denotatorValues);
+		}
+		if (zValueIndex >= 0) { // Need better check here. Just a placeholder 
+			this.replaceDenotatorValue(location.z, zValueIndex, 2, 0, 2, denotatorValues); // parameters may be wrong
+		}
+		DenotatorPath closestPowersetPath = this.findClosestPowersetPath(xyzParameters, xyzDenotatorValues, parentPowersetPath);
+		return closestPowersetPath;
+	}
+	
 	private void replaceDenotatorValue(double displayValue, int valueIndex, int parameterIndex, int position, double zoomFactor, Map<DenotatorPath,Double> values) {
 		double denotatorValue = this.getDenotatorValue(displayValue, parameterIndex, position, zoomFactor);
 		DenotatorPath associatedPath = this.displayObjects.getActiveObjectValuePathAt(valueIndex);
@@ -699,7 +746,12 @@ public class BigBangView extends Model implements View {
 	
 	protected double getDenotatorValue(double displayValue, int parameterIndex, int position, double zoomFactor) {
 		double value = (displayValue-position)/zoomFactor;
-		return this.viewParameters.get(parameterIndex).translateDisplayValue(value);
+		if (parameterIndex == 2) {
+			// TODO this should probably be handled by the view along with the x and y parameters.
+			ViewParameter param = this.viewParameters.get(parameterIndex); 
+			param.setDenotatorLimitsIfNotManual(param.getMinGoalValue(), param.getMaxGoalValue()); 
+		}
+		return this.viewParameters.get(parameterIndex).translateDisplayValue(value);		
 	}
 	
 	protected double getDisplayValue(double denotatorValue, int parameterIndex, int position, double zoomFactor) {
