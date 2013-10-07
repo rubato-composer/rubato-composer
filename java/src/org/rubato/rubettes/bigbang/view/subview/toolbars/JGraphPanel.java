@@ -140,7 +140,10 @@ public class JGraphPanel extends JPanel implements View {
 			//TODO never called except for deselection and wpdim...
 			AbstractOperationEdit transformation = (AbstractOperationEdit)event.getNewValue();
 			this.selectOperation(transformation);
-		} else if (propertyName.equals(ViewController.SELECT_COMPOSITION_STATE)) {
+		} else if (propertyName.equals(BigBangController.TOGGLE_GRAPH_ANIMATION)) {
+			this.animateButton.setSelected((Boolean)event.getNewValue());
+		}	
+		else if (propertyName.equals(ViewController.SELECT_COMPOSITION_STATE)) {
 			this.selectState((Integer)event.getNewValue());
 		} else if (propertyName.equals(ViewController.DESELECT_COMPOSITION_STATES)) {
 			this.selectState(null);
@@ -157,7 +160,9 @@ public class JGraphPanel extends JPanel implements View {
 				this.pickedOperation = operation;
 			}
 		} else {
-			this.graphViewer.getPickedEdgeState().clear();
+			if (this.graphViewer != null) {
+				this.graphViewer.getPickedEdgeState().clear();
+			}
 			this.pickedOperation = null;
 		}
 		this.updateStatusBar();

@@ -60,7 +60,7 @@ public class DisplayObjects implements View {
 		}
 		this.activeSatelliteLevel = 0;
 		
-		List<String> coordinateSystemValueNames = finder.getCoordinateSystemValueNames();
+		List<String> coordinateSystemValueNames = new ArrayList<String>(finder.getCoordinateSystemValueNames());
 		if (this.finder.formAllowsForSatellites()) {
 			coordinateSystemValueNames.add(DenotatorValueExtractor.SATELLITE_LEVEL);
 			coordinateSystemValueNames.add(DenotatorValueExtractor.SIBLING_NUMBER);
@@ -121,6 +121,10 @@ public class DisplayObjects implements View {
 	
 	public List<String> getCoordinateSystemValueNames() {
 		return this.coordinateSystemValueNames;
+	}
+	
+	public int getNumberOfNonAnalyticalCoordinateSystemValues() {
+		return this.finder.getCoordinateSystemValueNames().size();
 	}
 	
 	public Form getBaseForm() {

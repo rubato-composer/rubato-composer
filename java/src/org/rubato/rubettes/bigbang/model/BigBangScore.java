@@ -454,9 +454,9 @@ public class BigBangScore implements Cloneable {
 			DenotatorPath powersetPath = objectPath.getAnchorPowersetPath();
 			if (powersetPath != null) {
 				int objectIndex = objectPath.getObjectIndex();
-				PowerDenotator powerset = (PowerDenotator)this.score.get(powersetPath.toIntArray());
-				if (powerset.getFactorCount() > objectIndex) {
-					return powerset.removeFactor(objectIndex);
+				FactorDenotator powersetOrList = (FactorDenotator)this.score.get(powersetPath.toIntArray());
+				if (powersetOrList.getFactorCount() > objectIndex) {
+					return powersetOrList.getFactors().remove(objectIndex);
 				}
 			}
 		} catch (RubatoException e) {

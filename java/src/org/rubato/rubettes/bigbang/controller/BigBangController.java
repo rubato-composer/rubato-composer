@@ -7,7 +7,6 @@ import java.util.TreeMap;
 
 import org.rubato.math.yoneda.Form;
 import org.rubato.rubettes.bigbang.model.TransformationProperties;
-import org.rubato.rubettes.bigbang.view.controller.ViewController;
 import org.rubato.rubettes.bigbang.view.model.SelectedObjectsPaths;
 import org.rubato.rubettes.util.DenotatorPath;
 
@@ -21,7 +20,7 @@ public class BigBangController extends Controller {
 	public static final String MODIFY_OPERATION = "modifyOperation";
 	public static final String SELECT_COMPOSITION_STATE = "selectCompositionState";
 	public static final String DESELECT_COMPOSITION_STATES = "deselectCompositionStates";
-	public static final String ANIMATE_GRAPH = "animateGraph";
+	public static final String TOGGLE_GRAPH_ANIMATION = "toggleGraphAnimation";
 	
 	public static final String MULTITOUCH = "MultiTouch";
 	public static final String INPUT_ACTIVE = "InputActive";
@@ -79,8 +78,8 @@ public class BigBangController extends Controller {
 		this.callModelMethod(BigBangController.DESELECT_COMPOSITION_STATES);
 	}
 	
-	public void animateGraph() {
-		this.callModelMethod(BigBangController.ANIMATE_GRAPH);
+	public void toggleGraphAnimation() {
+		this.callModelMethod(BigBangController.TOGGLE_GRAPH_ANIMATION);
 	}
 	
 	public void changeInputActive(boolean inputActive) {

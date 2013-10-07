@@ -12,6 +12,7 @@ public class BigBangGraphAnimator extends Thread {
 	
 	private BigBangTransformationGraph graph;
 	private UndoRedoModel model;
+	private boolean running;
 	
 	public BigBangGraphAnimator(BigBangTransformationGraph graph, UndoRedoModel model) {
 		this.graph = graph;
@@ -24,6 +25,10 @@ public class BigBangGraphAnimator extends Thread {
 		} catch (InterruptedException e) {
 			//this.run();
 		}
+	}
+	
+	public void end() {
+		this.running = false;
 	}
 	
 	/*private void animate() throws InterruptedException {
@@ -49,6 +54,8 @@ public class BigBangGraphAnimator extends Thread {
 	}*/
 	
 	private void animate() throws InterruptedException {
+		this.running = true;
+		this.model.firePropertyChange(BigBangController.TOGGLE_GRAPH_ANIMATION, null, true);
 		List<AbstractOperationEdit> shortestPath = this.graph.getCurrentShortestPath();
 		//first reset edges
 		for (AbstractOperationEdit currentEdit : shortestPath) {
@@ -62,6 +69,10 @@ public class BigBangGraphAnimator extends Thread {
 			if (currentEdit.isAnimatable()) {
 				nextTime += this.MILISECONDS_PER_EDGE;
 				while (System.currentTimeMillis() < nextTime) {
+					if (!this.running) {
+						this.model.firePropertyChange(BigBangController.TOGGLE_GRAPH_ANIMATION, null, false);
+						return;
+					}
 					double currentRatio = 1.0-((nextTime-System.currentTimeMillis())/this.MILISECONDS_PER_EDGE);
 					//System.out.println(nextTime + " " + currentRatio);
 					currentEdit.modify(currentRatio);
@@ -73,6 +84,7 @@ public class BigBangGraphAnimator extends Thread {
 			}
 		}
 		this.model.firePropertyChange(BigBangController.MODIFY_OPERATION, null, null);
+		this.model.firePropertyChange(BigBangController.TOGGLE_GRAPH_ANIMATION, null, false);
 	}
 
 }

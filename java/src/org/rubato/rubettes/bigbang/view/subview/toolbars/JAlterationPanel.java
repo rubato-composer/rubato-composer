@@ -19,13 +19,14 @@ import org.rubato.rubettes.bigbang.view.controller.ViewController;
 import org.rubato.rubettes.bigbang.view.controller.mode.temp.AlterationCompositionSelectionMode;
 import org.rubato.rubettes.bigbang.view.controller.mode.temp.TemporaryDisplayMode;
 import org.rubato.rubettes.bigbang.view.controller.score.AlterationDegreeListener;
+import org.rubato.rubettes.bigbang.view.subview.DisplayObjects;
 
 public class JAlterationPanel extends JPanel implements View, ActionListener, ItemListener {
 	
 	private final int SLIDER_MAX = 100;
 	private List<JButton> compositionButtons;
 	private JSlider startSlider, endSlider;
-	private List<JCheckBox> coordinateBoxes;
+	private JPanel coordinateBoxes;
 	private ViewController viewController;
 	private BigBangController bbController;
 	private TemporaryDisplayMode selectionMode;
@@ -49,15 +50,19 @@ public class JAlterationPanel extends JPanel implements View, ActionListener, It
 		this.compositionButtons.add(newButton);
 	}
 	
-	private void addCoordinateBoxes() {
-		//one additional box for timbre
-		this.coordinateBoxes = new ArrayList<JCheckBox>();
-		for (int i = 0; i < 6; i++) {
-			JCheckBox currentBox = new JCheckBox("", i<5); //timbre box not selected
+	public void addCoordinateBoxes() {
+		this.coordinateBoxes = new JPanel();
+		this.add(this.coordinateBoxes);
+	}
+	
+	public void updateCoordinateBoxes(DisplayObjects displayObjects) {
+		this.coordinateBoxes.removeAll();
+		for (int i = 0; i < displayObjects.getNumberOfNonAnalyticalCoordinateSystemValues(); i++) {
+			JCheckBox currentBox = new JCheckBox();
 			currentBox.addItemListener(this);
 			this.coordinateBoxes.add(currentBox);
-			this.add(currentBox);
 		}
+		this.repaint();
 	}
 	
 	private void addDegreeSliders() {
@@ -80,7 +85,7 @@ public class JAlterationPanel extends JPanel implements View, ActionListener, It
 		} else if (propertyName.equals(BigBangController.FIRE_ALTERATION_COMPOSITION)) {
 			this.selectCompositionButton((Integer)event.getNewValue());
 		} else if (propertyName.equals(BigBangController.ALTERATION_COORDINATES)) {
-			this.updateCoordinateBoxes((List<Integer>)event.getNewValue());
+			this.updateCoordinateSelections((List<Integer>)event.getNewValue());
 		}
 	}
 	
@@ -136,8 +141,8 @@ public class JAlterationPanel extends JPanel implements View, ActionListener, It
 	
 	public void itemStateChanged(ItemEvent event) {
 		List<Integer> selectedCoordinates = new ArrayList<Integer>();
-		for (int i = 0; i < this.coordinateBoxes.size(); i++) {
-			if (this.coordinateBoxes.get(i).isSelected()) {
+		for (int i = 0; i < this.coordinateBoxes.getComponentCount(); i++) {
+			if (((JCheckBox)this.coordinateBoxes.getComponent(i)).isSelected()) {
 				selectedCoordinates.add(i);
 			}
 		}
@@ -153,9 +158,9 @@ public class JAlterationPanel extends JPanel implements View, ActionListener, It
 		return -1;
 	}
 	
-	public void updateCoordinateBoxes(List<Integer> selectedCoordinates) {
-		for (int i = 0; i < this.coordinateBoxes.size(); i++) {
-			this.coordinateBoxes.get(i).setSelected(selectedCoordinates.contains(i));
+	public void updateCoordinateSelections(List<Integer> selectedCoordinates) {
+		for (int i = 0; i < this.coordinateBoxes.getComponentCount(); i++) {
+			((JCheckBox)this.coordinateBoxes.getComponent(i)).setSelected(selectedCoordinates.contains(i));
 		}
 	}
 

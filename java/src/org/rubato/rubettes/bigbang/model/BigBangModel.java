@@ -67,15 +67,17 @@ public class BigBangModel extends Model {
 	}
 	
 	public void addObjects(ArrayList<Map<DenotatorPath,Double>> pathsWithValues, ArrayList<DenotatorPath> powersetPaths, Boolean inPreviewMode) {
-		AbstractOperationEdit lastEdit = this.undoRedoModel.getLastEdit();
-		if (lastEdit != null && lastEdit instanceof AddObjectsEdit) {
-			AddObjectsEdit addEdit = (AddObjectsEdit) lastEdit;
-			if (addEdit.addObjects(pathsWithValues, powersetPaths, inPreviewMode)) {
-				this.undoRedoModel.modifiedOperation(false);
-				return;
+		if (this.scoreManager != null) { //needs to be checked for milmeister ghost rubette reacting to leap motion 
+			AbstractOperationEdit lastEdit = this.undoRedoModel.getLastEdit();
+			if (lastEdit != null && lastEdit instanceof AddObjectsEdit) {
+				AddObjectsEdit addEdit = (AddObjectsEdit) lastEdit;
+				if (addEdit.addObjects(pathsWithValues, powersetPaths, inPreviewMode)) {
+					this.undoRedoModel.modifiedOperation(false);
+					return;
+				}
 			}
+			this.undoRedoModel.postEdit(new AddObjectsEdit(this.scoreManager, pathsWithValues, powersetPaths));
 		}
-		this.undoRedoModel.postEdit(new AddObjectsEdit(this.scoreManager, pathsWithValues, powersetPaths));
 	}
 	
 	public void deleteObjects(ArrayList<DenotatorPath> objectPaths) {

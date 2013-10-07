@@ -23,7 +23,9 @@ import org.rubato.rubettes.bigbang.model.TransformationProperties;
 import org.rubato.rubettes.bigbang.model.edits.AbstractLocalTransformationEdit;
 import org.rubato.rubettes.bigbang.model.edits.AbstractOperationEdit;
 import org.rubato.rubettes.bigbang.model.edits.AbstractTransformationEdit;
+import org.rubato.rubettes.bigbang.model.edits.AddObjectsEdit;
 import org.rubato.rubettes.bigbang.model.edits.AddWallpaperDimensionEdit;
+import org.rubato.rubettes.bigbang.model.edits.AlterationEdit;
 import org.rubato.rubettes.bigbang.model.edits.ReflectionEdit;
 import org.rubato.rubettes.bigbang.model.edits.RotationEdit;
 import org.rubato.rubettes.bigbang.model.edits.ScalingEdit;
@@ -39,6 +41,7 @@ import org.rubato.rubettes.bigbang.view.controller.mode.ScalingModeAdapter;
 import org.rubato.rubettes.bigbang.view.controller.mode.ShearingModeAdapter;
 import org.rubato.rubettes.bigbang.view.controller.mode.TranslationModeAdapter;
 import org.rubato.rubettes.bigbang.view.controller.mode.temp.TemporaryDisplayMode;
+import org.rubato.rubettes.bigbang.view.controller.score.ObjectAdditionAdapter;
 import org.rubato.rubettes.bigbang.view.input.BigBangMidiReceiver;
 import org.rubato.rubettes.bigbang.view.input.LeapMotionIn;
 import org.rubato.rubettes.bigbang.view.model.tools.DisplayTool;
@@ -176,6 +179,7 @@ public class BigBangView extends Model implements View {
 			((TemporaryDisplayMode)newMode).setPreviousDisplayMode(this.displayMode);
 		}
 		this.displayMode = newMode;
+		this.deselectOperations();
 		this.firePropertyChange(ViewController.DISPLAY_MODE, null, newMode);
 	}
 	
@@ -413,7 +417,9 @@ public class BigBangView extends Model implements View {
 			}
 			
 			//then select displaymode and convert values!!
-			if (operation instanceof TranslationEdit) {
+			if (operation instanceof AddObjectsEdit) {
+				this.setDisplayMode(new DrawingModeAdapter(this.viewController));
+			} else if (operation instanceof TranslationEdit) {
 				double[] startingPoint = this.getXYDisplayValues(((TranslationEdit)operation).getStartingPoint());
 				double[] endingPoint = this.getXYDisplayValues(((TranslationEdit)operation).getEndingPoint());
 				this.setDisplayMode(new TranslationModeAdapter(this.viewController, startingPoint, endingPoint));
@@ -444,9 +450,11 @@ public class BigBangView extends Model implements View {
 	}
 	
 	public void deselectOperations() {
-		this.selectedOperation = null;
-		this.clearDisplayTool();
-		this.firePropertyChange(ViewController.SELECT_OPERATION, null, null);
+		if (this.selectedOperation != null) {
+			this.selectedOperation = null;
+			this.clearDisplayTool();
+			this.firePropertyChange(ViewController.SELECT_OPERATION, null, null);
+		}
 	}
 	
 	public void modifyCenterOfSelectedTransformation(Point2D.Double newCenter, Boolean inPreviewMode) {
@@ -455,7 +463,7 @@ public class BigBangView extends Model implements View {
 	}
 	
 	public void modifyEndPointOfSelectedTransformation(Point2D.Double newEndPoint, Boolean inPreviewMode) {
-		//TODO not great: only used in transformation
+		//TODO not great: only used in translation
 		((AbstractTransformationEdit)this.selectedOperation).modify(this.getXYDenotatorValues(newEndPoint));
 		this.controller.modifiedOperation(inPreviewMode);
 	}
@@ -526,8 +534,13 @@ public class BigBangView extends Model implements View {
 	
 	public void setAlterationComposition(Integer index) {
 		List<DenotatorPath> nodePaths = this.displayObjects.getSelectedObjectsPaths();
-		//TODO MAKE LIST!!!
-		this.controller.setAlterationComposition(index, new TreeSet<DenotatorPath>(nodePaths));
+		if (this.selectedOperation instanceof AlterationEdit) {
+			if (index == 0) {
+				((AlterationEdit)this.selectedOperation).setForegroundComposition(nodePaths);
+			} else {
+				((AlterationEdit)this.selectedOperation).setBackgroundComposition(nodePaths);
+			}
+		}
 	}
 	
 	private TransformationProperties getLocalTransformationProperties(Point2D.Double center, Point2D.Double endPoint, boolean copyAndTransform, boolean previewMode) {
@@ -560,7 +573,7 @@ public class BigBangView extends Model implements View {
 	}
 	
 	public void addObjects(ArrayList<Point2D.Double> locations, Boolean inPreviewMode) {
-		if (this.displayObjects != null) {
+		if (this.displayObjects != null && this.displayMode instanceof DrawingModeAdapter) {
 			List<Map<DenotatorPath,Double>> objectValues = new ArrayList<Map<DenotatorPath,Double>>();
 			List<DenotatorPath> powersetPaths = new ArrayList<DenotatorPath>();
 			for (Point2D.Double currentLocation : locations) {
@@ -571,14 +584,14 @@ public class BigBangView extends Model implements View {
 					powersetPaths.add(this.editObjectValuesAndFindClosestPowerset(currentLocation, currentValues));
 				}
 			}
-			
-			//if (!objectValues.isEmpty()) {
+			if (this.selectedOperation instanceof AddObjectsEdit) {
+				((AddObjectsEdit)this.selectedOperation).addObjects(objectValues, powersetPaths, inPreviewMode);
+				this.controller.modifiedOperation(false);
+			} else {
 				this.controller.addObjects(objectValues, powersetPaths, inPreviewMode);
-			//}
+			}
 		}
 	}
-	
-	
 	
 	public void deleteSelectedObjects() {
 		List<DenotatorPath> paths = new ArrayList<DenotatorPath>(this.displayObjects.getSelectedObjectsPaths());
