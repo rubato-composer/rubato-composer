@@ -14,11 +14,14 @@ public abstract class AbstractOperationEdit extends AbstractUndoableEdit {
 	protected double modificationRatio;
 	protected Double minModRatio, maxModRatio;
 	protected boolean isAnimatable;
+	//duration in seconds
+	protected double duration;
 	
 	public AbstractOperationEdit(BigBangScoreManager scoreManager) {
 		this.scoreManager = scoreManager;
 		this.modificationRatio = 1;
 		this.isAnimatable = true;
+		this.duration = 1;
 	}
 	
 	public BigBangScoreManager getScoreManager() {
@@ -38,6 +41,13 @@ public abstract class AbstractOperationEdit extends AbstractUndoableEdit {
 		this.updateOperation();
 	}
 	
+	@Override
+	public String getPresentationName() {
+		return  this.getSpecificPresentationName() + (this.isAnimatable ? " (" + Double.toString(this.duration) + ")" : "");
+	}
+	
+	protected abstract String getSpecificPresentationName();
+	
 	public abstract List<Map<DenotatorPath,DenotatorPath>> execute(List<Map<DenotatorPath,DenotatorPath>> pathDifferences, boolean sendCompositionChange);
 	
 	public abstract void setInPreviewMode(boolean inPreviewMode);
@@ -48,6 +58,14 @@ public abstract class AbstractOperationEdit extends AbstractUndoableEdit {
 	
 	public boolean isAnimatable() {
 		return this.isAnimatable;
+	}
+	
+	public void setDuration(double duration) {
+		this.duration = duration;
+	}
+	
+	public double getDuration() {
+		return this.duration;
 	}
 
 }

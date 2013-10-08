@@ -19,7 +19,8 @@ public class ReflectionEdit extends AbstractLocalTransformationEdit {
 		this.updateOperation();
 	}
 	
-	public String getPresentationName() {
+	@Override
+	protected String getSpecificPresentationName() {
 		return "Reflection " + super.round(this.reflectionVector[0]) + ", " + super.round(this.reflectionVector[1]);
 	}
 

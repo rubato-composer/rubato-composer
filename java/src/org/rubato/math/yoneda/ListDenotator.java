@@ -428,7 +428,15 @@ public class ListDenotator
         getListMorphismMap().appendFactor(d);
         return true;
     }
-
+    
+    /**
+     * Removes a factor.
+     * This is a destructive operation; beware of aliasing.
+     */
+    public Denotator removeFactor(int index) {
+    	Denotator d = getListMorphismMap().removeFactor(index);
+        return d;
+    }
 
     /**
      * Prepends a factor.

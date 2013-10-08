@@ -28,7 +28,8 @@ public class RotationEdit extends AbstractLocalTransformationEdit {
 		return new RMatrix(new double[][]{{cos,-1*sin},{sin,cos}});
 	}
 	
-	public String getPresentationName() {
+	@Override
+	protected String getSpecificPresentationName() {
 		return "Rotation " + super.round(this.getAngle());
 	}
 	

@@ -1,14 +1,18 @@
-package org.rubato.rubettes.bigbang.view.subview.toolbars;
+package org.rubato.rubettes.bigbang.view.subview.graph;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import java.awt.GridLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.beans.PropertyChangeEvent;
 
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
+import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
@@ -38,18 +42,23 @@ import edu.uci.ics.jung.graph.Graph;
 import edu.uci.ics.jung.visualization.GraphZoomScrollPane;
 import edu.uci.ics.jung.visualization.VisualizationViewer;
 import edu.uci.ics.jung.visualization.control.DefaultModalGraphMouse;
+import edu.uci.ics.jung.visualization.control.EditingModalGraphMouse;
 import edu.uci.ics.jung.visualization.control.ModalGraphMouse;
+import edu.uci.ics.jung.visualization.control.ModalGraphMouse.Mode;
 import edu.uci.ics.jung.visualization.decorators.ToStringLabeller;
 import edu.uci.ics.jung.visualization.layout.LayoutTransition;
 import edu.uci.ics.jung.visualization.renderers.Renderer.VertexLabel.Position;
 import edu.uci.ics.jung.visualization.util.Animator;
 
-public class JGraphPanel extends JPanel implements View {
+public class JGraphPanel extends JPanel implements View, ActionListener {
 	
 	private ViewController controller;
 	private FRLayout2<Integer,AbstractOperationEdit> layout;
 	private VisualizationViewer<Integer,AbstractOperationEdit> graphViewer;
+	private EditingModalGraphMouse<Integer,AbstractOperationEdit> graphMouse;
+	private JPanel northPanel;
 	private JButton animateButton;
+	private JComboBox modeSelektor;
 	private JLabel statusBar;
 	private Integer pickedState;
 	private AbstractOperationEdit pickedOperation;
@@ -59,6 +68,11 @@ public class JGraphPanel extends JPanel implements View {
 		bbController.addView(this);
 		this.controller = controller;
 		this.animateButton = new JButton(new AnimateButtonAction(bbController));
+		this.modeSelektor = new JComboBox(new Mode[]{Mode.TRANSFORMING,Mode.PICKING,Mode.EDITING});
+		this.modeSelektor.addActionListener(this);
+		this.northPanel = new JPanel(new GridLayout(2,1));
+		this.northPanel.add(this.animateButton);
+		this.northPanel.add(this.modeSelektor);
 		this.statusBar = new JLabel();
 	}
 	
@@ -83,8 +97,17 @@ public class JGraphPanel extends JPanel implements View {
 		this.graphViewer.getRenderer().getVertexLabelRenderer().setPosition(Position.CNTR);
 		
 		//init mouse commands
-		DefaultModalGraphMouse<Integer,AbstractOperationEdit> graphMouse = new DefaultModalGraphMouse<Integer,AbstractOperationEdit>();
-		graphMouse.setMode(ModalGraphMouse.Mode.PICKING);
+		VertexFactory vf = new VertexFactory(this.layout);
+		EdgeFactory ef = new EdgeFactory(this.layout);
+		this.graphMouse = new EditingModalGraphMouse<Integer,AbstractOperationEdit>(this.graphViewer.getRenderContext(), vf, ef);
+		this.setMode(Mode.PICKING);
+		
+		PopupVertexEdgeMenuMousePlugin myPlugin = new PopupVertexEdgeMenuMousePlugin();
+		//graphMouse.get
+        graphMouse.remove(graphMouse.getPopupEditingPlugin());  // Removes the existing popup editing plugin
+        graphMouse.remove(graphMouse.getEditingPlugin()); // strange editing plugin that relocates last edge...
+        graphMouse.add(myPlugin);   // Add our new plugin to the mouse
+        
 		this.graphViewer.setGraphMouse(graphMouse);
 		GraphListener graphListener = new GraphListener(controller, this.graphViewer);
 		this.graphViewer.getPickedVertexState().addItemListener(graphListener);
@@ -101,12 +124,19 @@ public class JGraphPanel extends JPanel implements View {
 		verticalBox.add(Box.createVerticalGlue()); 
 		verticalBox.add(horizontalBox); // one inside the other
 		verticalBox.add(Box.createVerticalGlue());*/
-		//add to center
+		
 		this.setPreferredSize(new Dimension(300,JBigBangPanel.CENTER_PANEL_HEIGHT));
 		this.setLayout(new BorderLayout());
-		this.add(this.animateButton, BorderLayout.NORTH);
+		this.add(this.northPanel, BorderLayout.NORTH);
 		this.add(this.graphViewer, BorderLayout.CENTER);
 		this.add(this.statusBar, BorderLayout.SOUTH);
+	}
+	
+	private void setMode(Mode mode) {
+		this.graphMouse.setMode(mode);
+		if (!this.modeSelektor.getSelectedItem().equals(mode)) {
+			this.modeSelektor.setSelectedItem(mode);
+		}
 	}
 	
 	private void updateGraph(Graph<Integer,AbstractOperationEdit> graph) {
@@ -196,6 +226,13 @@ public class JGraphPanel extends JPanel implements View {
 			text.append("Operation: " + this.pickedOperation.toString());
 		}
 		this.statusBar.setText(text.toString());
+	}
+
+	public void actionPerformed(ActionEvent event) {
+		if (event.getSource().equals(this.modeSelektor)) {
+			this.setMode((Mode)this.modeSelektor.getSelectedItem());
+		}
+		
 	}
 
 }

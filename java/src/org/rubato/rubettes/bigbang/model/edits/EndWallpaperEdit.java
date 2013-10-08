@@ -30,7 +30,7 @@ public class EndWallpaperEdit extends AbstractOperationEdit {
 	}
 	
 	@Override
-	public String getPresentationName() {
+	protected String getSpecificPresentationName() {
 		return "End Wallpaper";
 	}
 

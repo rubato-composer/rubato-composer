@@ -34,7 +34,8 @@ public class AffineTransformationEdit extends AbstractLocalTransformationEdit {
 		return this.shift;
 	}
 	
-	public String getPresentationName() {
+	@Override
+	protected String getSpecificPresentationName() {
 		return "Affine Transformation";
 	}
 

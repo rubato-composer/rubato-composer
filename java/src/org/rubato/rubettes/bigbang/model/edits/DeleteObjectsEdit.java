@@ -30,7 +30,8 @@ public class DeleteObjectsEdit extends AbstractPathBasedOperationEdit {
 		this.objectPaths = this.scoreManager.addObjects(this.objects, oldAnchorPaths, false);
 	}*/
 	
-	public String getPresentationName() {
+	@Override
+	protected String getSpecificPresentationName() {
 		return "Delete Objects";
 	}
 

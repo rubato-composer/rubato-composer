@@ -138,7 +138,8 @@ public class AddObjectsEdit extends AbstractOperationEdit {
 		this.scoreManager.removeObject(this.objectPath);
 	}*/
 	
-	public String getPresentationName() {
+	@Override
+	protected String getSpecificPresentationName() {
 		if (this.objectForm != null) {
 			String presentationName = "Add " + this.objectForm.getNameString();
 			if (this.pathsWithValues.size() > 1) {

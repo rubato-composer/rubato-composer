@@ -8,7 +8,6 @@ import org.rubato.rubettes.bigbang.model.edits.AbstractOperationEdit;
 public class BigBangGraphAnimator extends Thread {
 	
 	private final int SLEEP_LENGTH = 10;
-	private final int MILISECONDS_PER_EDGE = 1000; 
 	
 	private BigBangTransformationGraph graph;
 	private UndoRedoModel model;
@@ -67,13 +66,14 @@ public class BigBangGraphAnimator extends Thread {
 		double nextTime = time;
 		for (AbstractOperationEdit currentEdit : shortestPath) {
 			if (currentEdit.isAnimatable()) {
-				nextTime += this.MILISECONDS_PER_EDGE;
+				int edgeDuration = (int)Math.round(currentEdit.getDuration()*1000);
+				nextTime += edgeDuration;
 				while (System.currentTimeMillis() < nextTime) {
 					if (!this.running) {
 						this.model.firePropertyChange(BigBangController.TOGGLE_GRAPH_ANIMATION, null, false);
 						return;
 					}
-					double currentRatio = 1.0-((nextTime-System.currentTimeMillis())/this.MILISECONDS_PER_EDGE);
+					double currentRatio = 1.0-((nextTime-System.currentTimeMillis())/edgeDuration);
 					//System.out.println(nextTime + " " + currentRatio);
 					currentEdit.modify(currentRatio);
 					this.graph.updateComposition(true);

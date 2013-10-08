@@ -94,7 +94,7 @@ public class JSynModule {
 				this.playOrAdjustObject(modulators.get(i), currentModulator, currentModulator.getMainFrequency(), 2000, playInNextLoop);
 			}
 			//remove exceeding ones
-			while (modulators.size() < oscillator.getModulators().size()) {
+			while (modulatorObjects.size() < modulators.size()) {
 				oscillator.removeLastModulator();
 			}
 		}

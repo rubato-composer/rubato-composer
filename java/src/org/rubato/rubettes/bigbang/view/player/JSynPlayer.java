@@ -66,8 +66,8 @@ public class JSynPlayer {
 	}
 	
 	public void removeFromSynthAndStop(UnitGenerator generator) {
-		this.synth.remove(generator);
 		generator.stop();
+		this.synth.remove(generator);
 	}
 	
 	private void setScore(JSynScore score) {

@@ -60,7 +60,8 @@ public class AlterationEdit extends AbstractOperationEdit {
 	//not changed by modification!!
 	protected void updateOperation() { }
 	
-	public String getPresentationName() {
+	@Override
+	protected String getSpecificPresentationName() {
 		return "Alteration (" + this.startDegree + "," + this.endDegree + ")";
 	}
 

@@ -19,7 +19,7 @@ public class ObjectRotationAdapter extends ObjectTransformationAdapter {
 	
 	public ObjectRotationAdapter(ViewController controller, double[] center, double[] startingPoint, double[] endingPoint, double angle) {
 		super(controller, center, endingPoint);
-		this.updateCenter(center[0], center[1]);
+		this.setCenter(center[0], center[1]);
 		Point2D.Double startingPoint2D = new Point2D.Double(startingPoint[0], startingPoint[1]);
 		this.updateStartAngle(startingPoint2D);
 		this.updateArcAngle(angle);
@@ -79,15 +79,19 @@ public class ObjectRotationAdapter extends ObjectTransformationAdapter {
 	}
 	
 	private void updateCenter(double x, double y) {
+		this.setCenter(x, y);
+		this.controller.changeDisplayTool(this.displayTool);
+		if (this.inModificationMode) {
+			this.controller.modifyCenterOfSelectedTransformation(this.center, false);
+		}
+	}
+	
+	private void setCenter(double x, double y) {
 		this.center = new Point2D.Double(x, y);
 		if (this.displayTool != null) {
 			((RotationTool)this.displayTool).setCenter(this.center);
 		} else {
 			this.initDisplayTool();
-		}
-		this.controller.changeDisplayTool(this.displayTool);
-		if (this.inModificationMode) {
-			this.controller.modifyCenterOfSelectedTransformation(this.center, false);
 		}
 	}
 	

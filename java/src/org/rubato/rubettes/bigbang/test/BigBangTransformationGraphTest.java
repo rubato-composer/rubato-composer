@@ -41,6 +41,7 @@ public class BigBangTransformationGraphTest extends TestCase {
 		properties.setCenter(new double[]{0,0});
 		properties.setEndPoint(new double[]{0,1});
 		this.model.rotateObjects(properties, new double[]{1,0}, Math.PI/2);
+		TestCase.assertEquals(4, ((PowerDenotator)this.model.getComposition()).getFactorCount());
 		this.model.getUndoRedoModel().modifyOperation(0, 0.5);
 		TestCase.assertEquals(2, ((PowerDenotator)this.model.getComposition()).getFactorCount());
 	}

@@ -36,7 +36,7 @@ public class FlattenEdit extends AbstractPathBasedOperationEdit {
 	}
 	
 	@Override
-	public String getPresentationName() {
+	protected String getSpecificPresentationName() {
 		return "Flatten";
 	}
 

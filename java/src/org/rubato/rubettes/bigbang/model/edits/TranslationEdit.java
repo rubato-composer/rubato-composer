@@ -28,7 +28,8 @@ public class TranslationEdit extends AbstractTransformationEdit {
 		this.initTransformation(identity, this.shift);
 	}
 	
-	public String getPresentationName() {
+	@Override
+	protected String getSpecificPresentationName() {
 		return "Translation " + super.round(this.shift[0]) + ", " + super.round(this.shift[1]);
 	}
 	
