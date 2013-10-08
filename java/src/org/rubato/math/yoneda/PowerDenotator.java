@@ -436,6 +436,10 @@ public final class PowerDenotator
         return true;
     }
     
+    /**
+     * Removes a factor.
+     * This is a destructive operation; beware of aliasing.
+     */
     public Denotator removeFactor(int index) {
     	Denotator d = getListMorphismMap().removeFactor(index);
         _normalize();

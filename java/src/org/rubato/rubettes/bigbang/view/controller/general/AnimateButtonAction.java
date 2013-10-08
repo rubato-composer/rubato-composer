@@ -3,7 +3,6 @@ package org.rubato.rubettes.bigbang.view.controller.general;
 import java.awt.event.ActionEvent;
 
 import javax.swing.AbstractAction;
-import javax.swing.JButton;
 
 import org.rubato.rubettes.bigbang.controller.BigBangController;
 

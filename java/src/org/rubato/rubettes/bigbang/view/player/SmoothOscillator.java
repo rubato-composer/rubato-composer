@@ -77,8 +77,11 @@ public class SmoothOscillator {
 		SmoothOscillator lastModulator = this.modulators.remove(this.modulators.size()-1);
 		lastModulator.removeFromSynthAndStop();
 		Add lastAddUnit = this.getCurrentAddUnit();
+		//necessary to disconnect. removing from synth apparently does not work
+		lastAddUnit.output.disconnectAll();
 		this.addUnits.remove(lastAddUnit);
 		this.player.removeFromSynthAndStop(lastAddUnit);
+		//System.out.println(lastAddUnit.inputB.disconnectAll());
 	}
 	
 	public void setFrequency(double frequency) {

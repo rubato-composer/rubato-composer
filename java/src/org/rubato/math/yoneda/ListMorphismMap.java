@@ -99,6 +99,17 @@ public final class ListMorphismMap implements MorphismMap {
         list.add(d);
     }
     
+    /**
+     * Removes the factor at <code>index</code>.
+     */
+    public Denotator removeFactor(int index) {
+    	if (index < list.size()) {
+    		Denotator removed = list.remove(index);
+    		return removed;
+    	}
+    	throw new IndexOutOfBoundsException(index+" > "+(list.size()-1));
+    }
+    
 
     /**
      * Prepends the factor <code>d</code>.

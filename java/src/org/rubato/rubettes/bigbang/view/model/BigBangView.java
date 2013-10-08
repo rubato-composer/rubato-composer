@@ -407,7 +407,7 @@ public class BigBangView extends Model implements View {
 	}
 	
 	public void selectOperation(AbstractOperationEdit operation) {
-		if (operation != null) { //&& !operation.equals(this.selectedOperation)) {
+		if (operation != null && !operation.equals(this.selectedOperation)) {
 			//select perspective first
 			if (operation instanceof AbstractTransformationEdit) {
 				AbstractTransformationEdit transformationEdit = (AbstractTransformationEdit)operation;
@@ -470,8 +470,10 @@ public class BigBangView extends Model implements View {
 	}
 	
 	public void modifySelectedTransformation(double[] newValues, Boolean inPreviewMode) {
-		((AbstractTransformationEdit)this.selectedOperation).modify(newValues);
-		this.controller.modifiedOperation(inPreviewMode);
+		if (this.selectedOperation != null) {
+			((AbstractTransformationEdit)this.selectedOperation).modify(newValues);
+			this.controller.modifiedOperation(inPreviewMode);
+		}
 	}
 	
 	public void modifyRotationAngle(Double angle, Boolean inPreviewMode) {

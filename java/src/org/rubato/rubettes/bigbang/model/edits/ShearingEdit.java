@@ -19,7 +19,8 @@ public class ShearingEdit extends AbstractLocalTransformationEdit {
 		this.updateOperation();
 	}
 	
-	public String getPresentationName() {
+	@Override
+	protected String getSpecificPresentationName() {
 		return "Shearing " + super.round(this.getShearingFactors()[0]) + ", " + super.round(this.getShearingFactors()[1]);
 	}
 

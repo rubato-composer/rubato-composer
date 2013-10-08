@@ -21,7 +21,7 @@ import org.rubato.rubettes.bigbang.view.controller.ToggleMainOptionsAction;
 import org.rubato.rubettes.bigbang.view.controller.ViewController;
 import org.rubato.rubettes.bigbang.view.model.ViewParameters;
 import org.rubato.rubettes.bigbang.view.player.BigBangPlayer;
-import org.rubato.rubettes.bigbang.view.subview.toolbars.JGraphPanel;
+import org.rubato.rubettes.bigbang.view.subview.graph.JGraphPanel;
 import org.rubato.rubettes.bigbang.view.subview.toolbars.JLayersToolBar;
 import org.rubato.rubettes.bigbang.view.subview.toolbars.JMainToolBar;
 

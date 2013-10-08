@@ -33,7 +33,8 @@ public class BuildSatellitesEdit extends AbstractPathBasedOperationEdit {
 		this.oldSatellitePaths = this.scoreManager.undoMoveToParent(this.newSatellitePaths, this.oldSatellitePaths);
 	}*/
 	
-	public String getPresentationName() {
+	@Override
+	protected String getSpecificPresentationName() {
 		return "Build Satellites";
 	}
 

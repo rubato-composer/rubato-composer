@@ -174,7 +174,7 @@ public class BigBangScore implements Cloneable {
 	public List<DenotatorPath> moveObjectsToParent(List<DenotatorPath> objectPaths, DenotatorPath parentPath, int powersetIndex) {
 		//System.out.println(objectPaths+ " "+parentPath + " " +powersetIndex);
 		List<Denotator> parentObjects = this.extractObjects(parentPath);
-		if (!parentObjects.contains(null)) {
+		if (parentObjects != null && !parentObjects.contains(null)) {
 			List<Denotator> newNotes = this.removeObjects(objectPaths);
 			DenotatorPath newParentPath = this.findPath(parentObjects);
 			return this.addObjectsToParent(newNotes, newParentPath, powersetIndex);
@@ -455,8 +455,12 @@ public class BigBangScore implements Cloneable {
 			if (powersetPath != null) {
 				int objectIndex = objectPath.getObjectIndex();
 				FactorDenotator powersetOrList = (FactorDenotator)this.score.get(powersetPath.toIntArray());
-				if (powersetOrList.getFactorCount() > objectIndex) {
-					return powersetOrList.getFactors().remove(objectIndex);
+				if (objectIndex < powersetOrList.getFactorCount()) {
+					if (powersetOrList instanceof PowerDenotator) {
+						return ((PowerDenotator)powersetOrList).removeFactor(objectIndex);
+					} else if (powersetOrList instanceof ListDenotator) {
+						return ((ListDenotator)powersetOrList).removeFactor(objectIndex);
+					}
 				}
 			}
 		} catch (RubatoException e) {
