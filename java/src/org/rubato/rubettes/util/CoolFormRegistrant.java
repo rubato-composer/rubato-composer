@@ -38,6 +38,8 @@ public class CoolFormRegistrant {
 	public static SimpleForm OVERTONE_INDEX_FORM;
 	public static LimitForm FM_NODE_FORM;
 	public static LimitForm SOUND_NOTE_FORM;
+	public static SimpleForm OPERATION_FORM;
+	public static LimitForm GENERIC_SOUND_FORM;
 	
 	public CoolFormRegistrant() {
 	}
@@ -102,13 +104,13 @@ public class CoolFormRegistrant {
 		fmSet.resolveReferences(REPOSITORY);
 		
 		//GenericSound
-		SimpleForm operation = this.registerZnModuleForm("Operation", 3);
 		LimitForm anchorSound = this.registerLimitForm("AnchorSound", LOUDNESS_FORM, PITCH_FORM, OVERTONE_INDEX_FORM);
-		Form genericSound = new FormReference("GenericSound", Form.POWER);
+		Form genericSound = new FormReference("GenericSound", Form.LIMIT);
 		ListForm satelliteSounds = this.registerListForm("SatelliteSounds", genericSound);
-		//LimitForm node = this.registerLimitForm("GSNode", coordinateForms)
-		genericSound = this.registerLimitForm("GenericSound", anchorSound, satelliteSounds, operation);
+		OPERATION_FORM = this.registerZnModuleForm("Operation", 3);
+		genericSound = this.registerLimitForm("GenericSound", anchorSound, satelliteSounds, OPERATION_FORM);
 		genericSound.resolveReferences(REPOSITORY);
+		GENERIC_SOUND_FORM = (LimitForm)genericSound;
 		//this.registerPowerForm("GenericSounds", genericSound);
 		
 		/*//GenericSound

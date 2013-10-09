@@ -84,12 +84,15 @@ public class JSynModule {
 			}
 			//recursively create or adjust modulators 
 			List<JSynObject> modulatorObjects = object.getModulators();
+			int modulatorType = object.getModulatorType();
 			List<SmoothOscillator> modulators = oscillator.getModulators();
+			System.out.println(modulatorObjects + " " + modulatorType);
 			for (int i = 0; i < modulatorObjects.size(); i++) {
 				JSynObject currentModulator = modulatorObjects.get(i);
 				if (modulators.size() <= i) {
-					oscillator.addModulator();
+					oscillator.addModulator(modulatorType);
 				}
+				oscillator.setModulatorType(i, modulatorType);
 				//TODO: one modulator may have several frequencies! go through all
 				this.playOrAdjustObject(modulators.get(i), currentModulator, currentModulator.getMainFrequency(), 2000, playInNextLoop);
 			}

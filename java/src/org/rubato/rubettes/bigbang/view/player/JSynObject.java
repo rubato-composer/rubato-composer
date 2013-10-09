@@ -9,6 +9,10 @@ import org.rubato.rubettes.util.CoolFormRegistrant;
 
 public class JSynObject {
 	
+	public static final int ADDITIVE = 0;
+	public static final int RING_MODULATION = 1;
+	public static final int FREQUENCY_MODULATION = 2;
+	
 	private JSynObject parent;
 	private List<Double> intervalStructure;
 	private List<Double> frequencies;
@@ -17,6 +21,7 @@ public class JSynObject {
 	private Integer voice;
 	private Double onset;
 	private Double pan;
+	private Integer operation;
 	private List<JSynObject> modulators;
 	
 	public JSynObject(JSynObject parent) {
@@ -52,6 +57,8 @@ public class JSynObject {
 			this.setTriadQuality((int)this.getSingleValue(values));
 		} else if (form.equals(CoolFormRegistrant.PAN_FORM)) {
 			this.pan = this.getSingleValue(values);
+		} else if (form.equals(CoolFormRegistrant.OPERATION_FORM)) {
+			this.operation = (int)this.getSingleValue(values);
 		}
 	}
 	
@@ -253,8 +260,23 @@ public class JSynObject {
 		return this.modulators;
 	}
 	
+	public int getModulatorType() {
+		if (this.operation != null) {
+			if (this.operation == 0) {
+				return JSynObject.ADDITIVE;
+			} else if (this.operation == 1) {
+				return JSynObject.RING_MODULATION;
+			} return JSynObject.FREQUENCY_MODULATION;
+		}
+		return JSynObject.FREQUENCY_MODULATION;
+	}
+	
 	private void setModulators(List<JSynObject> modulators) {
 		this.modulators = modulators;
+	}
+	
+	private void setOperation(int operation) {
+		this.operation = operation;
 	}
 	
 	
@@ -289,6 +311,9 @@ public class JSynObject {
 		clone.setDuration(this.duration);
 		clone.setVoice(this.voice);
 		clone.setPan(this.pan);
+		if (this.operation != null) {
+			clone.setOperation(this.operation);
+		}
 		if (this.modulators.size() > 0) {
 			List<JSynObject> clonedModulators = new ArrayList<JSynObject>();
 			for (JSynObject currentModulator : this.modulators) {

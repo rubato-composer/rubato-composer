@@ -1,8 +1,10 @@
 package org.rubato.rubettes.bigbang.test;
 
 import org.rubato.rubettes.bigbang.view.player.BigBangPlayer;
+import org.rubato.rubettes.bigbang.view.player.JSynObject;
 import org.rubato.rubettes.bigbang.view.player.JSynPlayer;
 import org.rubato.rubettes.bigbang.view.player.SmoothOscillator;
+import org.rubato.rubettes.util.DenotatorPath;
 
 import com.jsyn.Synthesizer;
 import com.jsyn.devices.AudioDeviceManager;
@@ -39,19 +41,35 @@ public class JSynPlayerTest extends TestCase {
 	 	
 	 	carrier.setFrequency(2000);
 		carrier.setAmplitude(0.2);
-		
-		carrier.addModulator();
-		SmoothOscillator modulator = carrier.getModulators().get(0);
-		modulator.setFrequency(2);
-		modulator.setAmplitude(100);
-		
 		lineOut.start();
-		carrier.queueEnvelope(2, player.getCurrentSynthTime(), true);
+		carrier.queueEnvelope(5, player.getCurrentSynthTime(), true);
+		
+		carrier.addModulator(JSynObject.FREQUENCY_MODULATION);
+		SmoothOscillator modulator = carrier.getModulators().get(0);
+		modulator.setFrequency(5);
+		modulator.setAmplitude(1000);
 		modulator.queueEnvelope(2, player.getCurrentSynthTime(), true);
+		TestCase.assertEquals(1, carrier.getModulators().size());
 		synth.sleepFor(1);
-		carrier.setFrequency(1000);
-		carrier.setAmplitude(0.5);
 		modulator.setFrequency(10);
+		synth.sleepFor(1);
+		
+		carrier.removeLastModulator();
+		TestCase.assertEquals(0, carrier.getModulators().size());
+		synth.sleepFor(1);
+		
+		carrier.addModulator(JSynObject.RING_MODULATION);
+		modulator = carrier.getModulators().get(0);
+		modulator.setFrequency(5);
+		modulator.setAmplitude(1000);
+		modulator.queueEnvelope(2, player.getCurrentSynthTime(), true);
+		TestCase.assertEquals(1, carrier.getModulators().size());
+		synth.sleepFor(1);
+		modulator.setFrequency(10);
+		synth.sleepFor(1);
+		
+		/*carrier.addModulator(JSynObject.FREQUENCY_MODULATION);
+		modulator = carrier.getModulators().get(0);*/
 		
 		synth.sleepFor(1);
 		lineOut.stop();
