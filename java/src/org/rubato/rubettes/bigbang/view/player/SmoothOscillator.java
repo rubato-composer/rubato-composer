@@ -4,9 +4,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.jsyn.data.SegmentedEnvelope;
+import com.jsyn.ports.UnitInputPort;
 import com.jsyn.ports.UnitOutputPort;
 import com.jsyn.unitgen.Add;
 import com.jsyn.unitgen.LinearRamp;
+import com.jsyn.unitgen.Multiply;
+import com.jsyn.unitgen.UnitBinaryOperator;
 import com.jsyn.unitgen.UnitOscillator;
 import com.jsyn.unitgen.VariableRateMonoReader;
 import com.softsynth.shared.time.TimeStamp;
@@ -23,7 +26,9 @@ public class SmoothOscillator {
 	private LinearRamp frequencySweeper;
 	private LinearRamp amplitudeSweeper;
 	private VariableRateMonoReader envelopePlayer;
-	private List<Add> addUnits;
+	private List<SmoothOscillatorModule> modules;
+	private UnitOutputPort lastOutput;
+	private UnitInputPort lastInput;
 	List<SmoothOscillator> modulators;
 	
 	public SmoothOscillator(JSynPlayer player) {
@@ -33,13 +38,8 @@ public class SmoothOscillator {
 		this.player.addToSynth(this.amplitudeSweeper = new LinearRamp());
 		this.player.addToSynth(this.envelopePlayer = new VariableRateMonoReader());
 		
-		this.addUnits = new ArrayList<Add>();
-		this.addUnits.add(new Add());
-		this.player.addToSynth(this.getCurrentAddUnit());
-		this.getCurrentAddUnit().output.connect(this.oscillator.frequency);
-		
-		//control frequency with a ramp 
-	 	this.frequencySweeper.output.connect(this.getCurrentAddUnit().inputA);
+		//control frequency with a ramp
+	 	this.connect(this.frequencySweeper.output, this.oscillator.frequency);
 	 	this.frequencySweeper.time.set(RAMP_DURATION);
 	 	
 	 	//control carrier amplitude with an envelope
@@ -50,23 +50,59 @@ public class SmoothOscillator {
 	 	this.amplitudeSweeper.time.set(RAMP_DURATION);
 	 	
 	 	this.modulators = new ArrayList<SmoothOscillator>();
+	 	this.modules = new ArrayList<SmoothOscillatorModule>();
 	}
 	
-	private Add getCurrentAddUnit() {
-		if (this.addUnits.size() > 0) {
-			return this.addUnits.get(this.addUnits.size()-1);
+	private void connect(UnitOutputPort output, UnitInputPort input) {
+		//init place where modulators are inserted
+		this.lastOutput = output;
+		this.lastInput = input;
+		output.connect(input);
+	}
+	
+	private void insertModule(UnitBinaryOperator newOperatorUnit, UnitOutputPort newOutput) {
+		SmoothOscillatorModule newModule = new SmoothOscillatorModule(newOperatorUnit, newOutput);
+		if (this.modules.size() > 0) {
+			this.player.addToSynth(newOperatorUnit);
+			newModule.insertBetween(this.getLastModule());
+		} else {
+			//no modules yet, channel frequency sweeper through input A
+			newModule.insertBetween(this.frequencySweeper.output, this.oscillator.frequency);
+		}
+		this.modules.add(newModule);
+	}
+	
+	private void removeLast() {
+		
+	}
+	
+	private SmoothOscillatorModule getLastModule() {
+		if (this.modules.size() > 0) {
+			return this.modules.get(this.modules.size()-1);
 		}
 		return null;
 	}
 	
-	public void addModulator() {
+	public void addModulator(int modulatorType) {
 		SmoothOscillator modulator = new SmoothOscillator(this.player);
-		Add newAddUnit = new Add();
-		this.player.addToSynth(newAddUnit);
-		newAddUnit.output.connect(this.getCurrentAddUnit().inputB);
-		modulator.getOutput().connect(newAddUnit.inputA);
+		UnitBinaryOperator newOperatorUnit = null; 
+		if (modulatorType == JSynObject.FREQUENCY_MODULATION) {
+			newOperatorUnit = new Add();
+		} else {//if (modulatorType == JSynObject.RING_MODULATION) {
+			newOperatorUnit = new Multiply();
+		}
+		if (newOperatorUnit != null) {
+			this.insertModule(newOperatorUnit, modulator.getOutput());
+		} else {
+			//add dummy operator so that adding/removing does not get messed up. used in additive synthesis
+			//TODO make parallel group for additive synthesis (units added to signal not frequency!!!)
+		}
 		this.modulators.add(modulator);
-		this.addUnits.add(newAddUnit);
+	}
+	
+	public void setModulatorType(int index, int modulatorType) {
+		System.out.println(this.modules + " " + this.modulators);
+		this.modules.get(index).setType(modulatorType);
 	}
 	
 	public List<SmoothOscillator> getModulators() {
@@ -74,14 +110,17 @@ public class SmoothOscillator {
 	}
 	
 	public void removeLastModulator() {
-		SmoothOscillator lastModulator = this.modulators.remove(this.modulators.size()-1);
-		lastModulator.removeFromSynthAndStop();
-		Add lastAddUnit = this.getCurrentAddUnit();
-		//necessary to disconnect. removing from synth apparently does not work
-		lastAddUnit.output.disconnectAll();
-		this.addUnits.remove(lastAddUnit);
-		this.player.removeFromSynthAndStop(lastAddUnit);
-		//System.out.println(lastAddUnit.inputB.disconnectAll());
+		if (this.modulators.size() > 0) {
+			SmoothOscillator lastModulator = this.modulators.remove(this.modulators.size()-1);
+			lastModulator.removeFromSynthAndStop();
+			SmoothOscillatorModule lastModule = this.getLastModule();
+			//necessary to disconnect. removing from synth apparently does not work
+			lastModule.remove();
+			this.modules.remove(lastModule);
+			//System.out.println(lastModule + " " + lastModule.getOperatorUnit());
+			//this.player.removeFromSynthAndStop(lastModule.getOperatorUnit());
+			//System.out.println(lastAddUnit.inputB.disconnectAll());
+		}
 	}
 	
 	public void setFrequency(double frequency) {
@@ -147,8 +186,8 @@ public class SmoothOscillator {
 		for (SmoothOscillator currentOscillator : this.modulators) {
 			currentOscillator.removeFromSynthAndStop();
 		}
-		for (Add currentAdd : this.addUnits) {
-			this.player.removeFromSynthAndStop(currentAdd);
+		for (SmoothOscillatorModule currentModule : this.modules) {
+			this.player.removeFromSynthAndStop(currentModule.getOperatorUnit());
 		}
 	}
 
