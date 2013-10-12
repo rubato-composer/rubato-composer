@@ -707,7 +707,6 @@ public class BigBangView extends Model implements View {
 		if (location.getDimension() > 2 && zValueIndex >= 0 && (zValueIndex != yValueIndex && zValueIndex != xValueIndex)) {
 			this.replaceDenotatorValue(location.getCoord(2), zValueIndex, 2, 0, averageZoom, denotatorValues); // parameters may be wrong
 		}
-		System.out.println(denotatorValues);
 		DenotatorPath closestPowersetPath = this.findClosestPowersetPath(xyzParameters, xyzDenotatorValues, parentPowersetPath);
 		return closestPowersetPath;
 	}
