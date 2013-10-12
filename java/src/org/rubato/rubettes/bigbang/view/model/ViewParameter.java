@@ -115,7 +115,8 @@ public class ViewParameter {
 		}
 		translatedValue = this.mapTo01(translatedValue, this.minGoalValue, this.maxGoalValue);
 		translatedValue = this.invertIfNecessary(translatedValue);
-		return this.mapFrom01(translatedValue, this.minDenotatorValue, this.maxDenotatorValue);
+		translatedValue = this.mapFrom01(translatedValue, this.minDenotatorValue, this.maxDenotatorValue);
+		return translatedValue;
 	}
 	
 	public double getLimitedValue(double value, double minValue, double maxValue) {
