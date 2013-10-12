@@ -8,7 +8,7 @@ import org.rubato.rubettes.bigbang.view.controller.ViewController;
 import org.rubato.rubettes.bigbang.view.model.BigBangView;
 import org.rubato.rubettes.bigbang.view.subview.JBigBangDisplay;
 import org.rubato.rubettes.bigbang.view.subview.JBigBangPanel;
-import org.rubato.rubettes.util.Point3D;
+import org.rubato.rubettes.util.PointND;
 
 import com.leapmotion.leap.Controller;
 import com.leapmotion.leap.Frame;
@@ -112,7 +112,7 @@ public class LeapMotionIn extends Listener {
 //		}
 //		this.viewController.addObjects(pointList, true);
 		
-		ArrayList<Point3D> pointList3D = new ArrayList<Point3D>();
+		ArrayList<PointND> pointList3D = new ArrayList<PointND>();
 		for (int i = 0; i < controller.frame().fingers().count(); i++) {
 			Vector currentTipPosition = controller.frame().fingers().get(i).tipPosition();
 			if (this.view.inDrawingMode() && currentTipPosition.getZ() <= this.PLANE_Z_POSITION) {
@@ -121,11 +121,11 @@ public class LeapMotionIn extends Listener {
 					double x = (currentTipPosition.getX()+(this.AREA_WIDTH/2))/this.AREA_WIDTH*JBigBangDisplay.DISPLAY_WIDTH;
 					double y = (this.AREA_HEIGHT-(currentTipPosition.getY()-this.AREA_BOTTOM_EDGE))/this.AREA_HEIGHT*JBigBangPanel.CENTER_PANEL_HEIGHT;
 					double z = (currentTipPosition.getZ()+(this.AREA_WIDTH/2))/this.AREA_WIDTH*JBigBangDisplay.DISPLAY_WIDTH;
-					pointList3D.add(new Point3D(x, y, z));
+					pointList3D.add(new PointND(x, y, z));
 				}
 			}
 		}
-		this.viewController.addObjects3D(pointList3D, true);
+		this.viewController.addObjects(pointList3D, true);
 	}
 	
 }
