@@ -8,6 +8,7 @@ import java.util.TreeMap;
 
 import junit.framework.TestCase;
 
+import org.rubato.math.yoneda.Form;
 import org.rubato.math.yoneda.PowerDenotator;
 import org.rubato.rubettes.bigbang.controller.BigBangController;
 import org.rubato.rubettes.bigbang.model.BigBangModel;
@@ -61,9 +62,24 @@ public class BigBangTransformationGraphTest extends TestCase {
 		this.model.buildSatellites(paths, parentNotePath, 0);
 		TestCase.assertEquals(1, ((PowerDenotator)this.model.getComposition()).getFactorCount());
 		
+		this.model.getUndoRedoModel().modifyOperation(1, 0.5);
+		//less satellites but still one anchor
+		//TestCase.assertEquals(1, ((PowerDenotator)this.model.getComposition()).getFactorCount());
+		
 		this.model.getUndoRedoModel().modifyOperation(0, 0.5);
 		//anchor tone not there anymore so satellites should not be built. all we get are two of the four initial notes
 		TestCase.assertEquals(2, ((PowerDenotator)this.model.getComposition()).getFactorCount());
+		
+		//transform satellites
+		TransformationProperties properties = new TransformationProperties(this.createSelectedObjectsPaths(this.objects.SOUND_SCORE_FORM, new int[]{0,1,0}, new int[]{0,1,1}, new int[]{0,1,2}), Arrays.asList(this.nodePaths), false, false);
+		properties.setCenter(new double[]{0,0});
+		properties.setEndPoint(new double[]{0,1});
+		this.model.scaleObjects(properties , new double[]{2,2});
+		this.model.getUndoRedoModel().modifyOperation(2, 0.5);
+		
+		//test animation
+		this.model.getUndoRedoModel().setOperationDurations(.1);
+		this.model.getUndoRedoModel().toggleGraphAnimation();
 	}
 	
 	private ArrayList<Map<DenotatorPath,Double>> createNodePathAndValuesMapList(double[] onsets, double[] pitches) {
@@ -90,11 +106,14 @@ public class BigBangTransformationGraphTest extends TestCase {
 	}
 	
 	private SelectedObjectsPaths createSelectedObjectsPaths() {
+		return this.createSelectedObjectsPaths(this.objects.SOUND_SCORE_FORM, new int[]{0}, new int[]{1}, new int[]{2}, new int[]{3});
+	}
+	
+	private SelectedObjectsPaths createSelectedObjectsPaths(Form form, int[]... intPaths) {
 		List<DenotatorPath> paths = new ArrayList<DenotatorPath>();
-		paths.add(new DenotatorPath(this.objects.SOUND_SCORE_FORM, new int[]{0}));
-		paths.add(new DenotatorPath(this.objects.SOUND_SCORE_FORM, new int[]{1}));
-		paths.add(new DenotatorPath(this.objects.SOUND_SCORE_FORM, new int[]{2}));
-		paths.add(new DenotatorPath(this.objects.SOUND_SCORE_FORM, new int[]{3}));
+		for (int i = 0; i < intPaths.length; i++) {
+			paths.add(new DenotatorPath(form, intPaths[i]));
+		}
 		return new SelectedObjectsPaths(paths, null);
 	}
 

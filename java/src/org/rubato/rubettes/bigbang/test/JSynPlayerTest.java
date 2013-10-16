@@ -34,8 +34,7 @@ public class JSynPlayerTest extends TestCase {
 		//filter.amplitude.set(200);
 		player.addToSynth(filter);
 		filter.start();
-		SmoothOscillator carrier = new SmoothOscillator(player);
-		carrier.getOutput().connect(0, filter.input, 0);
+		SmoothOscillator carrier = new SmoothOscillator(player, filter.input);
 		filter.lowPass.connect(0, lineOut.input, 0);
 	 	filter.lowPass.connect(0, lineOut.input, 1);
 	 	
@@ -61,15 +60,24 @@ public class JSynPlayerTest extends TestCase {
 		carrier.addModulator(JSynObject.RING_MODULATION);
 		modulator = carrier.getModulators().get(0);
 		modulator.setFrequency(5);
-		modulator.setAmplitude(1000);
+		modulator.setAmplitude(1);
+		modulator.queueEnvelope(3, player.getCurrentSynthTime(), true);
+		synth.sleepFor(.3);
+		carrier.setModulatorType(0, JSynObject.FREQUENCY_MODULATION);
+		modulator.setAmplitude(1);
+		synth.sleepFor(.3);
+		carrier.setModulatorType(0, JSynObject.RING_MODULATION);
+		modulator.setAmplitude(1);
+		synth.sleepFor(.3);
+		carrier.setModulatorType(0, JSynObject.FREQUENCY_MODULATION);
+		modulator.setAmplitude(1);
+		synth.sleepFor(.3);
+		modulator.setFrequency(20);
+		TestCase.assertEquals(2000.0, carrier.getFrequency());
+		TestCase.assertEquals(1, carrier.getModulators().size());
 		modulator.queueEnvelope(2, player.getCurrentSynthTime(), true);
 		TestCase.assertEquals(1, carrier.getModulators().size());
-		synth.sleepFor(1);
-		modulator.setFrequency(10);
-		synth.sleepFor(1);
-		
-		/*carrier.addModulator(JSynObject.FREQUENCY_MODULATION);
-		modulator = carrier.getModulators().get(0);*/
+		//TestCase.assertEquals(1, carrier.getModulators().get(0).getModulators().size());
 		
 		synth.sleepFor(1);
 		lineOut.stop();

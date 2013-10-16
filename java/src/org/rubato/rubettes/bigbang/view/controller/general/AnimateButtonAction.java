@@ -11,7 +11,7 @@ public class AnimateButtonAction extends AbstractAction {
 	private BigBangController controller;
 	
 	public AnimateButtonAction(BigBangController controller) {
-		super("Animate");
+		super("Gestualize");
 		this.controller = controller;
 	}
 
