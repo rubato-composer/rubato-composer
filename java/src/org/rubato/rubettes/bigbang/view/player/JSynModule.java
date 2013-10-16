@@ -29,8 +29,7 @@ public class JSynModule {
 	}
 	
 	private void addCarrier() {
-		SmoothOscillator newCarrier = new SmoothOscillator(this.player);
-		newCarrier.getOutput().connect(0, this.pan.input, 0);
+		SmoothOscillator newCarrier = new SmoothOscillator(this.player, this.pan.input);
 		this.carriers.add(newCarrier);
 	}
 	
@@ -86,7 +85,7 @@ public class JSynModule {
 			List<JSynObject> modulatorObjects = object.getModulators();
 			int modulatorType = object.getModulatorType();
 			List<SmoothOscillator> modulators = oscillator.getModulators();
-			System.out.println(modulatorObjects + " " + modulatorType);
+			//System.out.println(modulatorObjects + " " + modulatorType);
 			for (int i = 0; i < modulatorObjects.size(); i++) {
 				JSynObject currentModulator = modulatorObjects.get(i);
 				if (modulators.size() <= i) {

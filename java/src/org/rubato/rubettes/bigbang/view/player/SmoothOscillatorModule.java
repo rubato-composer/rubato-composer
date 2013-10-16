@@ -12,11 +12,13 @@ public class SmoothOscillatorModule {
 	private UnitOutputPort thingInInputA;
 	private UnitOutputPort thingInInputB;
 	private UnitInputPort thingInOutput;
+	private int type;
 	
-	public SmoothOscillatorModule(UnitBinaryOperator operator, UnitOutputPort newOutput) {
+	public SmoothOscillatorModule(UnitBinaryOperator operator, UnitOutputPort newOutput) { //int type) {
 		this.operator = operator;
 		this.thingInInputB = newOutput;
 		this.thingInInputB.connect(this.operator.inputB);
+		this.type = type;
 	}
 	
 	public void insertBetween(SmoothOscillatorModule module) {
@@ -39,7 +41,9 @@ public class SmoothOscillatorModule {
 	}
 	
 	private void disconnectOperator() {
-		this.operator.output.disconnect(this.thingInOutput);
+		if (this.thingInOutput != null) {
+			this.operator.output.disconnect(this.thingInOutput);
+		}
 		this.thingInInputA.disconnect(this.operator.inputA);
 		this.thingInInputB.disconnect(this.operator.inputB);
 	}
@@ -48,7 +52,10 @@ public class SmoothOscillatorModule {
 		this.disconnectOperator();
 		this.thingInInputA.connect(newOperator.inputA);
 		this.thingInInputB.connect(newOperator.inputB);
-		this.thingInOutput.connect(newOperator.output);
+		if (this.thingInOutput != null) {
+			this.thingInOutput.connect(newOperator.output);
+		}
+		this.operator = newOperator;
 	}
 	
 	public UnitInputPort getThingInOutput() {
@@ -64,12 +71,16 @@ public class SmoothOscillatorModule {
 	}
 	
 	public void setType(int modulatorType) {
-		if (modulatorType == JSynObject.FREQUENCY_MODULATION && !(this.operator instanceof Add)) {
+		if ((modulatorType == JSynObject.FREQUENCY_MODULATION || modulatorType == JSynObject.ADDITIVE)
+				&& !(this.operator instanceof Add)) {
 			this.replaceOperatorUnit(new Add());
-			System.out.println("replace");
 		} else if (modulatorType == JSynObject.RING_MODULATION && !(this.operator instanceof Multiply)) {
 			this.replaceOperatorUnit(new Multiply());
 		}
+	}
+	
+	public int getType() {
+		return this.type;
 	}
 
 }

@@ -228,17 +228,20 @@ public class ObjectGenerator {
 	 * stays the same.
 	 */
 	public Denotator makeObjectAbsolute(Denotator object, Denotator referenceObject) {
-		Map<DenotatorPath,SimpleDenotator> objectSimples = this.findSimples(object);
-		Map<DenotatorPath,SimpleDenotator> referenceSimples = this.findSimples(referenceObject);
-		Map<DenotatorPath,SimpleDenotator> absoluteSimples = new TreeMap<DenotatorPath,SimpleDenotator>();
-		for (DenotatorPath currentPath : objectSimples.keySet()) {
-			SimpleDenotator currentSimple = objectSimples.get(currentPath);
-			SimpleDenotator matchingReferenceSimple = this.getMatchingSimple(currentSimple.getForm(), currentPath, referenceSimples);
-			if (matchingReferenceSimple != null) {
-				absoluteSimples.put(currentPath, this.createAbsoluteSimple(currentSimple, matchingReferenceSimple));
+		if (object != null) {
+			Map<DenotatorPath,SimpleDenotator> objectSimples = this.findSimples(object);
+			Map<DenotatorPath,SimpleDenotator> referenceSimples = this.findSimples(referenceObject);
+			Map<DenotatorPath,SimpleDenotator> absoluteSimples = new TreeMap<DenotatorPath,SimpleDenotator>();
+			for (DenotatorPath currentPath : objectSimples.keySet()) {
+				SimpleDenotator currentSimple = objectSimples.get(currentPath);
+				SimpleDenotator matchingReferenceSimple = this.getMatchingSimple(currentSimple.getForm(), currentPath, referenceSimples);
+				if (matchingReferenceSimple != null) {
+					absoluteSimples.put(currentPath, this.createAbsoluteSimple(currentSimple, matchingReferenceSimple));
+				}
 			}
+			return this.replaceSimples(object, absoluteSimples);
 		}
-		return this.replaceSimples(object, absoluteSimples);
+		return null;
 	}
 	
 	/**

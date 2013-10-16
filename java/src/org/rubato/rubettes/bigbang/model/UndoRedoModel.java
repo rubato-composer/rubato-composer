@@ -105,6 +105,10 @@ public class UndoRedoModel extends Model {
 		}
 	}
 	
+	public void setOperationDurations(double duration) {
+		this.operations.setDurations(duration);
+	}
+	
 	public void selectCompositionState(Integer vertex) {
 		this.operations.selectCompositionState(vertex);
 		this.firePropertyChange(BigBangController.SELECT_COMPOSITION_STATE, null, vertex);

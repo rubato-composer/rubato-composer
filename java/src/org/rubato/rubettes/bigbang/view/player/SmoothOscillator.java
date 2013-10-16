@@ -27,81 +27,95 @@ public class SmoothOscillator {
 	private LinearRamp amplitudeSweeper;
 	private VariableRateMonoReader envelopePlayer;
 	private List<SmoothOscillatorModule> modules;
-	private UnitOutputPort lastOutput;
-	private UnitInputPort lastInput;
-	List<SmoothOscillator> modulators;
+	private SmoothOscillatorModule lastSerialFrequencyModule;
+	private SmoothOscillatorModule firstParallelModule;
+	private SmoothOscillatorModule lastParallelModule;
+	private List<SmoothOscillator> modulators;
+	private UnitInputPort outputTo;
 	
-	public SmoothOscillator(JSynPlayer player) {
+	public SmoothOscillator(JSynPlayer player, UnitInputPort outputTo) {
 		this.player = player;
 		this.player.addToSynth(this.oscillator = player.getSpecificOscillator());
-		this.player.addToSynth(this.frequencySweeper = new LinearRamp());
-		this.player.addToSynth(this.amplitudeSweeper = new LinearRamp());
-		this.player.addToSynth(this.envelopePlayer = new VariableRateMonoReader());
 		
 		//control frequency with a ramp
-	 	this.connect(this.frequencySweeper.output, this.oscillator.frequency);
+		this.player.addToSynth(this.frequencySweeper = new LinearRamp());
+	 	this.frequencySweeper.output.connect(this.oscillator.frequency);
 	 	this.frequencySweeper.time.set(RAMP_DURATION);
 	 	
 	 	//control carrier amplitude with an envelope
+	 	this.player.addToSynth(this.envelopePlayer = new VariableRateMonoReader());
 	 	this.envelopePlayer.output.connect(this.oscillator.amplitude);
 	 	
-	 	//control envelope amplitude with a ramp 
+	 	//control envelope amplitude with a ramp
+	 	this.player.addToSynth(this.amplitudeSweeper = new LinearRamp());
 	 	this.amplitudeSweeper.output.connect(this.envelopePlayer.amplitude);
 	 	this.amplitudeSweeper.time.set(RAMP_DURATION);
+	 	
+	 	this.setOutputTo(outputTo);
 	 	
 	 	this.modulators = new ArrayList<SmoothOscillator>();
 	 	this.modules = new ArrayList<SmoothOscillatorModule>();
 	}
 	
-	private void connect(UnitOutputPort output, UnitInputPort input) {
-		//init place where modulators are inserted
-		this.lastOutput = output;
-		this.lastInput = input;
-		output.connect(input);
+	public void setOutputTo(UnitInputPort outputTo) {
+		if (outputTo != null) {
+			this.oscillator.output.connect(outputTo);
+		 	this.outputTo = outputTo;
+		}
 	}
 	
-	private void insertModule(UnitBinaryOperator newOperatorUnit, UnitOutputPort newOutput) {
+	private void insertSerialFrequencyModule(UnitBinaryOperator newOperatorUnit, UnitOutputPort newOutput) {
 		SmoothOscillatorModule newModule = new SmoothOscillatorModule(newOperatorUnit, newOutput);
-		if (this.modules.size() > 0) {
+		if (this.lastSerialFrequencyModule != null) {
 			this.player.addToSynth(newOperatorUnit);
-			newModule.insertBetween(this.getLastModule());
+			newModule.insertBetween(this.lastSerialFrequencyModule);
 		} else {
 			//no modules yet, channel frequency sweeper through input A
 			newModule.insertBetween(this.frequencySweeper.output, this.oscillator.frequency);
 		}
 		this.modules.add(newModule);
+		this.lastSerialFrequencyModule = newModule;
 	}
 	
-	private void removeLast() {
-		
-	}
-	
-	private SmoothOscillatorModule getLastModule() {
-		if (this.modules.size() > 0) {
-			return this.modules.get(this.modules.size()-1);
+	private void insertParallelModule(UnitBinaryOperator newOperatorUnit, UnitOutputPort newOutput) {
+		SmoothOscillatorModule newModule = new SmoothOscillatorModule(newOperatorUnit, newOutput);
+		if (this.lastParallelModule != null) {
+			this.player.addToSynth(newOperatorUnit);
+			newModule.insertBetween(this.lastParallelModule);
+		} else {
+			//no modules yet, add operator after oscillator output
+			newModule.insertBetween(this.oscillator.output, this.outputTo);
+			this.firstParallelModule = newModule;
 		}
-		return null;
+		this.modules.add(newModule);
+		this.lastParallelModule = newModule;
 	}
 	
 	public void addModulator(int modulatorType) {
-		SmoothOscillator modulator = new SmoothOscillator(this.player);
-		UnitBinaryOperator newOperatorUnit = null; 
+		SmoothOscillator modulator = new SmoothOscillator(this.player, null);
 		if (modulatorType == JSynObject.FREQUENCY_MODULATION) {
-			newOperatorUnit = new Add();
-		} else {//if (modulatorType == JSynObject.RING_MODULATION) {
-			newOperatorUnit = new Multiply();
-		}
-		if (newOperatorUnit != null) {
-			this.insertModule(newOperatorUnit, modulator.getOutput());
+			this.insertSerialFrequencyModule(new Add(), modulator.getOutput());
 		} else {
-			//add dummy operator so that adding/removing does not get messed up. used in additive synthesis
-			//TODO make parallel group for additive synthesis (units added to signal not frequency!!!)
+			UnitBinaryOperator newOperatorUnit;
+			if (modulatorType == JSynObject.RING_MODULATION) {
+				newOperatorUnit = new Multiply();
+			} else {
+				newOperatorUnit = new Add();
+			}
+			this.insertSerialFrequencyModule(newOperatorUnit, modulator.getOutput());
 		}
 		this.modulators.add(modulator);
 	}
 	
 	public void setModulatorType(int index, int modulatorType) {
-		System.out.println(this.modules + " " + this.modulators);
+		int moduleType = this.modules.get(index).getType();
+		//System.out.println(this.modules + " " + this.modulators);
+		if (modulatorType == JSynObject.FREQUENCY_MODULATION &&
+				(moduleType == JSynObject.RING_MODULATION || moduleType == JSynObject.ADDITIVE)) {
+			
+		} else {
+			
+		}
 		this.modules.get(index).setType(modulatorType);
 	}
 	
@@ -113,10 +127,15 @@ public class SmoothOscillator {
 		if (this.modulators.size() > 0) {
 			SmoothOscillator lastModulator = this.modulators.remove(this.modulators.size()-1);
 			lastModulator.removeFromSynthAndStop();
-			SmoothOscillatorModule lastModule = this.getLastModule();
+			SmoothOscillatorModule lastModule = this.modules.get(this.modules.size()-1);
 			//necessary to disconnect. removing from synth apparently does not work
 			lastModule.remove();
 			this.modules.remove(lastModule);
+			if (this.modules.size() > 0) {
+				this.lastSerialFrequencyModule = this.modules.get(this.modules.size()-1);
+			} else {
+				this.lastSerialFrequencyModule = null;
+			}
 			//System.out.println(lastModule + " " + lastModule.getOperatorUnit());
 			//this.player.removeFromSynthAndStop(lastModule.getOperatorUnit());
 			//System.out.println(lastAddUnit.inputB.disconnectAll());
@@ -128,7 +147,7 @@ public class SmoothOscillator {
 	}
 	
 	public double getFrequency() {
-		return this.frequencySweeper.input.get();
+		return this.oscillator.frequency.getValue();//this.frequencySweeper.input.get();
 	}
 	
 	public void setAmplitude(double amplitude) {
@@ -140,6 +159,9 @@ public class SmoothOscillator {
 	}
 	
 	public UnitOutputPort getOutput() {
+		if (this.firstParallelModule != null) {
+			return this.firstParallelModule.getOperatorUnit().output;
+		}
 		return this.oscillator.output;
 	}
 	
@@ -189,6 +211,10 @@ public class SmoothOscillator {
 		for (SmoothOscillatorModule currentModule : this.modules) {
 			this.player.removeFromSynthAndStop(currentModule.getOperatorUnit());
 		}
+	}
+	
+	public String toString() {
+		return this.getFrequency() + " " + this.getAmplitude() + " ";
 	}
 
 }

@@ -214,9 +214,11 @@ public class JSynObject {
 	}
 	
 	public void adjustAmplitude(double ratio) {
-		this.amplitude *= ratio;
-		for (JSynObject currentModulator : this.modulators) {
-			currentModulator.adjustAmplitude(ratio);
+		if (this.amplitude != null) {
+			this.amplitude *= ratio;
+			for (JSynObject currentModulator : this.modulators) {
+				currentModulator.adjustAmplitude(ratio);
+			}
 		}
 	}
 	

@@ -84,7 +84,7 @@ public class BigBangTransformationGraph extends DirectedSparseGraph<Integer,Abst
 			if (shortestPath != null) {
 				for (int i = 0; i < shortestPath.size(); i++) {
 					//only send composition change with last one!!!!!!
-			    	pathDifferences = shortestPath.get(i).execute(pathDifferences, i==shortestPath.size()-1);
+					pathDifferences = shortestPath.get(i).execute(pathDifferences, i==shortestPath.size()-1);
 				}
 			} else {
 				lastEdge.getScoreManager().fireCompositionChange();
@@ -120,6 +120,12 @@ public class BigBangTransformationGraph extends DirectedSparseGraph<Integer,Abst
 	public AbstractOperationEdit getLastEdit() {
 		int lastVertex = this.getEdgeCount();
 		return this.findEdge(lastVertex-1, lastVertex);
+	}
+	
+	public void setDurations(double duration) {
+		for (AbstractOperationEdit currentEdit : this.edges.keySet()) {
+			currentEdit.setDuration(duration);
+		}
 	}
 
 }

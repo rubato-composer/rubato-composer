@@ -201,7 +201,7 @@ public class DisplayObjects implements View {
 						&& currentObject.getTopDenotatorPath().size() == examplePowersetPath.getTopPath().size()) {
 					//calculate Euclidean distance
 					double currentDistance = 0;
-					for (int i = 0; i < coordinateSystemValueIndices.length; i++) {
+					for (int i = 0; i < values.length; i++) {
 						String valueName = this.coordinateSystemValueNames.get(coordinateSystemValueIndices[i]);
 						int nameIndex = this.getInstanceNumberOfCoordinateValueName(coordinateSystemValueIndices[i]);
 						
