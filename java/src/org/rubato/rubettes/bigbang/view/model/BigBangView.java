@@ -41,7 +41,6 @@ import org.rubato.rubettes.bigbang.view.controller.mode.ScalingModeAdapter;
 import org.rubato.rubettes.bigbang.view.controller.mode.ShearingModeAdapter;
 import org.rubato.rubettes.bigbang.view.controller.mode.TranslationModeAdapter;
 import org.rubato.rubettes.bigbang.view.controller.mode.temp.TemporaryDisplayMode;
-import org.rubato.rubettes.bigbang.view.controller.score.ObjectAdditionAdapter;
 import org.rubato.rubettes.bigbang.view.input.BigBangMidiReceiver;
 import org.rubato.rubettes.bigbang.view.input.LeapMotionIn;
 import org.rubato.rubettes.bigbang.view.model.tools.DisplayTool;
@@ -575,37 +574,17 @@ public class BigBangView extends Model implements View {
 		return new TransformationProperties(objectsPaths, valuePaths, copyAndTransform, previewMode);
 	}
 	
-//	public void addObjects(ArrayList<Point2D.Double> locations, Boolean inPreviewMode) {
-//		if (this.displayObjects != null && this.displayMode instanceof DrawingModeAdapter) {
-//			List<Map<DenotatorPath,Double>> objectValues = new ArrayList<Map<DenotatorPath,Double>>();
-//			List<DenotatorPath> powersetPaths = new ArrayList<DenotatorPath>();
-//			for (Point2D.Double currentLocation : locations) {
-//				Map<DenotatorPath,Double> currentValues = this.displayObjects.getActiveObjectStandardValues(this.standardDenotatorValues);
-//				//only add object if there are some screen values to be converted
-//				if (!currentValues.isEmpty()) {
-//					objectValues.add(currentValues);
-//					powersetPaths.add(this.editObjectValuesAndFindClosestPowerset(currentLocation, currentValues));
-//				}
-//			}
-//			if (this.selectedOperation instanceof AddObjectsEdit) {
-//				((AddObjectsEdit)this.selectedOperation).addObjects(objectValues, powersetPaths, inPreviewMode);
-//				this.controller.modifiedOperation(false);
-//			} else {
-//				this.controller.addObjects(objectValues, powersetPaths, inPreviewMode);
-//			}
-//		}
-//	}
-	
 	public void addObjects(ArrayList<PointND> locations, Boolean inPreviewMode) {
 		if (this.displayObjects != null && this.displayMode instanceof DrawingModeAdapter) {
 			List<Map<DenotatorPath,Double>> objectValues = new ArrayList<Map<DenotatorPath,Double>>();
 			List<DenotatorPath> powersetPaths = new ArrayList<DenotatorPath>();
 			for (PointND currentLocation : locations) {
 				Map<DenotatorPath,Double> currentValues = this.displayObjects.getActiveObjectStandardValues(this.standardDenotatorValues);
+				DenotatorPath currentPowersetPath = this.editObjectValuesAndFindClosestPowerset(currentLocation, currentValues);
 				//only add object if there are some screen values to be converted
 				if (!currentValues.isEmpty()) {
 					objectValues.add(currentValues);
-					powersetPaths.add(this.editObjectValuesAndFindClosestPowerset3D(currentLocation, currentValues));
+					powersetPaths.add(currentPowersetPath);
 				}
 			}
 			if (this.selectedOperation instanceof AddObjectsEdit) {
@@ -685,7 +664,7 @@ public class BigBangView extends Model implements View {
 		return new double[] {xValue, yValue};
 	}
 	
-	private DenotatorPath editObjectValuesAndFindClosestPowerset3D(PointND location, Map<DenotatorPath,Double> denotatorValues) {
+	private DenotatorPath editObjectValuesAndFindClosestPowerset(PointND location, Map<DenotatorPath,Double> denotatorValues) {
 		DenotatorPath parentPowersetPath = this.displayObjects.getActiveObjectAndLevelPowersetPath();
 		int[] xyzParameters = this.viewParameters.getSelectedViewParameters();
 		int xValueIndex = this.displayObjects.getActiveObjectValueIndex(xyzParameters[0]);

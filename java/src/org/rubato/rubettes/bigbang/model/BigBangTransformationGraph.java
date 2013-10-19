@@ -3,15 +3,20 @@ package org.rubato.rubettes.bigbang.model;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeSet;
 
 import org.rubato.rubettes.bigbang.model.edits.AbstractOperationEdit;
 import org.rubato.rubettes.bigbang.model.edits.AbstractTransformationEdit;
 import org.rubato.rubettes.util.DenotatorPath;
 
+import sun.tools.tree.ThisExpression;
+
 import edu.uci.ics.jung.algorithms.shortestpath.DijkstraShortestPath;
 import edu.uci.ics.jung.graph.DirectedSparseGraph;
+import edu.uci.ics.jung.graph.DirectedSparseMultigraph;
+import edu.uci.ics.jung.graph.util.EdgeType;
 
-public class BigBangTransformationGraph extends DirectedSparseGraph<Integer,AbstractOperationEdit> {
+public class BigBangTransformationGraph extends DirectedSparseMultigraph<Integer,AbstractOperationEdit> {
 	
 	private UndoRedoModel model;
 	private Integer selectedCompositionState;
@@ -74,7 +79,7 @@ public class BigBangTransformationGraph extends DirectedSparseGraph<Integer,Abst
 		if (this.getEdgeCount() > 0) {
 			List<Map<DenotatorPath,DenotatorPath>> pathDifferences = new ArrayList<Map<DenotatorPath,DenotatorPath>>();
 			//TODO for now just sets inPreviewMode for the last edge.
-			AbstractOperationEdit lastEdge = this.getInEdges(this.getEdgeCount()).iterator().next(); 
+			AbstractOperationEdit lastEdge = this.getLastEdit(); 
 			lastEdge.setInPreviewMode(inPreviewMode);
 			//TODO pretty bad...
 			lastEdge.getScoreManager().resetScore();
@@ -93,15 +98,44 @@ public class BigBangTransformationGraph extends DirectedSparseGraph<Integer,Abst
 	}
 	
 	public List<AbstractOperationEdit> getCurrentShortestPath() {
-		int shownState = this.getEdgeCount();
+		Integer shownState = this.getLastState();
 		if (this.selectedCompositionState != null) {
 			shownState = this.selectedCompositionState;
 		}
-		if (shownState > 0) {
+		if (shownState != null) {
 			DijkstraShortestPath<Integer,AbstractOperationEdit> dijkstra = new DijkstraShortestPath<Integer,AbstractOperationEdit>(this);
 			return dijkstra.getPath(0, shownState);
 		}
 		return null;
+	}
+	
+	public boolean removeOperation(AbstractOperationEdit operation) {
+		if (this.containsEdge(operation)) {
+			Integer operationInitialpoint = this.getEndpoints(operation).getFirst();
+			super.removeEdge(operation);
+			/*//iterate through all edges leaving the endpoint of the removed one, remove them and reconnect them to their
+			//respective end point and the initial point of the removed one
+			for (AbstractOperationEdit currentOutEdge : this.getOutEdges(operationEndpoint)) {
+				CompositionState currentEdgeEndpoint = this.getEndpoints(currentOutEdge).getSecond();
+				super.removeEdge(currentOutEdge);
+				this.addEdge(currentOutEdge, operationInitialpoint, currentEdgeEndpoint, EdgeType.DIRECTED);
+			}*/
+			//needs to be done this way :( changing vertex names leads to problems with jung
+			for (AbstractOperationEdit currentEdge : new ArrayList<AbstractOperationEdit>(this.getEdges())) {
+				int initialPoint = this.getEndpoints(currentEdge).getFirst();
+				int endPoint = this.getEndpoints(currentEdge).getSecond();
+				if (initialPoint > operationInitialpoint && endPoint > operationInitialpoint) {
+					super.removeEdge(currentEdge);
+					this.addEdge(currentEdge, initialPoint-1, endPoint-1, EdgeType.DIRECTED);
+				}
+				
+			}
+			//remove the previous last state
+			this.removeVertex(this.getLastState());
+			this.updateComposition(false);
+			return true;
+		}
+		return false;
 	}
 	
 	public AbstractOperationEdit removeLast() {
@@ -113,13 +147,18 @@ public class BigBangTransformationGraph extends DirectedSparseGraph<Integer,Abst
 	private AbstractOperationEdit removeLastWithoutUpdate() {
 		AbstractOperationEdit lastEdit = this.getLastEdit();
 		this.removeEdge(lastEdit);
-		this.removeVertex(this.getVertexCount()-1);
+		this.removeVertex(this.getLastState());
 		return lastEdit;
 	}
 	
+	public Integer getLastState() {
+		return this.getVertexCount()-1;
+	}
+	
 	public AbstractOperationEdit getLastEdit() {
-		int lastVertex = this.getEdgeCount();
-		return this.findEdge(lastVertex-1, lastVertex);
+		//TODO does not work for several edges going in last state!
+		//List<AbstractOperationEdit> path = this.getCurrentShortestPath();
+		return this.findEdgeSet(this.getEdgeCount()-1, this.getEdgeCount()).iterator().next();
 	}
 	
 	public void setDurations(double duration) {

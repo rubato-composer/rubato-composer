@@ -10,13 +10,14 @@ import java.awt.event.MouseEvent;
 import java.awt.geom.Point2D;
 
 import javax.swing.AbstractButton;
-import javax.swing.JFrame;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPopupMenu;
 import javax.swing.SwingUtilities;
 
+import org.rubato.rubettes.bigbang.controller.BigBangController;
 import org.rubato.rubettes.bigbang.model.edits.AbstractOperationEdit;
+import org.rubato.rubettes.bigbang.view.controller.general.RemoveOperationAction;
 
 /**
  * A GraphMousePlugin that brings up distinct popup menus when an edge or vertex is
@@ -28,14 +29,20 @@ import org.rubato.rubettes.bigbang.model.edits.AbstractOperationEdit;
  */
 public class PopupVertexEdgeMenuMousePlugin extends AbstractPopupGraphMousePlugin {
 
+	private BigBangController controller;
 	private JPopupMenu edgePopup;
+	private JMenuItem setDurationItem;
+	private JMenuItem removeEdgeItem;
 	
-	public PopupVertexEdgeMenuMousePlugin() {
-		//super(MouseEvent.BUTTON2);
+	public PopupVertexEdgeMenuMousePlugin(BigBangController controller) {
+		this.controller = controller;
 		this.edgePopup = new JPopupMenu("Operation Menu");
-		JMenuItem setDurationItem = new JMenuItem(); 
-		setDurationItem.setText("Edit duration");
-		this.edgePopup.add(setDurationItem);
+		this.setDurationItem = new JMenuItem(); 
+		this.setDurationItem.setText("Edit duration");
+		this.edgePopup.add(this.setDurationItem);
+		this.removeEdgeItem = new JMenuItem(); 
+		this.removeEdgeItem.setText("Remove");
+		this.edgePopup.add(this.removeEdgeItem);
 	}
     
     /**
@@ -59,16 +66,17 @@ public class PopupVertexEdgeMenuMousePlugin extends AbstractPopupGraphMousePlugi
 	}
 	
 	private void updateEdgeMenu(final AbstractOperationEdit edge, final VisualizationViewer<Integer,AbstractOperationEdit> viewer, final Point2D point) {
-		JMenuItem setDurationItem = (JMenuItem)this.edgePopup.getComponent(0);
-		this.removeAllActionListeners(setDurationItem);
-		setDurationItem.addActionListener(new ActionListener() {
+		this.removeAllActionListeners(this.setDurationItem);
+		this.setDurationItem.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent event) {
-				String answer = JOptionPane.showInputDialog(
+				String answer = (String)JOptionPane.showInputDialog(
 						SwingUtilities.getRoot(viewer),
 	                    "Duration: ",
 	                    edge.getPresentationName(),
-	                    //TODO: SET PREVIOUS VALUE!!!!!!!
-	                    JOptionPane.PLAIN_MESSAGE);
+	                    JOptionPane.PLAIN_MESSAGE,
+	                    null,
+	                    null,
+	                    edge.getDuration());
 				try {
 					double duration = Double.parseDouble(answer);
 					edge.setDuration(duration);
@@ -77,6 +85,8 @@ public class PopupVertexEdgeMenuMousePlugin extends AbstractPopupGraphMousePlugi
 				};
 			}
 		});
+		this.removeAllActionListeners(this.removeEdgeItem);
+		this.removeEdgeItem.addActionListener(new RemoveOperationAction(this.controller, edge));
     }
 	
 	private void removeAllActionListeners(AbstractButton button) {

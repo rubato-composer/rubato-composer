@@ -97,7 +97,7 @@ public class UndoRedoModel extends Model {
 	public void modifyOperation(Integer operationIndex, Double ratio) {
 		if (operationIndex >= 0 && this.operations.getEdgeCount() > operationIndex) {
 			DijkstraShortestPath<Integer,AbstractOperationEdit> dijkstra = new DijkstraShortestPath<Integer,AbstractOperationEdit>(this.operations);
-		    List<AbstractOperationEdit> shortestPath = dijkstra.getPath(0, this.operations.getEdgeCount());
+		    List<AbstractOperationEdit> shortestPath = dijkstra.getPath(0, this.operations.getLastState());
 		    AbstractOperationEdit operation = shortestPath.get(operationIndex);
 		    operation.modify(ratio);
 			this.operations.updateComposition(true);
@@ -107,6 +107,11 @@ public class UndoRedoModel extends Model {
 	
 	public void setOperationDurations(double duration) {
 		this.operations.setDurations(duration);
+	}
+	
+	public void removeOperation(AbstractOperationEdit operation) {
+		this.operations.removeOperation(operation);
+		this.firePropertyChange(BigBangController.GRAPH, null, this.operations);
 	}
 	
 	public void selectCompositionState(Integer vertex) {
@@ -123,6 +128,10 @@ public class UndoRedoModel extends Model {
 		this.undoManager.discardAllEdits();
 		this.operations = new BigBangTransformationGraph(this);
 		this.firePropertyChange(BigBangController.GRAPH, null, this.operations);
+	}
+	
+	public BigBangTransformationGraph getTransformationGraph() {
+		return this.operations;
 	}
 
 }

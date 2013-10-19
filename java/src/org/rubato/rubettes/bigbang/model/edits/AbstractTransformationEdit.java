@@ -3,7 +3,6 @@ package org.rubato.rubettes.bigbang.model.edits;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.TreeMap;
 
 import org.rubato.math.matrix.RMatrix;
 import org.rubato.math.module.morphism.CompositionException;
@@ -63,7 +62,6 @@ public abstract class AbstractTransformationEdit extends AbstractOperationEdit {
 		return this.map(pathDifferences, sendCompositionChange);
 	}
 	
-	//TODO: return changes in paths!!!
 	public List<Map<DenotatorPath,DenotatorPath>> map(List<Map<DenotatorPath,DenotatorPath>> pathDifferences, boolean sendCompositionChange) {
 		this.properties.updateObjectPaths(pathDifferences);
 		SelectedObjectsPaths objectsPaths = this.properties.getObjectsPaths();
@@ -73,36 +71,9 @@ public abstract class AbstractTransformationEdit extends AbstractOperationEdit {
 		boolean copyAndTransform = this.properties.copyAndTransform();
 		BigBangTransformation transformation = new BigBangTransformation(this.transformation, transformationPaths, copyAndTransform, anchorNodePath);
 		SelectedObjectsPaths resultPaths = this.scoreManager.addTransformation(objectsPaths, transformation, inPreviewMode, sendCompositionChange);
-		//List<Map<DenotatorPath,DenotatorPath>> newDifferences = this.getPathDifferences(this.previousResultPaths, resultPaths);
+		List<Map<DenotatorPath,DenotatorPath>> newDifferences = this.getPathDifferences(this.previousResultPaths, resultPaths);
 		this.previousResultPaths = resultPaths;
-		//return newDifferences;
-		return pathDifferences;
-	}
-	
-	private List<Map<DenotatorPath,DenotatorPath>> getPathDifferences(SelectedObjectsPaths oldPaths, SelectedObjectsPaths newPaths) {
-		List<Map<DenotatorPath,DenotatorPath>> pathDifferences = new ArrayList<Map<DenotatorPath,DenotatorPath>>();
-		if (oldPaths != null) {
-			if (oldPaths.size() != newPaths.size()) {
-				return pathDifferences;
-			}
-			for (int i = 0; i < newPaths.size(); i++) {
-				while (pathDifferences.size() <= i) {
-					pathDifferences.add(new TreeMap<DenotatorPath,DenotatorPath>());
-				}
-				List<DenotatorPath> currentObjectOldPaths = oldPaths.get(i);
-				List<DenotatorPath> currentObjectNewPaths = newPaths.get(i);
-				for (int j = 0; j < currentObjectNewPaths.size(); j++) {
-					if (j < currentObjectNewPaths.size()) {
-						if (!currentObjectOldPaths.get(j).equals(currentObjectNewPaths.get(j))) {
-							pathDifferences.get(i).put(currentObjectOldPaths.get(j), currentObjectNewPaths.get(j));
-						}
-					} else {
-						pathDifferences.get(i).put(currentObjectOldPaths.get(j), null);
-					}
-				}
-			}
-		}
-		return pathDifferences;
+		return newDifferences;
 	}
 	
 	public int[] getXYViewParameters() {
