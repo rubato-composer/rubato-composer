@@ -2,15 +2,11 @@ package org.rubato.rubettes.bigbang.view.subview.graph;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.beans.PropertyChangeEvent;
 
-import javax.swing.Box;
-import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
@@ -24,26 +20,14 @@ import org.rubato.rubettes.bigbang.view.controller.general.AnimateButtonAction;
 import org.rubato.rubettes.bigbang.view.controller.score.GraphListener;
 import org.rubato.rubettes.bigbang.view.subview.JBigBangPanel;
 
-import edu.uci.ics.jung.algorithms.layout.BalloonLayout;
-import edu.uci.ics.jung.algorithms.layout.DAGLayout;
-import edu.uci.ics.jung.algorithms.layout.FRLayout;
 import edu.uci.ics.jung.algorithms.layout.FRLayout2;
-import edu.uci.ics.jung.algorithms.layout.ISOMLayout;
-import edu.uci.ics.jung.algorithms.layout.KKLayout;
-import edu.uci.ics.jung.algorithms.layout.Layout;
-import edu.uci.ics.jung.algorithms.layout.SpringLayout;
-import edu.uci.ics.jung.algorithms.layout.SpringLayout2;
 import edu.uci.ics.jung.algorithms.layout.StaticLayout;
-import edu.uci.ics.jung.algorithms.layout.TreeLayout;
 import edu.uci.ics.jung.algorithms.layout.util.Relaxer;
 import edu.uci.ics.jung.algorithms.layout.util.VisRunner;
 import edu.uci.ics.jung.graph.DirectedSparseGraph;
 import edu.uci.ics.jung.graph.Graph;
-import edu.uci.ics.jung.visualization.GraphZoomScrollPane;
 import edu.uci.ics.jung.visualization.VisualizationViewer;
-import edu.uci.ics.jung.visualization.control.DefaultModalGraphMouse;
 import edu.uci.ics.jung.visualization.control.EditingModalGraphMouse;
-import edu.uci.ics.jung.visualization.control.ModalGraphMouse;
 import edu.uci.ics.jung.visualization.control.ModalGraphMouse.Mode;
 import edu.uci.ics.jung.visualization.decorators.ToStringLabeller;
 import edu.uci.ics.jung.visualization.layout.LayoutTransition;
@@ -52,6 +36,7 @@ import edu.uci.ics.jung.visualization.util.Animator;
 
 public class JGraphPanel extends JPanel implements View, ActionListener {
 	
+	private BigBangController bbController;
 	private ViewController controller;
 	private FRLayout2<Integer,AbstractOperationEdit> layout;
 	private VisualizationViewer<Integer,AbstractOperationEdit> graphViewer;
@@ -66,6 +51,7 @@ public class JGraphPanel extends JPanel implements View, ActionListener {
 	public JGraphPanel(ViewController controller, BigBangController bbController) {
 		controller.addView(this);
 		bbController.addView(this);
+		this.bbController = bbController;
 		this.controller = controller;
 		this.animateButton = new JButton(new AnimateButtonAction(bbController));
 		this.modeSelektor = new JComboBox(new Mode[]{Mode.TRANSFORMING,Mode.PICKING,Mode.EDITING});
@@ -102,7 +88,7 @@ public class JGraphPanel extends JPanel implements View, ActionListener {
 		this.graphMouse = new EditingModalGraphMouse<Integer,AbstractOperationEdit>(this.graphViewer.getRenderContext(), vf, ef);
 		this.setMode(Mode.PICKING);
 		
-		PopupVertexEdgeMenuMousePlugin myPlugin = new PopupVertexEdgeMenuMousePlugin();
+		PopupVertexEdgeMenuMousePlugin myPlugin = new PopupVertexEdgeMenuMousePlugin(this.bbController);
 		//graphMouse.get
         graphMouse.remove(graphMouse.getPopupEditingPlugin());  // Removes the existing popup editing plugin
         graphMouse.remove(graphMouse.getEditingPlugin()); // strange editing plugin that relocates last edge...

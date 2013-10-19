@@ -27,5 +27,11 @@ public abstract class AbstractPathBasedOperationEdit extends AbstractOperationEd
 			this.modifiedObjectPaths.add(this.objectPaths.get(i));
 		}
 	}
+	
+	protected void addMissingObjectPaths(List<DenotatorPath> paths) {
+		while (paths.size() < this.objectPaths.size()) {
+			paths.add(this.objectPaths.get(paths.size()));
+		}
+	}
 
 }

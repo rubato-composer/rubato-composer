@@ -50,6 +50,13 @@ public class DenotatorPathTest extends TestCase {
 		TestCase.assertFalse(this.modulatorPath.equalsExceptForPowersetIndices(modulatorPath3));
 	}
 	
+	public void testWithIntegerPath() {
+		DenotatorPath integerPath = new DenotatorPath(this.objects.INTEGER_FORM, new int[]{});
+		TestCase.assertNull(integerPath.getParentPath());
+		TestCase.assertNull(integerPath.getPowersetPath(0));
+		TestCase.assertNull(integerPath.getPowersetPath(0, this.objects.INTEGER_FORM));
+	}
+	
 	public void testWithSatellitePath() {
 		//TestCase.assertFalse(this.satellitePath.isModulatorPath());
 		TestCase.assertEquals(new DenotatorPath(this.objects.SOUND_SCORE_FORM, new int[]{2,1,3,1,5}), this.satellitePath.getParentPath());

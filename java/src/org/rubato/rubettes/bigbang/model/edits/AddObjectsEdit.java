@@ -81,11 +81,11 @@ public class AddObjectsEdit extends AbstractOperationEdit {
 	}
 	
 	public boolean addObjects(List<Map<DenotatorPath,Double>> pathsWithValues, List<DenotatorPath> powersetPaths, boolean inPreviewMode) {
-		//System.out.println(pathsWithValues + " " + inPreviewMode);
 		if (this.objectForm == null && !powersetPaths.isEmpty()) {
 			this.setObjectForm(powersetPaths.get(0));
 		}
-		if (inPreviewMode) {
+		//remove all previous values if in preview mode or the new value is on the topmost level
+		if (inPreviewMode || powersetPaths.get(0) == null) {
 			this.initPathsWithValuesAndPowersets();
 			if (pathsWithValues.isEmpty()) {
 				this.updateOperation();
