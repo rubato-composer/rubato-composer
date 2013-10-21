@@ -10,6 +10,7 @@ import javax.swing.undo.AbstractUndoableEdit;
 import org.rubato.math.yoneda.Denotator;
 import org.rubato.rubettes.bigbang.controller.BigBangController;
 import org.rubato.rubettes.bigbang.model.edits.AbstractOperationEdit;
+import org.rubato.rubettes.bigbang.model.edits.AbstractTransformationEdit;
 import org.rubato.rubettes.bigbang.model.edits.AddObjectsEdit;
 import org.rubato.rubettes.bigbang.model.edits.AddWallpaperDimensionEdit;
 import org.rubato.rubettes.bigbang.model.edits.AffineTransformationEdit;
@@ -124,7 +125,7 @@ public class BigBangModel extends Model {
 		if (!properties.inPreviewMode() && properties.getObjectsPaths().totalObjectPaths() > 0) {
 			this.undoRedoModel.postEdit(edit);
 		} else {
-			this.undoRedoModel.previewTransformationAtEnd(edit);
+			this.undoRedoModel.previewTransformation((AbstractTransformationEdit)edit);
 		}
 	}
 	

@@ -17,6 +17,7 @@ import javax.swing.SwingUtilities;
 
 import org.rubato.rubettes.bigbang.controller.BigBangController;
 import org.rubato.rubettes.bigbang.model.edits.AbstractOperationEdit;
+import org.rubato.rubettes.bigbang.view.controller.general.InsertOperationAction;
 import org.rubato.rubettes.bigbang.view.controller.general.RemoveOperationAction;
 
 /**
@@ -25,17 +26,31 @@ import org.rubato.rubettes.bigbang.view.controller.general.RemoveOperationAction
  * either the EdgeMenuListener or VertexMenuListener then the corresponding interface
  * methods will be called prior to the display of the menus (so that they can display
  * context sensitive information for the edge or vertex).
- * @author Dr. Greg M. Bernstein
+ * @author Dr. Greg M. Bernstein and Florian Thalmann
  */
 public class PopupVertexEdgeMenuMousePlugin extends AbstractPopupGraphMousePlugin {
 
 	private BigBangController controller;
+	private JPopupMenu vertexPopup;
+	private JMenuItem insertEdgeItem;
 	private JPopupMenu edgePopup;
 	private JMenuItem setDurationItem;
 	private JMenuItem removeEdgeItem;
 	
 	public PopupVertexEdgeMenuMousePlugin(BigBangController controller) {
 		this.controller = controller;
+		this.initVertexPopup();
+		this.initEdgePopup();
+	}
+	
+	private void initVertexPopup() {
+		this.vertexPopup = new JPopupMenu("Composition State Menu");
+		this.insertEdgeItem = new JMenuItem(); 
+		this.insertEdgeItem.setText("Insert operation");
+		this.vertexPopup.add(this.insertEdgeItem);
+	}
+	
+	private void initEdgePopup() {
 		this.edgePopup = new JPopupMenu("Operation Menu");
 		this.setDurationItem = new JMenuItem(); 
 		this.setDurationItem.setText("Edit duration");
@@ -57,13 +72,24 @@ public class PopupVertexEdgeMenuMousePlugin extends AbstractPopupGraphMousePlugi
         
         GraphElementAccessor<Integer,AbstractOperationEdit> pickSupport = viewer.getPickSupport();
         if (pickSupport != null) {
-        	AbstractOperationEdit edge = pickSupport.getEdge(viewer.getGraphLayout(), point.getX(), point.getY());
-        	if (edge != null) {
-        		this.updateEdgeMenu(edge, viewer, point);
-        		this.edgePopup.show(viewer, event.getX(), event.getY());
+        	Integer vertex = pickSupport.getVertex(viewer.getGraphLayout(), point.getX(), point.getY());
+        	if (vertex != null) {
+        		this.updateVertexMenu(vertex, viewer, point);
+        		this.vertexPopup.show(viewer, event.getX(), event.getY());
+        	} else {
+        		AbstractOperationEdit edge = pickSupport.getEdge(viewer.getGraphLayout(), point.getX(), point.getY());
+            	if (edge != null) {
+            		this.updateEdgeMenu(edge, viewer, point);
+            		this.edgePopup.show(viewer, event.getX(), event.getY());
+            	}
         	}
         }
 	}
+	
+	private void updateVertexMenu(final Integer vertex, final VisualizationViewer<Integer,AbstractOperationEdit> viewer, final Point2D point) {
+		this.removeAllActionListeners(this.insertEdgeItem);
+		this.insertEdgeItem.addActionListener(new InsertOperationAction(this.controller, vertex));
+    }
 	
 	private void updateEdgeMenu(final AbstractOperationEdit edge, final VisualizationViewer<Integer,AbstractOperationEdit> viewer, final Point2D point) {
 		this.removeAllActionListeners(this.setDurationItem);

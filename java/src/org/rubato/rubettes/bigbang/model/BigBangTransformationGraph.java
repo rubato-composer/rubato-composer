@@ -29,37 +29,74 @@ public class BigBangTransformationGraph extends DirectedSparseMultigraph<Integer
 	/**
 	 * sets the composition state to be shown. can be null, which means that the final state is shown
 	 */
-	public void selectCompositionState(Integer vertex) {
+	public void selectCompositionState(Integer vertex, boolean update) {
 		if (vertex == null || vertex <= this.getEdgeCount()) {
 			this.selectedCompositionState = vertex;
-			this.updateComposition(false);
+			if (update) {
+				this.updateComposition(false);
+			}
 		}
+	}
+	
+	public void previewInsertedTransformationAt(AbstractTransformationEdit edit, Integer state) {
+		this.insertOperation(edit, state, true);
+		this.removeOperation(edit, false);
 	}
 	
 	public void previewTransformationAtEnd(AbstractTransformationEdit edit) {
 		this.add(edit, true);
-		this.removeLastWithoutUpdate();
+		this.removeLastOperation(false);
 	}
 	
-	public boolean add(AbstractOperationEdit edit) {
+	public boolean insertOperation(AbstractOperationEdit edit, Integer state) {
+		return this.insertOperation(edit, state, false);
+	}
+	
+	private boolean insertOperation(AbstractOperationEdit edit, Integer state, boolean inPreviewMode) {
+		Integer endingVertex = this.getVertexCount();
+		this.addVertex(endingVertex);
+		//move all edges including the ones involving the given state back by 1
+		this.moveEdges(state-1, 1);
+		
+		boolean added = this.addEdge(edit, state, state+1);
+		if (added) {
+			//select right composition state so that new transformation is shown!!
+			Integer previouslySelectedState = this.selectedCompositionState;
+			if (inPreviewMode && previouslySelectedState != null && previouslySelectedState <= state) {
+				this.selectCompositionState(state+1, false);
+			}
+			this.updateComposition(inPreviewMode);
+			//deselect state after operation in case it was selected for preview purposes
+			if (inPreviewMode && previouslySelectedState != null && previouslySelectedState <= state) {
+				this.selectCompositionState(previouslySelectedState, false);
+			//if state was selected before, select the one after the inserted operation 
+			} else if (previouslySelectedState != null && previouslySelectedState == state) {
+				this.selectCompositionState(state+1, true);
+			}
+		}
+		return added;
+	}
+	
+	public boolean addOperation(AbstractOperationEdit edit) {
 		return this.add(edit, false);
 	}
 	
 	private boolean add(AbstractOperationEdit edit, boolean inPreviewMode) {
 		//startingVertex is either current selected vertex or the last vertex
-		Integer startingVertex;
+		Integer startVertex;
 		Integer previouslySelectedCompositionState = this.selectedCompositionState;
 		if (this.selectedCompositionState != null) {
-			startingVertex = this.selectedCompositionState;
+			startVertex = this.selectedCompositionState;
 			//delete selectedCompositionState for appropriate preview to be shown
 			this.selectedCompositionState = null;
 		} else {
-			startingVertex = this.getVertexCount()-1;
+			startVertex = this.getVertexCount()-1;
 		}
 		
-		Integer endingVertex = this.getVertexCount();
-		this.addVertex(endingVertex);
-		boolean added = this.addEdge(edit, startingVertex, endingVertex);
+		Integer endVertex = this.getVertexCount();
+		this.addVertex(endVertex);
+		
+		boolean added = this.addEdge(edit, startVertex, endVertex);
 		if (added) {
 			//deselect composition state so that new transformation is shown!!
 			if (!inPreviewMode) {
@@ -78,21 +115,18 @@ public class BigBangTransformationGraph extends DirectedSparseMultigraph<Integer
 	public void updateComposition(boolean inPreviewMode) {
 		if (this.getEdgeCount() > 0) {
 			List<Map<DenotatorPath,DenotatorPath>> pathDifferences = new ArrayList<Map<DenotatorPath,DenotatorPath>>();
-			//TODO for now just sets inPreviewMode for the last edge.
-			AbstractOperationEdit lastEdge = this.getLastEdit(); 
-			lastEdge.setInPreviewMode(inPreviewMode);
-			//TODO pretty bad...
-			lastEdge.getScoreManager().resetScore();
 			
 			List<AbstractOperationEdit> shortestPath = this.getCurrentShortestPath();
 			
-			if (shortestPath != null) {
-				for (int i = 0; i < shortestPath.size(); i++) {
-					//only send composition change with last one!!!!!!
-					pathDifferences = shortestPath.get(i).execute(pathDifferences, i==shortestPath.size()-1);
-				}
-			} else {
-				lastEdge.getScoreManager().fireCompositionChange();
+			AbstractOperationEdit lastEdgeOfPath = shortestPath.get(shortestPath.size()-1); 
+			lastEdgeOfPath.setInPreviewMode(inPreviewMode);
+			//TODO pretty bad...
+			lastEdgeOfPath.getScoreManager().resetScore();
+			
+			//System.out.println(this + " " + lastEdgeOfPath);
+			for (int i = 0; i < shortestPath.size(); i++) {
+				//only send composition change with last one!!!!!!
+				pathDifferences = shortestPath.get(i).execute(pathDifferences, i==shortestPath.size()-1);
 			}
 		}
 	}
@@ -102,52 +136,54 @@ public class BigBangTransformationGraph extends DirectedSparseMultigraph<Integer
 		if (this.selectedCompositionState != null) {
 			shownState = this.selectedCompositionState;
 		}
-		if (shownState != null) {
-			DijkstraShortestPath<Integer,AbstractOperationEdit> dijkstra = new DijkstraShortestPath<Integer,AbstractOperationEdit>(this);
-			return dijkstra.getPath(0, shownState);
-		}
-		return null;
+		DijkstraShortestPath<Integer,AbstractOperationEdit> dijkstra = new DijkstraShortestPath<Integer,AbstractOperationEdit>(this);
+		return dijkstra.getPath(0, shownState);
 	}
 	
-	public boolean removeOperation(AbstractOperationEdit operation) {
+	public boolean removeOperation(AbstractOperationEdit operation, boolean update) {
 		if (this.containsEdge(operation)) {
 			Integer operationInitialpoint = this.getEndpoints(operation).getFirst();
 			super.removeEdge(operation);
-			/*//iterate through all edges leaving the endpoint of the removed one, remove them and reconnect them to their
-			//respective end point and the initial point of the removed one
-			for (AbstractOperationEdit currentOutEdge : this.getOutEdges(operationEndpoint)) {
-				CompositionState currentEdgeEndpoint = this.getEndpoints(currentOutEdge).getSecond();
-				super.removeEdge(currentOutEdge);
-				this.addEdge(currentOutEdge, operationInitialpoint, currentEdgeEndpoint, EdgeType.DIRECTED);
-			}*/
 			//needs to be done this way :( changing vertex names leads to problems with jung
-			for (AbstractOperationEdit currentEdge : new ArrayList<AbstractOperationEdit>(this.getEdges())) {
-				int initialPoint = this.getEndpoints(currentEdge).getFirst();
-				int endPoint = this.getEndpoints(currentEdge).getSecond();
-				if (initialPoint > operationInitialpoint && endPoint > operationInitialpoint) {
-					super.removeEdge(currentEdge);
-					this.addEdge(currentEdge, initialPoint-1, endPoint-1, EdgeType.DIRECTED);
-				}
-				
-			}
+			this.moveEdges(operationInitialpoint, -1);
 			//remove the previous last state
 			this.removeVertex(this.getLastState());
-			this.updateComposition(false);
+			if (update) {
+				this.updateComposition(false);
+			}
 			return true;
 		}
 		return false;
 	}
 	
-	public AbstractOperationEdit removeLast() {
-		AbstractOperationEdit removed = this.removeLastWithoutUpdate();
-		this.updateComposition(false);
-		return removed;
+	/*
+	 * moves the edgePoints of all edges after the given state by the given amount (can be negative),
+	 * e.g. -1 moves all edges forward by 1
+	 */
+	private void moveEdges(Integer state, int amount) {
+		for (AbstractOperationEdit currentEdge : new ArrayList<AbstractOperationEdit>(this.getEdges())) {
+			int startPoint = this.getEndpoints(currentEdge).getFirst();
+			int endPoint = this.getEndpoints(currentEdge).getSecond();
+			if (startPoint > state && endPoint > state) {
+				if (startPoint > state) {
+					startPoint += amount;
+				}
+				if (endPoint > state) {
+					endPoint += amount;
+				}
+			}
+			super.removeEdge(currentEdge);
+			this.addEdge(currentEdge, startPoint, endPoint, EdgeType.DIRECTED);
+		}
 	}
 	
-	private AbstractOperationEdit removeLastWithoutUpdate() {
+	public AbstractOperationEdit removeLastOperation(boolean update) {
 		AbstractOperationEdit lastEdit = this.getLastEdit();
 		this.removeEdge(lastEdit);
 		this.removeVertex(this.getLastState());
+		if (update) {
+			this.updateComposition(false);
+		}
 		return lastEdit;
 	}
 	
@@ -156,9 +192,8 @@ public class BigBangTransformationGraph extends DirectedSparseMultigraph<Integer
 	}
 	
 	public AbstractOperationEdit getLastEdit() {
-		//TODO does not work for several edges going in last state!
-		//List<AbstractOperationEdit> path = this.getCurrentShortestPath();
-		return this.findEdgeSet(this.getEdgeCount()-1, this.getEdgeCount()).iterator().next();
+		//TODO does not work for several edges going in last state! AND won't work with edges ending in old vertices!!
+		return this.getInEdges(this.getEdgeCount()).iterator().next();
 	}
 	
 	public void setDurations(double duration) {

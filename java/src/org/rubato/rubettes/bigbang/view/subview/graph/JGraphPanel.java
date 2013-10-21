@@ -89,12 +89,14 @@ public class JGraphPanel extends JPanel implements View, ActionListener {
 		this.setMode(Mode.PICKING);
 		
 		PopupVertexEdgeMenuMousePlugin myPlugin = new PopupVertexEdgeMenuMousePlugin(this.bbController);
-		//graphMouse.get
-        graphMouse.remove(graphMouse.getPopupEditingPlugin());  // Removes the existing popup editing plugin
-        graphMouse.remove(graphMouse.getEditingPlugin()); // strange editing plugin that relocates last edge...
-        graphMouse.add(myPlugin);   // Add our new plugin to the mouse
+		//this.graphMouse.remove(this.graphMouse.get
+        this.graphMouse.remove(this.graphMouse.getPopupEditingPlugin());  // Removes the existing popup editing plugin
+        //this.graphMouse.remove(this.graphMouse.getAnnotatingPlugin());
+        //this.graphMouse.remove(this.graphMouse.getLabelEditingPlugin());
+        this.graphMouse.remove(this.graphMouse.getEditingPlugin()); // strange editing plugin that relocates last edge...
+        this.graphMouse.add(myPlugin);   // Add our new plugin to the mouse
         
-		this.graphViewer.setGraphMouse(graphMouse);
+		this.graphViewer.setGraphMouse(this.graphMouse);
 		GraphListener graphListener = new GraphListener(controller, this.graphViewer);
 		this.graphViewer.getPickedVertexState().addItemListener(graphListener);
 		this.graphViewer.getPickedEdgeState().addItemListener(graphListener);
