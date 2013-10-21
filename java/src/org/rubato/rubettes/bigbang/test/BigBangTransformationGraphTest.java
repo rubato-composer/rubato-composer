@@ -18,9 +18,12 @@ import org.rubato.rubettes.bigbang.model.BigBangModel;
 import org.rubato.rubettes.bigbang.model.CompositionState;
 import org.rubato.rubettes.bigbang.model.TransformationPaths;
 import org.rubato.rubettes.bigbang.model.TransformationProperties;
+import org.rubato.rubettes.bigbang.model.edits.AbstractOperationEdit;
 import org.rubato.rubettes.bigbang.model.edits.AddObjectsEdit;
 import org.rubato.rubettes.bigbang.view.model.SelectedObjectsPaths;
 import org.rubato.rubettes.util.DenotatorPath;
+
+import edu.uci.ics.jung.graph.util.Pair;
 
 public class BigBangTransformationGraphTest extends TestCase {
 	
@@ -169,6 +172,54 @@ public class BigBangTransformationGraphTest extends TestCase {
 		TestCase.assertEquals(expectedNode, this.model.getComposition().get(new int[]{0,1,0}));
 		expectedNode = this.objects.createMultilevelNode(new double[][]{{2,66,0,0,0,0}});
 		TestCase.assertEquals(expectedNode, this.model.getComposition().get(new int[]{1}));
+	}
+	
+	public void testAddAlternativeEdge() {
+		//add one note and perform two translations
+		this.model.setInitialComposition(this.objects.generator.createEmptyScore());
+		int[][] paths = new int[][]{{0,0},{0,1}};
+		double[][] values = new double[][]{{0,60}};
+		this.model.addObjects(this.createNodePathAndValuesMapList(this.objects.SOUND_SCORE_FORM, paths, values),
+				this.createPathsList(new DenotatorPath(this.objects.SOUND_SCORE_FORM, new int[]{}), 1), false);
+		SelectedObjectsPaths selectedPaths = this.createSelectedObjectsPaths(this.objects.SOUND_SCORE_FORM, new int[]{0});
+		TransformationProperties properties = new TransformationProperties(selectedPaths, Arrays.asList(this.nodePaths), false, false);
+		properties.setCenter(new double[]{0,0});
+		properties.setEndPoint(new double[]{0,1});
+		this.model.translateObjects(properties);
+		this.model.translateObjects(properties);
+		TestCase.assertEquals(4, this.model.getUndoRedoModel().getTransformationGraph().getVertexCount());
+		TestCase.assertEquals(3, this.model.getUndoRedoModel().getTransformationGraph().getEdgeCount());
+		
+		//insert a translation starting at state 2 and check graph structure
+		this.model.getUndoRedoModel().selectCompositionState(2);
+		this.model.translateObjects(properties);
+		TestCase.assertEquals(5, this.model.getUndoRedoModel().getTransformationGraph().getVertexCount());
+		TestCase.assertEquals(4, this.model.getUndoRedoModel().getTransformationGraph().getEdgeCount());
+		AbstractOperationEdit lastEdit = this.model.getUndoRedoModel().getTransformationGraph().getLastEdit(); 
+		TestCase.assertEquals(new Pair<Integer>(2,4), this.model.getUndoRedoModel().getTransformationGraph().getEndpoints(lastEdit));
+	}
+	
+	public void testInsertEdge() {
+		//add one note and perform two translations
+		this.model.setInitialComposition(this.objects.generator.createEmptyScore());
+		int[][] paths = new int[][]{{0,0},{0,1}};
+		double[][] values = new double[][]{{0,60}};
+		this.model.addObjects(this.createNodePathAndValuesMapList(this.objects.SOUND_SCORE_FORM, paths, values),
+				this.createPathsList(new DenotatorPath(this.objects.SOUND_SCORE_FORM, new int[]{}), 1), false);
+		SelectedObjectsPaths selectedPaths = this.createSelectedObjectsPaths(this.objects.SOUND_SCORE_FORM, new int[]{0});
+		TransformationProperties properties = new TransformationProperties(selectedPaths, Arrays.asList(this.nodePaths), false, false);
+		properties.setCenter(new double[]{0,0});
+		properties.setEndPoint(new double[]{0,1});
+		this.model.translateObjects(properties);
+		this.model.translateObjects(properties);
+		TestCase.assertEquals(4, this.model.getUndoRedoModel().getTransformationGraph().getVertexCount());
+		TestCase.assertEquals(3, this.model.getUndoRedoModel().getTransformationGraph().getEdgeCount());
+		
+		//insert a translation before the second one and check graph structure
+		this.model.getUndoRedoModel().insertOperation(1);
+		this.model.translateObjects(properties);
+		TestCase.assertEquals(5, this.model.getUndoRedoModel().getTransformationGraph().getVertexCount());
+		TestCase.assertEquals(4, this.model.getUndoRedoModel().getTransformationGraph().getEdgeCount());
 	}
 	
 	public void testRemoveEdge() {

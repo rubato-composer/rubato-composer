@@ -19,6 +19,7 @@ public class UndoRedoModel extends Model {
 	private UndoManager undoManager;
 	private UndoableEditSupport undoSupport;
 	private BigBangTransformationGraph operations;
+	private Integer insertionState;
 	private List<AbstractOperationEdit> undoneOperations;
 	private BigBangGraphAnimator animator;
 	
@@ -54,7 +55,7 @@ public class UndoRedoModel extends Model {
 	public void undo() {
 		//try {
 		//this.undoManager.undo();
-		this.undoneOperations.add(this.operations.removeLast());
+		this.undoneOperations.add(this.operations.removeLastOperation(true));
 		//} catch (Exception e) { e.printStackTrace(); }
 		this.firePropertyChange(BigBangController.UNDO, null, this.undoManager);
 		this.firePropertyChange(BigBangController.GRAPH, null, this.operations);
@@ -62,21 +63,28 @@ public class UndoRedoModel extends Model {
 	
 	public void redo() {
 		//this.undoManager.redo();
-		this.operations.add(this.undoneOperations.remove(this.undoneOperations.size()-1));
+		this.operations.addOperation(this.undoneOperations.remove(this.undoneOperations.size()-1));
 		this.firePropertyChange(BigBangController.REDO, null, this.undoManager);
 		this.firePropertyChange(BigBangController.GRAPH, null, this.operations);
 	}
 	
-	public void previewTransformationAtEnd(AbstractUndoableEdit edit) {
-		if (edit instanceof AbstractOperationEdit) {
-			this.operations.previewTransformationAtEnd((AbstractTransformationEdit)edit);
+	public void previewTransformation(AbstractTransformationEdit edit) {
+		if (this.insertionState != null) {
+			this.operations.previewInsertedTransformationAt(edit, this.insertionState);
+		} else {
+			this.operations.previewTransformationAtEnd(edit);
 		}
 	}
 	
 	public void postEdit(AbstractUndoableEdit edit) {
 		//this.undoSupport.postEdit(edit);
 		if (edit instanceof AbstractOperationEdit) {
-			this.operations.add((AbstractOperationEdit)edit);
+			if (this.insertionState != null) {
+				this.operations.insertOperation((AbstractOperationEdit)edit, this.insertionState);
+				this.insertionState = null;
+			} else {
+				this.operations.addOperation((AbstractOperationEdit)edit);
+			}
 		}
 		this.firePropertyChange(BigBangController.UNDO, null, this.undoManager);
 		this.firePropertyChange(BigBangController.GRAPH, null, this.operations);
@@ -109,18 +117,22 @@ public class UndoRedoModel extends Model {
 		this.operations.setDurations(duration);
 	}
 	
+	public void insertOperation(Integer state) {
+		this.insertionState = state;
+	}
+	
 	public void removeOperation(AbstractOperationEdit operation) {
-		this.operations.removeOperation(operation);
+		this.operations.removeOperation(operation, true);
 		this.firePropertyChange(BigBangController.GRAPH, null, this.operations);
 	}
 	
 	public void selectCompositionState(Integer vertex) {
-		this.operations.selectCompositionState(vertex);
+		this.operations.selectCompositionState(vertex, true);
 		this.firePropertyChange(BigBangController.SELECT_COMPOSITION_STATE, null, vertex);
 	}
 	
 	public void deselectCompositionStates() {
-		this.operations.selectCompositionState(null);
+		this.operations.selectCompositionState(null, true);
 		this.firePropertyChange(BigBangController.DESELECT_COMPOSITION_STATES, null, null);
 	}
 	
