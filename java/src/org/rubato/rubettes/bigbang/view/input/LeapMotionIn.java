@@ -23,12 +23,13 @@ public class LeapMotionIn extends Listener {
 	
 	private final int AREA_WIDTH = 400;
 	private final int AREA_HEIGHT = 300;
-	private final int AREA_BOTTOM_EDGE = 0;
+	private final int AREA_BOTTOM_EDGE = 50;
 	private final int PLANE_Z_POSITION = 0;
 	
 	BigBangView view;
 	ViewController viewController;
 	Frame lastFrame;
+	private Boolean lastFrameEmpty = true;
 	
 	private int leftEdge, rightEdge, topEdge;
 	
@@ -111,7 +112,12 @@ public class LeapMotionIn extends Listener {
 //			}
 //		}
 //		this.viewController.addObjects(pointList, true);
-		
+		if (controller.frame().fingers().count() == 0) {
+			if (lastFrameEmpty) {
+				return;
+			}
+			lastFrameEmpty = true;
+		}
 		ArrayList<PointND> pointList3D = new ArrayList<PointND>();
 		for (int i = 0; i < controller.frame().fingers().count(); i++) {
 			Vector currentTipPosition = controller.frame().fingers().get(i).tipPosition();
