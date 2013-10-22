@@ -15,6 +15,7 @@ import javax.swing.KeyStroke;
 
 import org.rubato.rubettes.bigbang.controller.BigBangController;
 import org.rubato.rubettes.bigbang.view.controller.ChangeOctaveAction;
+import org.rubato.rubettes.bigbang.view.controller.KeyToLeapAction;
 import org.rubato.rubettes.bigbang.view.controller.KeyToMidiAction;
 import org.rubato.rubettes.bigbang.view.controller.KeyToStateAction;
 import org.rubato.rubettes.bigbang.view.controller.ToggleMainOptionsAction;
@@ -46,6 +47,7 @@ public class JBigBangPanel extends JPanel {
 		this.setComponentPopupMenu(popup);
 		this.initMidiKeys(controller);
 		this.initStateKeys(controller);
+		this.initLeapKeys(controller);
 		//this.graphDialog.setVisible(true);
 	}
 	
@@ -106,6 +108,12 @@ public class JBigBangPanel extends JPanel {
 		}
 		this.addChangeOctaveActions(controller);
 		this.currentOctave = 0;
+	}
+	
+	private void initLeapKeys(ViewController controller) {
+		String pressedString = "pressed C";
+		this.getInputMap(JPanel.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(pressedString), pressedString);
+		this.getActionMap().put(pressedString, new KeyToLeapAction(this, controller));
 	}
 	
 	private void addKeyToMidiActions(ViewController controller, char key, int pitch) {
