@@ -574,6 +574,10 @@ public class BigBangView extends Model implements View {
 		return new TransformationProperties(objectsPaths, valuePaths, copyAndTransform, previewMode);
 	}
 	
+	public void setObjects() {
+		this.controller.setObjects();
+	}
+	
 	public void addObjects(ArrayList<PointND> locations, Boolean inPreviewMode) {
 		if (this.displayObjects != null && this.displayMode instanceof DrawingModeAdapter) {
 			List<Map<DenotatorPath,Double>> objectValues = new ArrayList<Map<DenotatorPath,Double>>();
