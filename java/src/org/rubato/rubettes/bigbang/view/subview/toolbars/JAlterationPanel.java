@@ -12,16 +12,18 @@ import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JPanel;
 import javax.swing.JSlider;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 
 import org.rubato.rubettes.bigbang.controller.BigBangController;
+import org.rubato.rubettes.bigbang.model.edits.AlterationEdit;
 import org.rubato.rubettes.bigbang.view.View;
 import org.rubato.rubettes.bigbang.view.controller.ViewController;
 import org.rubato.rubettes.bigbang.view.controller.mode.temp.AlterationCompositionSelectionMode;
 import org.rubato.rubettes.bigbang.view.controller.mode.temp.TemporaryDisplayMode;
-import org.rubato.rubettes.bigbang.view.controller.score.AlterationDegreeListener;
 import org.rubato.rubettes.bigbang.view.subview.DisplayObjects;
 
-public class JAlterationPanel extends JPanel implements View, ActionListener, ItemListener {
+public class JAlterationPanel extends JPanel implements View, ActionListener, ItemListener, ChangeListener {
 	
 	private final int SLIDER_MAX = 100;
 	private List<JButton> compositionButtons;
@@ -30,6 +32,7 @@ public class JAlterationPanel extends JPanel implements View, ActionListener, It
 	private ViewController viewController;
 	private BigBangController bbController;
 	private TemporaryDisplayMode selectionMode;
+	private AlterationEdit edit;
 	
 	public JAlterationPanel(ViewController viewController, BigBangController bbController) {
 		viewController.addView(this);
@@ -67,10 +70,10 @@ public class JAlterationPanel extends JPanel implements View, ActionListener, It
 	
 	private void addDegreeSliders() {
 		this.startSlider = new JSlider(0,this.SLIDER_MAX,0);
-		this.startSlider.addChangeListener(new AlterationDegreeListener(this.bbController, true));
+		this.startSlider.addChangeListener(this);
 		this.add(this.startSlider);
 		this.endSlider = new JSlider(0,this.SLIDER_MAX,0);
-		this.endSlider.addChangeListener(new AlterationDegreeListener(this.bbController, false));
+		this.endSlider.addChangeListener(this);
 		this.add(this.endSlider);
 	}
 
@@ -89,12 +92,11 @@ public class JAlterationPanel extends JPanel implements View, ActionListener, It
 		}
 	}
 	
-	public void setStartDegree(double startDegree) {
-		this.updateSliderValue(this.startSlider, startDegree);
-	}
-	
-	public void setEndDegree(double endDegree) {
-		this.updateSliderValue(this.endSlider, endDegree);
+	public void setEdit(AlterationEdit edit) {
+		this.edit = edit;
+		//TODO MAKE POSSIBLE AGAIN this.updateCoordinateSelections(edit.getAlterationCoordinates());
+		this.updateSliderValue(this.startSlider, edit.getStartDegree());
+		this.updateSliderValue(this.endSlider, edit.getEndDegree());
 	}
 	
 	private void updateSliderValue(JSlider slider, double value) {
@@ -133,10 +135,22 @@ public class JAlterationPanel extends JPanel implements View, ActionListener, It
 			this.viewController.changeAlterationComposition(oldSelectionIndex);
 		}
 		if (buttonIndex == oldSelectionIndex) {
-			this.bbController.fireAlterationComposition(-1);
+			this.edit.fireAlterationComposition(-1);
 		} else {
-			this.bbController.fireAlterationComposition(buttonIndex);
+			this.edit.fireAlterationComposition(buttonIndex);
 		}
+	}
+	
+	public void stateChanged(ChangeEvent event) {
+		JSlider degreeSlider = (JSlider)event.getSource();
+		double value = degreeSlider.getValue();
+		double totalValues = degreeSlider.getMaximum()-degreeSlider.getMinimum();
+		if (degreeSlider.equals(this.startSlider)) {
+			this.edit.setStartDegree(value/totalValues);
+		} else {
+			this.edit.setEndDegree(value/totalValues);
+		}
+		this.bbController.modifiedOperation(false);
 	}
 	
 	public void itemStateChanged(ItemEvent event) {
@@ -146,7 +160,7 @@ public class JAlterationPanel extends JPanel implements View, ActionListener, It
 				selectedCoordinates.add(i);
 			}
 		}
-		//this.bbController.setAlterationCoordinates(selectedCoordinates);
+		this.viewController.setAlterationCoordinates(selectedCoordinates);
 	}
 	
 	private int selectedCompositionButtonIndex() {

@@ -38,6 +38,7 @@ import org.rubato.rubettes.bigbang.view.controller.mode.DrawingModeAdapter;
 import org.rubato.rubettes.bigbang.view.controller.mode.ReflectionModeAdapter;
 import org.rubato.rubettes.bigbang.view.controller.mode.RotationModeAdapter;
 import org.rubato.rubettes.bigbang.view.controller.mode.ScalingModeAdapter;
+import org.rubato.rubettes.bigbang.view.controller.mode.temp.AlterationCompositionSelectionMode;
 import org.rubato.rubettes.bigbang.view.controller.mode.ShearingModeAdapter;
 import org.rubato.rubettes.bigbang.view.controller.mode.TranslationModeAdapter;
 import org.rubato.rubettes.bigbang.view.controller.mode.temp.TemporaryDisplayMode;
@@ -179,7 +180,9 @@ public class BigBangView extends Model implements View {
 			((TemporaryDisplayMode)newMode).setPreviousDisplayMode(this.displayMode);
 		}
 		this.displayMode = newMode;
-		this.deselectOperations();
+		if (!(newMode instanceof AlterationCompositionSelectionMode && this.selectedOperation instanceof AlterationEdit)) {
+			this.deselectOperations();
+		}
 		this.firePropertyChange(ViewController.DISPLAY_MODE, null, newMode);
 	}
 	
@@ -545,6 +548,16 @@ public class BigBangView extends Model implements View {
 		}
 	}
 	
+	public void setAlterationCoordinates(ArrayList<Integer> selectedCoordinates) {
+		if (this.selectedOperation instanceof AlterationEdit) {
+			List<DenotatorPath> alterationCoordinates = new ArrayList<DenotatorPath>();
+			for (int currentIndex : selectedCoordinates) {
+				alterationCoordinates.add(this.displayObjects.getActiveObjectValuePathAt(currentIndex));
+			}
+			((AlterationEdit)this.selectedOperation).setAlterationCoordinates(alterationCoordinates);
+		}
+	}
+	
 	private TransformationProperties getLocalTransformationProperties(Point2D.Double center, Point2D.Double endPoint, boolean copyAndTransform, boolean previewMode) {
 		//the end point is merely recorded for the display tool to be the same size....
 		TransformationProperties properties = this.getTransformationProperties(copyAndTransform, previewMode);
@@ -570,6 +583,7 @@ public class BigBangView extends Model implements View {
 		} else {
 			objectsPaths = this.selectedObjectsPaths;
 		}
+		//System.out.println(this.selectedObjectsPaths + " ... " + objectsPaths + " ... " + this.displayObjects.getSelectedObjectsPaths() + " ... " + this.displayObjects.getCategorizedSelectedObjectsPaths());
 		List<TransformationPaths> valuePaths = this.getXYTransformationPaths();
 		return new TransformationProperties(objectsPaths, valuePaths, copyAndTransform, previewMode);
 	}

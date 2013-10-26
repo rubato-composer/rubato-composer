@@ -143,32 +143,33 @@ public class BigBangScoreManager extends Model {
 		this.firePropertyChange(BigBangController.END_WALLPAPER, null, null);
 	}
 	
-	public void addAlteration(List<DenotatorPath> foregroundComposition, List<DenotatorPath> backgroundComposition, List<Integer> alterationCoordinates, double startDegree, double endDegree, boolean sendCompositionChange) {
+	public void addAlteration(List<DenotatorPath> foregroundComposition, List<DenotatorPath> backgroundComposition, List<DenotatorPath> alterationCoordinates, double startDegree, double endDegree, boolean sendCompositionChange) {
 		this.alteration = new BigBangAlteration();
 		this.alteration.setAlterationComposition(new TreeSet<DenotatorPath>(foregroundComposition), 0);
 		this.alteration.setAlterationComposition(new TreeSet<DenotatorPath>(backgroundComposition), 1);
 		this.alteration.setAlterationCoordinates(alterationCoordinates);
 		this.alteration.setStartDegree(startDegree);
 		this.alteration.setEndDegree(endDegree);
-		this.alter(true);
+		this.alter(false, sendCompositionChange);
 	}
 	
-	public void fireAlterationComposition(Integer index) {
-		this.alteration.resetDegrees();
-		Set<DenotatorPath> selectedNodesPaths = this.alteration.getComposition(index);
-		this.fireCompositionChange(new SelectedObjectsPaths(selectedNodesPaths, null));
-		//this.firePropertyChange(BigBangController.FIRE_ALTERATION_COMPOSITION, null, index);
+	public void fireAlterationComposition(Integer index, List<DenotatorPath> paths) {
+		//this.alteration.resetDegrees();
+		this.fireCompositionChange(new SelectedObjectsPaths(paths, null));
+		this.firePropertyChange(BigBangController.FIRE_ALTERATION_COMPOSITION, null, index);
 	}
 	
-	private void alter(boolean inPreviewMode) {
+	private void alter(boolean inPreviewMode, boolean sendCompositionChange) {
 		//List<DenotatorPath> composition0Paths = new ArrayList<DenotatorPath>(this.alteration.getComposition(0));
 		//List<List<LimitDenotator>> composition0Nodes = this.actualScore.extractNodes(composition0Paths);
 		this.alteration.alter(this.score);
 		//List<DenotatorPath> newComposition0Paths = this.actualScore.findPaths(composition0Nodes);
-		if (inPreviewMode) {
-			this.firePreviewCompositionChange(new SelectedObjectsPaths(new TreeSet<DenotatorPath>(), null));
-		} else {
-			this.fireCompositionChange(new SelectedObjectsPaths(new TreeSet<DenotatorPath>(), null));
+		if (sendCompositionChange) {
+			if (inPreviewMode) {
+				this.firePreviewCompositionChange(new SelectedObjectsPaths(new TreeSet<DenotatorPath>(), null));
+			} else {
+				this.fireCompositionChange(new SelectedObjectsPaths(new TreeSet<DenotatorPath>(), null));
+			}
 		}
 	}
 	

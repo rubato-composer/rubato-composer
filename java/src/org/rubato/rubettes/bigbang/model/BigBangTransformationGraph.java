@@ -3,16 +3,12 @@ package org.rubato.rubettes.bigbang.model;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.TreeSet;
 
 import org.rubato.rubettes.bigbang.model.edits.AbstractOperationEdit;
 import org.rubato.rubettes.bigbang.model.edits.AbstractTransformationEdit;
 import org.rubato.rubettes.util.DenotatorPath;
 
-import sun.tools.tree.ThisExpression;
-
 import edu.uci.ics.jung.algorithms.shortestpath.DijkstraShortestPath;
-import edu.uci.ics.jung.graph.DirectedSparseGraph;
 import edu.uci.ics.jung.graph.DirectedSparseMultigraph;
 import edu.uci.ics.jung.graph.util.EdgeType;
 
@@ -192,7 +188,7 @@ public class BigBangTransformationGraph extends DirectedSparseMultigraph<Integer
 	}
 	
 	public AbstractOperationEdit getLastEdit() {
-		//TODO does not work for several edges going in last state! AND won't work with edges ending in old vertices!!
+		//TODO won't work for several edges going in last state! AND won't work with edges ending in old vertices!!
 		return this.getInEdges(this.getEdgeCount()).iterator().next();
 	}
 	

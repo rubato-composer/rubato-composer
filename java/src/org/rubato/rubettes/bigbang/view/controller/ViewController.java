@@ -94,6 +94,7 @@ public class ViewController extends Controller {
 	
 	//score manipulation - alteration
 	public static final String ALTERATION_COMPOSITION = "setAlterationComposition";
+	public static final String ALTERATION_COORDINATES = "setAlterationCoordinates";
 	
 	//playback feature
 	public static final String PLAY_MODE = "togglePlayMode";
@@ -299,6 +300,10 @@ public class ViewController extends Controller {
 	
 	public void changeAlterationComposition(int index) {
 		this.callModelMethod(ViewController.ALTERATION_COMPOSITION, index);
+	}
+	
+	public void setAlterationCoordinates(List<Integer> coordinates) {
+		this.callModelMethod(ViewController.ALTERATION_COORDINATES, coordinates);
 	}
 	
 	public void changeInputActive(boolean inputActive) {
