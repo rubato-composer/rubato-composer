@@ -12,7 +12,7 @@ import org.rubato.rubettes.util.DenotatorPath;
 public class BigBangAlteration {
 	
 	private List<Set<DenotatorPath>> compositions;
-	private List<Integer> selectedCoordinates;
+	private List<DenotatorPath> alterationCoordinates;
 	private double startDegree, endDegree;
 	private Alterator alterator;
 	
@@ -25,10 +25,7 @@ public class BigBangAlteration {
 		this.compositions = new ArrayList<Set<DenotatorPath>>();
 		this.compositions.add(new TreeSet<DenotatorPath>());
 		this.compositions.add(new TreeSet<DenotatorPath>());
-		this.selectedCoordinates = new ArrayList<Integer>();
-		for (int i = 0; i < 5; i++) {
-			this.selectedCoordinates.add(i);
-		}
+		this.alterationCoordinates = new ArrayList<DenotatorPath>();
 	}
 	
 	public Set<DenotatorPath> getComposition(int index) {
@@ -44,9 +41,9 @@ public class BigBangAlteration {
 		this.resetDegrees();
 	}
 	
-	public void setAlterationCoordinates(List<Integer> selectedCoordinates) {
+	public void setAlterationCoordinates(List<DenotatorPath> selectedCoordinates) {
 		this.resetDegrees();
-		this.selectedCoordinates = selectedCoordinates;
+		this.alterationCoordinates = selectedCoordinates;
 		//this.firePropertyChange(BigBangController.ALTERATION_COORDINATES, null, this.selectedCoordinates);
 	}
 	
@@ -69,22 +66,28 @@ public class BigBangAlteration {
 	
 	public void alter(BigBangScore score) {
 		if (this.compositions.get(0).size()>0 && this.compositions.get(1).size()>0) {
-			boolean onlyModulators = this.selectedCoordinates.contains(5);
+			/*boolean onlyModulators = this.selectedCoordinates.contains(5);
 			List<Integer> coordinates = this.selectedCoordinates;
 			if (onlyModulators) {
 				coordinates = this.selectedCoordinates.subList(0, this.selectedCoordinates.size()-1);
-			}
+			}*/
 			//System.out.println(onlyModulators);
-			this.alterator.setCoordinates(coordinates);
+			this.alterator.setCoordinates(this.alterationCoordinates);
 			List<DenotatorPath> c1 = new ArrayList<DenotatorPath>(this.compositions.get(1));
 			List<Denotator> composition1 = score.getAbsoluteNodes(c1);
-			for (Denotator currentNeighbor: composition1) {
-				this.alterator.addNeighbor(currentNeighbor);
+			if (composition1.size() > 0) {
+				for (Denotator currentNeighbor: composition1) {
+					this.alterator.addNeighbor(currentNeighbor);
+				}
+				List<DenotatorPath> anchorPaths = DenotatorPath.getAnchorPaths(new ArrayList<DenotatorPath>(this.compositions.get(0)));
+				List<Denotator> composition0 = this.toDenotatorList(score.removeObjects(new ArrayList<DenotatorPath>(this.compositions.get(0))));
+				if (composition0.size() > 0) {
+					List<Denotator> alteredNodes = this.alterator.getBigBangAlteration(composition0, this.startDegree, this.endDegree);
+					score.addObjects(alteredNodes, anchorPaths);
+				} else {
+					score.addObjects(composition0, anchorPaths);
+				}
 			}
-			List<DenotatorPath> anchorPaths = DenotatorPath.getAnchorPaths(new ArrayList<DenotatorPath>(this.compositions.get(0)));
-			List<Denotator> composition0 = this.toDenotatorList(score.removeObjects(new ArrayList<DenotatorPath>(this.compositions.get(0))));
-			List<Denotator> alteredNodes = this.alterator.getSoundScoreAlteration(composition0, this.startDegree, this.endDegree, onlyModulators);
-			score.addObjects(alteredNodes, anchorPaths);
 		}
 	}
 	

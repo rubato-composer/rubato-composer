@@ -15,7 +15,6 @@ import org.rubato.math.yoneda.PowerDenotator;
 import org.rubato.math.yoneda.SimpleDenotator;
 import org.rubato.rubettes.bigbang.controller.BigBangController;
 import org.rubato.rubettes.bigbang.model.BigBangModel;
-import org.rubato.rubettes.bigbang.model.CompositionState;
 import org.rubato.rubettes.bigbang.model.TransformationPaths;
 import org.rubato.rubettes.bigbang.model.TransformationProperties;
 import org.rubato.rubettes.bigbang.model.edits.AbstractOperationEdit;
@@ -243,29 +242,6 @@ public class BigBangTransformationGraphTest extends TestCase {
 		this.model.getUndoRedoModel().removeOperation(this.model.getUndoRedoModel().getTransformationGraph().findEdge(2, 3));
 		TestCase.assertEquals(4, this.model.getUndoRedoModel().getTransformationGraph().getVertexCount());
 		TestCase.assertEquals(3, this.model.getUndoRedoModel().getTransformationGraph().getEdgeCount());
-	}
-	
-	public void testKristinsBookLayout() {
-		double totalHorizontalBlank = 19-(4.0533)-2*6;
-		int numberOfHorizontalSpaces = 4;
-		double[] randomNumbers = new double[numberOfHorizontalSpaces];
-		double sum = 0;
-		for (int i = 0; i < numberOfHorizontalSpaces; i++) {
-			randomNumbers[i] = Math.random();
-			sum += randomNumbers[i];
-		}
-		for (int i = 0; i < numberOfHorizontalSpaces; i++) {
-			randomNumbers[i] = randomNumbers[i]/sum*totalHorizontalBlank;
-		}
-		System.out.println("Kristin's horizontal spaces: "+Arrays.toString(randomNumbers));
-		
-		double totalVerticalBlank = 8-4.29;
-		int numberOfVerticalSpaces = 2;
-		randomNumbers = new double[numberOfVerticalSpaces];
-		for (int i = 0; i < numberOfVerticalSpaces; i++) {
-			randomNumbers[i] = Math.random()*totalVerticalBlank;
-		}
-		System.out.println("Kristin's vertical spaces: "+Arrays.toString(randomNumbers));
 	}
 	
 	private ArrayList<Map<DenotatorPath,Double>> createNodePathAndValuesMapList(Form form, int[][] paths, double[][] values) {

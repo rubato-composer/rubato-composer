@@ -30,10 +30,9 @@ public class Alterator {
 	private NameDenotator emptyName = NameDenotator.make("");
 	private JAlterationDimensionsTable dimensionsTable;
 	private NearestNeighborFinder neighborFinder;
-	private int[][] coordinatePaths, elementPaths;
+	private int[][] coordinatePaths, elementPaths, allPaths;
 	
 	public Alterator() {
-		this.reset();
 	}
 	
 	public Alterator(JAlterationDimensionsTable dimensionsTable) {
@@ -44,24 +43,20 @@ public class Alterator {
 		this.neighborFinder.addNeighbor(denotator);
 	}
 	
-	public void setCoordinates(List<Integer> selectedCoordinates) {
+	public void setCoordinates(List<DenotatorPath> selectedCoordinates) {
 		this.coordinatePaths = new int[selectedCoordinates.size()][];
 		this.elementPaths = new int[selectedCoordinates.size()][];
+		this.allPaths = new int[selectedCoordinates.size()][];
 		for (int i = 0; i < selectedCoordinates.size(); i++) {
-			this.coordinatePaths[i] = this.COORDINATE_PATHS[selectedCoordinates.get(i)];
-			this.elementPaths[i] = this.ELEMENT_PATHS[selectedCoordinates.get(i)];
+			this.coordinatePaths[i] = selectedCoordinates.get(i).toIntArray();
+			this.elementPaths[i] = selectedCoordinates.get(i).getChildPath(0).toIntArray();
+			//TODO right now just first selected dimension!!
+			this.allPaths[i] = selectedCoordinates.get(0).getChildPath(0).toIntArray();
 		}
 		this.neighborFinder = new NearestNeighborFinder(this.elementPaths);
 	}
 	
-	private void reset() {
-		List<Integer> selectedCoordinates = new ArrayList<Integer>();
-		for (int i = 0; i < 5; i++) {
-			selectedCoordinates.add(i);
-		}
-		this.setCoordinates(selectedCoordinates);
-	}
-	
+	/*TODO REMOVE!!! CRAP
 	public List<LimitDenotator> getStandardAlteration(List<Denotator> input0, double startDegree, double endDegree) {
 		this.neighborFinder.fillKDTree();
 		List<LimitDenotator> alteredDenotators = new ArrayList<LimitDenotator>();
@@ -84,15 +79,17 @@ public class Alterator {
 			}
 		} catch (RubatoException e) { e.printStackTrace(); }
 		return alteredDenotators;
-	}
+	}*/
 	
+	//TODO REMOVE!!! CRAP-... BUT GENERALIZE HIERARCHICAL ALTERATION!!!!
 	public List<Denotator> getSoundScoreAlteration(List<Denotator> input0, double startDegree, double endDegree, boolean onlyModulators) {
 		this.neighborFinder.fillKDTree();
 		List<Denotator> alteredDenotators = new ArrayList<Denotator>();
 		Iterator<Denotator> input0Coordinates = input0.iterator();
 		int[][] paths = this.coordinatePaths;
-		int[][] differentPaths = new int[][]{{0,0,0}};
-		int[][] allPaths = this.RELATIVE_TO_PATHS;
+		//TODO make controllable! (direction along which start/end degrees work)
+		int[][] differentPaths = new int[][]{this.allPaths[0]};
+		int[][] allPaths = this.allPaths;
 		int[] pathIndices = this.getIndicesOf(allPaths, differentPaths);
 		double[] startDegrees = new double[]{startDegree,startDegree,startDegree,startDegree,startDegree};
 		double[] endDegrees = new double[]{endDegree,endDegree,endDegree,endDegree,endDegree};
@@ -104,6 +101,35 @@ public class Alterator {
 				Denotator morphedDenotator;
 				//need to copy both denotators, since copy makes an address change so sum fails
 				morphedDenotator = this.morphSoundDenotator(currentDenotator.copy(), nearestNeighbour.copy(), pathIndices, paths, differentPaths, minAndMax, startDegrees, endDegrees, onlyModulators);
+				alteredDenotators.add(morphedDenotator);
+			}
+		} catch (RubatoException e) { e.printStackTrace(); }
+		return alteredDenotators;
+	}
+	
+	public List<Denotator> getBigBangAlteration(List<Denotator> input0, double startDegree, double endDegree) {
+		this.neighborFinder.fillKDTree();
+		List<Denotator> alteredDenotators = new ArrayList<Denotator>();
+		Iterator<Denotator> input0Coordinates = input0.iterator();
+		int[][] paths = this.coordinatePaths;
+		//TODO make controllable at some point! (direction along which start/end degrees work)
+		int[][] differentPaths = new int[][]{this.allPaths[0]};
+		int[][] allPaths = this.allPaths;
+		int[] pathIndices = this.getIndicesOf(allPaths, differentPaths);
+		double[] startDegrees = new double[paths.length];
+		double[] endDegrees = new double[paths.length];
+		for (int i = 0; i < paths.length; i++) {
+			startDegrees[i] = startDegree;
+			endDegrees[i] = endDegree;
+		}
+		try {
+			double[][] minAndMax = this.getMinAndMaxDouble(input0.iterator(), differentPaths);
+			while (input0Coordinates.hasNext()) {
+				Denotator currentDenotator = input0Coordinates.next();
+				Denotator nearestNeighbour = this.neighborFinder.findNearestNeighbor(currentDenotator);
+				Denotator morphedDenotator;
+				//need to copy both denotators, since copy makes an address change so sum fails
+				morphedDenotator = this.morphDenotator(currentDenotator.copy(), nearestNeighbour.copy(), pathIndices, paths, differentPaths, minAndMax, startDegrees, endDegrees);
 				alteredDenotators.add(morphedDenotator);
 			}
 		} catch (RubatoException e) { e.printStackTrace(); }

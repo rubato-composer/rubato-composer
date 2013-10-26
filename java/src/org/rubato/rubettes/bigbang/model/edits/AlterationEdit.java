@@ -12,7 +12,7 @@ public class AlterationEdit extends AbstractOperationEdit {
 	private BigBangScoreManager scoreManager;
 	private List<DenotatorPath> foregroundComposition;
 	private List<DenotatorPath> backgroundComposition;
-	private List<Integer> alterationCoordinates;
+	private List<DenotatorPath> alterationCoordinates;
 	private double startDegree, endDegree;
 	
 	public AlterationEdit(BigBangScoreManager manager) {
@@ -20,9 +20,17 @@ public class AlterationEdit extends AbstractOperationEdit {
 		this.scoreManager = manager;
 		this.foregroundComposition = new ArrayList<DenotatorPath>();
 		this.backgroundComposition = new ArrayList<DenotatorPath>();
-		this.alterationCoordinates = new ArrayList<Integer>();
+		this.alterationCoordinates = new ArrayList<DenotatorPath>();
 		this.startDegree = 0;
 		this.endDegree = 0;
+	}
+	
+	public void fireAlterationComposition(int index) {
+		List<DenotatorPath> composition = this.foregroundComposition;
+		if (index == 1) {
+			composition = this.backgroundComposition;
+		}
+		this.scoreManager.fireAlterationComposition(index, composition);
 	}
 	
 	public void setForegroundComposition(List<DenotatorPath> foregroundComposition) {
@@ -33,11 +41,11 @@ public class AlterationEdit extends AbstractOperationEdit {
 		this.backgroundComposition = backgroundComposition;
 	}
 	
-	public void setAlterationCoordinates(List<Integer> alterationCoordinates) {
+	public void setAlterationCoordinates(List<DenotatorPath> alterationCoordinates) {
 		this.alterationCoordinates = alterationCoordinates;
 	}
 	
-	public List<Integer> getAlterationCoordinates() {
+	public List<DenotatorPath> getAlterationCoordinates() {
 		return this.alterationCoordinates;
 	}
 	
@@ -57,7 +65,7 @@ public class AlterationEdit extends AbstractOperationEdit {
 		return this.endDegree;
 	}
 	
-	//not changed by modification!!
+	//modified degrees directly calculated in execute...
 	protected void updateOperation() { }
 	
 	@Override
@@ -67,8 +75,9 @@ public class AlterationEdit extends AbstractOperationEdit {
 
 	@Override
 	public List<Map<DenotatorPath, DenotatorPath>> execute(List<Map<DenotatorPath, DenotatorPath>> pathDifferences, boolean sendCompositionChange) {
-		//TODO could it be possible to have different paths for each dimension??? or even transformation??
-		this.scoreManager.addAlteration(this.foregroundComposition, this.backgroundComposition, this.alterationCoordinates, this.startDegree, this.endDegree, sendCompositionChange);
+		double modifiedStartDegree = this.modificationRatio*this.startDegree;
+		double modifiedEndDegree = this.modificationRatio*this.endDegree;
+		this.scoreManager.addAlteration(this.foregroundComposition, this.backgroundComposition, this.alterationCoordinates, modifiedStartDegree, modifiedEndDegree, sendCompositionChange);
 		return pathDifferences;
 	}
 

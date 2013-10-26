@@ -97,6 +97,7 @@ public class JMainToolBar extends JToolBar implements View {
 	}
 	
 	private void wallpaperDimensionSelected(int rangeFrom, int rangeTo) {
+		this.startWallpaperButton.setSelected(true);
 		this.addNewRangeSpinner(new WallpaperRangeListener(this.viewController, false));
 		this.addNewRangeSpinner(new WallpaperRangeListener(this.viewController, true));
 		//update values
@@ -116,26 +117,26 @@ public class JMainToolBar extends JToolBar implements View {
 	private void enterAlterationMode(AlterationEdit edit) {
 		if (!Arrays.asList(this.getComponents()).contains(this.alterationPanel)) {
 			this.alterationButton.setSelected(true);
-			this.alterationPanel.updateCoordinateSelections(edit.getAlterationCoordinates());
-			this.alterationPanel.setStartDegree(edit.getStartDegree());
-			this.alterationPanel.setEndDegree(edit.getEndDegree());
-			this.alterationButton.setSelected(true);
+			this.alterationPanel.setEdit(edit);
 			this.add(this.alterationPanel);
 			this.repaint();
 		}
 	}
 	
 	private void reset() {
-		this.resetRangeSpinnersIfNecessary();
+		this.resetWallpaperModeIfNecessary();
 		this.resetAlterationIfNecessary();
 	}
 	
-	private void resetRangeSpinnersIfNecessary() {
-		for (JSpinner currentSpinner: this.rangeSpinners) {
-			this.remove(currentSpinner);
-			this.repaint();
+	private void resetWallpaperModeIfNecessary() {
+		if (this.startWallpaperButton.isSelected()) {
+			this.startWallpaperButton.setSelected(false);
+			for (JSpinner currentSpinner: this.rangeSpinners) {
+				this.remove(currentSpinner);
+				this.repaint();
+			}
+			this.rangeSpinners = new ArrayList<JSpinner>();
 		}
-		this.rangeSpinners = new ArrayList<JSpinner>();
 	}
 	
 	private void resetAlterationIfNecessary() {
