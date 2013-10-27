@@ -23,7 +23,7 @@ public class JSynPlayerTest extends TestCase {
 		this.objects = new TestObjects();
 	}
 	
-	/*public void testSmoothOscillator() throws InterruptedException {
+	public void testSmoothOscillator() throws InterruptedException {
 		JSynPlayer player = new JSynPlayer(new BigBangPlayer());
 		Synthesizer synth = player.getSynth();
 		player.startSynth();
@@ -86,7 +86,7 @@ public class JSynPlayerTest extends TestCase {
 		synth.sleepFor(1);
 		lineOut.stop();
 		synth.sleepFor(1);
-	}*/
+	}
 	
 	/*public void testMoveScoreInTime() throws InterruptedException {
 		JSynPlayer player = new JSynPlayer();

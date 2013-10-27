@@ -16,7 +16,7 @@
 	<classpathentry kind="lib" path="java/jar/jung-algorithms-2.0.1.jar"/>
 	<classpathentry kind="lib" path="java/jar/LeapJava.jar">
 		<attributes>
-			<attribute name="org.eclipse.jdt.launching.CLASSPATH_ATTR_LIBRARY_PATH_ENTRY" value="rubatocomposer/java/jar"/>
+			<attribute name="org.eclipse.jdt.launching.CLASSPATH_ATTR_LIBRARY_PATH_ENTRY" value="rubatocomposer/java/lib"/>
 		</attributes>
 	</classpathentry>
 	<classpathentry kind="lib" path="java/jar/commons-math3-3.2.jar"/>
