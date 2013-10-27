@@ -55,7 +55,7 @@ public class JSynPlayer {
 	
 	public void startSynth() {
 		if (!this.synth.isRunning()) {
-			//this.synth.getAudioDeviceManager().setSuggestedOutputLatency(.2);
+			//this.synth.getAudioDeviceManager().setSuggestedOutputLatency(.09);
 			this.synth.start(JSynPlayer.SAMPLE_RATE);
 			//this.synth.start(JSynPlayer.SAMPLE_RATE, AudioDeviceManager.USE_DEFAULT_DEVICE, 2, AudioDeviceManager.USE_DEFAULT_DEVICE, 2);
 		}
