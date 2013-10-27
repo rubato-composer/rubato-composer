@@ -20,5 +20,10 @@
 		</attributes>
 	</classpathentry>
 	<classpathentry kind="lib" path="java/jar/commons-math3-3.2.jar"/>
+	<classpathentry kind="lib" path="java/jar/jportaudio.jar">
+		<attributes>
+			<attribute name="org.eclipse.jdt.launching.CLASSPATH_ATTR_LIBRARY_PATH_ENTRY" value="rubatocomposer2/java/lib"/>
+		</attributes>
+	</classpathentry>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
