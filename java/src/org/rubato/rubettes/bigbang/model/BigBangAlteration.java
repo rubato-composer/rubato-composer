@@ -65,7 +65,7 @@ public class BigBangAlteration {
 	}
 	
 	public void alter(BigBangScore score) {
-		if (this.compositions.get(0).size()>0 && this.compositions.get(1).size()>0) {
+		if (this.compositions.get(0).size()>0 && this.compositions.get(1).size()>0 && this.alterationCoordinates.size() > 0) {
 			/*boolean onlyModulators = this.selectedCoordinates.contains(5);
 			List<Integer> coordinates = this.selectedCoordinates;
 			if (onlyModulators) {
