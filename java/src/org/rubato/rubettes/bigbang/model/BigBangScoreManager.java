@@ -200,7 +200,7 @@ public class BigBangScoreManager extends Model {
 			//newPaths.add(this.score.addObject(powersetPath, currentPathsWithValues));
 		}*/
 		
-		if (fireCompositionChange) {
+		if (newPaths != null && fireCompositionChange) {
 			//select the objects just added
 			this.fireCompositionChange(new SelectedObjectsPaths(newPaths, null));
 		}

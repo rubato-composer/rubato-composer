@@ -202,10 +202,13 @@ public class BigBangScore implements Cloneable {
 	
 	private List<DenotatorPath> addObjectsToParent(List<Denotator> objects, DenotatorPath parentPath, DenotatorPath powersetPath) {
 		objects = this.makeObjectsRelative(objects, parentPath);
-		for (int i = 0; i < objects.size(); i++) {
-			objects.set(i, this.internalAddObject(objects.get(i), powersetPath));
+		if (objects != null) {
+			for (int i = 0; i < objects.size(); i++) {
+				objects.set(i, this.internalAddObject(objects.get(i), powersetPath));
+			}
+			return this.findPaths(objects, powersetPath);
 		}
-		return this.findPaths(objects, powersetPath);
+		return null;
 	}
 	
 	//TODO: so bad, really gotta refactor it all
@@ -549,11 +552,14 @@ public class BigBangScore implements Cloneable {
 	
 	private List<Denotator> makeObjectsRelative(List<Denotator> objectList, DenotatorPath parentPath) {
 		Denotator absoluteParentObject = this.getAbsoluteObject(parentPath);
-		List<Denotator> relativeObjects = new ArrayList<Denotator>();
-		for (Denotator currentObject: objectList) {
-			relativeObjects.add(this.objectGenerator.makeObjectRelative(currentObject, absoluteParentObject));
+		if (absoluteParentObject != null) {
+			List<Denotator> relativeObjects = new ArrayList<Denotator>();
+			for (Denotator currentObject: objectList) {
+				relativeObjects.add(this.objectGenerator.makeObjectRelative(currentObject, absoluteParentObject));
+			}
+			return relativeObjects;
 		}
-		return relativeObjects;
+		return null;
 	}
 	
 	public Denotator getAbsoluteObject(DenotatorPath objectPath) {
