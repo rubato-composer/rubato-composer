@@ -103,7 +103,47 @@ public class BigBangTransformationGraphTest extends TestCase {
 		this.model.getUndoRedoModel().toggleGraphAnimation();
 	}
 	
+	public void testModifyWithSatellitesAddedDirectly() {
+		this.model.setInitialComposition(this.objects.generator.createEmptyScore());
+		int[][] paths = new int[][]{{0,0},{0,1}};
+		double[][] values = new double[][]{{0,60},{2,65},{3,66}};
+		ArrayList<DenotatorPath> pathList = this.createPathsList(new DenotatorPath(this.objects.SOUND_SCORE_FORM, new int[]{0,1}), 3);
+		pathList.add(0, new DenotatorPath(this.objects.SOUND_SCORE_FORM, new int[]{}));
+		this.model.addObjects(this.createNodePathAndValuesMapList(this.objects.SOUND_SCORE_FORM, paths, values),
+				pathList, false);
+		TestCase.assertTrue(this.model.getUndoRedoModel().getLastEdit() instanceof AddObjectsEdit);
+		//only one first-level note
+		TestCase.assertEquals(1, ((PowerDenotator)this.model.getComposition()).getFactorCount());
+		
+		this.model.getUndoRedoModel().modifyOperation(0, 0.5);
+		//anchor tone not there anymore so satellites should not be built. all we get are two of the four initial notes
+		TestCase.assertEquals(1, ((PowerDenotator)this.model.getComposition()).getFactorCount());
+		
+		//transform satellites
+		TransformationProperties properties = new TransformationProperties(this.createSelectedObjectsPaths(this.objects.SOUND_SCORE_FORM, new int[]{0,1,0}, new int[]{0,1,1}), Arrays.asList(this.nodePaths), false, false);
+		properties.setCenter(new double[]{0,0});
+		properties.setEndPoint(new double[]{0,1});
+		this.model.scaleObjects(properties , new double[]{2,2});
+		this.model.getUndoRedoModel().modifyOperation(1, 0.5);
+		TestCase.assertEquals(1, ((PowerDenotator)this.model.getComposition()).getFactorCount());
+		
+		//add one more
+		paths = new int[][]{{0,0},{0,1}};
+		values = new double[][]{{4,67}};
+		this.model.addObjects(this.createNodePathAndValuesMapList(this.objects.SOUND_SCORE_FORM, paths, values),
+				this.createPathsList(new DenotatorPath(this.objects.SOUND_SCORE_FORM, new int[]{0,1}), 1), false);
+		TestCase.assertTrue(this.model.getUndoRedoModel().getLastEdit() instanceof AddObjectsEdit);
+		//only one first-level note
+		TestCase.assertEquals(1, ((PowerDenotator)this.model.getComposition()).getFactorCount());
+		
+		//test animation
+		this.model.getUndoRedoModel().setOperationDurations(.1);
+		this.model.getUndoRedoModel().toggleGraphAnimation();
+		TestCase.assertEquals(1, ((PowerDenotator)this.model.getComposition()).getFactorCount());
+	}
+	
 	public void testPathDifferences() {
+		System.out.println("\n\n");
 		this.model.setInitialComposition(this.objects.generator.createEmptyScore());
 		int[][] paths = new int[][]{{0,0},{0,1}};
 		double[][] values = new double[][]{{0,60},{1,60}};

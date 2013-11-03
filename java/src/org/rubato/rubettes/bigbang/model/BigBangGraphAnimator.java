@@ -57,7 +57,8 @@ public class BigBangGraphAnimator extends Thread {
 		this.model.firePropertyChange(BigBangController.TOGGLE_GRAPH_ANIMATION, null, true);
 		List<AbstractOperationEdit> shortestPath = this.graph.getCurrentShortestPath();
 		//first reset edges
-		for (AbstractOperationEdit currentEdit : shortestPath) {
+		for (int i = shortestPath.size()-1; i >= 0; i--) {
+			AbstractOperationEdit currentEdit = shortestPath.get(i);
 			currentEdit.modify(0);
 			this.graph.updateComposition(true);
 		}

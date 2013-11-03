@@ -10,17 +10,20 @@ import org.rubato.rubettes.util.DenotatorPath;
 
 public class AddObjectsEdit extends AbstractOperationEdit {
 	
-	private List<DenotatorPath> powersetPaths;
-	private List<List<Map<DenotatorPath,Double>>> definitePathsWithValues;
-	private List<List<Map<DenotatorPath,Double>>> previewedPathsWithValues;
+	private List<DenotatorPath> definitePowersetPaths;
+	private List<Map<DenotatorPath,Double>> definitePathsWithValues;
+	private List<DenotatorPath> previewedPowersetPaths;
+	private List<Map<DenotatorPath,Double>> previewedPathsWithValues;
+	private List<DenotatorPath> modifiedPowersetPaths;
 	private List<List<Map<DenotatorPath,Double>>> modifiedPathsWithValues;
 	private Form objectForm;
 	
 	public AddObjectsEdit(BigBangScoreManager scoreManager, List<Map<DenotatorPath,Double>> pathsWithValues, List<DenotatorPath> powersetPaths) {
 		super(scoreManager);
-		this.powersetPaths = new ArrayList<DenotatorPath>();
-		this.definitePathsWithValues = new ArrayList<List<Map<DenotatorPath,Double>>>();
-		this.previewedPathsWithValues = new ArrayList<List<Map<DenotatorPath,Double>>>();
+		this.definitePowersetPaths = new ArrayList<DenotatorPath>();
+		this.previewedPowersetPaths = new ArrayList<DenotatorPath>();
+		this.definitePathsWithValues = new ArrayList<Map<DenotatorPath,Double>>();
+		this.previewedPathsWithValues = new ArrayList<Map<DenotatorPath,Double>>();
 		if (!powersetPaths.isEmpty()) {
 			this.setObjectForm(powersetPaths.get(0));
 		}
@@ -39,27 +42,29 @@ public class AddObjectsEdit extends AbstractOperationEdit {
 	}
 	
 	/*
-	 * adds the adjusted the number of objects according to this.modificationRatio (for now for each powerset
-	 * independently)
+	 * adds the adjusted the number of objects according to this.modificationRatio
 	 */
 	protected void updateOperation() {
+		this.modifiedPowersetPaths = new ArrayList<DenotatorPath>();
 		this.modifiedPathsWithValues = new ArrayList<List<Map<DenotatorPath,Double>>>();
-		for (int i = 0; i < this.powersetPaths.size(); i++) {
-			List<Map<DenotatorPath,Double>> currentDefinitePathsWithValues = this.definitePathsWithValues.get(i);
-			List<Map<DenotatorPath,Double>> currentPreviewedPathsWithValues = this.previewedPathsWithValues.get(i);
-			int totalNumberOfObjects = currentDefinitePathsWithValues.size() + currentPreviewedPathsWithValues.size();
-			int modifiedNumberOfObjects = (int)Math.round(this.modificationRatio*totalNumberOfObjects);
-			List<Map<DenotatorPath,Double>> currentModifiedPathsWithValues = new ArrayList<Map<DenotatorPath,Double>>();
-			//add only as many of the objects as are needed
-			for (int j = 0; j < modifiedNumberOfObjects; j++) {
-				if (j < currentDefinitePathsWithValues.size()) {
-					currentModifiedPathsWithValues.add(currentDefinitePathsWithValues.get(j));
-				} else {
-					currentModifiedPathsWithValues.add(currentPreviewedPathsWithValues.get(j-currentDefinitePathsWithValues.size()));
-				}
+		int totalNumberOfObjects = this.definitePathsWithValues.size() + this.previewedPathsWithValues.size();
+		int modifiedNumberOfObjects = (int)Math.round(this.modificationRatio*totalNumberOfObjects);
+		for (int i = 0; i < modifiedNumberOfObjects; i++) {
+			if (i < this.definitePathsWithValues.size()) {
+				this.addPathsWithValuesToModifiedList(this.definitePowersetPaths.get(i), this.definitePathsWithValues.get(i));
+			} else {
+				int index = i-this.definitePathsWithValues.size();
+				this.addPathsWithValuesToModifiedList(this.previewedPowersetPaths.get(index), this.previewedPathsWithValues.get(index));
 			}
-			this.modifiedPathsWithValues.add(currentModifiedPathsWithValues);
 		}
+	}
+
+	private void addPathsWithValuesToModifiedList(DenotatorPath powersetPath, Map<DenotatorPath,Double> pathsWithValues) {
+		if (!this.modifiedPowersetPaths.contains(powersetPath)) {
+			this.modifiedPowersetPaths.add(powersetPath);
+			this.modifiedPathsWithValues.add(new ArrayList<Map<DenotatorPath,Double>>());
+		}
+		this.modifiedPathsWithValues.get(this.modifiedPowersetPaths.indexOf(powersetPath)).add(pathsWithValues);
 	}
 	
 	/*would have been cool, but can be done later...
@@ -93,15 +98,17 @@ public class AddObjectsEdit extends AbstractOperationEdit {
 			this.setObjectForm(powersetPaths.get(0));
 		}
 		//reset previewed objects and remove the previous object if the new object is on the topmost level
-		this.previewedPathsWithValues = this.getNewPathsWithValuesList();
+		this.previewedPowersetPaths = new ArrayList<DenotatorPath>();
+		this.previewedPathsWithValues = new ArrayList<Map<DenotatorPath,Double>>();
 		if (powersetPaths.size() > 0 && powersetPaths.get(0) == null) {
-			this.definitePathsWithValues = this.getNewPathsWithValuesList();
+			this.definitePowersetPaths = new ArrayList<DenotatorPath>();
+			this.definitePathsWithValues = new ArrayList<Map<DenotatorPath,Double>>();
 		}
 		if (pathsWithValues.isEmpty() || (powersetPaths.get(0) == null || powersetPaths.get(0).getChildPath(0).getEndForm().equals(this.objectForm))) {
 			if (inPreviewMode) {
-				this.addObjects(pathsWithValues, powersetPaths, this.previewedPathsWithValues);
+				this.addObjects(pathsWithValues, powersetPaths, this.previewedPathsWithValues, this.previewedPowersetPaths);
 			} else {
-				this.addObjects(pathsWithValues, powersetPaths, this.definitePathsWithValues);
+				this.addObjects(pathsWithValues, powersetPaths, this.definitePathsWithValues, this.definitePowersetPaths);
 			}
 			this.updateOperation();
 			return true;
@@ -109,32 +116,11 @@ public class AddObjectsEdit extends AbstractOperationEdit {
 		return false;
 	}
 	
-	private void addObjects(List<Map<DenotatorPath,Double>> pathsWithValues, List<DenotatorPath> powersetPaths, List<List<Map<DenotatorPath,Double>>> thisPathsWithValues) {
+	private void addObjects(List<Map<DenotatorPath,Double>> pathsWithValues, List<DenotatorPath> powersetPaths, List<Map<DenotatorPath,Double>> thisPathsWithValues, List<DenotatorPath> thisPowersetPaths) {
 		for (int i = 0; i < pathsWithValues.size(); i++) {
-			DenotatorPath currentPowersetPath = powersetPaths.get(i);
-			Map<DenotatorPath,Double> currentPathsWithValues = pathsWithValues.get(i);
-			if (!this.powersetPaths.contains(currentPowersetPath)) {
-				this.addNewPowersetPathAndAdjustPathsWithValues(currentPowersetPath);
-			}
-			thisPathsWithValues.get(this.powersetPaths.indexOf(currentPowersetPath)).add(currentPathsWithValues);
+			thisPowersetPaths.add(powersetPaths.get(i));
+			thisPathsWithValues.add(pathsWithValues.get(i));
 		}
-	}
-	
-	/*
-	 * generates a new pathsWithValues list to include the same amount of empty lists as this.powersetPaths
-	 */
-	private List<List<Map<DenotatorPath,Double>>> getNewPathsWithValuesList() {
-		List<List<Map<DenotatorPath,Double>>> pathsWithValues = new ArrayList<List<Map<DenotatorPath,Double>>>();
-		while (pathsWithValues.size() < this.powersetPaths.size()) {
-			pathsWithValues.add(new ArrayList<Map<DenotatorPath,Double>>());
-		}
-		return pathsWithValues;
-	}
-	
-	private void addNewPowersetPathAndAdjustPathsWithValues(DenotatorPath powersetPath) {
-		this.powersetPaths.add(powersetPath);
-		this.definitePathsWithValues.add(new ArrayList<Map<DenotatorPath,Double>>());
-		this.previewedPathsWithValues.add(new ArrayList<Map<DenotatorPath,Double>>());
 	}
 	
 	public void setInPreviewMode(boolean inPreviewMode) {
@@ -142,11 +128,11 @@ public class AddObjectsEdit extends AbstractOperationEdit {
 	}
 	
 	public List<Map<DenotatorPath,DenotatorPath>> execute(List<Map<DenotatorPath,DenotatorPath>> pathDifferences, boolean fireCompositionChange) {
-		if (this.powersetPaths.isEmpty() && fireCompositionChange) {
+		if (this.modifiedPowersetPaths.isEmpty() && fireCompositionChange) {
 			this.scoreManager.fireCompositionChange();
 		}
-		for (int i = 0; i < this.powersetPaths.size(); i++) {
-			List<DenotatorPath> objectPaths = this.scoreManager.addObjects(this.powersetPaths.get(i), this.modifiedPathsWithValues.get(i), fireCompositionChange);
+		for (int i = 0; i < this.modifiedPowersetPaths.size(); i++) {
+			List<DenotatorPath> objectPaths = this.scoreManager.addObjects(this.modifiedPowersetPaths.get(i), this.modifiedPathsWithValues.get(i), fireCompositionChange);
 			/*for (DenotatorPath currentPath : objectPaths) {
 				//pathDifferences.get(0).put(null, currentPath);
 			}*/
