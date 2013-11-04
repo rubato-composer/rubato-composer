@@ -105,10 +105,11 @@ public class BigBangView extends Model implements View {
 		//TODO: crashes even if there's no device connected!!!!!!
 		
 		this.leapController = new Controller();
-		this.leapListener = new LeapMotionIn(this, this.viewController);
+		this.leapListener = new LeapMotionIn(this.viewController);
+		this.panel.addKeyListener(this.leapListener);
 		leapController.addListener(leapListener);
-		this.leapController.enableGesture(Gesture.Type.TYPE_KEY_TAP);
-		this.leapController.enableGesture(Gesture.Type.TYPE_SCREEN_TAP);
+//		this.leapController.enableGesture(Gesture.Type.TYPE_KEY_TAP);
+//		this.leapController.enableGesture(Gesture.Type.TYPE_SCREEN_TAP);
 	}
 	
 	public void addNewWindow() {
@@ -586,10 +587,6 @@ public class BigBangView extends Model implements View {
 		//System.out.println(this.selectedObjectsPaths + " ... " + objectsPaths + " ... " + this.displayObjects.getSelectedObjectsPaths() + " ... " + this.displayObjects.getCategorizedSelectedObjectsPaths());
 		List<TransformationPaths> valuePaths = this.getXYTransformationPaths();
 		return new TransformationProperties(objectsPaths, valuePaths, copyAndTransform, previewMode);
-	}
-	
-	public void setObjects() {
-		this.controller.setObjects();
 	}
 	
 	public void addObjects(ArrayList<PointND> locations, Boolean inPreviewMode) {

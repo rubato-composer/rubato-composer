@@ -65,7 +65,6 @@ public class ViewController extends Controller {
 	public static final String MAX_SATELLITE_LEVEL = "setSatelliteLevels";
 	public static final String ACTIVE_SATELLITE_LEVEL = "setActiveSatelliteLevel";
 	public static final String ADD_OBJECTS = "addObjects";
-	public static final String SET_OBJECTS = "setObjects";
 	public static final String DELETE_OBJECTS = "deleteSelectedObjects";
 	public static final String COPY_OBJECTS = "copySelectedObjectsTo";
 	public static final String COPY_OBJECTS_NEW = "copySelectedObjectsToNewLayer";
@@ -253,11 +252,7 @@ public class ViewController extends Controller {
 	public void shapeSelectedObjects(TreeMap<Integer,Integer> location, boolean copyAndTransform, boolean previewMode) {
 		this.callModelMethod(ViewController.SHAPE_OBJECTS, location, copyAndTransform, previewMode);
 	}
-	
-	public void setObjects() {
-		this.callModelMethod(ViewController.SET_OBJECTS);
-	}
-	
+
 	public void addObjects(ArrayList<PointND> locations, boolean inPreviewMode) {
 		this.callModelMethod(ViewController.ADD_OBJECTS, locations, inPreviewMode);
 	}
