@@ -67,26 +67,10 @@ public class BigBangModel extends Model {
 		return this.scoreManager.getComposition();
 	}
 	
-	private Boolean settingObjects = false;
-	
-	public void setObjects() {
-//		System.out.println("SETTING OBJECTS");
-		settingObjects = true;
-//		if (this.scoreManager != null) {
-//			AbstractOperationEdit lastEdit = this.undoRedoModel.getLastEdit();
-//			if (lastEdit != null && lastEdit instanceof AddObjectsEdit) {
-//				AddObjectsEdit addEdit = (AddObjectsEdit) lastEdit;
-//				this.undoRedoModel.postEdit(new AddObjectsEdit(this.scoreManager, addEdit.));
-////				this.undoRedoModel.postEdit(new AddObjectsEdit(this.scoreManager, new ArrayList<Map<DenotatorPath,Double>>(), new ArrayList<DenotatorPath>()));
-//				this.undoRedoModel.postEdit(lastEdit);
-//			}
-//		}
-	}
-	
 	public void addObjects(ArrayList<Map<DenotatorPath,Double>> pathsWithValues, ArrayList<DenotatorPath> powersetPaths, Boolean inPreviewMode) {
 		if (this.scoreManager != null) { //needs to be checked for milmeister ghost rubette reacting to leap motion 
 			AbstractOperationEdit lastEdit = this.undoRedoModel.getLastEdit();
-			if (lastEdit != null && lastEdit instanceof AddObjectsEdit && !settingObjects) {
+			if (lastEdit != null && lastEdit instanceof AddObjectsEdit) {
 				AddObjectsEdit addEdit = (AddObjectsEdit) lastEdit;
 				if (addEdit.addObjects(pathsWithValues, powersetPaths, inPreviewMode)) {
 					this.undoRedoModel.modifiedOperation(false);
@@ -94,7 +78,6 @@ public class BigBangModel extends Model {
 				}
 			}
 			this.undoRedoModel.postEdit(new AddObjectsEdit(this.scoreManager, pathsWithValues, powersetPaths));
-			settingObjects = false;
 		}
 	}
 	
