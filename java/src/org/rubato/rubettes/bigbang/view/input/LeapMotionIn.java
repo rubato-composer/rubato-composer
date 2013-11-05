@@ -8,13 +8,14 @@ import org.rubato.rubettes.bigbang.view.input.leap.DrawingAdapter;
 import org.rubato.rubettes.bigbang.view.input.leap.LeapSpace;
 import org.rubato.rubettes.bigbang.view.input.leap.LeapTransformAdapter;
 import org.rubato.rubettes.bigbang.view.input.leap.SelectionAdapter;
+import org.rubato.rubettes.bigbang.view.input.leap.TranslationAdapter;
 
 import com.leapmotion.leap.Controller;
 import com.leapmotion.leap.Listener;
 
 public class LeapMotionIn extends Listener implements KeyListener {
 	
-	public enum GestureMode { DRAW, SELECT }
+	public enum GestureMode { DRAW, SELECT, TRANSLATE }
 	
 	private final LeapSpace leapSpace = new LeapSpace();
 	
@@ -61,6 +62,10 @@ public class LeapMotionIn extends Listener implements KeyListener {
 					adapter = new SelectionAdapter(viewController, leapSpace);
 				}
 				else if (this.currentState == GestureMode.SELECT) {
+					this.currentState = GestureMode.TRANSLATE;
+					adapter = new TranslationAdapter(viewController, leapSpace);
+				}
+				else if (this.currentState == GestureMode.TRANSLATE) {
 					this.currentState = GestureMode.DRAW;
 					adapter = new DrawingAdapter(viewController, leapSpace);
 				}
