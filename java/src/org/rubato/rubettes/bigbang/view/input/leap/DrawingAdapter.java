@@ -31,7 +31,9 @@ public class DrawingAdapter extends LeapTransformAdapter {
 			}
 			lastFrameEmpty = true;
 		}
-		lastFrameEmpty = false;
+		else {
+			lastFrameEmpty = false;
+		}
 		ArrayList<PointND> pointList3D = new ArrayList<PointND>();
 		for (int i = 0; i < controller.frame().fingers().count(); i++) {
 			Vector currentTipPosition = controller.frame().fingers().get(i).tipPosition();

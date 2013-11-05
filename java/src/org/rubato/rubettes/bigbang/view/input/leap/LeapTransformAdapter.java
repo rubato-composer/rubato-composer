@@ -6,7 +6,7 @@ import com.leapmotion.leap.Controller;
 
 public abstract class LeapTransformAdapter {
 	ViewController viewController;
-	LeapTransformAdapter(ViewController viewController) {
+	public LeapTransformAdapter(ViewController viewController) {
 		this.viewController = viewController;
 	}
 	public abstract void update(Controller controller);
