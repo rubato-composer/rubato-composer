@@ -1,7 +1,6 @@
-package org.rubato.rubettes.bigbang.view.input.leap;
+package org.rubato.rubettes.bigbang.view.controller.score;
 
 import java.awt.geom.Point2D;
-import java.awt.geom.Point2D.Double;
 import java.util.Iterator;
 
 import org.rubato.rubettes.bigbang.view.controller.ViewController;
@@ -11,21 +10,23 @@ import com.leapmotion.leap.Controller;
 import com.leapmotion.leap.Finger;
 import com.leapmotion.leap.FingerList;
 import com.leapmotion.leap.Frame;
+import com.leapmotion.leap.Listener;
 
-public class TranslationAdapter extends LeapTransformAdapter {
+public class LeapObjectTranslationAdapter extends Listener {
 	
 	private LeapSpace leapSpace;
 	private Point2D.Double startPoint;
 	private Point2D.Double endPoint;
 	private Boolean isActive = false;
+	private ViewController viewController;
 
-	public TranslationAdapter(ViewController viewController, LeapSpace leapSpace) {
-		super(viewController);
-		this.leapSpace = leapSpace;
+	public LeapObjectTranslationAdapter(ViewController viewController) {
+		this.viewController = viewController;
+		this.leapSpace = new LeapSpace();
 	}
 
 	@Override
-	public void update(Controller controller) {
+	public void onFrame(Controller controller) {
 		Frame frame = controller.frame();
 		FingerList fingers = frame.fingers();
 		Iterator<Finger> it = fingers.iterator();
@@ -55,7 +56,7 @@ public class TranslationAdapter extends LeapTransformAdapter {
 		}
 	}
 
-	@Override
+	
 	public void capture() {
 		if (isActive) {
 			this.viewController.translateSelectedObjects(this.startPoint, this.endPoint, false, false);
@@ -63,11 +64,4 @@ public class TranslationAdapter extends LeapTransformAdapter {
 		isActive = false;
 		
 	}
-
-	@Override
-	public void end() {
-		// TODO Auto-generated method stub
-		
-	}
-
 }

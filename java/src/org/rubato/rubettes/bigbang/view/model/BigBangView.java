@@ -43,7 +43,6 @@ import org.rubato.rubettes.bigbang.view.controller.mode.ShearingModeAdapter;
 import org.rubato.rubettes.bigbang.view.controller.mode.TranslationModeAdapter;
 import org.rubato.rubettes.bigbang.view.controller.mode.temp.TemporaryDisplayMode;
 import org.rubato.rubettes.bigbang.view.input.BigBangMidiReceiver;
-import org.rubato.rubettes.bigbang.view.input.LeapMotionIn;
 import org.rubato.rubettes.bigbang.view.model.tools.DisplayTool;
 import org.rubato.rubettes.bigbang.view.model.tools.SelectionTool;
 import org.rubato.rubettes.bigbang.view.player.BigBangPlayer;
@@ -52,9 +51,6 @@ import org.rubato.rubettes.bigbang.view.subview.DisplayObjects;
 import org.rubato.rubettes.bigbang.view.subview.JBigBangPanel;
 import org.rubato.rubettes.util.DenotatorPath;
 import org.rubato.rubettes.util.PointND;
-
-import com.leapmotion.leap.Controller;
-import com.leapmotion.leap.Gesture;
 
 public class BigBangView extends Model implements View {
 	
@@ -81,8 +77,6 @@ public class BigBangView extends Model implements View {
 	//only used in preview mode
 	private SelectedObjectsPaths selectedObjectsPaths;
 	private AbstractOperationEdit selectedOperation;
-	private Controller leapController;
-	private LeapMotionIn leapListener;
 	
 	public BigBangView(BigBangController controller) {
 		this.controller = controller;
@@ -102,14 +96,6 @@ public class BigBangView extends Model implements View {
 		this.setTempo(BigBangPlayer.INITIAL_BPM);
 		this.modFilterOn = false;
 		this.modNumber = -1;
-		//TODO: crashes even if there's no device connected!!!!!!
-		
-		this.leapController = new Controller();
-		this.leapListener = new LeapMotionIn(this.viewController);
-		this.panel.addKeyListener(this.leapListener);
-		leapController.addListener(leapListener);
-//		this.leapController.enableGesture(Gesture.Type.TYPE_KEY_TAP);
-//		this.leapController.enableGesture(Gesture.Type.TYPE_SCREEN_TAP);
 	}
 	
 	public void addNewWindow() {

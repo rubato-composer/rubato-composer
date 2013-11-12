@@ -1,4 +1,4 @@
-package org.rubato.rubettes.bigbang.view.input.leap;
+package org.rubato.rubettes.bigbang.view.controller.score;
 
 import org.rubato.rubettes.bigbang.view.subview.JBigBangDisplay;
 import org.rubato.rubettes.bigbang.view.subview.JBigBangPanel;
