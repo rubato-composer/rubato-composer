@@ -1,4 +1,4 @@
-package org.rubato.rubettes.bigbang.view.input.leap;
+package org.rubato.rubettes.bigbang.view.controller.score;
 
 import java.awt.geom.Point2D;
 import java.util.Iterator;
@@ -11,21 +11,23 @@ import com.leapmotion.leap.Controller;
 import com.leapmotion.leap.Finger;
 import com.leapmotion.leap.FingerList;
 import com.leapmotion.leap.Frame;
+import com.leapmotion.leap.Listener;
 
-public class SelectionAdapter extends LeapTransformAdapter {
+public class LeapObjectSelectionAdapter extends Listener {
 	private LeapSpace leapSpace;
 	private SelectionTool selectionTool;
+	private ViewController viewController;
 	
 	private Boolean stillSelecting = false;
 	
-	public SelectionAdapter(ViewController controller, LeapSpace leapSpace) {
-		super(controller);
-		this.leapSpace = leapSpace;
+	public LeapObjectSelectionAdapter(ViewController controller) {
+		this.leapSpace = new LeapSpace();
+		this.viewController = controller;
 		selectionTool = new SelectionTool();
 	}
 
 	@Override
-	public void update(Controller controller) {
+	public void onFrame(Controller controller) {
 		
 		Frame frame = controller.frame();
 		FingerList fingers = frame.fingers();
@@ -64,12 +66,6 @@ public class SelectionAdapter extends LeapTransformAdapter {
 		
 	}
 
-	@Override
-	public void end() {
-		stillSelecting = false;
-	}
-
-	@Override
 	public void capture() {
 		if (!stillSelecting) {
 			return;

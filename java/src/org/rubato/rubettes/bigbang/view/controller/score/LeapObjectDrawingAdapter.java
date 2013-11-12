@@ -1,4 +1,4 @@
-package org.rubato.rubettes.bigbang.view.input.leap;
+package org.rubato.rubettes.bigbang.view.controller.score;
 
 import java.util.ArrayList;
 
@@ -6,20 +6,22 @@ import org.rubato.rubettes.bigbang.view.controller.ViewController;
 import org.rubato.rubettes.util.PointND;
 
 import com.leapmotion.leap.Controller;
+import com.leapmotion.leap.Listener;
 import com.leapmotion.leap.Vector;
 
-public class DrawingAdapter extends LeapTransformAdapter {
+public class LeapObjectDrawingAdapter extends Listener {
 	private LeapSpace leapSpace;
 	private ArrayList<PointND> lastUpdate;
 	private Boolean lastFrameEmpty = true;
+	private ViewController viewController;
 	
-	public DrawingAdapter(ViewController controller, LeapSpace leapSpace) {
-		super(controller);
-		this.leapSpace = leapSpace;
+	public LeapObjectDrawingAdapter(ViewController controller) {
+		this.leapSpace = new LeapSpace();
+		this.viewController = controller;
 	}
 
 	@Override
-	public void update(Controller controller) {
+	public void onFrame(Controller controller) {
 		update(controller, true);
 		
 	}
@@ -45,12 +47,6 @@ public class DrawingAdapter extends LeapTransformAdapter {
 		lastUpdate = pointList3D;
 	}
 
-	@Override
-	public void end() {
-		
-	}
-
-	@Override
 	public void capture() {
 		if (lastUpdate.isEmpty()) {
 			return;
