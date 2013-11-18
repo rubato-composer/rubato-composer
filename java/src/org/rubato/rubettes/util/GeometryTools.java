@@ -4,9 +4,18 @@ import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
 import java.util.List;
+
 import org.apache.commons.math3.analysis.polynomials.PolynomialFunctionLagrangeForm;
 
 public class GeometryTools {
+	
+	public static Point2D.Double subtractPoint(Point2D.Double p1, Point2D.Double p2) {
+		return new Point2D.Double(p1.x - p2.x, p1.y - p2.y);
+	}
+	
+	public static Point2D.Double addPoint(Point2D.Double p1, Point2D.Double p2) {
+		return new Point2D.Double(p1.x + p2.x, p1.y + p2.y);
+	}
 	
 	public static double calculateArcAngle(Point2D.Double center, double startAngle, Point2D.Double endPoint) {
 		double endAngle = calculateAngle(center, endPoint);

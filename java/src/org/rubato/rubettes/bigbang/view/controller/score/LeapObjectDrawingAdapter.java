@@ -3,6 +3,7 @@ package org.rubato.rubettes.bigbang.view.controller.score;
 import java.util.ArrayList;
 
 import org.rubato.rubettes.bigbang.view.controller.ViewController;
+import org.rubato.rubettes.util.LeapSpace;
 import org.rubato.rubettes.util.PointND;
 
 import com.leapmotion.leap.Controller;

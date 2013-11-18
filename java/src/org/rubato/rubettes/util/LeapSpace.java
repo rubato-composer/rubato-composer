@@ -1,8 +1,7 @@
-package org.rubato.rubettes.bigbang.view.controller.score;
+package org.rubato.rubettes.util;
 
 import org.rubato.rubettes.bigbang.view.subview.JBigBangDisplay;
 import org.rubato.rubettes.bigbang.view.subview.JBigBangPanel;
-import org.rubato.rubettes.util.PointND;
 
 import com.leapmotion.leap.Vector;
 
