@@ -147,7 +147,7 @@ public class SmoothOscillator {
 	}
 	
 	public double getFrequency() {
-		return this.oscillator.frequency.getValue();//this.frequencySweeper.input.get();
+		return this.frequencySweeper.input.get();//this.oscillator.frequency.getValue();
 	}
 	
 	public void setAmplitude(double amplitude) {
