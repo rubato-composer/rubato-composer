@@ -114,7 +114,10 @@ public class BigBangMapper extends BigBangScoreManipulator {
 		//TODO: ADD THEM AS THE SAME TYPE AS THEIR ORIGINAL!! MODULATOR OR SATELLITE  
 		List<DenotatorPath> newPaths = this.score.addObjectsToParent(mappedObjects, anchorPath, 0);
 		//PerformanceCheck.startTask(".extract");
-		return this.score.extractObjects(newPaths);
+		if (newPaths != null) {
+			return this.score.extractObjects(newPaths);
+		}
+		return new ArrayList<List<Denotator>>();
 	}
 	
 	private ModuleMorphism generateRelativeMorphism(double[] anchorLocation) {

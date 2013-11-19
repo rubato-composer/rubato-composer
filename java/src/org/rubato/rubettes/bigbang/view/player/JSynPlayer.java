@@ -67,8 +67,12 @@ public class JSynPlayer {
 	
 	public void removeFromSynthAndStop(UnitGenerator generator) {
 		if (generator != null) {
-			generator.stop();
-			this.synth.remove(generator);
+			try {
+				generator.stop();
+				this.synth.remove(generator);
+			} catch (NullPointerException e) {
+				//System.out.println(generator);
+			}
 		}
 	}
 	
