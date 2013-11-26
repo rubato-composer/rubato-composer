@@ -89,7 +89,7 @@ public class BigBangView extends Model implements View {
 		this.setSatellitesConnected(true);
 		this.setDisplayMode(new DrawingModeAdapter(this.viewController));
 		//TODO:make this automatic when displaynotes loaded!!! depending on max/min and window size
-		this.setDisplayPosition(new Point(20, 560));
+		this.setDisplayPosition(new Point(20, 660));
 		this.setZoomFactors(5.0, 5.0);
 		this.midiReceiver = new BigBangMidiReceiver(this.viewController);
 		this.recorder = new BigBangRecorder(this, this.player, this.controller);
