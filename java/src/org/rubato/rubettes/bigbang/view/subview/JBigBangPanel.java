@@ -27,7 +27,7 @@ import org.rubato.rubettes.bigbang.view.subview.toolbars.JMainToolBar;
 
 public class JBigBangPanel extends JPanel {
 	
-	public static final int CENTER_PANEL_HEIGHT = 575;
+	public static final int CENTER_PANEL_HEIGHT = 675;
 	
 	private JMainOptionsPanel mainOptionsPanel;
 	private JBigBangDisplay display;

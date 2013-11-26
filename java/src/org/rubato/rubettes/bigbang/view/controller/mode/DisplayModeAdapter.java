@@ -153,7 +153,7 @@ public class DisplayModeAdapter extends Listener implements MouseInputListener, 
         if (id == KeyEvent.KEY_PRESSED) 
         {
         	char c = e.getKeyChar();
-        	System.out.println("Pressed test: " + c);
+        	//System.out.println("Pressed test: " + c);
         }
         return false;
     }

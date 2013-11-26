@@ -19,7 +19,7 @@ import org.rubato.rubettes.bigbang.view.player.BigBangPlayer;
 
 public class JBigBangDisplay extends JPanel implements View {
 	
-	public static final int DISPLAY_WIDTH = 920;
+	public static final int DISPLAY_WIDTH = 1020;
 	
 	private DisplayContents contents;
 	private DisplayModeAdapter modeAdapter;

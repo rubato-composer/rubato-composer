@@ -132,7 +132,9 @@ public class AddObjectsEdit extends AbstractOperationEdit {
 			this.scoreManager.fireCompositionChange();
 		}
 		for (int i = 0; i < this.modifiedPowersetPaths.size(); i++) {
-			List<DenotatorPath> objectPaths = this.scoreManager.addObjects(this.modifiedPowersetPaths.get(i), this.modifiedPathsWithValues.get(i), fireCompositionChange);
+			//only fire composition change with last powerset
+			boolean update = fireCompositionChange && i == this.modifiedPowersetPaths.size()-1;
+			List<DenotatorPath> objectPaths = this.scoreManager.addObjects(this.modifiedPowersetPaths.get(i), this.modifiedPathsWithValues.get(i), update);
 			/*for (DenotatorPath currentPath : objectPaths) {
 				//pathDifferences.get(0).put(null, currentPath);
 			}*/

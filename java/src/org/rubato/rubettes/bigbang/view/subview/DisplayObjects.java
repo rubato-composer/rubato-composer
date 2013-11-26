@@ -167,7 +167,11 @@ public class DisplayObjects implements View {
 	 * instances + the instance itself. 1 if it is the first)
 	 */
 	public int getInstanceNumberOfCoordinateValueName(int coordinateSystemValueIndex) {
-		return this.finder.getInstanceNumberOfCoordinateValueName(coordinateSystemValueIndex);
+		if (coordinateSystemValueIndex < this.finder.getCoordinateSystemValueNames().size()) {
+			return this.finder.getInstanceNumberOfCoordinateValueName(coordinateSystemValueIndex);
+		}
+		//in case of satellitelevel/siblingnumber
+		return 0;
 	}
 	
 	public DenotatorObjectConfiguration getObjectType(Form objectForm, DenotatorPath longestColimitPath) {
