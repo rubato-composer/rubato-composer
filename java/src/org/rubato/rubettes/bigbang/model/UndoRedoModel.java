@@ -43,13 +43,30 @@ public class UndoRedoModel extends Model {
 	}
 	
 	public void toggleGraphAnimation() {
+		if (this.animator != null && this.animator.isAlive()) {
+			this.animator.end();
+		} else {
+			if (this.animator == null) {
+				this.animator = new BigBangGraphAnimator(this.operations, this);
+			} else {
+				double previousPosition = this.animator.getPosition();
+				this.animator = new BigBangGraphAnimator(this.operations, this);
+				if (previousPosition < 1) {
+					this.animator.setPosition(previousPosition);
+				}
+			}
+			this.animator.start();
+		}
+	}
+	
+	/**
+	 * @param position between 0 and 1
+	 */
+	public void setGraphAnimationPosition(Double position) {
 		if (this.animator == null || !this.animator.isAlive()) {
 			this.animator = new BigBangGraphAnimator(this.operations, this);
-			this.animator.start();
-		} else {
-			this.animator.end();
-			this.animator = null;
 		}
+		this.animator.setPosition(position);
 	}
 	
 	public void undo() {
@@ -90,9 +107,9 @@ public class UndoRedoModel extends Model {
 		this.firePropertyChange(BigBangController.GRAPH, null, this.operations);
 	}
 	
-	public AbstractOperationEdit getLastEdit() {
+	public AbstractOperationEdit getLastAddedEdit() {
 		if (this.operations.getEdgeCount() > 0) {
-			return this.operations.getLastEdit();
+			return this.operations.getLastAddedOperation();
 		}
 		return null;
 	}
@@ -134,6 +151,16 @@ public class UndoRedoModel extends Model {
 	public void deselectCompositionStates() {
 		this.operations.selectCompositionState(null, true);
 		this.firePropertyChange(BigBangController.DESELECT_COMPOSITION_STATES, null, null);
+	}
+	
+	public void selectOperation(AbstractOperationEdit edge) {
+		this.operations.selectOperation(edge);
+		this.firePropertyChange(BigBangController.SELECT_OPERATION, null, edge);
+	}
+	
+	public void deselectOperations() {
+		this.operations.selectOperation(null);
+		this.firePropertyChange(BigBangController.DESELECT_OPERATIONS, null, null);
 	}
 	
 	public void reset() {

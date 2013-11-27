@@ -10,12 +10,37 @@ public class BigBangGraphAnimator extends Thread {
 	private final int SLEEP_LENGTH = 10;
 	
 	private BigBangTransformationGraph graph;
+	private List<AbstractOperationEdit> animatedPath;
+	private double totalPathTime;
 	private UndoRedoModel model;
 	private boolean running;
+	private double currentPosition;
 	
 	public BigBangGraphAnimator(BigBangTransformationGraph graph, UndoRedoModel model) {
 		this.graph = graph;
+		this.animatedPath = this.graph.getCurrentShortestPath();
+		this.totalPathTime = this.calculateTotalPathTime();
 		this.model = model;
+	}
+	
+	private double calculateTotalPathTime() {
+		double totalTime = 0;
+		for (AbstractOperationEdit currentEdit : this.animatedPath) {
+			totalTime += currentEdit.getDuration();
+		}
+		return totalTime;
+	}
+	
+	/**
+	 * @param position between 0 and 1
+	 */
+	public void setPosition(double position) {
+		this.currentPosition = position*this.totalPathTime;
+		this.updateAnimationToPosition();
+	}
+	
+	public double getPosition() {
+		return this.currentPosition/this.totalPathTime;
 	}
 	
 	public void run() {
@@ -30,60 +55,47 @@ public class BigBangGraphAnimator extends Thread {
 		this.running = false;
 	}
 	
-	/*private void animate() throws InterruptedException {
-		List<AbstractOperationEdit> shortestPath = this.graph.getCurrentShortestPath();
-		int stepsPerEdge = MILISECONDS_PER_EDGE/FRAME_LENGTH;
-		//System.out.println(shortestPath);
-		//first reset edges
-		for (AbstractOperationEdit currentEdit : shortestPath) {
-			currentEdit.modify(0);
-			this.graph.updateComposition(true);
-		}
-		//then animate
-		for (AbstractOperationEdit currentEdit : shortestPath) {
-			for (int i = 0; i < stepsPerEdge; i++) {
-				System.out.println(currentEdit + " " + i);
-				currentEdit.modify(((double)i)/stepsPerEdge);
-				this.graph.updateComposition(true);
-				//this.model.firePropertyChange(BigBangController.MODIFY_OPERATION, null, currentEdit);
-				Thread.sleep(this.FRAME_LENGTH);
+	private void updateAnimationToPosition() {
+		double currentTime = 0;
+		for (AbstractOperationEdit currentEdit : this.animatedPath) {
+			if (currentTime < this.currentPosition) {
+				//all edits after to 1
+				if (currentTime + currentEdit.getDuration() < this.currentPosition) {
+					currentEdit.modify(1);
+				//the edit during which the current position occurs to the respective value
+				} else {
+					double modValue = (this.currentPosition-currentTime)/currentEdit.getDuration();
+					currentEdit.modify(modValue);
+					this.model.firePropertyChange(BigBangController.MODIFY_OPERATION, null, currentEdit);
+				}
+			//all edits before to 0
+			} else {
+				currentEdit.modify(0);
 			}
+			currentTime += currentEdit.getDuration();
 		}
-		//this.model.firePropertyChange(BigBangController.MODIFY_OPERATION, null, null);
-	}*/
+		this.model.firePropertyChange(BigBangController.GRAPH_ANIMATION_POSITION, null, this.getPosition());
+		this.graph.updateComposition(true);
+	}
 	
 	private void animate() throws InterruptedException {
 		this.running = true;
 		this.model.firePropertyChange(BigBangController.TOGGLE_GRAPH_ANIMATION, null, true);
-		List<AbstractOperationEdit> shortestPath = this.graph.getCurrentShortestPath();
-		//first reset edges
-		for (int i = shortestPath.size()-1; i >= 0; i--) {
-			AbstractOperationEdit currentEdit = shortestPath.get(i);
-			currentEdit.modify(0);
-			this.graph.updateComposition(true);
-		}
-		//then animate
-		long time = System.currentTimeMillis();
-		double nextTime = time;
-		for (AbstractOperationEdit currentEdit : shortestPath) {
-			if (currentEdit.isAnimatable()) {
-				int edgeDuration = (int)Math.round(currentEdit.getDuration()*1000);
-				nextTime += edgeDuration;
-				while (System.currentTimeMillis() < nextTime) {
-					if (!this.running) {
-						this.model.firePropertyChange(BigBangController.TOGGLE_GRAPH_ANIMATION, null, false);
-						return;
-					}
-					double currentRatio = 1.0-((nextTime-System.currentTimeMillis())/edgeDuration);
-					//System.out.println(nextTime + " " + currentRatio);
-					currentEdit.modify(currentRatio);
-					this.graph.updateComposition(true);
-					this.model.firePropertyChange(BigBangController.MODIFY_OPERATION, null, currentEdit);
-					Thread.sleep(this.SLEEP_LENGTH);
-				}
-				currentEdit.modify(1);
+		
+		double previousTime = System.currentTimeMillis();
+		while (this.currentPosition < this.totalPathTime) {
+			if (!this.running) {
+				this.model.firePropertyChange(BigBangController.TOGGLE_GRAPH_ANIMATION, null, false);
+				return;
 			}
+			double currentTime = System.currentTimeMillis();
+			double timeDifferenceInSeconds = (currentTime-previousTime)/1000;
+			previousTime = currentTime;
+			this.currentPosition += timeDifferenceInSeconds;
+			this.updateAnimationToPosition();
+			Thread.sleep(this.SLEEP_LENGTH);
 		}
+		
 		this.model.firePropertyChange(BigBangController.MODIFY_OPERATION, null, null);
 		this.model.firePropertyChange(BigBangController.TOGGLE_GRAPH_ANIMATION, null, false);
 	}

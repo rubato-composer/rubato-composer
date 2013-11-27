@@ -167,9 +167,9 @@ public class BigBangView extends Model implements View {
 			((TemporaryDisplayMode)newMode).setPreviousDisplayMode(this.displayMode);
 		}
 		this.displayMode = newMode;
-		if (!(newMode instanceof AlterationCompositionSelectionMode && this.selectedOperation instanceof AlterationEdit)) {
+		/*if (!(newMode instanceof AlterationCompositionSelectionMode && this.selectedOperation instanceof AlterationEdit)) {
 			this.deselectOperations();
-		}
+		}*/
 		this.firePropertyChange(ViewController.DISPLAY_MODE, null, newMode);
 	}
 	
@@ -396,7 +396,7 @@ public class BigBangView extends Model implements View {
 	}
 	
 	public void selectOperation(AbstractOperationEdit operation) {
-		if (operation != null && !operation.equals(this.selectedOperation)) {
+		if (operation != null) {
 			//select perspective first
 			if (operation instanceof AbstractTransformationEdit) {
 				AbstractTransformationEdit transformationEdit = (AbstractTransformationEdit)operation;
@@ -432,8 +432,13 @@ public class BigBangView extends Model implements View {
 					this.setDisplayMode(new ReflectionModeAdapter(this.viewController, center, reflectionVector));
 				}
 			}
-			this.selectedOperation = operation;
-			this.firePropertyChange(ViewController.SELECT_OPERATION, null, operation);
+			
+			//then select operation if not the same as the selected one
+			if (!operation.equals(this.selectedOperation)) {
+				this.selectedOperation = operation;
+				this.firePropertyChange(ViewController.SELECT_OPERATION, null, operation);
+				this.controller.selectOperation(operation);
+			}
 		} else if (operation == null && this.selectedOperation != null) {
 			this.deselectOperations();
 		}
@@ -444,6 +449,7 @@ public class BigBangView extends Model implements View {
 			this.selectedOperation = null;
 			this.clearDisplayTool();
 			this.firePropertyChange(ViewController.SELECT_OPERATION, null, null);
+			this.controller.deselectOperations();
 		}
 	}
 	

@@ -69,7 +69,7 @@ public class BigBangModel extends Model {
 	
 	public void addObjects(ArrayList<Map<DenotatorPath,Double>> pathsWithValues, ArrayList<DenotatorPath> powersetPaths, Boolean inPreviewMode) {
 		if (this.scoreManager != null) { //needs to be checked for milmeister ghost rubette reacting to leap motion 
-			AbstractOperationEdit lastEdit = this.undoRedoModel.getLastEdit();
+			AbstractOperationEdit lastEdit = this.undoRedoModel.getLastAddedEdit();
 			if (lastEdit != null && lastEdit instanceof AddObjectsEdit) {
 				AddObjectsEdit addEdit = (AddObjectsEdit) lastEdit;
 				if (addEdit.addObjects(pathsWithValues, powersetPaths, inPreviewMode)) {
@@ -139,7 +139,7 @@ public class BigBangModel extends Model {
 	
 	public void addWallpaperDimension(SelectedObjectsPaths objectPaths, Integer rangeFrom, Integer rangeTo) {
 		this.undoRedoModel.postEdit(new AddWallpaperDimensionEdit(this.scoreManager, objectPaths, rangeFrom, rangeTo));
-		this.firePropertyChange(BigBangController.MODIFY_OPERATION, null, this.undoRedoModel.getLastEdit());
+		this.firePropertyChange(BigBangController.MODIFY_OPERATION, null, this.undoRedoModel.getLastAddedEdit());
 	}
 	
 	public void endWallpaper() {
@@ -148,7 +148,7 @@ public class BigBangModel extends Model {
 	
 	public void addAlteration() {
 		this.undoRedoModel.postEdit(new AlterationEdit(this.scoreManager));
-		this.firePropertyChange(BigBangController.MODIFY_OPERATION, null, this.undoRedoModel.getLastEdit());
+		this.firePropertyChange(BigBangController.MODIFY_OPERATION, null, this.undoRedoModel.getLastAddedEdit());
 	}
 	
 	public UndoRedoModel getUndoRedoModel() {
