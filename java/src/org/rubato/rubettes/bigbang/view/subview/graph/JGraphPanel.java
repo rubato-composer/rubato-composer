@@ -11,10 +11,12 @@ import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JSlider;
 
 import org.rubato.rubettes.bigbang.controller.BigBangController;
 import org.rubato.rubettes.bigbang.model.edits.AbstractOperationEdit;
 import org.rubato.rubettes.bigbang.view.View;
+import org.rubato.rubettes.bigbang.view.controller.AnimationPositionListener;
 import org.rubato.rubettes.bigbang.view.controller.ViewController;
 import org.rubato.rubettes.bigbang.view.controller.general.AnimateButtonAction;
 import org.rubato.rubettes.bigbang.view.controller.score.GraphListener;
@@ -43,6 +45,7 @@ public class JGraphPanel extends JPanel implements View, ActionListener {
 	private EditingModalGraphMouse<Integer,AbstractOperationEdit> graphMouse;
 	private JPanel northPanel;
 	private JButton animateButton;
+	private JSlider animateSlider;
 	private JComboBox modeSelektor;
 	private JLabel statusBar;
 	private Integer pickedState;
@@ -53,13 +56,46 @@ public class JGraphPanel extends JPanel implements View, ActionListener {
 		bbController.addView(this);
 		this.bbController = bbController;
 		this.controller = controller;
-		this.animateButton = new JButton(new AnimateButtonAction(bbController));
+		this.initNorthPanel();
+		this.statusBar = new JLabel();
+	}
+	
+	private void initNorthPanel() {
+		this.animateButton = new JButton(new AnimateButtonAction(this.bbController));
+		this.animateSlider = new JSlider(0, 10000, 0);
+		this.animateSlider.addChangeListener(new AnimationPositionListener(this.bbController));
 		this.modeSelektor = new JComboBox(new Mode[]{Mode.TRANSFORMING,Mode.PICKING,Mode.EDITING});
 		this.modeSelektor.addActionListener(this);
-		this.northPanel = new JPanel(new GridLayout(2,1));
+		this.northPanel = new JPanel(new GridLayout(3,1));
 		this.northPanel.add(this.animateButton);
+		this.northPanel.add(this.animateSlider);
 		this.northPanel.add(this.modeSelektor);
-		this.statusBar = new JLabel();
+	}
+	
+	private void setMode(Mode mode) {
+		this.graphMouse.setMode(mode);
+		if (!this.modeSelektor.getSelectedItem().equals(mode)) {
+			this.modeSelektor.setSelectedItem(mode);
+		}
+	}
+	
+	private void updateGraph(Graph<Integer,AbstractOperationEdit> graph) {
+		if (graph != null) {
+			if (this.layout == null) {
+				this.initLayoutAndViewer();
+			}
+			this.layout.setGraph(graph);
+			//this.layout.initialize();
+			Relaxer relaxer = new VisRunner(this.layout);
+			relaxer.stop();
+			relaxer.prerelax();
+			StaticLayout<Integer,AbstractOperationEdit> staticLayout = new StaticLayout<Integer,AbstractOperationEdit>(graph, this.layout);
+			LayoutTransition<Integer,AbstractOperationEdit> transition = new LayoutTransition<Integer,AbstractOperationEdit>(this.graphViewer, this.graphViewer.getGraphLayout(), staticLayout);
+			Animator animator = new Animator(transition);
+			animator.start();
+			this.graphViewer.getRenderContext().getMultiLayerTransformer().setToIdentity();
+			this.graphViewer.repaint();
+		}
 	}
 	
 	private void initLayoutAndViewer() {
@@ -119,34 +155,6 @@ public class JGraphPanel extends JPanel implements View, ActionListener {
 		this.add(this.graphViewer, BorderLayout.CENTER);
 		this.add(this.statusBar, BorderLayout.SOUTH);
 	}
-	
-	private void setMode(Mode mode) {
-		this.graphMouse.setMode(mode);
-		if (!this.modeSelektor.getSelectedItem().equals(mode)) {
-			this.modeSelektor.setSelectedItem(mode);
-		}
-	}
-	
-	private void updateGraph(Graph<Integer,AbstractOperationEdit> graph) {
-		if (graph != null) {
-			if (this.layout == null) {
-				this.initLayoutAndViewer();
-			}
-			this.layout.setGraph(graph);
-			//this.layout.initialize();
-			Relaxer relaxer = new VisRunner(this.layout);
-			relaxer.stop();
-			relaxer.prerelax();
-			StaticLayout<Integer,AbstractOperationEdit> staticLayout = new StaticLayout<Integer,AbstractOperationEdit>(graph, this.layout);
-			LayoutTransition<Integer,AbstractOperationEdit> transition = new LayoutTransition<Integer,AbstractOperationEdit>(this.graphViewer, this.graphViewer.getGraphLayout(), staticLayout);
-			Animator animator = new Animator(transition);
-			animator.start();
-			this.graphViewer.getRenderContext().getMultiLayerTransformer().setToIdentity();
-			this.graphViewer.repaint();
-		}
-	}
-	
-	
 
 	public void modelPropertyChange(PropertyChangeEvent event) {
 		String propertyName = event.getPropertyName();
@@ -160,8 +168,9 @@ public class JGraphPanel extends JPanel implements View, ActionListener {
 			this.selectOperation(transformation);
 		} else if (propertyName.equals(BigBangController.TOGGLE_GRAPH_ANIMATION)) {
 			this.animateButton.setSelected((Boolean)event.getNewValue());
-		}	
-		else if (propertyName.equals(ViewController.SELECT_COMPOSITION_STATE)) {
+		} else if (propertyName.equals(BigBangController.GRAPH_ANIMATION_POSITION)) {
+			this.animateSlider.setValue((int)Math.round((Double)event.getNewValue()*(this.animateSlider.getMaximum()-this.animateSlider.getMinimum())));
+		} else if (propertyName.equals(ViewController.SELECT_COMPOSITION_STATE)) {
 			this.selectState((Integer)event.getNewValue());
 		} else if (propertyName.equals(ViewController.DESELECT_COMPOSITION_STATES)) {
 			this.selectState(null);

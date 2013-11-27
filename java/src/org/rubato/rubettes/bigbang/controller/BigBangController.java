@@ -21,9 +21,12 @@ public class BigBangController extends Controller {
 	public static final String MODIFY_OPERATION = "modifyOperation";
 	public static final String SELECT_COMPOSITION_STATE = "selectCompositionState";
 	public static final String DESELECT_COMPOSITION_STATES = "deselectCompositionStates";
+	public static final String SELECT_OPERATION = "selectOperation";
+	public static final String DESELECT_OPERATIONS = "deselectOperations";
 	public static final String INSERT_OPERATION = "insertOperation";
 	public static final String REMOVE_OPERATION = "removeOperation";
 	public static final String TOGGLE_GRAPH_ANIMATION = "toggleGraphAnimation";
+	public static final String GRAPH_ANIMATION_POSITION = "setGraphAnimationPosition";
 	
 	public static final String MULTITOUCH = "MultiTouch";
 	public static final String INPUT_ACTIVE = "InputActive";
@@ -81,6 +84,14 @@ public class BigBangController extends Controller {
 		this.callModelMethod(BigBangController.DESELECT_COMPOSITION_STATES);
 	}
 	
+	public void selectOperation(AbstractOperationEdit edge) {
+		this.callModelMethod(BigBangController.SELECT_OPERATION, edge);
+	}
+	
+	public void deselectOperations() {
+		this.callModelMethod(BigBangController.DESELECT_OPERATIONS);
+	}
+	
 	public void removeOperationFromGraph(AbstractOperationEdit operation) {
 		this.callModelMethod(BigBangController.REMOVE_OPERATION, operation);
 	}
@@ -91,6 +102,10 @@ public class BigBangController extends Controller {
 	
 	public void toggleGraphAnimation() {
 		this.callModelMethod(BigBangController.TOGGLE_GRAPH_ANIMATION);
+	}
+	
+	public void setAnimationPosition(Double position) {
+		this.callModelMethod(BigBangController.GRAPH_ANIMATION_POSITION, position);
 	}
 	
 	public void changeInputActive(boolean inputActive) {
