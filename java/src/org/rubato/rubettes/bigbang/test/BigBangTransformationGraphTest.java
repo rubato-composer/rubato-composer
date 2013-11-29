@@ -22,8 +22,6 @@ import org.rubato.rubettes.bigbang.model.edits.AddObjectsEdit;
 import org.rubato.rubettes.bigbang.view.model.SelectedObjectsPaths;
 import org.rubato.rubettes.util.DenotatorPath;
 
-import sun.tools.tree.ThisExpression;
-
 import edu.uci.ics.jung.graph.util.Pair;
 
 public class BigBangTransformationGraphTest extends TestCase {
