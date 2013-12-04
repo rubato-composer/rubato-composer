@@ -19,6 +19,7 @@ import org.rubato.rubettes.bigbang.view.View;
 import org.rubato.rubettes.bigbang.view.controller.AnimationPositionListener;
 import org.rubato.rubettes.bigbang.view.controller.ViewController;
 import org.rubato.rubettes.bigbang.view.controller.general.AnimateButtonAction;
+import org.rubato.rubettes.bigbang.view.controller.general.SplitButtonAction;
 import org.rubato.rubettes.bigbang.view.controller.score.GraphListener;
 import org.rubato.rubettes.bigbang.view.subview.JBigBangPanel;
 
@@ -38,6 +39,8 @@ import edu.uci.ics.jung.visualization.util.Animator;
 
 public class JGraphPanel extends JPanel implements View, ActionListener {
 	
+	private final int NORTHPANEL_HEIGHT = 100;
+	
 	private BigBangController bbController;
 	private ViewController controller;
 	private FRLayout2<Integer,AbstractOperationEdit> layout;
@@ -45,6 +48,7 @@ public class JGraphPanel extends JPanel implements View, ActionListener {
 	private EditingModalGraphMouse<Integer,AbstractOperationEdit> graphMouse;
 	private JPanel northPanel;
 	private JButton animateButton;
+	private JButton splitButton;
 	private JSlider animateSlider;
 	private JComboBox modeSelektor;
 	private JLabel statusBar;
@@ -61,14 +65,21 @@ public class JGraphPanel extends JPanel implements View, ActionListener {
 	}
 	
 	private void initNorthPanel() {
+		this.northPanel = new JPanel(new GridLayout(3,1));
 		this.animateButton = new JButton(new AnimateButtonAction(this.bbController));
+		this.splitButton = new JButton(new SplitButtonAction(this.bbController));
+		this.splitButton.setEnabled(false);
+		JPanel buttonPanel = new JPanel(new GridLayout(1,2));
+		buttonPanel.add(this.animateButton);
+		buttonPanel.add(this.splitButton);
+		this.northPanel.add(buttonPanel);
+		
 		this.animateSlider = new JSlider(0, 10000, 0);
 		this.animateSlider.addChangeListener(new AnimationPositionListener(this.bbController));
+		this.northPanel.add(this.animateSlider);
+		
 		this.modeSelektor = new JComboBox(new Mode[]{Mode.TRANSFORMING,Mode.PICKING,Mode.EDITING});
 		this.modeSelektor.addActionListener(this);
-		this.northPanel = new JPanel(new GridLayout(3,1));
-		this.northPanel.add(this.animateButton);
-		this.northPanel.add(this.animateSlider);
 		this.northPanel.add(this.modeSelektor);
 	}
 	
@@ -101,7 +112,7 @@ public class JGraphPanel extends JPanel implements View, ActionListener {
 	private void initLayoutAndViewer() {
 		//init layout and viewer
 		this.layout = new FRLayout2<Integer,AbstractOperationEdit>(new DirectedSparseGraph<Integer,AbstractOperationEdit>());
-		this.layout.setSize(new Dimension(300,JBigBangPanel.CENTER_PANEL_HEIGHT-40));
+		this.layout.setSize(new Dimension(300,JBigBangPanel.CENTER_PANEL_HEIGHT-this.NORTHPANEL_HEIGHT));
 		//this.layout.setForceMultiplier(.02);
 		//this.layout.setRepulsionRange(30);
 		//this.layout.setAttractionMultiplier(1);
@@ -110,7 +121,7 @@ public class JGraphPanel extends JPanel implements View, ActionListener {
 		relaxer.prerelax();
 		//Layout<Integer,AbstractOperationEdit> staticLayout = new StaticLayout<Integer,AbstractOperationEdit>(g, this.layout);
 		this.graphViewer = new VisualizationViewer<Integer,AbstractOperationEdit>(this.layout);
-		this.graphViewer.setMinimumSize(new Dimension(300,JBigBangPanel.CENTER_PANEL_HEIGHT-40));
+		this.graphViewer.setMinimumSize(new Dimension(300,JBigBangPanel.CENTER_PANEL_HEIGHT-this.NORTHPANEL_HEIGHT));
 		//this.graphViewer.getModel().getRelaxer().setSleepTime(10);
 		
 		//init labels
@@ -185,6 +196,7 @@ public class JGraphPanel extends JPanel implements View, ActionListener {
 				}
 				this.graphViewer.getPickedEdgeState().pick(operation, true);
 				this.pickedOperation = operation;
+				this.splitButton.setEnabled(this.pickedOperation.isSplittable());
 			}
 		} else {
 			if (this.graphViewer != null) {

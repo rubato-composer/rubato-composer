@@ -19,17 +19,6 @@ public class DeleteObjectsEdit extends AbstractPathBasedOperationEdit {
 		return pathDifferences;
 	}
 	
-	/*public void redo() {
-		super.redo();
-		this.execute();
-	}
-	
-	public void undo() {
-		super.undo();
-		List<DenotatorPath> oldAnchorPaths = DenotatorPath.getAnchorPaths(this.objectPaths);
-		this.objectPaths = this.scoreManager.addObjects(this.objects, oldAnchorPaths, false);
-	}*/
-	
 	@Override
 	protected String getSpecificPresentationName() {
 		return "Delete Objects";

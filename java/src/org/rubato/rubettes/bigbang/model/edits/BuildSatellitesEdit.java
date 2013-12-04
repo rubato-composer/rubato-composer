@@ -12,6 +12,11 @@ public class BuildSatellitesEdit extends AbstractPathBasedOperationEdit {
 	private int powersetIndex;
 	private List<DenotatorPath> previousResultPaths;
 	
+	//used for cloning
+	protected BuildSatellitesEdit(BigBangScoreManager scoreManager) {
+		super(scoreManager);
+	}
+	
 	public BuildSatellitesEdit(BigBangScoreManager scoreManager, List<DenotatorPath> objectPaths, DenotatorPath anchorPath, int powersetIndex) {
 		super(scoreManager, objectPaths);
 		this.anchorPath = anchorPath;
@@ -28,16 +33,6 @@ public class BuildSatellitesEdit extends AbstractPathBasedOperationEdit {
 		return pathDifferences;
 	}
 	
-	/*public void redo() {
-		super.redo();
-		this.execute();
-	}
-	
-	public void undo() {
-		super.undo();
-		this.oldSatellitePaths = this.scoreManager.undoMoveToParent(this.newSatellitePaths, this.oldSatellitePaths);
-	}*/
-	
 	@Override
 	protected String getSpecificPresentationName() {
 		return "Build Satellites";
@@ -46,6 +41,14 @@ public class BuildSatellitesEdit extends AbstractPathBasedOperationEdit {
 	@Override
 	public void setInPreviewMode(boolean inPreviewMode) {
 		// TODO Auto-generated method stub
+	}
+	
+	public BuildSatellitesEdit clone() {
+		BuildSatellitesEdit clone;
+		clone = (BuildSatellitesEdit)super.clone();
+		clone.anchorPath = this.anchorPath;
+		clone.powersetIndex = this.powersetIndex;
+		return clone;
 	}
 
 }

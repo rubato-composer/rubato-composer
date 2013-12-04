@@ -13,6 +13,8 @@ public class EndWallpaperEdit extends AbstractOperationEdit {
 	public EndWallpaperEdit(BigBangScoreManager manager) {
 		super(manager);
 		this.scoreManager = manager;
+		this.isAnimatable = false;
+		this.isSplittable = false;
 	}
 	
 	//not changed by modification!!

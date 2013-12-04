@@ -19,7 +19,6 @@ public class AddWallpaperDimensionEdit extends AbstractOperationEdit {
 		this.objectPaths = objectPaths;
 		this.rangeFrom = rangeFrom;
 		this.rangeTo = rangeTo;
-		this.isAnimatable = false;
 	}
 	
 	//not changed by modification!!

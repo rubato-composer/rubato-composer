@@ -49,7 +49,7 @@ public class UndoRedoModel extends Model {
 			if (this.animator == null) {
 				this.animator = new BigBangGraphAnimator(this.operations, this);
 			} else {
-				double previousPosition = this.animator.getPosition();
+				double previousPosition = this.animator.getPositionInPercent();
 				this.animator = new BigBangGraphAnimator(this.operations, this);
 				if (previousPosition < 1) {
 					this.animator.setPosition(previousPosition);
@@ -67,6 +67,15 @@ public class UndoRedoModel extends Model {
 			this.animator = new BigBangGraphAnimator(this.operations, this);
 		}
 		this.animator.setPosition(position);
+	}
+	
+	/**
+	 * Splits the currently selected operation at the current position of the animator if it is splittable
+	 */
+	public void splitOperation() {
+		this.operations.splitOperation(this.animator.getPositionInSeconds());
+		this.animator.setGraph(this.operations);
+		this.firePropertyChange(BigBangController.GRAPH, null, this.operations);
 	}
 	
 	public void undo() {
