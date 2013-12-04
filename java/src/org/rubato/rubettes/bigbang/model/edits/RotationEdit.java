@@ -9,8 +9,17 @@ public class RotationEdit extends AbstractLocalTransformationEdit {
 	private double[] startingPoint;
 	private double angle;
 	
+	//used for cloning
+	protected RotationEdit(BigBangScoreManager scoreManager) {
+		super(scoreManager);
+	}
+	
 	public RotationEdit(BigBangScoreManager scoreLayers, TransformationProperties properties, double[] startingPoint, double angle) {
 		super(scoreLayers, properties);
+		this.setParameters(startingPoint, angle);
+	}
+	
+	private void setParameters(double[] startingPoint, double angle) {
 		this.startingPoint = startingPoint;
 		this.angle = angle;
 		this.updateOperation();
@@ -19,6 +28,14 @@ public class RotationEdit extends AbstractLocalTransformationEdit {
 	public void modifyAngle(double angle) {
 		this.angle = angle;
 		this.updateOperation();
+	}
+	
+	//creates a copy of this with the same center and scaleFactors adjusted by the given ratio
+	protected RotationEdit createModifiedCopy(double ratio) {
+		RotationEdit modifiedCopy = (RotationEdit)this.clone();
+		double partialAngle = this.angle*ratio;
+		modifiedCopy.setParameters(this.startingPoint, partialAngle);
+		return modifiedCopy;
 	}
 	
 	@Override

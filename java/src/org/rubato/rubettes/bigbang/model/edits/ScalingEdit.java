@@ -8,8 +8,16 @@ public class ScalingEdit extends AbstractLocalTransformationEdit {
 	
 	private double[] scaleFactors;
 	
+	protected ScalingEdit(BigBangScoreManager scoreManager) {
+		super(scoreManager);
+	}
+	
 	public ScalingEdit(BigBangScoreManager scoreLayers, TransformationProperties properties, double[] scaleFactors) {
 		super(scoreLayers, properties);
+		this.setScaleFactors(scaleFactors);
+	}
+	
+	private void setScaleFactors(double[] scaleFactors) {
 		this.scaleFactors = scaleFactors;
 		this.updateOperation();
 	}
@@ -18,6 +26,15 @@ public class ScalingEdit extends AbstractLocalTransformationEdit {
 	public void modify(double[] newValues) {
 		this.scaleFactors = newValues;
 		this.updateOperation();
+	}
+	
+	//creates a copy of this with the same center and scaleFactors adjusted by the given ratio
+	protected ScalingEdit createModifiedCopy(double ratio) {
+		ScalingEdit modifiedCopy = (ScalingEdit)this.clone();
+		double[] partialScaling = new double[]{this.getModifiedScaleFactor(this.scaleFactors[0], ratio),
+				this.getModifiedScaleFactor(this.scaleFactors[1], ratio)};
+		modifiedCopy.setScaleFactors(partialScaling);
+		return modifiedCopy;
 	}
 	
 	@Override
@@ -34,11 +51,12 @@ public class ScalingEdit extends AbstractLocalTransformationEdit {
 	}
 	
 	public double[] getScaleFactors() {
-		return new double[]{this.getModifiedScaleFactor(this.scaleFactors[0]),this.getModifiedScaleFactor(this.scaleFactors[1])};
+		return new double[]{this.getModifiedScaleFactor(this.scaleFactors[0], this.modificationRatio),
+				this.getModifiedScaleFactor(this.scaleFactors[1], this.modificationRatio)};
 	}
 	
-	private double getModifiedScaleFactor(double scaleFactor) {
-		return 1+(this.modificationRatio*(scaleFactor-1));
+	private double getModifiedScaleFactor(double scaleFactor, double ratio) {
+		return 1+(ratio*(scaleFactor-1));
 	}
 
 }

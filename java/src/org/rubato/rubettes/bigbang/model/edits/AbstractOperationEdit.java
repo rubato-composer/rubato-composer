@@ -17,13 +17,15 @@ public abstract class AbstractOperationEdit extends AbstractUndoableEdit {
 	protected double modificationRatio;
 	protected Double minModRatio, maxModRatio;
 	protected boolean isAnimatable;
+	protected boolean isSplittable;
 	//duration in seconds
 	protected double duration;
 	
 	public AbstractOperationEdit(BigBangScoreManager scoreManager) {
 		this.scoreManager = scoreManager;
 		this.modificationRatio = 1;
-		this.isAnimatable = true;
+		this.isAnimatable = false;
+		this.isSplittable = false;
 		this.duration = 1;
 	}
 	
@@ -61,6 +63,19 @@ public abstract class AbstractOperationEdit extends AbstractUndoableEdit {
 	
 	public boolean isAnimatable() {
 		return this.isAnimatable;
+	}
+	
+	public boolean isSplittable() {
+		return this.isSplittable;
+	}
+	
+	/**
+	 * @param ratio a number between 0 and 1
+	 * @return a list with two operations that represent this operation split at the given ratio.
+	 * null if not splittable
+	 */
+	public List<AbstractOperationEdit> getSplitOperations(double ratio) {
+		return null;
 	}
 	
 	public void setDuration(double duration) {

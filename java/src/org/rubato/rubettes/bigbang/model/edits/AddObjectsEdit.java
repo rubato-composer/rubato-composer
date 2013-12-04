@@ -30,6 +30,7 @@ public class AddObjectsEdit extends AbstractOperationEdit {
 		this.addObjects(pathsWithValues, powersetPaths, false);
 		this.minModRatio = 0.0;
 		this.maxModRatio = 1.0;
+		this.isSplittable = true;
 		this.updateOperation();
 	}
 	
@@ -57,6 +58,18 @@ public class AddObjectsEdit extends AbstractOperationEdit {
 				this.addPathsWithValuesToModifiedList(this.previewedPowersetPaths.get(index), this.previewedPathsWithValues.get(index));
 			}
 		}
+	}
+	
+	public List<AbstractOperationEdit> getSplitOperations(double ratio) {
+		List<AbstractOperationEdit> splitOperations = new ArrayList<AbstractOperationEdit>();
+		int firstNumberOfObjects = (int)Math.round(ratio*this.definitePathsWithValues.size());
+		splitOperations.add(new AddObjectsEdit(this.scoreManager,
+				this.definitePathsWithValues.subList(0, firstNumberOfObjects),
+				this.definitePowersetPaths.subList(0, firstNumberOfObjects)));
+		splitOperations.add(new AddObjectsEdit(this.scoreManager,
+				this.definitePathsWithValues.subList(firstNumberOfObjects, this.definitePathsWithValues.size()),
+				this.definitePowersetPaths.subList(firstNumberOfObjects, this.definitePathsWithValues.size())));
+		return splitOperations;
 	}
 
 	private void addPathsWithValuesToModifiedList(DenotatorPath powersetPath, Map<DenotatorPath,Double> pathsWithValues) {
@@ -141,16 +154,6 @@ public class AddObjectsEdit extends AbstractOperationEdit {
 		}
 		return pathDifferences;
 	}
-	
-	/*public void redo() {
-		super.redo();
-		this.execute();
-	}
-	
-	public void undo() {
-		super.undo();
-		this.scoreManager.removeObject(this.objectPath);
-	}*/
 	
 	@Override
 	protected String getSpecificPresentationName() {

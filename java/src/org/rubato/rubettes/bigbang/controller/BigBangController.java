@@ -27,6 +27,7 @@ public class BigBangController extends Controller {
 	public static final String REMOVE_OPERATION = "removeOperation";
 	public static final String TOGGLE_GRAPH_ANIMATION = "toggleGraphAnimation";
 	public static final String GRAPH_ANIMATION_POSITION = "setGraphAnimationPosition";
+	public static final String SPLIT_OPERATION = "splitOperation";
 	
 	public static final String MULTITOUCH = "MultiTouch";
 	public static final String INPUT_ACTIVE = "InputActive";
@@ -106,6 +107,10 @@ public class BigBangController extends Controller {
 	
 	public void setAnimationPosition(Double position) {
 		this.callModelMethod(BigBangController.GRAPH_ANIMATION_POSITION, position);
+	}
+	
+	public void splitOperation() {
+		this.callModelMethod(BigBangController.SPLIT_OPERATION);
 	}
 	
 	public void changeInputActive(boolean inputActive) {

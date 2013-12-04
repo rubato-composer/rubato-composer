@@ -18,16 +18,6 @@ public class FlattenEdit extends AbstractPathBasedOperationEdit {
 		this.scoreManager.flattenNotes(new TreeSet<DenotatorPath>(this.modifiedObjectPaths));
 		return pathDifferences;
 	}
-	
-	/*public void redo() {
-		super.redo();
-		this.execute();
-	}
-	
-	public void undo() {
-		super.undo();
-		this.oldNodePaths = this.score.unflattenNotes(this.newAndOldPaths);
-	}*/
 
 	@Override
 	public void setInPreviewMode(boolean inPreviewMode) {

@@ -10,13 +10,18 @@ public class ReflectionEdit extends AbstractLocalTransformationEdit {
 	
 	public ReflectionEdit(BigBangScoreManager scoreLayers, TransformationProperties properties, double[] reflectionVector) {
 		super(scoreLayers, properties);
-		this.reflectionVector = reflectionVector;
-		this.updateOperation();
+		this.modify(reflectionVector);
+		this.isSplittable = false;
 	}
 	
 	public void modify(double[] newValues) {
 		this.reflectionVector = newValues;
 		this.updateOperation();
+	}
+	
+	//does not work (yet) for this! 
+	protected ReflectionEdit createModifiedCopy(double ratio) {
+		return this;
 	}
 	
 	@Override

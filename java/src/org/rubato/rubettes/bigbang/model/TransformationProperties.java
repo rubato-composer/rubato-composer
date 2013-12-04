@@ -82,5 +82,12 @@ public class TransformationProperties {
 	public boolean inPreviewMode() {
 		return this.inPreviewMode;
 	}
+	
+	public TransformationProperties clone() {
+		TransformationProperties clone = new TransformationProperties(this.objectPaths, this.transformationPaths, this.copyAndTransform, this.inPreviewMode);
+		clone.center = this.center;
+		clone.endPoint = this.endPoint;
+		return clone;
+	}
 
 }

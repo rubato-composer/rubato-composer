@@ -8,8 +8,17 @@ public class ShearingEdit extends AbstractLocalTransformationEdit {
 	
 	private double[] shearingFactors;
 	
+	//used for cloning
+	protected ShearingEdit(BigBangScoreManager scoreManager) {
+		super(scoreManager);
+	}
+	
 	public ShearingEdit(BigBangScoreManager scoreLayers, TransformationProperties properties, double[] shearingFactors) {
 		super(scoreLayers, properties);
+		this.setShearingFactors(shearingFactors);
+	}
+	
+	private void setShearingFactors(double[] shearingFactors) {
 		this.shearingFactors = shearingFactors;
 		this.updateOperation();
 	}
@@ -17,6 +26,14 @@ public class ShearingEdit extends AbstractLocalTransformationEdit {
 	public void modify(double[] newValues) {
 		this.shearingFactors = newValues;
 		this.updateOperation();
+	}
+	
+	//creates a copy of this with the same center and scaleFactors adjusted by the given ratio
+	protected ShearingEdit createModifiedCopy(double ratio) {
+		ShearingEdit modifiedCopy = (ShearingEdit)this.clone();
+		double[] partialShearing = new double[]{this.shearingFactors[0]*ratio, this.shearingFactors[1]*ratio};
+		modifiedCopy.setShearingFactors(partialShearing);
+		return modifiedCopy;
 	}
 	
 	@Override

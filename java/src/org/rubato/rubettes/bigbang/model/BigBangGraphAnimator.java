@@ -17,10 +17,14 @@ public class BigBangGraphAnimator extends Thread {
 	private double currentPosition;
 	
 	public BigBangGraphAnimator(BigBangTransformationGraph graph, UndoRedoModel model) {
+		this.setGraph(graph);
+		this.model = model;
+	}
+	
+	public void setGraph(BigBangTransformationGraph graph) {
 		this.graph = graph;
 		this.animatedEdits = this.graph.getCurrentlyExecutedOperationsInOrder();
 		this.totalAnimationTime = this.graph.getCurrentTotalAnimationTime();
-		this.model = model;
 	}
 	
 	/**
@@ -31,7 +35,17 @@ public class BigBangGraphAnimator extends Thread {
 		this.updateAnimationToPosition();
 	}
 	
-	public double getPosition() {
+	/**
+	 * @return current position in seconds
+	 */
+	public double getPositionInSeconds() {
+		return this.currentPosition;
+	}
+	
+	/**
+	 * @return position between 0 and 1
+	 */
+	public double getPositionInPercent() {
 		return this.currentPosition/this.totalAnimationTime;
 	}
 	
@@ -65,7 +79,7 @@ public class BigBangGraphAnimator extends Thread {
 				currentEdit.modify(0);
 			}
 		}
-		this.model.firePropertyChange(BigBangController.GRAPH_ANIMATION_POSITION, null, this.getPosition());
+		this.model.firePropertyChange(BigBangController.GRAPH_ANIMATION_POSITION, null, this.getPositionInPercent());
 		this.graph.updateComposition(true);
 	}
 	

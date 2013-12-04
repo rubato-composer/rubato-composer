@@ -19,6 +19,8 @@ import org.rubato.rubettes.bigbang.model.TransformationPaths;
 import org.rubato.rubettes.bigbang.model.TransformationProperties;
 import org.rubato.rubettes.bigbang.model.edits.AbstractOperationEdit;
 import org.rubato.rubettes.bigbang.model.edits.AddObjectsEdit;
+import org.rubato.rubettes.bigbang.model.edits.ScalingEdit;
+import org.rubato.rubettes.bigbang.model.edits.TranslationEdit;
 import org.rubato.rubettes.bigbang.view.model.SelectedObjectsPaths;
 import org.rubato.rubettes.util.DenotatorPath;
 
@@ -143,7 +145,6 @@ public class BigBangTransformationGraphTest extends TestCase {
 	}
 	
 	public void testPathDifferences() {
-		System.out.println("\n\n");
 		this.model.setInitialComposition(this.objects.generator.createEmptyScore());
 		int[][] paths = new int[][]{{0,0},{0,1}};
 		double[][] values = new double[][]{{0,60},{1,60}};
@@ -285,6 +286,55 @@ public class BigBangTransformationGraphTest extends TestCase {
 		this.model.translateObjects(properties);
 		TestCase.assertEquals(5, this.model.getUndoRedoModel().getTransformationGraph().getVertexCount());
 		TestCase.assertEquals(4, this.model.getUndoRedoModel().getTransformationGraph().getEdgeCount());
+	}
+	
+	public void testSplitEdge() {
+		//add one note and perform a translation and a scaling
+		this.model.setInitialComposition(this.objects.generator.createEmptyScore());
+		int[][] paths = new int[][]{{0,0},{0,1}};
+		double[][] values = new double[][]{{0,60}};
+		this.model.addObjects(this.createNodePathAndValuesMapList(this.objects.SOUND_SCORE_FORM, paths, values),
+				this.createPathsList(new DenotatorPath(this.objects.SOUND_SCORE_FORM, new int[]{}), 1), false);
+		SelectedObjectsPaths selectedPaths = this.createSelectedObjectsPaths(this.objects.SOUND_SCORE_FORM, new int[]{0});
+		TransformationProperties properties = new TransformationProperties(selectedPaths, Arrays.asList(this.nodePaths), false, false);
+		properties.setCenter(new double[]{0,0});
+		properties.setEndPoint(new double[]{0,1});
+		this.model.translateObjects(properties);
+		this.model.scaleObjects(properties, new double[]{0,2});
+		TestCase.assertEquals(4, this.model.getUndoRedoModel().getTransformationGraph().getVertexCount());
+		TestCase.assertEquals(3, this.model.getUndoRedoModel().getTransformationGraph().getEdgeCount());
+		
+		//move to beginning of the translation, select it, and split
+		this.model.getUndoRedoModel().setGraphAnimationPosition(.4); //at .2 of translation (3*.0667)
+		this.model.getUndoRedoModel().selectOperation(this.model.getUndoRedoModel().getTransformationGraph().getOutEdges(1).iterator().next());
+		this.model.getUndoRedoModel().splitOperation();
+		
+		//check number of nodes and edges and the shifts of the resulting translations
+		TestCase.assertEquals(5, this.model.getUndoRedoModel().getTransformationGraph().getVertexCount());
+		TestCase.assertEquals(4, this.model.getUndoRedoModel().getTransformationGraph().getEdgeCount());
+		TranslationEdit firstPart = (TranslationEdit)this.model.getUndoRedoModel().getTransformationGraph().getOutEdges(1).iterator().next();
+		TestCase.assertEquals(0.0, firstPart.getStartingPoint()[1]);
+		//cope with rounding error
+		TestCase.assertEquals(0.2, ((double)Math.round(firstPart.getEndingPoint()[1]*1000))/1000);
+		TranslationEdit secondPart = (TranslationEdit)this.model.getUndoRedoModel().getTransformationGraph().getOutEdges(2).iterator().next();
+		TestCase.assertEquals(0.2, ((double)Math.round(1000*secondPart.getStartingPoint()[1]))/1000);
+		TestCase.assertEquals(1.0, ((double)Math.round(1000*secondPart.getEndingPoint()[1]))/1000);
+		
+		//move to beginning of the scaling, select it, and split
+		this.model.getUndoRedoModel().setGraphAnimationPosition(.8); //at .2 of scaling (4*.05)
+		this.model.getUndoRedoModel().selectOperation(this.model.getUndoRedoModel().getTransformationGraph().getOutEdges(3).iterator().next());
+		this.model.getUndoRedoModel().splitOperation();
+		
+		//check number of nodes and edges and the shifts of the resulting scalings
+		TestCase.assertEquals(6, this.model.getUndoRedoModel().getTransformationGraph().getVertexCount());
+		TestCase.assertEquals(5, this.model.getUndoRedoModel().getTransformationGraph().getEdgeCount());
+		ScalingEdit firstScalingPart = (ScalingEdit)this.model.getUndoRedoModel().getTransformationGraph().getOutEdges(3).iterator().next();
+		TestCase.assertEquals(0.0, firstScalingPart.getCenter()[1]);
+		//cope with rounding error
+		TestCase.assertEquals(1.2, ((double)Math.round(firstScalingPart.getScaleFactors()[1]*1000))/1000);
+		ScalingEdit secondScalingPart = (ScalingEdit)this.model.getUndoRedoModel().getTransformationGraph().getOutEdges(4).iterator().next();
+		TestCase.assertEquals(0.0, secondScalingPart.getCenter()[1]);
+		TestCase.assertEquals(1.8, ((double)Math.round(1000*secondScalingPart.getScaleFactors()[1]))/1000);
 	}
 	
 	public void testRemoveEdge() {
