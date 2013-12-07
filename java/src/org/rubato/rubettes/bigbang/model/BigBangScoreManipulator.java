@@ -9,10 +9,10 @@ import java.util.List;
  */
 public class BigBangScoreManipulator {
 	
-	protected BigBangScore score;
+	protected BigBangComposition score;
 	protected List<TransformationPaths> transformationPaths;
 	
-	public BigBangScoreManipulator(BigBangScore score, List<TransformationPaths> transformationPaths) {
+	public BigBangScoreManipulator(BigBangComposition score, List<TransformationPaths> transformationPaths) {
 		this.score = score;
 		this.transformationPaths = transformationPaths;
 	}

@@ -19,7 +19,7 @@ import org.w3c.dom.Element;
 public class BigBangRubette extends AbstractRubette {
 	
 	public static final boolean IS_MULTITOUCH = false;
-	public static final String STANDARD_FORM_NAME = "FMSet";
+	public static final String STANDARD_FORM_NAME = "SoundScore";
 	
 	//ban model from here!?
 	private BigBangModel model;
@@ -80,8 +80,10 @@ public class BigBangRubette extends AbstractRubette {
 	
 	private void verifyAndSetInput() {
 		Denotator input = this.getInput(0);
-		if (!this.model.setInitialComposition(input)) {
-			this.addError("Input denotator not of a valid form.");
+		if (input != null) {
+			this.model.setOrAddComposition(input);
+		} else {
+			this.addError("Input denotator is null.");
 		}
 	}
 	

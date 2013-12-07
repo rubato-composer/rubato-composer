@@ -35,32 +35,36 @@ public class ObjectGenerator {
 		return this.baseForm.createDefaultDenotator();
 	}
 	
-	public boolean setBaseForm(Form baseForm) {
-		if (this.isValid(baseForm)) {
-			this.baseForm = baseForm;
-			return true;
-		}
-		return false;
+	public void setBaseForm(Form baseForm) {
+		this.baseForm = baseForm;
 	}
 	
 	public Form getBaseForm() {
 		return this.baseForm;
 	}
 	
-	//TODO: extend!!!
-	public boolean formIsSoundScoreCompatible(Form form) {
-		SoundNoteGenerator generator = new SoundNoteGenerator();
-		return generator.soundScoreForm != null && this.baseForm.equals(generator.soundScoreForm) && this.isScoreForm(form);
+	/**
+	 * @return a converted version of the given denotator if it is compatible with the baseForm, or the given
+	 * denotator itself if it is of the same form and does not need to be converted. null if the forms are not
+	 * compatible.
+	 */
+	public Denotator convertDenotatorIfCompatible(Denotator denotator) {
+		//for now only compatible if same as baseForm or both are of score type
+		if (denotator.getForm().equals(this.baseForm)) {
+			return denotator;
+		} else if (this.isScoreCompatibleForm(denotator.getForm()) && this.isScoreCompatibleForm(this.baseForm)) {
+			return new SoundNoteGenerator().convertScore(denotator);
+		}
+		return null;
 	}
 	
-	private boolean isScoreForm(Form form) {
-		SoundNoteGenerator generator = new SoundNoteGenerator();
-		return form.equals(generator.soundScoreForm) || form.equals(generator.scoreForm) || form.equals(generator.macroScoreForm);
+	public boolean isFormCompatibleWithBaseForm(Form form) {
+		//for now only compatible if same as baseForm or both are of score type
+		return form.equals(this.baseForm) || (this.isScoreCompatibleForm(form) && this.isScoreCompatibleForm(this.baseForm));
 	}
 	
-	private boolean isValid(Form baseForm) {
-		//TODO: do not accept strange forms!! e.g. ones without simples
-		return true;
+	private boolean isScoreCompatibleForm(Form form) {
+		return form.equals(CoolFormRegistrant.SCORE_FORM) || form.equals(CoolFormRegistrant.MACRO_SCORE_FORM) || form.equals(CoolFormRegistrant.SOUND_SCORE_FORM);
 	}
 	
 	public Denotator createObject(Form form, Map<DenotatorPath,Double> pathsWithValues) {

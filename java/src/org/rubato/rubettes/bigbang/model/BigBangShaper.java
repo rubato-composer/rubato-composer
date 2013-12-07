@@ -18,7 +18,7 @@ public class BigBangShaper extends BigBangScoreManipulator {
 	private boolean copyAndShape;
 	private double shapingRange;
 	
-	public BigBangShaper(BigBangScore score, TransformationProperties properties, TreeMap<Double,Double> shapingLocations) {
+	public BigBangShaper(BigBangComposition score, TransformationProperties properties, TreeMap<Double,Double> shapingLocations) {
 		super(score, properties.getTransformationPaths());
 		this.objectPaths = properties.getObjectsPaths();
 		this.shapingLocations = shapingLocations;

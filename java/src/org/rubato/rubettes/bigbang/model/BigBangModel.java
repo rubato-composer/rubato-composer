@@ -24,6 +24,7 @@ import org.rubato.rubettes.bigbang.model.edits.ReflectionEdit;
 import org.rubato.rubettes.bigbang.model.edits.RotationEdit;
 import org.rubato.rubettes.bigbang.model.edits.BuildSatellitesEdit;
 import org.rubato.rubettes.bigbang.model.edits.ScalingEdit;
+import org.rubato.rubettes.bigbang.model.edits.SetOrAddCompositionEdit;
 import org.rubato.rubettes.bigbang.model.edits.ShapingEdit;
 import org.rubato.rubettes.bigbang.model.edits.ShearingEdit;
 import org.rubato.rubettes.bigbang.model.edits.TranslationEdit;
@@ -58,9 +59,16 @@ public class BigBangModel extends Model {
 		this.firePropertyChange(BigBangController.MULTITOUCH, null, this.multiTouch);
 	}
 	
-	public boolean setInitialComposition(Denotator newComposition) {
-		this.undoRedoModel.reset();
-		return this.scoreManager.setInitialComposition(newComposition);
+	public void setOrAddComposition(Denotator composition) {
+		if (!this.scoreManager.isFormCompatibleWithCurrentForm(composition.getForm())) {
+			this.undoRedoModel.reset();
+		} else if (this.undoRedoModel.getLastAddedEdit() instanceof SetOrAddCompositionEdit) {
+			((SetOrAddCompositionEdit)this.undoRedoModel.getLastAddedEdit()).setComposition(composition);
+		} else if (this.undoRedoModel.getTransformationGraph().getSelectedOperation() instanceof SetOrAddCompositionEdit) {
+			((SetOrAddCompositionEdit)this.undoRedoModel.getTransformationGraph().getSelectedOperation()).setComposition(composition);
+		} else {
+			this.undoRedoModel.postEdit(new SetOrAddCompositionEdit(this.scoreManager, composition));
+		}
 	}
 	
 	public Denotator getComposition() {
@@ -139,7 +147,6 @@ public class BigBangModel extends Model {
 	
 	public void addWallpaperDimension(SelectedObjectsPaths objectPaths, Integer rangeFrom, Integer rangeTo) {
 		this.undoRedoModel.postEdit(new AddWallpaperDimensionEdit(this.scoreManager, objectPaths, rangeFrom, rangeTo));
-		this.firePropertyChange(BigBangController.MODIFY_OPERATION, null, this.undoRedoModel.getLastAddedEdit());
 	}
 	
 	public void endWallpaper() {

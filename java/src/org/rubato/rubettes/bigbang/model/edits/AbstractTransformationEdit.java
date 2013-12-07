@@ -95,12 +95,14 @@ public abstract class AbstractTransformationEdit extends AbstractOperationEdit {
 	public void updateObjectPaths(List<Map<DenotatorPath,DenotatorPath>> pathDifferences) {
 		for (int i = 0; i < pathDifferences.size(); i++) {
 			Map<DenotatorPath,DenotatorPath> currentObjectDifferences = pathDifferences.get(i);
-			List<DenotatorPath> currentObjectPaths = this.objectsPaths.get(i);
-			for (DenotatorPath currentPath : currentObjectDifferences.keySet()) {
-				if (currentObjectPaths.contains(currentPath)) {
-					DenotatorPath newPath = currentObjectDifferences.get(currentPath);
-					currentObjectPaths.add(newPath);
-					currentObjectPaths.remove(currentPath);
+			if (i < this.objectsPaths.size()) {
+				List<DenotatorPath> currentObjectPaths = this.objectsPaths.get(i);
+				for (DenotatorPath currentPath : currentObjectDifferences.keySet()) {
+					if (currentObjectPaths.contains(currentPath)) {
+						DenotatorPath newPath = currentObjectDifferences.get(currentPath);
+						currentObjectPaths.add(newPath);
+						currentObjectPaths.remove(currentPath);
+					}
 				}
 			}
 		}

@@ -8,7 +8,6 @@ import javax.swing.event.MouseInputAdapter;
 
 import org.rubato.rubettes.bigbang.view.controller.ViewController;
 import org.rubato.rubettes.bigbang.view.model.tools.DisplayTool;
-import org.rubato.rubettes.bigbang.view.model.tools.RotationTool;
 
 public abstract class ObjectTransformationAdapter extends MouseInputAdapter {
 	
