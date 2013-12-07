@@ -21,7 +21,7 @@ public class BigBangMapper extends BigBangScoreManipulator {
 	private boolean copyAndMap;
 	private boolean relative;
 	
-	public BigBangMapper(BigBangScore score, BigBangTransformation transformation) {
+	public BigBangMapper(BigBangComposition score, BigBangTransformation transformation) {
 		super(score, transformation.getTransformationPaths());
 		this.morphism = transformation.getModuleMorphism();
 		this.copyAndMap = transformation.isCopyAndMap();

@@ -57,7 +57,7 @@ public class BigBangWallpaper {
 		}
 	}
 	
-	public void applyTo(BigBangScore score) {
+	public void applyTo(BigBangComposition score) {
 		List<DenotatorPath> currentMotif = this.motif.get(0);
 		for (BigBangWallpaperDimension currentDimension: this.dimensions) {
 			currentMotif = this.mapDimension(score, currentMotif, currentDimension);
@@ -65,7 +65,7 @@ public class BigBangWallpaper {
 		
 	}
 	
-	private List<DenotatorPath> mapDimension(BigBangScore score, List<DenotatorPath> currentPaths, BigBangWallpaperDimension dimension) {
+	private List<DenotatorPath> mapDimension(BigBangComposition score, List<DenotatorPath> currentPaths, BigBangWallpaperDimension dimension) {
 		List<DenotatorPath> resultPaths = new ArrayList<DenotatorPath>();
 		int rangeFrom = dimension.getRangeFrom();
 		int rangeTo = dimension.getRangeTo();
@@ -93,7 +93,7 @@ public class BigBangWallpaper {
 		return resultPaths;
 	}
 	
-	private List<DenotatorPath> map(BigBangScore score, List<DenotatorPath> currentPaths, BigBangWallpaperDimension dimension, boolean copyAndMap, boolean inverse) {
+	private List<DenotatorPath> map(BigBangComposition score, List<DenotatorPath> currentPaths, BigBangWallpaperDimension dimension, boolean copyAndMap, boolean inverse) {
 		List<BigBangTransformation> transformations = dimension.getTransformations();
 		if (inverse) {
 			for (int i = transformations.size()-1; i >= 0; i--) {

@@ -25,6 +25,7 @@ public class CoolFormRegistrant {
 	public static final SimpleForm VOICE_FORM = (SimpleForm)REPOSITORY.getForm("Voice");
 	public static final LimitForm NOTE_FORM = (LimitForm)REPOSITORY.getForm("Note");
 	public static final PowerForm SCORE_FORM = (PowerForm)REPOSITORY.getForm("Score");
+	public static final PowerForm MACRO_SCORE_FORM = (PowerForm)REPOSITORY.getForm("MacroScore");
 	
 	public static SimpleForm PITCH_CLASS_FORM;
 	public static SimpleForm CHROMATIC_PITCH_FORM;
@@ -40,6 +41,7 @@ public class CoolFormRegistrant {
 	public static LimitForm SOUND_NOTE_FORM;
 	public static SimpleForm OPERATION_FORM;
 	public static LimitForm GENERIC_SOUND_FORM;
+	public static PowerForm SOUND_SCORE_FORM;
 	
 	public CoolFormRegistrant() {
 	}
@@ -134,6 +136,7 @@ public class CoolFormRegistrant {
 		LimitForm soundNode = this.registerLimitForm("SoundNode", SOUND_NOTE_FORM, soundScore);
 		soundScore = this.registerPowerForm("SoundScore", soundNode);
 		soundScore.resolveReferences(REPOSITORY);
+		SOUND_SCORE_FORM = (PowerForm)soundScore;
 		
 		
 		//just for testing:

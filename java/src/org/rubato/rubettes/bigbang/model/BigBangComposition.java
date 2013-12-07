@@ -15,63 +15,74 @@ import org.rubato.math.yoneda.ListDenotator;
 import org.rubato.math.yoneda.PowerDenotator;
 import org.rubato.rubettes.util.DenotatorPath;
 import org.rubato.rubettes.util.ObjectGenerator;
-import org.rubato.rubettes.util.SoundNoteGenerator;
 
-public class BigBangScore implements Cloneable {
+public class BigBangComposition implements Cloneable {
 	
 	protected ObjectGenerator objectGenerator;
-	protected Denotator score;
-	protected Denotator initialComposition;
+	protected Denotator composition;
 	
-	public BigBangScore(Form baseForm) {
+	public BigBangComposition(Form baseForm) {
 		this.objectGenerator = new ObjectGenerator();
 		this.setForm(baseForm);
 	}
 	
 	public Object clone() {
-		BigBangScore clone = new BigBangScore(this.objectGenerator.getBaseForm());
-		clone.score = this.getComposition().copy();
+		BigBangComposition clone = new BigBangComposition(this.objectGenerator.getBaseForm());
+		clone.composition = this.getComposition().copy();
 		return clone;
 	}
 	
-	public boolean setForm(Form baseForm) {
-		boolean validForm = this.objectGenerator.setBaseForm(baseForm);
-		if (validForm) {
-			this.setInitialComposition(this.objectGenerator.createEmptyScore());
-		}
-		return validForm;
+	public void setForm(Form baseForm) {
+		this.objectGenerator.setBaseForm(baseForm);
+		this.reset();
 	}
 	
-	public void resetScore() {
-		this.score = this.initialComposition.copy();
+	public void reset() {
+		this.replaceComposition(this.objectGenerator.createEmptyScore());
 	}
 	
-	/**
-	 * @return true if newComposition is of an allowed form type TODO: refactor and make more general!!
-	 */
-	public boolean setInitialComposition(Denotator initialComposition) {
-		if (initialComposition != null && this.objectGenerator.formIsSoundScoreCompatible(initialComposition.getForm())) {
-			initialComposition = new SoundNoteGenerator().convertScore(initialComposition);
-			this.initialComposition = initialComposition;
-			this.resetScore();
-			return true;
-		} else if (initialComposition != null && this.objectGenerator.setBaseForm(initialComposition.getForm())) {
-			//this.score = this.noteGenerator.convertScore(newComposition);
-			this.initialComposition = initialComposition;
-			this.resetScore();
-			return true;
-		}
-		return false;
+	public boolean isFormCompatibleWithCurrentForm(Form form) {
+		return this.objectGenerator.isFormCompatibleWithBaseForm(form);
 	}
 	
-	public void setScore(Denotator score) {
-		if (score.getForm().equals(this.score.getForm())) {
-			this.score = score;
+	public void setOrAddComposition(Denotator composition) {
+		if (composition != null) {
+			Denotator convertedComposition = this.objectGenerator.convertDenotatorIfCompatible(composition);
+			if (convertedComposition != null) {
+				if (convertedComposition.getForm().getType() == Form.POWER) {
+					this.addComposition((PowerDenotator)convertedComposition);
+				} else {
+					this.replaceComposition(convertedComposition);
+				}
+			} else {
+				this.replaceComposition(composition);
+			}
 		}
+	}
+	
+	//add all elements of the given power denotator to the present composition
+	private void addComposition(PowerDenotator composition) {
+		if (this.objectGenerator.getBaseForm().getType() == Form.POWER) {
+			for (Denotator currentFactor : composition.getFactors()) {
+				try {
+					((PowerDenotator)this.composition).appendFactor(currentFactor);
+				} catch (RubatoException e) {
+					e.printStackTrace();
+				}
+			}
+		}
+	}
+	
+	//replace the present composition with the given one
+	private void replaceComposition(Denotator composition) {
+		if (this.composition != null && !composition.getForm().equals(this.objectGenerator.getBaseForm())) {
+			this.setForm(composition.getForm());
+		}
+		this.composition = composition;
 	}
 	
 	public Denotator getComposition() {
-		return this.score;
+		return this.composition;
 	}
 	
 	/**
@@ -87,9 +98,9 @@ public class BigBangScore implements Cloneable {
 			return this.addObject(newObject, powersetPath);
 		}
 		//no powerset specified to add it in, try to replace the whole score
-		Denotator newObject = this.objectGenerator.createObject(this.score.getForm(), pathsWithValues);
-		this.setScore(newObject);
-		return new DenotatorPath(this.score.getForm());
+		Denotator newObject = this.objectGenerator.createObject(this.composition.getForm(), pathsWithValues);
+		this.replaceComposition(newObject);
+		return new DenotatorPath(this.composition.getForm());
 	}
 	
 	private DenotatorPath addObject(Denotator object, DenotatorPath powersetPath) {
@@ -103,7 +114,7 @@ public class BigBangScore implements Cloneable {
 		if (powersetPath != null) {
 			objectForm = powersetPath.getChildPath(0).getEndForm();
 		} else {
-			objectForm = this.score.getForm();
+			objectForm = this.composition.getForm();
 		}
 		for (Map<DenotatorPath,Double> currentPathsWithValues : pathsWithValues) {
 			newObjects.add(this.objectGenerator.createObject(objectForm, currentPathsWithValues));
@@ -214,7 +225,7 @@ public class BigBangScore implements Cloneable {
 	//TODO: so bad, really gotta refactor it all
 	private List<DenotatorPath> setComposition(List<Denotator> objects) {
 		if (objects.size() == 1) {
-			this.setScore(objects.get(0));
+			this.replaceComposition(objects.get(0));
 			List<DenotatorPath> topPath = new ArrayList<DenotatorPath>(); 
 			topPath.add(new DenotatorPath(objects.get(0).getForm(), new int[]{}));
 			return topPath;
@@ -225,7 +236,7 @@ public class BigBangScore implements Cloneable {
 	public List<DenotatorPath> addObjects(List<List<Denotator>> objectLists) {
 		for (List<Denotator> currentObjects: objectLists) {
 			DenotatorPath newPath = null;
-			DenotatorPath childrenPath = new DenotatorPath(this.score.getForm());
+			DenotatorPath childrenPath = new DenotatorPath(this.composition.getForm());
 			//PowerDenotator currentMacroScore = this.getMacroScore(macroScorePath);
 			for (int i = 0; i < currentObjects.size()-1; i++) {
 				Denotator currentNote = currentObjects.get(i);
@@ -341,8 +352,9 @@ public class BigBangScore implements Cloneable {
 	 * TODO: well now it is kinda dumb, this method...
 	 */
 	private FactorDenotator getPowersetOrList(DenotatorPath powersetPath) {
+		//System.out.println(powersetPath);
 		try {
-			return (FactorDenotator)this.score.get(powersetPath.toIntArray());
+			return (FactorDenotator)this.composition.get(powersetPath.toIntArray());
 		} catch (RubatoException e) { e.printStackTrace(); }
 		return null;
 	}
@@ -457,7 +469,7 @@ public class BigBangScore implements Cloneable {
 			DenotatorPath powersetPath = objectPath.getAnchorPowersetPath();
 			if (powersetPath != null) {
 				int objectIndex = objectPath.getObjectIndex();
-				FactorDenotator powersetOrList = (FactorDenotator)this.score.get(powersetPath.toIntArray());
+				FactorDenotator powersetOrList = (FactorDenotator)this.composition.get(powersetPath.toIntArray());
 				if (objectIndex < powersetOrList.getFactorCount()) {
 					if (powersetOrList instanceof PowerDenotator) {
 						return ((PowerDenotator)powersetOrList).removeFactor(objectIndex);
@@ -526,9 +538,9 @@ public class BigBangScore implements Cloneable {
 		try {
 			int[] intPath = objectPath.toIntArray();
 			if (intPath.length > 0) {
-				return this.score.get(intPath);
+				return this.composition.get(intPath);
 			}
-			return this.score;
+			return this.composition;
 		} catch (RubatoException e) {
 			e.printStackTrace();
 			return null;
@@ -592,33 +604,5 @@ public class BigBangScore implements Cloneable {
 	public List<DenotatorPath> sort(List<DenotatorPath> paths) {
 		return new ArrayList<DenotatorPath>(new TreeSet<DenotatorPath>(paths));
 	}
-	
-	
-	// SOUND SCORE FUNCTIONALITY
-	
-	
-	/*public List<DenotatorPath> moveNotesToCarrier(List<DenotatorPath> paths, DenotatorPath carrierPath) {
-		//List<LimitDenotator> anchorNodes = this.extractNodes(anchorPath);
-		
-		List<LimitDenotator> removedNotes = this.removeSatellitesAndModulators(nodePaths);
-		removedNotes = this.convertToModulators(removedNotes);
-		DenotatorPath newAnchorPath = this.findPath(anchorNodes);
-		return this.addNodes(newNodes, newAnchorPath);
-	}
-	
-	/*
-	 * converts a modulator note to an anchor node (the note keeps its modulators)
-	 *
-	private PowerDenotator convertModulatorToAnchor(PowerDenotator modulator) {
-		
-	}
-	
-	/*
-	 * converts an anchor node to a modulator note (the node's satellites are flattened) 
-	 *
-	private PowerDenotator convertAnchorToModulator(PowerDenotator anchor) {
-		
-	}*/
-	
 
 }

@@ -73,22 +73,18 @@ public class UndoRedoModel extends Model {
 	 * Splits the currently selected operation at the current position of the animator if it is splittable
 	 */
 	public void splitOperation() {
-		this.operations.splitOperation(this.animator.getPositionInSeconds());
+		this.operations.splitSelectedAndParallelOperations(this.animator.getPositionInSeconds());
 		this.animator.setGraph(this.operations);
 		this.firePropertyChange(BigBangController.GRAPH, null, this.operations);
 	}
 	
 	public void undo() {
-		//try {
-		//this.undoManager.undo();
 		this.undoneOperations.add(this.operations.removeLastOperation(true));
-		//} catch (Exception e) { e.printStackTrace(); }
 		this.firePropertyChange(BigBangController.UNDO, null, this.undoManager);
 		this.firePropertyChange(BigBangController.GRAPH, null, this.operations);
 	}
 	
 	public void redo() {
-		//this.undoManager.redo();
 		this.operations.addOperation(this.undoneOperations.remove(this.undoneOperations.size()-1));
 		this.firePropertyChange(BigBangController.REDO, null, this.undoManager);
 		this.firePropertyChange(BigBangController.GRAPH, null, this.operations);

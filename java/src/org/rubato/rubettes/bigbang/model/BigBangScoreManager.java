@@ -18,14 +18,14 @@ import org.rubato.rubettes.util.DenotatorPath;
 
 public class BigBangScoreManager extends Model {
 	
-	private BigBangScore score;
+	private BigBangComposition score;
 	private BigBangWallpaper wallpaper;
 	private BigBangAlteration alteration;
 	
 	public BigBangScoreManager(BigBangController controller) {
 		controller.addModel(this);
 		Form standardForm = Repository.systemRepository().getForm(BigBangRubette.STANDARD_FORM_NAME);
-		this.score = new BigBangScore(standardForm);
+		this.score = new BigBangComposition(standardForm);
 		this.setForm(standardForm);
 	}
 	
@@ -34,22 +34,23 @@ public class BigBangScoreManager extends Model {
 		//this.alteration.fireState();
 	}
 	
+	public boolean isFormCompatibleWithCurrentForm(Form form) {
+		return this.score.isFormCompatibleWithCurrentForm(form);
+	}
+	
 	public void setForm(Form form) {
 		this.score.setForm(form);
 		this.fireCompositionChange();
 	}
 	
 	public void resetScore() {
-		this.score.resetScore();
+		this.score.reset();
 		this.wallpaper = null;
 	}
 	
-	public boolean setInitialComposition(Denotator newComposition) {
-		boolean valid = this.score.setInitialComposition(newComposition);
-		if (valid) {
-			this.fireCompositionChange();
-		}
-		return valid;
+	public void setOrAddComposition(Denotator newComposition) {
+		this.score.setOrAddComposition(newComposition);
+		this.fireCompositionChange();
 	}
 	
 	public Denotator getComposition() {

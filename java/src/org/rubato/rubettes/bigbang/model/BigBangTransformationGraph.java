@@ -51,6 +51,10 @@ public class BigBangTransformationGraph extends DirectedSparseMultigraph<Integer
 		this.selectedOperation = operation;
 	}
 	
+	public AbstractOperationEdit getSelectedOperation() {
+		return this.selectedOperation;
+	}
+	
 	public void previewInsertedTransformationAt(AbstractTransformationEdit edit, Integer state) {
 		this.insertOperation(edit, state, true);
 		this.removeOperation(edit, false);
@@ -152,16 +156,40 @@ public class BigBangTransformationGraph extends DirectedSparseMultigraph<Integer
 		this.updateCurrentlyExecutedEditsAndStatesAndTimes();
 	}
 	
-	public void splitOperation(double position) {
+	private void addParallelOperation(AbstractOperationEdit operation, AbstractOperationEdit newOperation) {
+		this.addEdge(newOperation, this.getSource(operation), this.getDest(operation));
+		int index = this.allOperationsInLogicalOrder.indexOf(operation)+1;
+		this.allOperationsInLogicalOrder.add(index, newOperation);
+		this.updateCurrentlyExecutedEditsAndStatesAndTimes();
+	}
+	
+	/**
+	 * Splits the currently selected operation and all parallel operations at the given position
+	 * @param position in seconds
+	 */
+	public void splitSelectedAndParallelOperations(double position) {
 		double operationStartingTime = this.getOperationStartingTime(this.selectedOperation);
 		double operationDuration = this.selectedOperation.getDuration();
 		if (operationStartingTime < position && position < operationStartingTime+operationDuration) {
 			double ratio = (position-operationStartingTime)/operationDuration;
-			List<AbstractOperationEdit> splitOperations = this.selectedOperation.getSplitOperations(ratio);
+			List<AbstractOperationEdit> parallelOperations = new ArrayList<AbstractOperationEdit>(this.findEdgeSet(this.getSource(this.selectedOperation), this.getDest(this.selectedOperation)));
+			parallelOperations.remove(this.selectedOperation);
+			
+			//first split selected operation
+			List<AbstractOperationEdit> lastSplitOperations = this.selectedOperation.getSplitOperations(ratio);
 			//insert first part before operation that is split
-			this.insertOperation(splitOperations.get(0), this.getSource(this.selectedOperation));
+			this.insertOperation(lastSplitOperations.get(0), this.getSource(this.selectedOperation));
 			//replace operation with second part
-			this.replaceOperation(this.selectedOperation, splitOperations.get(1));
+			this.replaceOperation(this.selectedOperation, lastSplitOperations.get(1));
+			
+			//now split and add parallel operations if there are any
+			for (AbstractOperationEdit currentOperation : parallelOperations) {
+				List<AbstractOperationEdit> currentSplitOperations = currentOperation.getSplitOperations(ratio);
+				this.removeOperation(currentOperation, false);
+				this.addParallelOperation(lastSplitOperations.get(0), currentSplitOperations.get(0));
+				this.addParallelOperation(lastSplitOperations.get(1), currentSplitOperations.get(1));
+				lastSplitOperations = currentSplitOperations;
+			}
 		}
 	}
 	

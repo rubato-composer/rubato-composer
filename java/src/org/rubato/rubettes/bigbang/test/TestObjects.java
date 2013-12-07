@@ -25,7 +25,7 @@ import org.rubato.math.yoneda.PowerForm;
 import org.rubato.math.yoneda.SimpleDenotator;
 import org.rubato.math.yoneda.SimpleForm;
 import org.rubato.rubettes.bigbang.controller.BigBangController;
-import org.rubato.rubettes.bigbang.model.BigBangScore;
+import org.rubato.rubettes.bigbang.model.BigBangComposition;
 import org.rubato.rubettes.bigbang.model.BigBangScoreManager;
 import org.rubato.rubettes.bigbang.model.TransformationPaths;
 import org.rubato.rubettes.util.CoolFormRegistrant;
@@ -61,7 +61,7 @@ public class TestObjects {
 	public final double[] NOTE2_ABSOLUTE_VALUES = new double[]{2,60,121,1,1,0};
 	public final double[] NOTE2_RELATIVE_VALUES = new double[]{1,-3,5,0,1,0};
 	
-	public BigBangScore score;
+	public BigBangComposition score;
 	public BigBangScoreManager scoreManager;
 	public SoundNoteGenerator generator;
 	private ObjectGenerator objectGenerator;
@@ -83,7 +83,7 @@ public class TestObjects {
 		this.GENERIC_SOUND_FORM = Repository.systemRepository().getForm("GenericSound");
 		this.generator = new SoundNoteGenerator();
 		this.objectGenerator = new ObjectGenerator();
-		this.score = new BigBangScore(this.generator.getSoundScoreForm());
+		this.score = new BigBangComposition(this.generator.getSoundScoreForm());
 		this.scoreManager = new BigBangScoreManager(new BigBangController());
 		this.note0 = this.generator.createNoteDenotator(new double[]{0,60,120,1,0,0});
 		this.note1Absolute = this.generator.createNoteDenotator(new double[]{1,63,116,1,0,0});
@@ -108,7 +108,7 @@ public class TestObjects {
 	}
 	
 	private void createComplexSoundScore() {
-		this.score.setInitialComposition(this.multiLevelMacroScore.copy());
+		this.score.setOrAddComposition(this.multiLevelMacroScore.copy());
 		List<Denotator> notes = new ArrayList<Denotator>();
 		notes.add(this.generator.createNoteDenotator(this.NOTE2_ABSOLUTE_VALUES));
 		notes.add(this.generator.createNoteDenotator(this.NOTE1_ABSOLUTE_VALUES));

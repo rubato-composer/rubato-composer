@@ -40,7 +40,7 @@ public class BigBangTransformationGraphTest extends TestCase {
 	}
 	
 	public void testRepeatedAddWithLimit() {
-		this.model.setInitialComposition(this.objects.createInteger(3));
+		this.model.setOrAddComposition(this.objects.createInteger(3));
 		TestCase.assertEquals(3, ((SimpleDenotator)this.model.getComposition()).getInteger());
 		int[][] paths = new int[][]{{}};
 		double[][] values = new double[][]{{12}};
@@ -50,7 +50,7 @@ public class BigBangTransformationGraphTest extends TestCase {
 	}
 	
 	public void testModifyLeadingToTooManyPaths() {
-		this.model.setInitialComposition(this.objects.generator.createEmptyScore());
+		this.model.setOrAddComposition(this.objects.generator.createEmptyScore());
 		int[][] paths = new int[][]{{0,0},{0,1}};
 		double[][] values = new double[][]{{0,60},{2,65},{3,66},{4,67}};
 		this.model.addObjects(this.createNodePathAndValuesMapList(this.objects.SOUND_SCORE_FORM, paths, values),
@@ -64,12 +64,12 @@ public class BigBangTransformationGraphTest extends TestCase {
 		properties.setEndPoint(new double[]{0,1});
 		this.model.rotateObjects(properties, new double[]{1,0}, Math.PI/2);
 		TestCase.assertEquals(4, ((PowerDenotator)this.model.getComposition()).getFactorCount());
-		this.model.getUndoRedoModel().modifyOperation(0, 0.5);
+		this.model.getUndoRedoModel().modifyOperation(1, 0.5);
 		TestCase.assertEquals(2, ((PowerDenotator)this.model.getComposition()).getFactorCount());
 	}
 	
 	public void testModifyWithSatellites() {
-		this.model.setInitialComposition(this.objects.generator.createEmptyScore());
+		this.model.setOrAddComposition(this.objects.generator.createEmptyScore());
 		int[][] paths = new int[][]{{0,0},{0,1}};
 		double[][] values = new double[][]{{0,60},{2,65},{3,66},{4,67}};
 		this.model.addObjects(this.createNodePathAndValuesMapList(this.objects.SOUND_SCORE_FORM, paths, values),
@@ -106,7 +106,7 @@ public class BigBangTransformationGraphTest extends TestCase {
 	}
 	
 	public void testModifyWithSatellitesAddedDirectly() {
-		this.model.setInitialComposition(this.objects.generator.createEmptyScore());
+		this.model.setOrAddComposition(this.objects.generator.createEmptyScore());
 		int[][] paths = new int[][]{{0,0},{0,1}};
 		double[][] values = new double[][]{{0,60},{2,65},{3,66}};
 		ArrayList<DenotatorPath> pathList = this.createPathsList(new DenotatorPath(this.objects.SOUND_SCORE_FORM, new int[]{0,1}), 3);
@@ -145,7 +145,7 @@ public class BigBangTransformationGraphTest extends TestCase {
 	}
 	
 	public void testPathDifferences() {
-		this.model.setInitialComposition(this.objects.generator.createEmptyScore());
+		this.model.setOrAddComposition(this.objects.generator.createEmptyScore());
 		int[][] paths = new int[][]{{0,0},{0,1}};
 		double[][] values = new double[][]{{0,60},{1,60}};
 		this.model.addObjects(this.createNodePathAndValuesMapList(this.objects.SOUND_SCORE_FORM, paths, values),
@@ -172,7 +172,7 @@ public class BigBangTransformationGraphTest extends TestCase {
 		TestCase.assertEquals(expectedResult, this.model.getComposition());
 		
 		//modify first translation so note0 is back at earlier position
-		this.model.getUndoRedoModel().modifyOperation(1, 0.0);
+		this.model.getUndoRedoModel().modifyOperation(2, 0.0);
 		//note0 should still be affected by second translation since pathDifferences should have recorded its identity
 		//so (1,60),(2,60) and not (0,60),(3,60)
 		expectedResult = this.objects.generator.createFlatSoundScore(new double[][]{{1,60,0,0,0,0},{2,60,0,0,0,0}});
@@ -180,7 +180,7 @@ public class BigBangTransformationGraphTest extends TestCase {
 	}
 	
 	public void testPathDifferencesWithSatellites() throws RubatoException {
-		this.model.setInitialComposition(this.objects.generator.createEmptyScore());
+		this.model.setOrAddComposition(this.objects.generator.createEmptyScore());
 		int[][] paths = new int[][]{{0,0},{0,1}};
 		double[][] values = new double[][]{{0,60},{1,60},{2,65}};
 		this.model.addObjects(this.createNodePathAndValuesMapList(this.objects.SOUND_SCORE_FORM, paths, values),
@@ -206,7 +206,7 @@ public class BigBangTransformationGraphTest extends TestCase {
 		TestCase.assertEquals(expectedNode, this.model.getComposition().get(new int[]{0,1,1}));
 		
 		//modify so that second satellite not built
-		this.model.getUndoRedoModel().modifyOperation(1, 0.5);
+		this.model.getUndoRedoModel().modifyOperation(2, 0.5);
 		//still both nodes should be transformed
 		expectedNode = this.objects.createMultilevelNode(new double[][]{{1,1,0,0,0,0}});
 		TestCase.assertEquals(expectedNode, this.model.getComposition().get(new int[]{0,1,0}));
@@ -216,7 +216,7 @@ public class BigBangTransformationGraphTest extends TestCase {
 	
 	public void testAddAlternativeEdge() {
 		//add one note and perform two translations
-		this.model.setInitialComposition(this.objects.generator.createEmptyScore());
+		this.model.setOrAddComposition(this.objects.generator.createEmptyScore());
 		int[][] paths = new int[][]{{0,0},{0,1}};
 		double[][] values = new double[][]{{0,60}};
 		this.model.addObjects(this.createNodePathAndValuesMapList(this.objects.SOUND_SCORE_FORM, paths, values),
@@ -227,21 +227,21 @@ public class BigBangTransformationGraphTest extends TestCase {
 		properties.setEndPoint(new double[]{0,1});
 		this.model.translateObjects(properties);
 		this.model.translateObjects(properties);
-		TestCase.assertEquals(4, this.model.getUndoRedoModel().getTransformationGraph().getVertexCount());
-		TestCase.assertEquals(3, this.model.getUndoRedoModel().getTransformationGraph().getEdgeCount());
-		
-		//add a translation starting at state 2 and check graph structure
-		this.model.getUndoRedoModel().selectCompositionState(2);
-		this.model.translateObjects(properties);
 		TestCase.assertEquals(5, this.model.getUndoRedoModel().getTransformationGraph().getVertexCount());
 		TestCase.assertEquals(4, this.model.getUndoRedoModel().getTransformationGraph().getEdgeCount());
+		
+		//add a translation starting at state 3 and check graph structure
+		this.model.getUndoRedoModel().selectCompositionState(3);
+		this.model.translateObjects(properties);
+		TestCase.assertEquals(6, this.model.getUndoRedoModel().getTransformationGraph().getVertexCount());
+		TestCase.assertEquals(5, this.model.getUndoRedoModel().getTransformationGraph().getEdgeCount());
 		AbstractOperationEdit lastEdit = this.model.getUndoRedoModel().getTransformationGraph().getLastAddedOperation(); 
-		TestCase.assertEquals(new Pair<Integer>(2,4), this.model.getUndoRedoModel().getTransformationGraph().getEndpoints(lastEdit));
+		TestCase.assertEquals(new Pair<Integer>(3,5), this.model.getUndoRedoModel().getTransformationGraph().getEndpoints(lastEdit));
 	}
 	
 	public void testAddParallelEdge() {
 		//add one note and perform two translations
-		this.model.setInitialComposition(this.objects.generator.createEmptyScore());
+		this.model.setOrAddComposition(this.objects.generator.createEmptyScore());
 		int[][] paths = new int[][]{{0,0},{0,1}};
 		double[][] values = new double[][]{{0,60}};
 		this.model.addObjects(this.createNodePathAndValuesMapList(this.objects.SOUND_SCORE_FORM, paths, values),
@@ -252,22 +252,22 @@ public class BigBangTransformationGraphTest extends TestCase {
 		properties.setEndPoint(new double[]{0,1});
 		this.model.translateObjects(properties);
 		this.model.translateObjects(properties);
-		TestCase.assertEquals(4, this.model.getUndoRedoModel().getTransformationGraph().getVertexCount());
-		TestCase.assertEquals(3, this.model.getUndoRedoModel().getTransformationGraph().getEdgeCount());
+		TestCase.assertEquals(5, this.model.getUndoRedoModel().getTransformationGraph().getVertexCount());
+		TestCase.assertEquals(4, this.model.getUndoRedoModel().getTransformationGraph().getEdgeCount());
 		
 		//add a parallel translation starting at state 2 and check graph structure
 		this.model.getUndoRedoModel().selectOperation(this.model.getUndoRedoModel().getLastAddedEdit());
 		this.model.translateObjects(properties);
-		TestCase.assertEquals(4, this.model.getUndoRedoModel().getTransformationGraph().getVertexCount());
-		TestCase.assertEquals(4, this.model.getUndoRedoModel().getTransformationGraph().getEdgeCount());
+		TestCase.assertEquals(5, this.model.getUndoRedoModel().getTransformationGraph().getVertexCount());
+		TestCase.assertEquals(5, this.model.getUndoRedoModel().getTransformationGraph().getEdgeCount());
 		AbstractOperationEdit lastEdit = this.model.getUndoRedoModel().getTransformationGraph().getLastAddedOperation(); 
 		//System.out.println(this.model.getUndoRedoModel().getTransformationGraph());
-		TestCase.assertEquals(new Pair<Integer>(2,3), this.model.getUndoRedoModel().getTransformationGraph().getEndpoints(lastEdit));
+		TestCase.assertEquals(new Pair<Integer>(3,4), this.model.getUndoRedoModel().getTransformationGraph().getEndpoints(lastEdit));
 	}
 	
 	public void testInsertEdge() {
 		//add one note and perform two translations
-		this.model.setInitialComposition(this.objects.generator.createEmptyScore());
+		this.model.setOrAddComposition(this.objects.generator.createEmptyScore());
 		int[][] paths = new int[][]{{0,0},{0,1}};
 		double[][] values = new double[][]{{0,60}};
 		this.model.addObjects(this.createNodePathAndValuesMapList(this.objects.SOUND_SCORE_FORM, paths, values),
@@ -278,19 +278,19 @@ public class BigBangTransformationGraphTest extends TestCase {
 		properties.setEndPoint(new double[]{0,1});
 		this.model.translateObjects(properties);
 		this.model.translateObjects(properties);
-		TestCase.assertEquals(4, this.model.getUndoRedoModel().getTransformationGraph().getVertexCount());
-		TestCase.assertEquals(3, this.model.getUndoRedoModel().getTransformationGraph().getEdgeCount());
+		TestCase.assertEquals(5, this.model.getUndoRedoModel().getTransformationGraph().getVertexCount());
+		TestCase.assertEquals(4, this.model.getUndoRedoModel().getTransformationGraph().getEdgeCount());
 		
 		//insert a translation before the second one and check graph structure
 		this.model.getUndoRedoModel().insertOperation(1);
 		this.model.translateObjects(properties);
-		TestCase.assertEquals(5, this.model.getUndoRedoModel().getTransformationGraph().getVertexCount());
-		TestCase.assertEquals(4, this.model.getUndoRedoModel().getTransformationGraph().getEdgeCount());
+		TestCase.assertEquals(6, this.model.getUndoRedoModel().getTransformationGraph().getVertexCount());
+		TestCase.assertEquals(5, this.model.getUndoRedoModel().getTransformationGraph().getEdgeCount());
 	}
 	
 	public void testSplitEdge() {
 		//add one note and perform a translation and a scaling
-		this.model.setInitialComposition(this.objects.generator.createEmptyScore());
+		this.model.setOrAddComposition(this.objects.generator.createEmptyScore());
 		int[][] paths = new int[][]{{0,0},{0,1}};
 		double[][] values = new double[][]{{0,60}};
 		this.model.addObjects(this.createNodePathAndValuesMapList(this.objects.SOUND_SCORE_FORM, paths, values),
@@ -301,45 +301,45 @@ public class BigBangTransformationGraphTest extends TestCase {
 		properties.setEndPoint(new double[]{0,1});
 		this.model.translateObjects(properties);
 		this.model.scaleObjects(properties, new double[]{0,2});
-		TestCase.assertEquals(4, this.model.getUndoRedoModel().getTransformationGraph().getVertexCount());
-		TestCase.assertEquals(3, this.model.getUndoRedoModel().getTransformationGraph().getEdgeCount());
+		TestCase.assertEquals(5, this.model.getUndoRedoModel().getTransformationGraph().getVertexCount());
+		TestCase.assertEquals(4, this.model.getUndoRedoModel().getTransformationGraph().getEdgeCount());
 		
 		//move to beginning of the translation, select it, and split
-		this.model.getUndoRedoModel().setGraphAnimationPosition(.4); //at .2 of translation (3*.0667)
-		this.model.getUndoRedoModel().selectOperation(this.model.getUndoRedoModel().getTransformationGraph().getOutEdges(1).iterator().next());
+		this.model.getUndoRedoModel().setGraphAnimationPosition(.6); //at .4 of translation (4*.1)
+		this.model.getUndoRedoModel().selectOperation(this.model.getUndoRedoModel().getTransformationGraph().getOutEdges(2).iterator().next());
 		this.model.getUndoRedoModel().splitOperation();
 		
 		//check number of nodes and edges and the shifts of the resulting translations
-		TestCase.assertEquals(5, this.model.getUndoRedoModel().getTransformationGraph().getVertexCount());
-		TestCase.assertEquals(4, this.model.getUndoRedoModel().getTransformationGraph().getEdgeCount());
-		TranslationEdit firstPart = (TranslationEdit)this.model.getUndoRedoModel().getTransformationGraph().getOutEdges(1).iterator().next();
+		TestCase.assertEquals(6, this.model.getUndoRedoModel().getTransformationGraph().getVertexCount());
+		TestCase.assertEquals(5, this.model.getUndoRedoModel().getTransformationGraph().getEdgeCount());
+		TranslationEdit firstPart = (TranslationEdit)this.model.getUndoRedoModel().getTransformationGraph().getOutEdges(2).iterator().next();
 		TestCase.assertEquals(0.0, firstPart.getStartingPoint()[1]);
 		//cope with rounding error
-		TestCase.assertEquals(0.2, ((double)Math.round(firstPart.getEndingPoint()[1]*1000))/1000);
-		TranslationEdit secondPart = (TranslationEdit)this.model.getUndoRedoModel().getTransformationGraph().getOutEdges(2).iterator().next();
-		TestCase.assertEquals(0.2, ((double)Math.round(1000*secondPart.getStartingPoint()[1]))/1000);
+		TestCase.assertEquals(0.4, ((double)Math.round(firstPart.getEndingPoint()[1]*1000))/1000);
+		TranslationEdit secondPart = (TranslationEdit)this.model.getUndoRedoModel().getTransformationGraph().getOutEdges(3).iterator().next();
+		TestCase.assertEquals(0.4, ((double)Math.round(1000*secondPart.getStartingPoint()[1]))/1000);
 		TestCase.assertEquals(1.0, ((double)Math.round(1000*secondPart.getEndingPoint()[1]))/1000);
 		
 		//move to beginning of the scaling, select it, and split
-		this.model.getUndoRedoModel().setGraphAnimationPosition(.8); //at .2 of scaling (4*.05)
-		this.model.getUndoRedoModel().selectOperation(this.model.getUndoRedoModel().getTransformationGraph().getOutEdges(3).iterator().next());
+		this.model.getUndoRedoModel().setGraphAnimationPosition(.9); //at .5 of scaling (5*.1)
+		this.model.getUndoRedoModel().selectOperation(this.model.getUndoRedoModel().getTransformationGraph().getOutEdges(4).iterator().next());
 		this.model.getUndoRedoModel().splitOperation();
 		
 		//check number of nodes and edges and the shifts of the resulting scalings
-		TestCase.assertEquals(6, this.model.getUndoRedoModel().getTransformationGraph().getVertexCount());
-		TestCase.assertEquals(5, this.model.getUndoRedoModel().getTransformationGraph().getEdgeCount());
-		ScalingEdit firstScalingPart = (ScalingEdit)this.model.getUndoRedoModel().getTransformationGraph().getOutEdges(3).iterator().next();
+		TestCase.assertEquals(7, this.model.getUndoRedoModel().getTransformationGraph().getVertexCount());
+		TestCase.assertEquals(6, this.model.getUndoRedoModel().getTransformationGraph().getEdgeCount());
+		ScalingEdit firstScalingPart = (ScalingEdit)this.model.getUndoRedoModel().getTransformationGraph().getOutEdges(4).iterator().next();
 		TestCase.assertEquals(0.0, firstScalingPart.getCenter()[1]);
 		//cope with rounding error
-		TestCase.assertEquals(1.2, ((double)Math.round(firstScalingPart.getScaleFactors()[1]*1000))/1000);
-		ScalingEdit secondScalingPart = (ScalingEdit)this.model.getUndoRedoModel().getTransformationGraph().getOutEdges(4).iterator().next();
+		TestCase.assertEquals(1.5, ((double)Math.round(firstScalingPart.getScaleFactors()[1]*1000))/1000);
+		ScalingEdit secondScalingPart = (ScalingEdit)this.model.getUndoRedoModel().getTransformationGraph().getOutEdges(5).iterator().next();
 		TestCase.assertEquals(0.0, secondScalingPart.getCenter()[1]);
-		TestCase.assertEquals(1.8, ((double)Math.round(1000*secondScalingPart.getScaleFactors()[1]))/1000);
+		TestCase.assertEquals(1.5, ((double)Math.round(1000*secondScalingPart.getScaleFactors()[1]))/1000);
 	}
 	
 	public void testRemoveEdge() {
 		//add one note and perform three translations
-		this.model.setInitialComposition(this.objects.generator.createEmptyScore());
+		this.model.setOrAddComposition(this.objects.generator.createEmptyScore());
 		int[][] paths = new int[][]{{0,0},{0,1}};
 		double[][] values = new double[][]{{0,60}};
 		this.model.addObjects(this.createNodePathAndValuesMapList(this.objects.SOUND_SCORE_FORM, paths, values),
@@ -351,13 +351,13 @@ public class BigBangTransformationGraphTest extends TestCase {
 		this.model.translateObjects(properties);
 		this.model.translateObjects(properties);
 		this.model.translateObjects(properties);
-		TestCase.assertEquals(5, this.model.getUndoRedoModel().getTransformationGraph().getVertexCount());
-		TestCase.assertEquals(4, this.model.getUndoRedoModel().getTransformationGraph().getEdgeCount());
+		TestCase.assertEquals(6, this.model.getUndoRedoModel().getTransformationGraph().getVertexCount());
+		TestCase.assertEquals(5, this.model.getUndoRedoModel().getTransformationGraph().getEdgeCount());
 		
 		//remove second translation and check graph structure
-		this.model.getUndoRedoModel().removeOperation(this.model.getUndoRedoModel().getTransformationGraph().findEdge(2, 3));
-		TestCase.assertEquals(4, this.model.getUndoRedoModel().getTransformationGraph().getVertexCount());
-		TestCase.assertEquals(3, this.model.getUndoRedoModel().getTransformationGraph().getEdgeCount());
+		this.model.getUndoRedoModel().removeOperation(this.model.getUndoRedoModel().getTransformationGraph().findEdge(3, 4));
+		TestCase.assertEquals(5, this.model.getUndoRedoModel().getTransformationGraph().getVertexCount());
+		TestCase.assertEquals(4, this.model.getUndoRedoModel().getTransformationGraph().getEdgeCount());
 	}
 	
 	private ArrayList<Map<DenotatorPath,Double>> createNodePathAndValuesMapList(Form form, int[][] paths, double[][] values) {

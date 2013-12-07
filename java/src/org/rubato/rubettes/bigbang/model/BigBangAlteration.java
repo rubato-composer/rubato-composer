@@ -64,7 +64,7 @@ public class BigBangAlteration {
 		this.firePropertyChange(BigBangController.ALTERATION_END_DEGREE, null, value);*/
 	}
 	
-	public void alter(BigBangScore score) {
+	public void alter(BigBangComposition score) {
 		if (this.compositions.get(0).size()>0 && this.compositions.get(1).size()>0 && this.alterationCoordinates.size() > 0) {
 			/*boolean onlyModulators = this.selectedCoordinates.contains(5);
 			List<Integer> coordinates = this.selectedCoordinates;
