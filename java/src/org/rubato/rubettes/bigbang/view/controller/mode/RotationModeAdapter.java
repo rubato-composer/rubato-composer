@@ -1,6 +1,7 @@
 package org.rubato.rubettes.bigbang.view.controller.mode;
 
 import org.rubato.rubettes.bigbang.view.controller.ViewController;
+import org.rubato.rubettes.bigbang.view.controller.score.LeapObjectAffineAdapter;
 import org.rubato.rubettes.bigbang.view.controller.score.LeapObjectRotationAdapter;
 import org.rubato.rubettes.bigbang.view.controller.score.ObjectRotationAdapter;
 
