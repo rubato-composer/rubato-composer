@@ -15,6 +15,7 @@ import java.util.TreeSet;
 
 import javax.swing.JOptionPane;
 
+import org.rubato.math.matrix.RMatrix;
 import org.rubato.rubettes.bigbang.controller.BigBangController;
 import org.rubato.rubettes.bigbang.controller.ScoreChangedNotification;
 import org.rubato.rubettes.bigbang.model.Model;
@@ -507,9 +508,9 @@ public class BigBangView extends Model implements View {
 		this.controller.shearObjects(properties, shearingFactors);
 	}
 	
-	public void affineTransformSelectedObjects(Point2D.Double center, Point2D.Double endPoint, double[] shift, Double angle, double[] scaleFactors, Boolean copyAndTransform, Boolean previewMode) {
+	public void affineTransformSelectedObjects(Point2D.Double center, Point2D.Double endPoint, double[] shift, RMatrix transform, Boolean copyAndTransform, Boolean previewMode) {
 		TransformationProperties properties = this.getLocalTransformationProperties(center, endPoint, copyAndTransform, previewMode);
-		this.controller.affineTransformObjects(properties, shift, angle, scaleFactors);
+		this.controller.affineTransformObjects(properties, shift, transform);
 	}
 	
 	public void shapeSelectedObjects(TreeMap<Integer,Integer> locations, Boolean copyAndTransform, Boolean previewMode) {

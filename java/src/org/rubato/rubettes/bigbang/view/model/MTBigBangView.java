@@ -6,6 +6,7 @@ import java.awt.geom.Rectangle2D;
 
 import javax.swing.JOptionPane;
 
+import org.rubato.math.matrix.RMatrix;
 import org.rubato.rubettes.bigbang.controller.BigBangController;	
 import org.rubato.rubettes.bigbang.view.model.tools.SelectionTool;
 import org.rubato.rubettes.bigbang.view.subview.multitouch.MTBigBangApp;
@@ -52,14 +53,14 @@ public class MTBigBangView extends BigBangView {
 	}
 	
 	@Override
-	public void affineTransformSelectedObjects(Point2D.Double center, Point2D.Double endPoint, double[] shift, Double angle, double[] scaleFactors, Boolean copyAndTransform, Boolean previewMode) {
+	public void affineTransformSelectedObjects(Point2D.Double center, Point2D.Double endPoint, double[] shift, RMatrix transform, Boolean copyAndTransform, Boolean previewMode) {
 		//center = this.translateToOpenGLPosition(center);
 		center = new Point2D.Double(center.x, this.translateY(center.y));
 		//System.out.println(center);
 		shift[0] = shift[0]/this.xZoomFactor;
 		shift[1] = shift[1]/this.yZoomFactor;
 		//System.out.println(shift[0] + " " + shift[1] + " " + angle.doubleValue() + " " + scaleFactors[0] + " " + scaleFactors[1]);
-		super.affineTransformSelectedObjects(center, endPoint, shift, angle, scaleFactors, copyAndTransform, previewMode);
+		super.affineTransformSelectedObjects(center, endPoint, shift, transform, copyAndTransform, previewMode);
 	}
 	
 	private Rectangle2D.Double translateToOpenGLNoteSpaceRectangle(Rectangle2D.Double r) {

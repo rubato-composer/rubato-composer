@@ -7,6 +7,7 @@ import java.util.TreeSet;
 
 import javax.swing.undo.AbstractUndoableEdit;
 
+import org.rubato.math.matrix.RMatrix;
 import org.rubato.math.yoneda.Denotator;
 import org.rubato.rubettes.bigbang.controller.BigBangController;
 import org.rubato.rubettes.bigbang.model.edits.AbstractOperationEdit;
@@ -125,8 +126,8 @@ public class BigBangModel extends Model {
 		this.doTransformation(properties, new ShapingEdit(this.scoreManager, properties, shapingLocations));
 	}
 	
-	public void affineTransformObjects(TransformationProperties properties, double[] shift, Double angle, double[] scaleFactors) {
-		this.doTransformation(properties, new AffineTransformationEdit(this.scoreManager, properties, shift, angle, scaleFactors));
+	public void affineTransformObjects(TransformationProperties properties, double[] shift, RMatrix transform) {
+		this.doTransformation(properties, new AffineTransformationEdit(this.scoreManager, properties, shift, transform));
 	}
 	
 	private void doTransformation(TransformationProperties properties, AbstractUndoableEdit edit) {

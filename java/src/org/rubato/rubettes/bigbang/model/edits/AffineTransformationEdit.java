@@ -7,24 +7,22 @@ import org.rubato.rubettes.bigbang.model.TransformationProperties;
 public class AffineTransformationEdit extends AbstractLocalTransformationEdit {
 	
 	private double[] shift;
-	private double angle;
-	private double[] scaleFactors;
+	private RMatrix transform;
 	
 	//used for cloning
 	protected AffineTransformationEdit(BigBangScoreManager scoreManager) {
 		super(scoreManager);
 	}
 	
-	public AffineTransformationEdit(BigBangScoreManager scoreLayers, TransformationProperties properties, double[] shift, double angle, double[] scaleFactors) {
+	public AffineTransformationEdit(BigBangScoreManager scoreLayers, TransformationProperties properties, double[] shift, RMatrix transform2x2) {
 		super(scoreLayers, properties);
 		//System.out.println(properties.getCenter()[0] + " " + properties.getCenter()[1]);
-		this.setParameters(shift, angle, scaleFactors);
+		this.setParameters(shift, transform2x2);
 	}
 	
-	private void setParameters(double[] shift, double angle, double[] scaleFactors) {
+	private void setParameters(double[] shift, RMatrix transform2x2) {
 		this.shift = shift;
-		this.angle = angle;
-		this.scaleFactors = scaleFactors;
+		this.transform = transform2x2;
 		this.updateOperation();
 	}
 	
@@ -32,21 +30,15 @@ public class AffineTransformationEdit extends AbstractLocalTransformationEdit {
 	protected AffineTransformationEdit createModifiedCopy(double ratio) {
 		AffineTransformationEdit modifiedCopy = (AffineTransformationEdit)this.clone();
 		double[] partialShift = new double[]{this.shift[0]*ratio, this.shift[1]*ratio};
-		double partialAngle = this.angle*ratio;
-		double[] partialScaling = new double[]{this.scaleFactors[0]*ratio, this.scaleFactors[1]*ratio};
-		modifiedCopy.setParameters(partialShift, partialAngle, partialScaling);
+		double[][] scaleMat = {{ratio, 0},{0,ratio}};
+		RMatrix partialTransform = this.transform.product(new RMatrix(scaleMat));
+		modifiedCopy.setParameters(partialShift, partialTransform);
 		return modifiedCopy;
 	}
 	
 	@Override
 	protected RMatrix getMatrix() {
-		double sin = Math.sin(this.modificationRatio*this.angle);
-		double cos = Math.cos(this.modificationRatio*this.angle);
-		RMatrix rotationMatrix = new RMatrix(new double[][]{{cos,-1*sin},{sin,cos}});
-		double sx = this.modificationRatio*this.scaleFactors[0];
-		double sy = this.modificationRatio*this.scaleFactors[1];
-		RMatrix dilationMatrix = new RMatrix(new double[][]{{sx,0},{0,sy}});
-		return rotationMatrix.product(dilationMatrix);
+		return transform;
 	}
 	
 	protected double[] getShift() {

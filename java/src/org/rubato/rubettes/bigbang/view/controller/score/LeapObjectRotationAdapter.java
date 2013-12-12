@@ -49,6 +49,10 @@ public class LeapObjectRotationAdapter extends Listener {
 		Point2D.Double p1; 
 		Point2D.Double p2;
 		if (fingers.size() < 2 && !isActive) {
+			PointND t1 = LeapUtil.fingerToScreenPoint(fingers.get(0));
+			p1 = ndToDouble(t1);
+			setCenter(p1);
+			this.controller.changeDisplayTool(this.rotationTool);
 			return;
 		}
 		// Fakes two fingers by generating another point on the opposite side of the center. Avoids jumps in the rotation
@@ -65,7 +69,7 @@ public class LeapObjectRotationAdapter extends Listener {
 		}
 		
 		if (!isActive) {
-			setCenter(calcCenter(p1,p2));
+//			setCenter(calcCenter(p1,p2));
 			this.currentCenter = this.center;
 			setStartingPoint(p1);
 			setCurrentPoint(p1);

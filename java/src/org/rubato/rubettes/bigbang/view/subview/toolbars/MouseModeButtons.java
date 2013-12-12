@@ -1,6 +1,7 @@
 package org.rubato.rubettes.bigbang.view.subview.toolbars;
 
 import org.rubato.rubettes.bigbang.view.controller.ViewController;
+import org.rubato.rubettes.bigbang.view.controller.mode.AffineModeAdapter;
 import org.rubato.rubettes.bigbang.view.controller.mode.DrawingModeAdapter;
 import org.rubato.rubettes.bigbang.view.controller.mode.NavigationModeAdapter;
 import org.rubato.rubettes.bigbang.view.controller.mode.ReflectionModeAdapter;
@@ -31,6 +32,7 @@ public class MouseModeButtons extends BasicModeButtons {
 		this.add(new JDisplayModeButton(this.viewController, "Sca", new ScalingModeAdapter(this.viewController)));
 		this.add(new JDisplayModeButton(this.viewController, "Ref", new ReflectionModeAdapter(this.viewController)));
 		this.add(new JDisplayModeButton(this.viewController, "She", new ShearingModeAdapter(this.viewController)));
+		this.add(new JDisplayModeButton(this.viewController, "Aff", new AffineModeAdapter(this.viewController)));
 		this.add(new JDisplayModeButton(this.viewController, "Sha", new ShapingModeAdapter(this.viewController)));
 	}
 	

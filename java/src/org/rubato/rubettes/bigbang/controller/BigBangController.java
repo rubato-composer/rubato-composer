@@ -5,6 +5,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 
+import org.rubato.math.matrix.RMatrix;
 import org.rubato.math.yoneda.Form;
 import org.rubato.rubettes.bigbang.model.TransformationProperties;
 import org.rubato.rubettes.bigbang.model.edits.AbstractOperationEdit;
@@ -165,8 +166,8 @@ public class BigBangController extends Controller {
 		this.callModelMethod(BigBangController.SHAPE_OBJECTS, properties, shapingLocations);
 	}
 	
-	public void affineTransformObjects(TransformationProperties properties, double[] shift, double angle, double[] scaleFactors) {
-		this.callModelMethod(BigBangController.AFFINE_TRANSFORM_OBJECTS, properties, shift, angle, scaleFactors);
+	public void affineTransformObjects(TransformationProperties properties, double[] shift, RMatrix transform) {
+		this.callModelMethod(BigBangController.AFFINE_TRANSFORM_OBJECTS, properties, shift, transform);
 	}
 	
 	public void buildSatellites(List<DenotatorPath> satellitePaths, DenotatorPath anchorNodePath, int powersetIndex) {

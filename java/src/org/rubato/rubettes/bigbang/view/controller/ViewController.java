@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.TreeMap;
 
+import org.rubato.math.matrix.RMatrix;
 import org.rubato.rubettes.bigbang.controller.Controller;
 import org.rubato.rubettes.bigbang.model.edits.AbstractOperationEdit;
 import org.rubato.rubettes.bigbang.view.View;
@@ -245,8 +246,8 @@ public class ViewController extends Controller {
 		this.callModelMethod(ViewController.SHEAR_OBJECTS, center, endPoint, shearingFactors, copyAndTranslate, previewMode);
 	}
 	
-	public void affineTransformSelectedObjects(Point2D.Double center, Point2D.Double endPoint, double[] shift, double angle, double[] scaleFactors, boolean copyAndTransform, boolean previewMode) {
-		this.callModelMethod(ViewController.AFFINE_TRANSFORM_OBJECTS, center, endPoint, shift, angle, scaleFactors, copyAndTransform, previewMode);
+	public void affineTransformSelectedObjects(Point2D.Double center, Point2D.Double endPoint, double[] shift, RMatrix transform, boolean copyAndTransform, boolean previewMode) {
+		this.callModelMethod(ViewController.AFFINE_TRANSFORM_OBJECTS, center, endPoint, shift, transform, copyAndTransform, previewMode);
 	}
 	
 	public void shapeSelectedObjects(TreeMap<Integer,Integer> location, boolean copyAndTransform, boolean previewMode) {
