@@ -8,7 +8,7 @@ import org.rubato.rubettes.bigbang.view.subview.AbstractPainter;
 
 public class AffineTool extends DisplayTool {
 	
-	private static double width = 50;
+	private static double width = 100;
 	private RMatrix transform;
 	
 	public AffineTool() {
