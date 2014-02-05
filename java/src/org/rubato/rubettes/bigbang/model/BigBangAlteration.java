@@ -11,7 +11,8 @@ import org.rubato.rubettes.util.DenotatorPath;
 
 public class BigBangAlteration {
 	
-	private List<Set<DenotatorPath>> compositions;
+	private List<DenotatorPath> composition0;
+	private List<DenotatorPath> composition1;
 	private List<DenotatorPath> alterationCoordinates;
 	private double startDegree, endDegree;
 	private Alterator alterator;
@@ -22,22 +23,24 @@ public class BigBangAlteration {
 	}
 	
 	public void reset() {
-		this.compositions = new ArrayList<Set<DenotatorPath>>();
-		this.compositions.add(new TreeSet<DenotatorPath>());
-		this.compositions.add(new TreeSet<DenotatorPath>());
+		this.composition0 = new ArrayList<DenotatorPath>();
+		this.composition1 = new ArrayList<DenotatorPath>();
 		this.alterationCoordinates = new ArrayList<DenotatorPath>();
 	}
 	
 	public Set<DenotatorPath> getComposition(int index) {
-		try {
-			return this.compositions.get(index);
-		} catch (ArrayIndexOutOfBoundsException e) {
-			return new TreeSet<DenotatorPath>();
+		if (index == 0) {
+			return new TreeSet<DenotatorPath>(this.composition0);
 		}
+		return new TreeSet<DenotatorPath>(this.composition1);
 	}
 	
 	public void setAlterationComposition(Set<DenotatorPath> nodePaths, Integer index) {
-		this.compositions.set(index, nodePaths);
+		if (index == 0) {
+			this.composition0 = new ArrayList<DenotatorPath>(nodePaths);
+		} else {
+			this.composition1 = new ArrayList<DenotatorPath>(nodePaths);
+		}
 		this.resetDegrees();
 	}
 	
@@ -64,28 +67,22 @@ public class BigBangAlteration {
 		this.firePropertyChange(BigBangController.ALTERATION_END_DEGREE, null, value);*/
 	}
 	
-	public void alter(BigBangComposition score) {
-		if (this.compositions.get(0).size()>0 && this.compositions.get(1).size()>0 && this.alterationCoordinates.size() > 0) {
-			/*boolean onlyModulators = this.selectedCoordinates.contains(5);
-			List<Integer> coordinates = this.selectedCoordinates;
-			if (onlyModulators) {
-				coordinates = this.selectedCoordinates.subList(0, this.selectedCoordinates.size()-1);
-			}*/
-			//System.out.println(onlyModulators);
+	public void alter(BigBangDenotatorManager denotatorManager) {
+		if (this.composition0.size() > 0 && this.composition1.size() > 0 && this.alterationCoordinates.size() > 0) {
 			this.alterator.setCoordinates(this.alterationCoordinates);
-			List<DenotatorPath> c1 = new ArrayList<DenotatorPath>(this.compositions.get(1));
-			List<Denotator> composition1 = score.getAbsoluteNodes(c1);
+			List<Denotator> composition1 = denotatorManager.getAbsoluteObjects(this.composition1);
 			if (composition1.size() > 0) {
 				for (Denotator currentNeighbor: composition1) {
 					this.alterator.addNeighbor(currentNeighbor);
 				}
-				List<DenotatorPath> anchorPaths = DenotatorPath.getAnchorPaths(new ArrayList<DenotatorPath>(this.compositions.get(0)));
-				List<Denotator> composition0 = this.toDenotatorList(score.removeObjects(new ArrayList<DenotatorPath>(this.compositions.get(0))));
+				List<DenotatorPath> anchorPaths = DenotatorPath.getAnchorPaths(this.composition0);
+				int[] powersetIndices = DenotatorPath.getPowersetIndices(this.composition0);
+				List<Denotator> composition0 = this.toDenotatorList(denotatorManager.removeObjects(this.composition0));
 				if (composition0.size() > 0) {
 					List<Denotator> alteredNodes = this.alterator.getBigBangAlteration(composition0, this.startDegree, this.endDegree);
-					score.addObjects(alteredNodes, anchorPaths);
+					denotatorManager.addObjects(alteredNodes, anchorPaths, powersetIndices);
 				} else {
-					score.addObjects(composition0, anchorPaths);
+					denotatorManager.addObjects(composition0, anchorPaths, powersetIndices);
 				}
 			}
 		}
@@ -98,17 +95,5 @@ public class BigBangAlteration {
 		}
 		return denotators;
 	}
-	
-	/*public void fireState() {
-		this.fireActivity();
-	}
-	
-	private void fireActivity() {
-		if (this.active) {
-			this.firePropertyChange(BigBangController.ENTER_ALTERATION_MODE, null, null);
-		} else {
-			this.firePropertyChange(BigBangController.EXIT_ALTERATION_MODE, null, null);
-		}
-	}*/
 
 }

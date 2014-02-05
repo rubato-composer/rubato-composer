@@ -138,6 +138,12 @@ public class DenotatorPath implements Comparable<Object> {
 		}
 	}
 	
+	public DenotatorPath append(DenotatorPath appendix) {
+		DenotatorPath concatenation = this.clone();
+		concatenation.addAll(appendix.indices);
+		return concatenation;
+	}
+	
 	/**
 	 * @return a descendant path of this path that ends with whatever modelPath has that this does not 
 	 * can be used to create specific powerset paths from an abstract one
@@ -208,6 +214,21 @@ public class DenotatorPath implements Comparable<Object> {
 	private void add(int index) {
 		this.indices.add(index);
 		this.updateFormAndModule();
+	}
+	
+	private void addAll(List<Integer> indices) {
+		this.indices.addAll(indices);
+		this.updateFormAndModule();
+	}
+	
+	public DenotatorPath setIndex(int index, int value) {
+		DenotatorPath clone = this.clone();
+		clone.indices.set(index, value);
+		return clone;
+	}
+	
+	public int getFirstIndex() {
+		return this.indices.get(0);
 	}
 	
 	public int getLastIndex() {

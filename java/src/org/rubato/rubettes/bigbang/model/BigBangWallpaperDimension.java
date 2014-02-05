@@ -34,17 +34,6 @@ public class BigBangWallpaperDimension {
 		this.transformations.add(transformation);
 	}
 	
-	public BigBangTransformation getLastTransformation() {
-		if (this.transformations.size() > 0) {
-			return this.transformations.get(this.transformations.size()-1);
-		}
-		return null;
-	}
-	
-	public void removeLastTransformation() {
-		this.transformations.remove(this.getLastTransformation());
-	}
-	
 	public List<BigBangTransformation> getTransformations() {
 		return this.transformations;
 	}

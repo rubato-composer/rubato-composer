@@ -1,7 +1,7 @@
 package org.rubato.rubettes.bigbang.model.edits;
 
 import org.rubato.math.matrix.RMatrix;
-import org.rubato.rubettes.bigbang.model.BigBangScoreManager;
+import org.rubato.rubettes.bigbang.model.BigBangDenotatorManager;
 import org.rubato.rubettes.bigbang.model.TransformationProperties;
 
 public class RotationEdit extends AbstractLocalTransformationEdit {
@@ -10,16 +10,16 @@ public class RotationEdit extends AbstractLocalTransformationEdit {
 	private double angle;
 	
 	//used for cloning
-	protected RotationEdit(BigBangScoreManager scoreManager) {
-		super(scoreManager);
+	protected RotationEdit(BigBangDenotatorManager denotatorManager) {
+		super(denotatorManager);
 	}
 	
-	public RotationEdit(BigBangScoreManager scoreLayers, TransformationProperties properties, double[] startingPoint, double angle) {
-		super(scoreLayers, properties);
+	public RotationEdit(BigBangDenotatorManager denotatorManager, TransformationProperties properties, double[] startingPoint, double angle) {
+		super(denotatorManager, properties);
 		this.setParameters(startingPoint, angle);
 	}
 	
-	private void setParameters(double[] startingPoint, double angle) {
+	public void setParameters(double[] startingPoint, double angle) {
 		this.startingPoint = startingPoint;
 		this.angle = angle;
 		this.updateOperation();

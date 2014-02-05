@@ -1,7 +1,7 @@
 package org.rubato.rubettes.bigbang.model.edits;
 
 import org.rubato.math.matrix.RMatrix;
-import org.rubato.rubettes.bigbang.model.BigBangScoreManager;
+import org.rubato.rubettes.bigbang.model.BigBangDenotatorManager;
 import org.rubato.rubettes.bigbang.model.TransformationProperties;
 
 public class ShearingEdit extends AbstractLocalTransformationEdit {
@@ -9,22 +9,17 @@ public class ShearingEdit extends AbstractLocalTransformationEdit {
 	private double[] shearingFactors;
 	
 	//used for cloning
-	protected ShearingEdit(BigBangScoreManager scoreManager) {
-		super(scoreManager);
+	protected ShearingEdit(BigBangDenotatorManager denotatorManager) {
+		super(denotatorManager);
 	}
 	
-	public ShearingEdit(BigBangScoreManager scoreLayers, TransformationProperties properties, double[] shearingFactors) {
-		super(scoreLayers, properties);
-		this.setShearingFactors(shearingFactors);
+	public ShearingEdit(BigBangDenotatorManager denotatorManager, TransformationProperties properties, double[] shearingFactors) {
+		super(denotatorManager, properties);
+		this.modify(shearingFactors);
 	}
 	
-	private void setShearingFactors(double[] shearingFactors) {
-		this.shearingFactors = shearingFactors;
-		this.updateOperation();
-	}
-	
-	public void modify(double[] newValues) {
-		this.shearingFactors = newValues;
+	public void modify(double[] newShearingFactors) {
+		this.shearingFactors = newShearingFactors;
 		this.updateOperation();
 	}
 	
@@ -32,7 +27,7 @@ public class ShearingEdit extends AbstractLocalTransformationEdit {
 	protected ShearingEdit createModifiedCopy(double ratio) {
 		ShearingEdit modifiedCopy = (ShearingEdit)this.clone();
 		double[] partialShearing = new double[]{this.shearingFactors[0]*ratio, this.shearingFactors[1]*ratio};
-		modifiedCopy.setShearingFactors(partialShearing);
+		modifiedCopy.modify(partialShearing);
 		return modifiedCopy;
 	}
 	

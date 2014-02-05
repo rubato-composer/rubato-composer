@@ -81,7 +81,7 @@ public class MTBigBangApp extends MTApplication implements View {
 			this.contents.setViewParameters((ViewParameters)event.getNewValue());
 			this.repaint();
 		} else if (propertyName.equals(ViewController.DISPLAY_OBJECTS)) {
-			this.contents.setNotes((DisplayObjects)event.getNewValue());
+			this.contents.setObjects((DisplayObjects)event.getNewValue());
 			this.repaint(false);
 		} else if (propertyName.equals(ViewController.DISPLAY_TOOL)) {
 			this.contents.setTool((DisplayTool)event.getNewValue());

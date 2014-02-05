@@ -1,12 +1,9 @@
 package org.rubato.rubettes.bigbang.view.player;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
-
-import org.rubato.rubettes.util.CoolFormRegistrant;
 
 import com.jsyn.JSyn;
 import com.jsyn.Synthesizer;
@@ -80,7 +77,7 @@ public class JSynPlayer {
 		this.score = score;
 		//standard loop is entire score
 		if (score.getObjects().size() > 0) {
-			this.loopOnset = score.getObjects().get(0).getOnset();
+			this.loopOnset = score.getObjects().iterator().next().getOnset();
 			this.loopDuration = this.getLastOffset()-this.loopOnset;
 		}
 		//System.out.println("LOOP "+ this.loopOnset + " " + this.getLastOffset() + " " + this.loopDuration);
@@ -183,10 +180,7 @@ public class JSynPlayer {
 	}
 	
 	private void playMonitorPitch(int pitch, int velocity) {
-		JSynScore recordingMonitorScore = new JSynScore();
-		JSynObject recordingMonitor = recordingMonitorScore.addNewObject(null, null);
-		recordingMonitor.addValues(CoolFormRegistrant.PITCH_FORM, Arrays.asList(new Double(pitch)));
-		recordingMonitor.addValues(CoolFormRegistrant.LOUDNESS_FORM, Arrays.asList(new Double(velocity)));
+		JSynScore recordingMonitorScore = new JSynScore(pitch, velocity);
 		JSynPerformance performance = new JSynPerformance(this, recordingMonitorScore);
 		this.currentMonitorPitches.put(pitch, performance);
 		performance.playScore();

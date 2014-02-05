@@ -25,16 +25,16 @@ public class ObjectScalingAdapter extends ObjectTransformationAdapter {
 	}
 	
 	@Override
-	protected void transformSelectedObjects(MouseEvent event, boolean inPreviewMode) {
+	protected void transformSelectedObjects(MouseEvent event, boolean startNewTransformation) {
 		double[] scaleFactors = this.calculateScaleFactors(event);
 		Point2D.Double currentEndPoint = new Point2D.Double(event.getPoint().x, event.getPoint().y);
-		this.controller.scaleSelectedObjects(this.startingPoint, currentEndPoint, scaleFactors, event.isAltDown(), inPreviewMode);
+		this.controller.scaleSelectedObjects(this.startingPoint, currentEndPoint, scaleFactors, event.isAltDown(), startNewTransformation);
 	}
 	
 	@Override
-	protected void modifySelectedTransformation(MouseEvent event, boolean inPreviewMode) {
+	protected void modifySelectedTransformation(MouseEvent event) {
 		double[] scaleFactors = this.calculateScaleFactors(event);
-		this.controller.modifySelectedTransformation(scaleFactors, inPreviewMode);
+		this.controller.modifySelectedTransformation(scaleFactors);
 	}
 	
 	private double[] calculateScaleFactors(MouseEvent event) {

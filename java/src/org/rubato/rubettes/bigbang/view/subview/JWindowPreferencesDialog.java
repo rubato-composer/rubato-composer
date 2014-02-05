@@ -5,6 +5,7 @@ import java.awt.GridLayout;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.beans.PropertyChangeEvent;
+import java.util.Arrays;
 
 import javax.swing.BorderFactory;
 import javax.swing.JCheckBox;

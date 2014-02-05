@@ -1,9 +1,9 @@
 package org.rubato.rubettes.bigbang.model;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
 import org.rubato.base.RubatoException;
 import org.rubato.math.matrix.RMatrix;
@@ -11,7 +11,6 @@ import org.rubato.math.module.morphism.CompositionException;
 import org.rubato.math.module.morphism.ModuleMorphism;
 import org.rubato.math.module.morphism.RFreeAffineMorphism;
 import org.rubato.math.yoneda.Denotator;
-import org.rubato.rubettes.bigbang.view.model.SelectedObjectsPaths;
 import org.rubato.rubettes.util.ArbitraryDenotatorMapper;
 import org.rubato.rubettes.util.DenotatorPath;
 
@@ -21,46 +20,45 @@ public class BigBangMapper extends BigBangScoreManipulator {
 	private boolean copyAndMap;
 	private boolean relative;
 	
-	public BigBangMapper(BigBangComposition score, BigBangTransformation transformation) {
-		super(score, transformation.getTransformationPaths());
+	public BigBangMapper(BigBangDenotatorManager denotatorManager, BigBangTransformation transformation) {
+		super(denotatorManager, transformation.getTransformationPaths());
 		this.morphism = transformation.getModuleMorphism();
 		this.copyAndMap = transformation.isCopyAndMap();
 		this.relative = transformation.getAnchorNodePath() != null;
 	}
 	
-	public SelectedObjectsPaths mapCategorizedObjects(SelectedObjectsPaths objectPaths) {
-		List<List<DenotatorPath>> newCategorizedObjects = new ArrayList<List<DenotatorPath>>();
-		for (int i = 0; i < objectPaths.size(); i++) {
-			newCategorizedObjects.add(this.mapObjects(new ArrayList<DenotatorPath>(objectPaths.get(i)), this.transformationPaths.get(i)));
-		}
-		return new SelectedObjectsPaths(newCategorizedObjects, objectPaths.getAnchorPath());
+	/**
+	 * Maps the objects at the given paths
+	 * @return the resulting newPaths
+	 */
+	public OperationPathResults mapCategorizedObjects(Set<DenotatorPath> objectPaths) {
+		//TODO REALLY CHECK WHAT HAPPENS WITHOUT CATEGORIZED OBJECTS
+		//for (int i = 0; i < objectPaths.size(); i++) {
+		this.mapObjects(new ArrayList<DenotatorPath>(objectPaths), this.transformationPaths.get(0));
+		//}
+		//return this.denotatorManager.getCurrentNewPaths();
+		return this.denotatorManager.getPathResults();
 	}
 	
-	private List<DenotatorPath> mapObjects(List<DenotatorPath> objectPaths, TransformationPaths transformationPaths) {
-		//PerformanceCheck.startTask(".pre");
-		List<List<Denotator>> newObjects = new ArrayList<List<Denotator>>();
-		objectPaths = this.score.reverseSort(objectPaths);
+	private void mapObjects(List<DenotatorPath> objectPaths, TransformationPaths transformationPaths) {
+		//TODO check if still necessary
+		objectPaths = this.denotatorManager.sortAndReverse(objectPaths);
 		
 		Iterator<DenotatorPath> objectPathsIterator = objectPaths.iterator();
 		if (objectPathsIterator.hasNext()) {
 			DenotatorPath firstOfNextSiblings = objectPathsIterator.next();
 			while (firstOfNextSiblings != null) {
-				firstOfNextSiblings = this.mapAndAddNextSiblings(newObjects, firstOfNextSiblings, objectPathsIterator, transformationPaths);
+				firstOfNextSiblings = this.mapAndAddNextSiblings(firstOfNextSiblings, objectPathsIterator, transformationPaths);
 			}
 		}
-		//PerformanceCheck.startTask(".find");
-		List<DenotatorPath> newPaths = this.score.findPaths(newObjects);
-		//TODO: WHY DID WE NOT HAVE TO REVERSE BEFORE??
-		Collections.reverse(newPaths);
-		return newPaths; 
 	}
 	
-	private DenotatorPath mapAndAddNextSiblings(List<List<Denotator>> newObjects, DenotatorPath firstSiblingPath, Iterator<DenotatorPath> objectPathsIterator, TransformationPaths transformationPaths) {
+	private DenotatorPath mapAndAddNextSiblings(DenotatorPath firstSiblingPath, Iterator<DenotatorPath> objectPathsIterator, TransformationPaths transformationPaths) {
 		//PerformanceCheck.startTask(".first_sib");
 		List<Denotator> siblings = new ArrayList<Denotator>();
 		List<DenotatorPath> siblingsPaths = new ArrayList<DenotatorPath>();
 		
-		Denotator firstSibling = this.score.getAbsoluteObject(firstSiblingPath);
+		Denotator firstSibling = this.denotatorManager.getAbsoluteObject(firstSiblingPath);
 		if (firstSibling != null) {
 			siblingsPaths.add(firstSiblingPath);
 			siblings.add(firstSibling);
@@ -68,7 +66,7 @@ public class BigBangMapper extends BigBangScoreManipulator {
 		DenotatorPath siblingsAnchorPath = firstSiblingPath.getAnchorPath();
 		ModuleMorphism siblingsMorphism = this.morphism;
 		if (this.relative) {
-			Denotator siblingsAnchor = this.score.getAbsoluteObject(siblingsAnchorPath);
+			Denotator siblingsAnchor = this.denotatorManager.getAbsoluteObject(siblingsAnchorPath);
 			siblingsMorphism = this.generateRelativeMorphism(this.extractValues(siblingsAnchor, transformationPaths));
 		}
 		
@@ -77,47 +75,44 @@ public class BigBangMapper extends BigBangScoreManipulator {
 			currentSiblingPath = objectPathsIterator.next();
 			//PerformanceCheck.startTask(".next_sibs");
 			if (currentSiblingPath.isSatelliteOf(siblingsAnchorPath)) {
-				Denotator currentSibling = this.score.getAbsoluteObject(currentSiblingPath);
+				Denotator currentSibling = this.denotatorManager.getAbsoluteObject(currentSiblingPath);
 				if (currentSibling != null) {
 					siblingsPaths.add(currentSiblingPath);
 					siblings.add(currentSibling);
 				}
 			} else {
-				this.removeMapAndAdd(newObjects, siblings, siblingsAnchorPath, siblingsPaths, siblingsMorphism, transformationPaths);
+				this.mapAndReplaceOrAdd(siblings, siblingsAnchorPath, siblingsPaths, siblingsMorphism, transformationPaths);
 				return currentSiblingPath;
 			}
 		}
-		this.removeMapAndAdd(newObjects, siblings, siblingsAnchorPath, siblingsPaths, siblingsMorphism, transformationPaths);
+		this.mapAndReplaceOrAdd(siblings, siblingsAnchorPath, siblingsPaths, siblingsMorphism, transformationPaths);
 		return null;
 	}
 	
-	private void removeMapAndAdd(List<List<Denotator>> newNodes, List<Denotator> objects, DenotatorPath anchorPath, List<DenotatorPath> siblingsPaths, ModuleMorphism morphism, TransformationPaths transformationPaths) {
-		//PerformanceCheck.startTask(".remove");
-		if (!this.copyAndMap) {
-			this.score.removeObjects(siblingsPaths);
+	/*
+	 * Maps the given objects and adds them to the given anchorPath (they should thus originally be siblings).
+	 * Returns a list with all the 
+	 */
+	private void mapAndReplaceOrAdd(List<Denotator> objects, DenotatorPath anchorPath, List<DenotatorPath> siblingsPaths, ModuleMorphism morphism, TransformationPaths transformationPaths) {
+		if (objects.size() > 0) {
+			List<Denotator> mappedObjects = new ArrayList<Denotator>();
+			ArbitraryDenotatorMapper mapper = new ArbitraryDenotatorMapper(morphism, transformationPaths);
+			for (int i = 0; i < objects.size(); i++) {
+				Denotator currentObject = objects.get(i);
+				try {
+					mappedObjects.add(mapper.getMappedDenotator(currentObject));
+				} catch (RubatoException e) {
+					e.printStackTrace();
+				}
+			}
+			if (!this.copyAndMap) {
+				this.denotatorManager.replaceSiblingObjects(mappedObjects, siblingsPaths);
+			} else {
+				//TODO: ADD THEM AS THE SAME TYPE AS THEIR ORIGINAL!! MODULATOR OR SATELLITE! FIGURE OUT POWERSET INDEX!!
+				DenotatorPath powersetPath = anchorPath.getPowersetPath(0);
+				this.denotatorManager.addObjectsToParent(mappedObjects, powersetPath);
+			}
 		}
-		newNodes.addAll(this.mapAndAddObjects(objects, anchorPath, morphism, transformationPaths));
-	}
-	
-	private List<List<Denotator>> mapAndAddObjects(List<Denotator> objects, DenotatorPath anchorPath, ModuleMorphism morphism, TransformationPaths transformationPaths) {
-		List<Denotator> mappedObjects = new ArrayList<Denotator>();
-		ArbitraryDenotatorMapper mapper = new ArbitraryDenotatorMapper(morphism, transformationPaths);
-		//boolean modulators = objects.get(0).getForm().equals(this.score.objectGenerator.SOUND_NOTE_FORM);
-		for (int i = 0; i < objects.size(); i++) {
-			//PerformanceCheck.startTask(".map");
-			Denotator currentObject = objects.get(i);
-			try {
-				mappedObjects.add(mapper.getMappedDenotator(currentObject));
-			} catch (RubatoException e) { e.printStackTrace(); }
-		}
-		//PerformanceCheck.startTask(".add");
-		//TODO: ADD THEM AS THE SAME TYPE AS THEIR ORIGINAL!! MODULATOR OR SATELLITE  
-		List<DenotatorPath> newPaths = this.score.addObjectsToParent(mappedObjects, anchorPath, 0);
-		//PerformanceCheck.startTask(".extract");
-		if (newPaths != null) {
-			return this.score.extractObjects(newPaths);
-		}
-		return new ArrayList<List<Denotator>>();
 	}
 	
 	private ModuleMorphism generateRelativeMorphism(double[] anchorLocation) {
@@ -135,8 +130,8 @@ public class BigBangMapper extends BigBangScoreManipulator {
 	//TODO: WOOOO REMOVE THIS AND MAKE OBJECT GENERATOR WORK!!!
 	private double[] extractValues(Denotator object, TransformationPaths transformationPaths) {
 		double v1 = 0, v2 = 0;
-		v1 = this.score.objectGenerator.getDoubleValue(object, transformationPaths.getDomainPath(0, object));
-		v2 = this.score.objectGenerator.getDoubleValue(object, transformationPaths.getDomainPath(1, object));
+		v1 = this.denotatorManager.getObjectGenerator().getDoubleValue(object, transformationPaths.getDomainPath(0, object));
+		v2 = this.denotatorManager.getObjectGenerator().getDoubleValue(object, transformationPaths.getDomainPath(1, object));
 		return new double[] {v1, v2};
 	}
 

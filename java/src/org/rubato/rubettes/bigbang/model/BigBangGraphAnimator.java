@@ -12,11 +12,11 @@ public class BigBangGraphAnimator extends Thread {
 	private BigBangTransformationGraph graph;
 	private List<AbstractOperationEdit> animatedEdits;
 	private double totalAnimationTime;
-	private UndoRedoModel model;
+	private BigBangModel model;
 	private boolean running;
 	private double currentPosition;
 	
-	public BigBangGraphAnimator(BigBangTransformationGraph graph, UndoRedoModel model) {
+	public BigBangGraphAnimator(BigBangTransformationGraph graph, BigBangModel model) {
 		this.setGraph(graph);
 		this.model = model;
 	}
@@ -80,7 +80,7 @@ public class BigBangGraphAnimator extends Thread {
 			}
 		}
 		this.model.firePropertyChange(BigBangController.GRAPH_ANIMATION_POSITION, null, this.getPositionInPercent());
-		this.graph.updateComposition(true);
+		this.model.updateComposition();
 	}
 	
 	private void animate() throws InterruptedException {

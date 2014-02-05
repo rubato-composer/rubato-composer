@@ -1,43 +1,32 @@
 package org.rubato.rubettes.bigbang.model;
 
 import java.util.List;
-import java.util.Map;
-
-import org.rubato.rubettes.bigbang.view.model.SelectedObjectsPaths;
-import org.rubato.rubettes.util.DenotatorPath;
+import java.util.Set;
 
 public class TransformationProperties {
 	
-	private SelectedObjectsPaths objectPaths;
+	private Set<BigBangObject> objects;
+	private BigBangObject anchor;
 	private List<TransformationPaths> transformationPaths;
 	private boolean copyAndTransform;
 	private double[] center;
 	private double[] endPoint;
-	private boolean inPreviewMode;
+	private boolean startNewTransformation;
 	
-	public TransformationProperties(SelectedObjectsPaths objectPaths, List<TransformationPaths> transformationPaths, boolean copyAndTransform, boolean inPreviewMode) {
-		this.objectPaths = objectPaths;
+	public TransformationProperties(Set<BigBangObject> objects, BigBangObject anchor, List<TransformationPaths> transformationPaths, boolean copyAndTransform, boolean startNewTransformation) {
+		this.objects = objects;
+		this.anchor = anchor;
 		this.transformationPaths = transformationPaths;
 		this.copyAndTransform = copyAndTransform;
-		this.inPreviewMode = inPreviewMode;
+		this.startNewTransformation = startNewTransformation;
 	}
 	
-	public void updateObjectPaths(List<Map<DenotatorPath,DenotatorPath>> pathDifferences) {
-		for (int i = 0; i < pathDifferences.size(); i++) {
-			Map<DenotatorPath,DenotatorPath> currentObjectDifferences = pathDifferences.get(i);
-			List<DenotatorPath> currentObjectPaths = this.objectPaths.get(i);
-			for (DenotatorPath currentPath : currentObjectDifferences.keySet()) {
-				if (currentObjectPaths.contains(currentPath)) {
-					DenotatorPath newPath = currentObjectDifferences.get(currentPath);
-					currentObjectPaths.add(newPath);
-					currentObjectPaths.remove(currentPath);
-				}
-			}
-		}
+	public Set<BigBangObject> getObjects() {
+		return this.objects;
 	}
 	
-	public SelectedObjectsPaths getObjectsPaths() {
-		return this.objectPaths;
+	public BigBangObject getAnchor() {
+		return this.anchor;
 	}
 	
 	public List<TransformationPaths> getTransformationPaths() {
@@ -67,24 +56,20 @@ public class TransformationProperties {
 		return this.endPoint;
 	}
 	
-	public void setAnchorNodePath(DenotatorPath anchorPath) {
-		this.objectPaths.setAnchorPath(anchorPath);
+	public void setAnchor(BigBangObject anchor) {
+		this.anchor = anchor;
 	}
 	
-	public DenotatorPath getAnchorNodePath() {
-		return this.objectPaths.getAnchorPath();
+	public void setStartNewTransformation(boolean startNewTransformation) {
+		this.startNewTransformation = startNewTransformation;
 	}
 	
-	public void setInPreviewMode(boolean inPreviewMode) {
-		this.inPreviewMode = inPreviewMode;
-	}
-	
-	public boolean inPreviewMode() {
-		return this.inPreviewMode;
+	public boolean startNewTransformation() {
+		return this.startNewTransformation;
 	}
 	
 	public TransformationProperties clone() {
-		TransformationProperties clone = new TransformationProperties(this.objectPaths, this.transformationPaths, this.copyAndTransform, this.inPreviewMode);
+		TransformationProperties clone = new TransformationProperties(this.objects, this.anchor, this.transformationPaths, this.copyAndTransform, this.startNewTransformation);
 		clone.center = this.center;
 		clone.endPoint = this.endPoint;
 		return clone;

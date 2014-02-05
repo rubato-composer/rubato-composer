@@ -25,16 +25,16 @@ public class ObjectShearingAdapter extends ObjectTransformationAdapter {
 	}
 	
 	@Override
-	protected void transformSelectedObjects(MouseEvent event, boolean inPreviewMode) {
+	protected void transformSelectedObjects(MouseEvent event, boolean startNewTransformation) {
 		double[] shearingFactors = this.calculateShearingFactors(event);
 		Point2D.Double currentEndPoint = new Point2D.Double(event.getPoint().x, event.getPoint().y);
-		this.controller.shearSelectedObjects(this.startingPoint, currentEndPoint, shearingFactors, event.isAltDown(), inPreviewMode);
+		this.controller.shearSelectedObjects(this.startingPoint, currentEndPoint, shearingFactors, event.isAltDown(), startNewTransformation);
 	}
 	
 	@Override
-	protected void modifySelectedTransformation(MouseEvent event, boolean inPreviewMode) {
+	protected void modifySelectedTransformation(MouseEvent event) {
 		double[] shearingFactors = this.calculateShearingFactors(event);
-		this.controller.modifySelectedTransformation(shearingFactors, inPreviewMode);
+		this.controller.modifySelectedTransformation(shearingFactors);
 	}
 	
 	private double[] calculateShearingFactors(MouseEvent event) {

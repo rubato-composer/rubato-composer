@@ -2,6 +2,7 @@ package org.rubato.rubettes.bigbang.view.player;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 public class JSynPerformance {
 	
@@ -172,16 +173,16 @@ public class JSynPerformance {
 	}
 	
 	/*
-	 * generates threads based on copies of this score, adjusted to the given starting time
+	 * generates threads based on copies of this score, adjusted to the given starting time and pitch
 	 */
 	private JSynThreadGroup generateThreads(boolean playInNextLoop) {
-		List<JSynObject> objects = this.score.getObjects();
+		Set<JSynObject> objects = this.score.getObjects();
 		JSynThreadGroup threads = new JSynThreadGroup(playInNextLoop);
 		if (objects.size() > 0) {
 			for (JSynObject currentObject : objects) {
 				JSynObject clone = currentObject.clone();
 				if (this.pitch != null) {
-					clone.adjustFrequencies(this.pitch-60);
+					clone.setTranspositionInterval(this.pitch-60);
 				}
 				if (this.velocity != null) {
 					clone.adjustAmplitude(((double)this.velocity)/127);

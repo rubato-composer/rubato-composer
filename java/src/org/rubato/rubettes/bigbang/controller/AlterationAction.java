@@ -1,11 +1,9 @@
-package org.rubato.rubettes.bigbang.view.controller.score.actions;
+package org.rubato.rubettes.bigbang.controller;
 
 import java.awt.event.ActionEvent;
 
 import javax.swing.JButton;
 
-import org.rubato.rubettes.bigbang.controller.AbstractBigBangAction;
-import org.rubato.rubettes.bigbang.controller.BigBangController;
 
 public class AlterationAction extends AbstractBigBangAction {
 

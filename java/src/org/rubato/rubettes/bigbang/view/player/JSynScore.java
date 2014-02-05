@@ -1,37 +1,57 @@
 package org.rubato.rubettes.bigbang.view.player;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeSet;
 
-import org.rubato.math.yoneda.Form;
+import org.rubato.rubettes.bigbang.model.BigBangObject;
+import org.rubato.rubettes.bigbang.model.BigBangObjects;
 import org.rubato.rubettes.util.CoolFormRegistrant;
 
 public class JSynScore {
 	
-	private List<JSynObject> objects;
+	private TreeSet<JSynObject> objects;
+	private Map<BigBangObject,JSynObject> objectMap;
+	private int satelliteType;
 	
-	public JSynScore() {
-		this.objects = new ArrayList<JSynObject>();
-		//this.notes.add(extractor.extractValues(currentNode, bpm));
+	public JSynScore(BigBangObjects objects) {
+		this.objects = new TreeSet<JSynObject>();
+		this.objectMap = new HashMap<BigBangObject,JSynObject>();
+		if (objects.getBaseForm().equals(CoolFormRegistrant.FM_SET_FORM)) {
+			this.satelliteType = JSynObject.FREQUENCY_MODULATION;
+		}
+		this.addObjects(objects.getObjects());
 	}
 	
-	public List<JSynObject> getObjects() {
-		return this.objects;
-	}
-	
-	/*
-	 * Adds a new object to this score and returns it so that it can be edited
+	/**
+	 * Creates a score with just one object with the given pitch and velocity
 	 */
-	public JSynObject addNewObject(JSynObject parent, Form form) {
-		if (form != null && (form.equals(CoolFormRegistrant.FM_NODE_FORM) || form.equals(CoolFormRegistrant.SOUND_NOTE_FORM) || form.equals(CoolFormRegistrant.GENERIC_SOUND_FORM))) {
-			//System.out.println(parent + " " + form);
-			if (parent != null) {
-				return parent.addModulator();
+	public JSynScore(int pitch, int velocity) {
+		this.objects = new TreeSet<JSynObject>();
+		this.objects.add(new JSynMonitorObject(pitch, velocity));
+	}
+	
+	public void addObjects(Set<BigBangObject> newObjects) {
+		for (BigBangObject currentBBObject : newObjects) {
+			if (!this.objectMap.containsKey(currentBBObject) && currentBBObject.getTopDenotatorPath() != null) {
+				JSynObject parent = this.objectMap.get(currentBBObject.getParent());
+				JSynObject newJSynObject = new JSynObject(parent, currentBBObject, this.satelliteType);
+				//only add top level objects to score. others work as satellites
+				if (parent == null) {
+					this.objects.add(newJSynObject);
+				}
+				this.objectMap.put(currentBBObject, newJSynObject);
 			}
 		}
-		JSynObject object = new JSynObject(parent);
-		this.objects.add(object);
-		return object;
+	}
+	
+	/**
+	 * @return a sorted set containing the objects of this score.
+	 */
+	public TreeSet<JSynObject> getObjects() {
+		return this.objects;
 	}
 	
 	public String toString() {

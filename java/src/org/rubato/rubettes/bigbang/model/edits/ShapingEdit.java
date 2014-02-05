@@ -1,49 +1,50 @@
 package org.rubato.rubettes.bigbang.model.edits;
 
 import java.util.List;
-import java.util.Map;
+import java.util.Set;
 import java.util.TreeMap;
 
-import javax.swing.undo.AbstractUndoableEdit;
-
-import org.rubato.rubettes.bigbang.model.BigBangScoreManager;
+import org.rubato.rubettes.bigbang.model.BigBangDenotatorManager;
+import org.rubato.rubettes.bigbang.model.BigBangObject;
+import org.rubato.rubettes.bigbang.model.OperationPathResults;
+import org.rubato.rubettes.bigbang.model.TransformationPaths;
 import org.rubato.rubettes.bigbang.model.TransformationProperties;
-import org.rubato.rubettes.util.DenotatorPath;
 
-public class ShapingEdit extends AbstractUndoableEdit {
+public class ShapingEdit extends AbstractOperationEdit {
 	
-	private BigBangScoreManager score;
-	private TransformationProperties properties;
+	Set<BigBangObject> objects;
 	private TreeMap<Double,Double> shapingLocations;
-	private List<Map<DenotatorPath,Double>> newPathsAndOldYValues;
+	List<TransformationPaths> shapingPaths;
+	boolean copyAndShape;
 	
-	public ShapingEdit(BigBangScoreManager score, TransformationProperties properties, TreeMap<Double,Double> shapingLocations) {
-		this.score = score;
-		this.properties = properties;
+	public ShapingEdit(BigBangDenotatorManager denotatorManager, TransformationProperties properties, TreeMap<Double,Double> shapingLocations) {
+		super(denotatorManager);
+		this.objects = properties.getObjects();
 		this.shapingLocations = shapingLocations;
+		this.shapingPaths = properties.getTransformationPaths();
+		this.copyAndShape = properties.copyAndTransform();
 		this.execute();
 	}
 
-	public void execute() {
-		this.newPathsAndOldYValues = this.score.shapeNotes(this.properties, this.shapingLocations);
-	}
-	
-	public void redo() {
-		super.redo();
-		this.execute();
-	}
-	
-	public void undo() {
-		super.undo();
-		/*if (this.properties.copyAndTransform()) {
-			this.score.removeObjects(this.newPathsAndOldYValues.keySet(), false);
-		} else {
-			this.score.undoShapeObjects(this.newPathsAndOldYValues);
-		}*/
+	@Override
+	public OperationPathResults execute() {
+		return this.denotatorManager.shapeObjects(this.getObjectPaths(this.objects), this.shapingLocations, this.shapingPaths, this.copyAndShape);
 	}
 	
 	public String getPresentationName() {
 		return "Shaping";
+	}
+
+	@Override
+	protected String getSpecificPresentationName() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	protected void updateOperation() {
+		// TODO Auto-generated method stub
+		
 	}
 	
 }

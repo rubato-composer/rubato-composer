@@ -35,8 +35,9 @@ public class ArbitraryDenotatorMapperTest  extends TestCase {
 		//init mapper
 		ArbitraryDenotatorMapper mapper = new ArbitraryDenotatorMapper(this.translation, paths);
 		
-		LimitDenotator node = (LimitDenotator)this.objects.multiLevelMacroScore.get(new int[]{0});
+		LimitDenotator node = (LimitDenotator)this.objects.multiLevelSoundScore.get(new int[]{0});
 		LimitDenotator mappedNode = (LimitDenotator)mapper.getMappedDenotator(node);
+		//System.out.println("HEY " + (node == mappedNode));
 		//check if transformed properly and satellites still there and unchanged
 		LimitDenotator expectedNode = this.objects.createMultilevelNode(new double[][]{{-1,58,120,1,0,0},{1,3,-4,0,0,0},{1,-3,5,0,1,0}});
 		this.objects.assertEqualNonPowerDenotators(mappedNode, expectedNode);

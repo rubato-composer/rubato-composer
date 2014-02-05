@@ -18,18 +18,18 @@ public class ObjectReflectionAdapter extends ObjectTransformationAdapter {
 	}
 	
 	@Override
-	protected void transformSelectedObjects(MouseEvent event, boolean inPreviewMode) {
+	protected void transformSelectedObjects(MouseEvent event, boolean startNewTransformation) {
 		Point currentPoint = event.getPoint();
 		double[] reflectionVector = this.calculateReflectionVector(currentPoint);
 		Point2D.Double currentEndPoint = new Point2D.Double(currentPoint.x, currentPoint.y);
-		this.controller.reflectSelectedObjects(this.startingPoint, currentEndPoint, reflectionVector, event.isAltDown(), inPreviewMode);
+		this.controller.reflectSelectedObjects(this.startingPoint, currentEndPoint, reflectionVector, event.isAltDown(), startNewTransformation);
 	}
 	
 	@Override
-	protected void modifySelectedTransformation(MouseEvent event, boolean inPreviewMode) {
+	protected void modifySelectedTransformation(MouseEvent event) {
 		Point currentPoint = event.getPoint();
 		double[] reflectionVector = this.calculateReflectionVector(currentPoint);
-		this.controller.modifySelectedTransformation(reflectionVector, inPreviewMode);
+		this.controller.modifySelectedTransformation(reflectionVector);
 	}
 	
 	private double[] calculateReflectionVector(Point endPoint) {
