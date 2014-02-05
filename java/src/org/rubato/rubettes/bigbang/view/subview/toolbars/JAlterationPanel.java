@@ -150,7 +150,7 @@ public class JAlterationPanel extends JPanel implements View, ActionListener, It
 		} else {
 			this.edit.setEndDegree(value/totalValues);
 		}
-		this.bbController.modifiedOperation(false);
+		this.bbController.operationModified();
 	}
 	
 	public void itemStateChanged(ItemEvent event) {

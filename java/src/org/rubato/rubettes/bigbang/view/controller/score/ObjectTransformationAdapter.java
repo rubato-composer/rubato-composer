@@ -15,7 +15,7 @@ public abstract class ObjectTransformationAdapter extends MouseInputAdapter {
 	protected Point2D.Double startingPoint;
 	protected DisplayTool displayTool;
 	protected boolean inModificationMode;
-	protected boolean dragging;
+	protected boolean startNewTransformation;
 	
 	public ObjectTransformationAdapter(ViewController controller) {
 		this.init(controller);
@@ -32,7 +32,7 @@ public abstract class ObjectTransformationAdapter extends MouseInputAdapter {
 	
 	private void init(ViewController controller) {
 		this.controller = controller;
-		this.dragging = false;
+		this.startNewTransformation = true;
 		this.initDisplayTool();
 	}
 	
@@ -49,14 +49,14 @@ public abstract class ObjectTransformationAdapter extends MouseInputAdapter {
 	
 	public void mouseDragged(MouseEvent event) {
 		this.updateEndingPoint(event);
-		this.transformOrModifyTransformation(event, true);
-		this.dragging = true;
+		this.transformOrModifyTransformation(event);
+		this.startNewTransformation = false;
 	}
 
 	public void mouseReleased(MouseEvent event) {
-		if (this.dragging) {
-			this.transformOrModifyTransformation(event, false);
-			this.dragging = false;
+		if (!this.startNewTransformation) {
+			this.transformOrModifyTransformation(event);
+			this.startNewTransformation = true;
 			if (!this.inModificationMode) {
 				this.initDisplayTool();
 				this.controller.clearDisplayTool();
@@ -69,7 +69,7 @@ public abstract class ObjectTransformationAdapter extends MouseInputAdapter {
 		this.displayTool.setStartingPoint(this.startingPoint);
 		this.updateDisplayTool();
 		if (this.inModificationMode) {
-			this.controller.modifyCenterOfSelectedTransformation(this.startingPoint, false);
+			this.controller.modifyCenterOfSelectedTransformation(this.startingPoint);
 		}
 	}
 	
@@ -83,17 +83,17 @@ public abstract class ObjectTransformationAdapter extends MouseInputAdapter {
 		this.updateDisplayTool();
 	}
 	
-	private void transformOrModifyTransformation(MouseEvent event, boolean inPreviewMode) {
+	private void transformOrModifyTransformation(MouseEvent event) {
 		if (this.inModificationMode) {
-			this.modifySelectedTransformation(event, inPreviewMode);
+			this.modifySelectedTransformation(event);
 		} else {
-			this.transformSelectedObjects(event, inPreviewMode);
+			this.transformSelectedObjects(event, this.startNewTransformation);
 		}
 	}
 	
-	protected abstract void transformSelectedObjects(MouseEvent event, boolean inPreviewMode);
+	protected abstract void transformSelectedObjects(MouseEvent event, boolean startNewTransformation);
 	
-	protected abstract void modifySelectedTransformation(MouseEvent event, boolean inPreviewMode);
+	protected abstract void modifySelectedTransformation(MouseEvent event);
 	
 	protected abstract void initDisplayTool();
 	

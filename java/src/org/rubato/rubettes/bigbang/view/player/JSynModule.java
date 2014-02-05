@@ -46,25 +46,21 @@ public class JSynModule {
 	}
 	
 	public void playOrAdjustObject(JSynObject object, boolean playInNextLoop) {
-		this.playOrAdjustObject(object, 1, playInNextLoop);
-	}
-	
-	private void playOrAdjustObject(JSynObject object, int modulatorAmplitudeFactor, boolean playInNextLoop) {
 		for (int i = 0; i < object.getFrequencies().size(); i++) {
 			double currentFrequency = object.getFrequencies().get(i);
 			if (this.carriers.size() <= i) {
 				this.addCarrier();
 			}
-			this.playOrAdjustObject(this.carriers.get(i), object, currentFrequency, modulatorAmplitudeFactor, playInNextLoop);
+			this.playOrAdjustObject(this.carriers.get(i), object, currentFrequency, playInNextLoop);
 		}
 	}
 	
 	//recursive method
-	private void playOrAdjustObject(SmoothOscillator oscillator, JSynObject object, double frequency, int modulatorAmplitudeFactor, boolean playInNextLoop) {
-		//System.out.println(object + " " + this.player.getCurrentSymbolicTime() + " " + this.player.getCurrentSynthTime());
+	private void playOrAdjustObject(SmoothOscillator oscillator, JSynObject object, double frequency, boolean playInNextLoop) {
+		//System.out.println(object + " " + this.player.getCurrentSynthTime() + " " +oscillator);
 		//adjust frequency and amplitude
 		oscillator.setFrequency(frequency);
-		oscillator.setAmplitude(object.getAmplitude()*this.player.getRecommendedAmplitude()*modulatorAmplitudeFactor);
+		oscillator.setAmplitude(object.getAmplitude()*this.player.getRecommendedAmplitude());
 		this.pan.pan.set(object.getPan());
 		//adjust or schedule time
 		double currentSymbolicTime = this.performance.getCurrentSymbolicTime();
@@ -82,23 +78,24 @@ public class JSynModule {
 				}
 			}
 			//recursively create or adjust modulators 
-			List<JSynObject> modulatorObjects = object.getModulators();
-			int modulatorType = object.getModulatorType();
-			List<SmoothOscillator> modulators = oscillator.getModulators();
+			List<JSynObject> satelliteObjects = object.getSatellites();
+			int modulatorType = object.getSatelliteType();
+			List<SmoothOscillatorModule> satellites = oscillator.getSatellites();
 			//System.out.println(modulatorObjects + " " + modulatorType);
-			for (int i = 0; i < modulatorObjects.size(); i++) {
-				JSynObject currentModulator = modulatorObjects.get(i);
-				if (modulators.size() <= i) {
-					oscillator.addModulator(modulatorType);
+			for (int i = 0; i < satelliteObjects.size(); i++) {
+				JSynObject currentModulator = satelliteObjects.get(i);
+				if (satellites.size() <= i) {
+					oscillator.addSatellite(modulatorType);
 				}
-				oscillator.setModulatorType(i, modulatorType);
+				oscillator.setSatelliteType(i, modulatorType);
 				//TODO: one modulator may have several frequencies! go through all
-				this.playOrAdjustObject(modulators.get(i), currentModulator, currentModulator.getMainFrequency(), 2000, playInNextLoop);
+				this.playOrAdjustObject(satellites.get(i).getOscillator(), currentModulator, currentModulator.getMainFrequency(), playInNextLoop);
 			}
 			//remove exceeding ones
-			while (modulatorObjects.size() < modulators.size()) {
-				oscillator.removeLastModulator();
+			while (satelliteObjects.size() < satellites.size()) {
+				oscillator.removeLastSatellite();
 			}
+			//System.out.println(oscillator);
 		}
 	}
 	

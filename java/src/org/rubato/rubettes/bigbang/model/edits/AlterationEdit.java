@@ -2,42 +2,44 @@ package org.rubato.rubettes.bigbang.model.edits;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
+import java.util.TreeSet;
+import java.util.Set;
 
-import org.rubato.rubettes.bigbang.model.BigBangScoreManager;
+import org.rubato.rubettes.bigbang.model.BigBangDenotatorManager;
+import org.rubato.rubettes.bigbang.model.BigBangObject;
+import org.rubato.rubettes.bigbang.model.OperationPathResults;
 import org.rubato.rubettes.util.DenotatorPath;
 
 public class AlterationEdit extends AbstractOperationEdit {
 	
-	private BigBangScoreManager scoreManager;
-	private List<DenotatorPath> foregroundComposition;
-	private List<DenotatorPath> backgroundComposition;
+	private Set<BigBangObject> foregroundComposition;
+	private Set<BigBangObject> backgroundComposition;
 	private List<DenotatorPath> alterationCoordinates;
 	private double startDegree, endDegree;
 	
-	public AlterationEdit(BigBangScoreManager manager) {
-		super(manager);
-		this.scoreManager = manager;
-		this.foregroundComposition = new ArrayList<DenotatorPath>();
-		this.backgroundComposition = new ArrayList<DenotatorPath>();
+	public AlterationEdit(BigBangDenotatorManager denotatorManager) {
+		super(denotatorManager);
+		this.denotatorManager = denotatorManager;
+		this.foregroundComposition = new TreeSet<BigBangObject>();
+		this.backgroundComposition = new TreeSet<BigBangObject>();
 		this.alterationCoordinates = new ArrayList<DenotatorPath>();
 		this.startDegree = 0;
 		this.endDegree = 0;
 	}
 	
 	public void fireAlterationComposition(int index) {
-		List<DenotatorPath> composition = this.foregroundComposition;
+		Set<BigBangObject> composition = this.foregroundComposition;
 		if (index == 1) {
 			composition = this.backgroundComposition;
 		}
-		this.scoreManager.fireAlterationComposition(index, composition);
+		//this.scoreManager.fireAlterationComposition(index, composition);
 	}
 	
-	public void setForegroundComposition(List<DenotatorPath> foregroundComposition) {
+	public void setForegroundComposition(Set<BigBangObject> foregroundComposition) {
 		this.foregroundComposition = foregroundComposition;
 	}
 	
-	public void setBackgroundComposition(List<DenotatorPath> backgroundComposition) {
+	public void setBackgroundComposition(Set<BigBangObject> backgroundComposition) {
 		this.backgroundComposition = backgroundComposition;
 	}
 	
@@ -74,16 +76,12 @@ public class AlterationEdit extends AbstractOperationEdit {
 	}
 
 	@Override
-	public List<Map<DenotatorPath, DenotatorPath>> execute(List<Map<DenotatorPath, DenotatorPath>> pathDifferences, boolean sendCompositionChange) {
+	public OperationPathResults execute() {
 		double modifiedStartDegree = this.modificationRatio*this.startDegree;
 		double modifiedEndDegree = this.modificationRatio*this.endDegree;
-		this.scoreManager.addAlteration(this.foregroundComposition, this.backgroundComposition, this.alterationCoordinates, modifiedStartDegree, modifiedEndDegree, sendCompositionChange);
-		return pathDifferences;
-	}
-
-	@Override
-	public void setInPreviewMode(boolean inPreviewMode) {
-		//do nothing
+		Set<DenotatorPath> foregroundCompositionPaths = this.getObjectPaths(this.foregroundComposition);
+		Set<DenotatorPath> backgroundCompositionPaths = this.getObjectPaths(this.backgroundComposition);
+		return this.denotatorManager.addAlteration(foregroundCompositionPaths, backgroundCompositionPaths, this.alterationCoordinates, modifiedStartDegree, modifiedEndDegree);
 	}
 
 }

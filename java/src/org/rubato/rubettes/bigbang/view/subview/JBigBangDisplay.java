@@ -16,6 +16,7 @@ import org.rubato.rubettes.bigbang.view.controller.mode.DisplayModeAdapter;
 import org.rubato.rubettes.bigbang.view.model.ViewParameters;
 import org.rubato.rubettes.bigbang.view.model.tools.DisplayTool;
 import org.rubato.rubettes.bigbang.view.player.BigBangPlayer;
+import org.rubato.rubettes.util.PerformanceCheck;
 
 public class JBigBangDisplay extends JPanel implements View {
 	
@@ -82,8 +83,13 @@ public class JBigBangDisplay extends JPanel implements View {
 			this.contents.setViewParameters((ViewParameters)event.getNewValue());
 			this.repaint();
 		} else if (propertyName.equals(ViewController.DISPLAY_OBJECTS)) {
-			this.contents.setNotes((DisplayObjects)event.getNewValue());
+			PerformanceCheck.startTask("setDO");
+			this.contents.setObjects((DisplayObjects)event.getNewValue());
+			PerformanceCheck.startTask("repaint");
 			this.repaint();
+			PerformanceCheck.startTask("done");
+			//PerformanceCheck.print();
+			//System.out.println("\n\n");
 		} else if (propertyName.equals(ViewController.DISPLAY_TOOL)) {
 			this.contents.setTool((DisplayTool)event.getNewValue());
 			this.repaint();

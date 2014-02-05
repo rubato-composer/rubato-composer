@@ -52,17 +52,17 @@ public class ObjectRotationAdapter extends ObjectTransformationAdapter {
 	}
 	
 	@Override
-	protected void transformSelectedObjects(MouseEvent event, boolean inPreviewMode) {
+	protected void transformSelectedObjects(MouseEvent event, boolean startNewTransformation) {
 		Point2D.Double currentEndingPoint = new Point2D.Double(event.getPoint().x, event.getPoint().y);
 		double arcAngle = this.calculateArcAngle(currentEndingPoint);
-		this.controller.rotateSelectedObjects(this.center, this.startingPoint, currentEndingPoint, arcAngle, event.isAltDown(), inPreviewMode);
+		this.controller.rotateSelectedObjects(this.center, this.startingPoint, currentEndingPoint, arcAngle, event.isAltDown(), startNewTransformation);
 	}
 	
 	@Override
-	protected void modifySelectedTransformation(MouseEvent event, boolean inPreviewMode) {
+	protected void modifySelectedTransformation(MouseEvent event) {
 		Point2D.Double currentEndingPoint = new Point2D.Double(event.getPoint().x, event.getPoint().y);
 		double arcAngle = this.calculateArcAngle(currentEndingPoint);
-		this.controller.modifyRotationAngle(arcAngle, inPreviewMode);
+		this.controller.modifyRotationAngle(arcAngle);
 	}
 	
 	private double calculateStartingAngle(Point2D.Double startingPoint) {
@@ -82,7 +82,7 @@ public class ObjectRotationAdapter extends ObjectTransformationAdapter {
 		this.setCenter(x, y);
 		this.controller.changeDisplayTool(this.displayTool);
 		if (this.inModificationMode) {
-			this.controller.modifyCenterOfSelectedTransformation(this.center, false);
+			this.controller.modifyCenterOfSelectedTransformation(this.center);
 		}
 	}
 	

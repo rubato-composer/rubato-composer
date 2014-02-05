@@ -43,14 +43,24 @@ public class DenotatorObjectConfiguration {
 		return null;
 	}
 	
-	public int getOccurrencesOfValueNameBefore(String valueName, int index) {
+	public int getOccurrencesOfValueName(String valueName) {
 		int occurrences = 0;
-		for (String currentName : this.valueNames.subList(0, index)) {
+		for (String currentName : this.valueNames) {
 			if (currentName.equals(valueName)) {
 				occurrences++;
 			}
 		}
 		return occurrences;
+	}
+	
+	public List<Integer> getIndicesOfValueName(String valueName) {
+		List<Integer> indices = new ArrayList<Integer>();
+		for (int i = 0; i < this.valueNames.size(); i++) {
+			if (this.valueNames.get(i).equals(valueName)) {
+				indices.add(i);
+			}
+		}
+		return indices;
 	}
 	
 	/*

@@ -1,28 +1,20 @@
 package org.rubato.rubettes.bigbang.model.edits;
 
-import java.util.List;
-import java.util.Map;
-import java.util.TreeSet;
+import java.util.Set;
 
-import org.rubato.rubettes.bigbang.model.BigBangScoreManager;
-import org.rubato.rubettes.util.DenotatorPath;
+import org.rubato.rubettes.bigbang.model.BigBangDenotatorManager;
+import org.rubato.rubettes.bigbang.model.BigBangObject;
+import org.rubato.rubettes.bigbang.model.OperationPathResults;
 
 public class FlattenEdit extends AbstractPathBasedOperationEdit {
 	
-	public FlattenEdit(BigBangScoreManager scoreManager, List<DenotatorPath> objectPaths) {
-		super(scoreManager, objectPaths);
+	public FlattenEdit(BigBangDenotatorManager denotatorManager, Set<BigBangObject> objectList) {
+		super(denotatorManager, objectList);
 	}
 	
 	@Override
-	public List<Map<DenotatorPath, DenotatorPath>> execute(List<Map<DenotatorPath, DenotatorPath>> pathDifferences,	boolean sendCompositionChange) {
-		this.scoreManager.flattenNotes(new TreeSet<DenotatorPath>(this.modifiedObjectPaths));
-		return pathDifferences;
-	}
-
-	@Override
-	public void setInPreviewMode(boolean inPreviewMode) {
-		// TODO Auto-generated method stub
-		
+	public OperationPathResults execute() {
+		return this.denotatorManager.flattenObjects(this.getObjectPaths(this.modifiedObjects));
 	}
 	
 	@Override

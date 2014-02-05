@@ -5,11 +5,13 @@ import java.util.List;
 import java.util.Map;
 
 import org.rubato.math.yoneda.Form;
-import org.rubato.rubettes.bigbang.model.BigBangScoreManager;
+import org.rubato.rubettes.bigbang.model.BigBangDenotatorManager;
+import org.rubato.rubettes.bigbang.model.OperationPathResults;
 import org.rubato.rubettes.util.DenotatorPath;
 
 public class AddObjectsEdit extends AbstractOperationEdit {
 	
+	//TODO these paths will be replaced by BigBangObjects and powerset indices
 	private List<DenotatorPath> definitePowersetPaths;
 	private List<Map<DenotatorPath,Double>> definitePathsWithValues;
 	private List<DenotatorPath> previewedPowersetPaths;
@@ -18,16 +20,20 @@ public class AddObjectsEdit extends AbstractOperationEdit {
 	private List<List<Map<DenotatorPath,Double>>> modifiedPathsWithValues;
 	private Form objectForm;
 	
-	public AddObjectsEdit(BigBangScoreManager scoreManager, List<Map<DenotatorPath,Double>> pathsWithValues, List<DenotatorPath> powersetPaths) {
-		super(scoreManager);
+	public AddObjectsEdit(BigBangDenotatorManager denotatorManager, List<Map<DenotatorPath,Double>> pathsWithValues, List<DenotatorPath> powersetPaths) {
+		this(denotatorManager, pathsWithValues, powersetPaths, false);
+	}
+	
+	public AddObjectsEdit(BigBangDenotatorManager denotatorManager, List<Map<DenotatorPath,Double>> pathsWithValues, List<DenotatorPath> powersetPaths, boolean inPreviewMode) {
+		super(denotatorManager);
 		this.definitePowersetPaths = new ArrayList<DenotatorPath>();
 		this.previewedPowersetPaths = new ArrayList<DenotatorPath>();
 		this.definitePathsWithValues = new ArrayList<Map<DenotatorPath,Double>>();
 		this.previewedPathsWithValues = new ArrayList<Map<DenotatorPath,Double>>();
-		if (!powersetPaths.isEmpty()) {
+		if (powersetPaths != null && !powersetPaths.isEmpty()) {
 			this.setObjectForm(powersetPaths.get(0));
+			this.addObjects(pathsWithValues, powersetPaths, inPreviewMode);
 		}
-		this.addObjects(pathsWithValues, powersetPaths, false);
 		this.minModRatio = 0.0;
 		this.maxModRatio = 1.0;
 		this.isSplittable = true;
@@ -38,7 +44,7 @@ public class AddObjectsEdit extends AbstractOperationEdit {
 		if (powersetPath != null) {
 			this.objectForm = powersetPath.getChildPath(0).getEndForm();
 		} else {
-			this.objectForm = this.scoreManager.getComposition().getForm();
+			this.objectForm = this.denotatorManager.getComposition().getForm();
 		}
 	}
 	
@@ -63,10 +69,10 @@ public class AddObjectsEdit extends AbstractOperationEdit {
 	public List<AbstractOperationEdit> getSplitOperations(double ratio) {
 		List<AbstractOperationEdit> splitOperations = new ArrayList<AbstractOperationEdit>();
 		int firstNumberOfObjects = (int)Math.round(ratio*this.definitePathsWithValues.size());
-		splitOperations.add(new AddObjectsEdit(this.scoreManager,
+		splitOperations.add(new AddObjectsEdit(this.denotatorManager,
 				this.definitePathsWithValues.subList(0, firstNumberOfObjects),
 				this.definitePowersetPaths.subList(0, firstNumberOfObjects)));
-		splitOperations.add(new AddObjectsEdit(this.scoreManager,
+		splitOperations.add(new AddObjectsEdit(this.denotatorManager,
 				this.definitePathsWithValues.subList(firstNumberOfObjects, this.definitePathsWithValues.size()),
 				this.definitePowersetPaths.subList(firstNumberOfObjects, this.definitePathsWithValues.size())));
 		return splitOperations;
@@ -110,13 +116,14 @@ public class AddObjectsEdit extends AbstractOperationEdit {
 		if (this.objectForm == null && !powersetPaths.isEmpty()) {
 			this.setObjectForm(powersetPaths.get(0));
 		}
-		//reset previewed objects and remove the previous object if the new object is on the topmost level
+		//reset previewed objects and even remove the definite object if the new object is on the topmost level
 		this.previewedPowersetPaths = new ArrayList<DenotatorPath>();
 		this.previewedPathsWithValues = new ArrayList<Map<DenotatorPath,Double>>();
 		if (powersetPaths.size() > 0 && powersetPaths.get(0) == null) {
 			this.definitePowersetPaths = new ArrayList<DenotatorPath>();
 			this.definitePathsWithValues = new ArrayList<Map<DenotatorPath,Double>>();
 		}
+		//if on top level or same form, add objects
 		if (pathsWithValues.isEmpty() || (powersetPaths.get(0) == null || powersetPaths.get(0).getChildPath(0).getEndForm().equals(this.objectForm))) {
 			if (inPreviewMode) {
 				this.addObjects(pathsWithValues, powersetPaths, this.previewedPathsWithValues, this.previewedPowersetPaths);
@@ -136,23 +143,12 @@ public class AddObjectsEdit extends AbstractOperationEdit {
 		}
 	}
 	
-	public void setInPreviewMode(boolean inPreviewMode) {
-		//do nothing for now... preview mode works directly with add...
-	}
-	
-	public List<Map<DenotatorPath,DenotatorPath>> execute(List<Map<DenotatorPath,DenotatorPath>> pathDifferences, boolean fireCompositionChange) {
-		if (this.modifiedPowersetPaths.isEmpty() && fireCompositionChange) {
-			this.scoreManager.fireCompositionChange();
-		}
+	public OperationPathResults execute() {
+		OperationPathResults pathResults = new OperationPathResults();
 		for (int i = 0; i < this.modifiedPowersetPaths.size(); i++) {
-			//only fire composition change with last powerset
-			boolean update = fireCompositionChange && i == this.modifiedPowersetPaths.size()-1;
-			List<DenotatorPath> objectPaths = this.scoreManager.addObjects(this.modifiedPowersetPaths.get(i), this.modifiedPathsWithValues.get(i), update);
-			/*for (DenotatorPath currentPath : objectPaths) {
-				//pathDifferences.get(0).put(null, currentPath);
-			}*/
+			pathResults.addPaths(this.denotatorManager.addObjects(this.modifiedPowersetPaths.get(i), this.modifiedPathsWithValues.get(i)));
 		}
-		return pathDifferences;
+		return pathResults;
 	}
 	
 	@Override

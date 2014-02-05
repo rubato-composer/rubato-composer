@@ -24,9 +24,7 @@ import org.rubato.math.yoneda.PowerDenotator;
 import org.rubato.math.yoneda.PowerForm;
 import org.rubato.math.yoneda.SimpleDenotator;
 import org.rubato.math.yoneda.SimpleForm;
-import org.rubato.rubettes.bigbang.controller.BigBangController;
-import org.rubato.rubettes.bigbang.model.BigBangComposition;
-import org.rubato.rubettes.bigbang.model.BigBangScoreManager;
+import org.rubato.rubettes.bigbang.model.BigBangDenotatorManager;
 import org.rubato.rubettes.bigbang.model.TransformationPaths;
 import org.rubato.rubettes.util.CoolFormRegistrant;
 import org.rubato.rubettes.util.DenotatorPath;
@@ -61,15 +59,14 @@ public class TestObjects {
 	public final double[] NOTE2_ABSOLUTE_VALUES = new double[]{2,60,121,1,1,0};
 	public final double[] NOTE2_RELATIVE_VALUES = new double[]{1,-3,5,0,1,0};
 	
-	public BigBangComposition score;
-	public BigBangScoreManager scoreManager;
+	public BigBangDenotatorManager denotatorManager;
 	public SoundNoteGenerator generator;
 	private ObjectGenerator objectGenerator;
 	
 	public LimitDenotator note0, note1Absolute, note1Relative, note2Absolute, note2Relative;
 	public LimitDenotator node0, node1Absolute, node1Relative, node2Absolute, node2Relative;
-	public PowerDenotator flatMacroScore;
-	public PowerDenotator multiLevelMacroScore;
+	public PowerDenotator flatSoundScore;
+	public PowerDenotator multiLevelSoundScore;
 	public PowerDenotator realTriples, rationalTriples;
 	public PowerDenotator integerOrReals;
 	
@@ -83,8 +80,7 @@ public class TestObjects {
 		this.GENERIC_SOUND_FORM = Repository.systemRepository().getForm("GenericSound");
 		this.generator = new SoundNoteGenerator();
 		this.objectGenerator = new ObjectGenerator();
-		this.score = new BigBangComposition(this.generator.getSoundScoreForm());
-		this.scoreManager = new BigBangScoreManager(new BigBangController());
+		this.denotatorManager = new BigBangDenotatorManager(this.generator.getSoundScoreForm());
 		this.note0 = this.generator.createNoteDenotator(new double[]{0,60,120,1,0,0});
 		this.note1Absolute = this.generator.createNoteDenotator(new double[]{1,63,116,1,0,0});
 		this.note1Relative = this.generator.createNoteDenotator(new double[]{1,3,-4,0,0,0});
@@ -95,8 +91,8 @@ public class TestObjects {
 		this.node1Relative = this.generator.createNodeDenotator(note1Relative);
 		this.node2Absolute = this.generator.createNodeDenotator(note2Absolute);
 		this.node2Relative = this.generator.createNodeDenotator(note2Relative);
-		this.flatMacroScore = this.generator.createFlatSoundScore(this.ABSOLUTE);
-		this.multiLevelMacroScore = this.generator.createMultiLevelSoundScore(this.RELATIVE);
+		this.flatSoundScore = this.generator.createFlatSoundScore(this.ABSOLUTE);
+		this.multiLevelSoundScore = this.generator.createMultiLevelSoundScore(this.RELATIVE);
 		try {
 			this.createComplexSoundScore();
 			this.createProductRingRealTriples();
@@ -108,7 +104,7 @@ public class TestObjects {
 	}
 	
 	private void createComplexSoundScore() {
-		this.score.setOrAddComposition(this.multiLevelMacroScore.copy());
+		this.denotatorManager.setOrAddComposition(this.multiLevelSoundScore.copy());
 		List<Denotator> notes = new ArrayList<Denotator>();
 		notes.add(this.generator.createNoteDenotator(this.NOTE2_ABSOLUTE_VALUES));
 		notes.add(this.generator.createNoteDenotator(this.NOTE1_ABSOLUTE_VALUES));
@@ -118,7 +114,7 @@ public class TestObjects {
 		parentPaths.add(new DenotatorPath(this.generator.getSoundScoreForm(), new int[]{0,0}));
 		parentPaths.add(new DenotatorPath(this.generator.getSoundScoreForm(), new int[]{0,1,0,1,0,0}));
 		int[] powersetIndices = new int[]{1, 1, 1};
-		this.score.addObjects(notes, parentPaths, powersetIndices);
+		this.denotatorManager.addObjects(notes, parentPaths, powersetIndices);
 		
 		notes = new ArrayList<Denotator>();
 		notes.add(this.generator.createNoteDenotator(this.NOTE2_ABSOLUTE_VALUES));
@@ -129,7 +125,7 @@ public class TestObjects {
 		parentPaths.add(new DenotatorPath(this.generator.getSoundScoreForm(), new int[]{0,1,0,0}));
 		parentPaths.add(new DenotatorPath(this.generator.getSoundScoreForm(), new int[]{0,1,0,1,0,0,6,0}));
 		powersetIndices = new int[]{0, 1, 0};
-		this.score.addObjects(notes, parentPaths, powersetIndices);
+		this.denotatorManager.addObjects(notes, parentPaths, powersetIndices);
 	}
 	
 	private void createProductRingRealTriples() throws DomainException, RubatoException {
@@ -144,12 +140,7 @@ public class TestObjects {
 	}
 	
 	private void createFreeRationalTriples() throws DomainException, RubatoException {
-		List<Denotator> triples = new ArrayList<Denotator>();
-		triples.add(this.createRationalTriple(new double[]{1, 2, 3}));
-		triples.add(this.createRationalTriple(new double[]{4, 3, 1}));
-		triples.add(this.createRationalTriple(new double[]{2, 1, 5}));
-		triples.add(this.createRationalTriple(new double[]{3, 4, 2}));
-		this.rationalTriples = new PowerDenotator(NameDenotator.make(""), RATIONAL_TRIPLES_FORM, triples);
+		this.rationalTriples = this.createRationalTriples(new double[][]{{1, 2, 3},{4, 3, 1},{2, 1, 5},{3, 4, 2}});
 	}
 	
 	private void createIntegerOrReals() throws DomainException, RubatoException {
@@ -182,8 +173,24 @@ public class TestObjects {
 		return this.objectGenerator.createStandardDenotator(CoolFormRegistrant.DYAD_FORM, pitches);
 	}
 	
+	public PowerDenotator createRationalTriples(double[][] values) throws RubatoException {
+		List<Denotator> triples = new ArrayList<Denotator>();
+		for (double[] currentValues : values) {
+			triples.add(this.createRationalTriple(currentValues));
+		}
+		return new PowerDenotator(NameDenotator.make(""), RATIONAL_TRIPLES_FORM, triples);
+	}
+	
 	public Denotator createRationalTriple(double[] values) {
 		return this.objectGenerator.createStandardDenotator(this.RATIONAL_TRIPLE_FORM, values);
+	}
+	
+	public PowerDenotator createRealTriples(double[][] values) throws RubatoException {
+		List<Denotator> triples = new ArrayList<Denotator>();
+		for (double[] currentValues : values) {
+			triples.add(this.createRealTriple(currentValues));
+		}
+		return new PowerDenotator(NameDenotator.make(""), REAL_TRIPLES_FORM, triples);
 	}
 	
 	public Denotator createRealTriple(double[] values) {

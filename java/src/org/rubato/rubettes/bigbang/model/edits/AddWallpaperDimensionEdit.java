@@ -1,22 +1,19 @@
 package org.rubato.rubettes.bigbang.model.edits;
 
-import java.util.List;
-import java.util.Map;
+import java.util.Set;
 
-import org.rubato.rubettes.bigbang.model.BigBangScoreManager;
-import org.rubato.rubettes.bigbang.view.model.SelectedObjectsPaths;
-import org.rubato.rubettes.util.DenotatorPath;
+import org.rubato.rubettes.bigbang.model.BigBangDenotatorManager;
+import org.rubato.rubettes.bigbang.model.BigBangObject;
+import org.rubato.rubettes.bigbang.model.OperationPathResults;
 
 public class AddWallpaperDimensionEdit extends AbstractOperationEdit {
 	
-	private BigBangScoreManager scoreManager;
-	private SelectedObjectsPaths objectPaths;
+	private Set<BigBangObject> objects;
 	private int rangeFrom, rangeTo;
 	
-	public AddWallpaperDimensionEdit(BigBangScoreManager manager, SelectedObjectsPaths objectPaths, int rangeFrom, int rangeTo) {
-		super(manager);
-		this.scoreManager = manager;
-		this.objectPaths = objectPaths;
+	public AddWallpaperDimensionEdit(BigBangDenotatorManager denotatorManager, Set<BigBangObject> objects, int rangeFrom, int rangeTo) {
+		super(denotatorManager);
+		this.objects = objects;
 		this.rangeFrom = rangeFrom;
 		this.rangeTo = rangeTo;
 	}
@@ -30,15 +27,10 @@ public class AddWallpaperDimensionEdit extends AbstractOperationEdit {
 	}
 
 	@Override
-	public List<Map<DenotatorPath, DenotatorPath>> execute(List<Map<DenotatorPath, DenotatorPath>> pathDifferences, boolean sendCompositionChange) {
+	public OperationPathResults execute() {
 		//TODO could it be possible to have different paths for each dimension??? or even transformation??
-		this.scoreManager.addWallpaperDimensionS(this.objectPaths, this.rangeFrom, this.rangeTo, sendCompositionChange);
-		return pathDifferences;
-	}
-
-	@Override
-	public void setInPreviewMode(boolean inPreviewMode) {
-		//do nothing
+		this.denotatorManager.addWallpaperDimension(this.getObjectPaths(this.objects), this.rangeFrom, this.rangeTo);
+		return new OperationPathResults();
 	}
 	
 	public void setRange(boolean rangeTo, int value) {

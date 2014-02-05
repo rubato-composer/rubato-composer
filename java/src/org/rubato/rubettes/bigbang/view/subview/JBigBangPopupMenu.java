@@ -16,6 +16,8 @@ import javax.swing.undo.UndoManager;
 import org.rubato.math.yoneda.Form;
 import org.rubato.rubettes.bigbang.view.View;
 import org.rubato.rubettes.bigbang.view.controller.ViewController;
+import org.rubato.rubettes.bigbang.view.controller.general.ActivateAction;
+import org.rubato.rubettes.bigbang.view.controller.general.DeactivateAction;
 import org.rubato.rubettes.bigbang.view.controller.general.RedoAction;
 import org.rubato.rubettes.bigbang.view.controller.general.UndoAction;
 import org.rubato.rubettes.bigbang.view.controller.score.actions.BuildSatellitesAction;
@@ -33,6 +35,8 @@ public class JBigBangPopupMenu extends JPopupMenu implements View {
 	private JMenuItem undoItem;
 	private JMenuItem redoItem;
 	//private JMenuItem flattenCompletelyItem;
+	private JMenuItem deactivateItem;
+	private JMenuItem activateAllItem;
 	private JMenu copyToMenu;
 	private JMenu moveToMenu;
 	private JMenuItem deleteItem;
@@ -48,8 +52,10 @@ public class JBigBangPopupMenu extends JPopupMenu implements View {
 		this.add(this.undoItem);
 	    this.add(this.redoItem);
 	    this.add(new JSeparator());
-	    this.add(this.copyToMenu);
-	    this.add(this.moveToMenu);
+	    this.add(this.deactivateItem);
+	    this.add(this.activateAllItem);
+	    //this.add(this.copyToMenu);
+	    //this.add(this.moveToMenu);
 	    this.add(this.deleteItem);
 	    this.add(this.buildSatellitesMenu);
 	    this.add(this.flattenItem);
@@ -62,10 +68,12 @@ public class JBigBangPopupMenu extends JPopupMenu implements View {
 	private void initItems() {
 		this.undoItem = this.createShortcutItem("Undo", KeyEvent.VK_Z, new UndoAction(this.controller));
 		this.redoItem = this.createShortcutItem("Redo", KeyEvent.VK_Y, new RedoAction(this.controller));
-		this.copyToMenu = this.createJLayerMenu("Copy To", new CopyToNewLayerAction(this.controller));
-		this.moveToMenu = this.createJLayerMenu("Move To", new MoveToNewLayerAction(this.controller));
+		this.deactivateItem = this.createShortcutItem("Deactivate", KeyEvent.VK_D, new DeactivateAction(this.controller));
+		this.activateAllItem = this.createShortcutItem("Activate all", KeyEvent.VK_D, new ActivateAction(this.controller));
+		this.copyToMenu = this.createJLayerMenu("Copy to", new CopyToNewLayerAction(this.controller));
+		this.moveToMenu = this.createJLayerMenu("Move to", new MoveToNewLayerAction(this.controller));
 		this.deleteItem = this.createKeyItem("Delete", new DeleteObjectsAction(this.controller), KeyEvent.VK_BACK_SPACE, KeyEvent.VK_DELETE);
-		this.buildSatellitesMenu = new JMenu("Build Satellites");
+		this.buildSatellitesMenu = new JMenu("Build satellites");
 		this.flattenItem = this.createShortcutItem("Flatten", KeyEvent.VK_COMMA, new FlattenAction(this.controller));
 		//this.buildModulatorItem = this.createShortcutItem("Build Modulators", KeyEvent.VK_M, new BuildModulatorsAction(this.controller));
 		//this.removeModulatorItem = this.createShortcutItem("Disconnect Modulators", KeyEvent.VK_R, new RemoveModulatorsAction(this.controller));

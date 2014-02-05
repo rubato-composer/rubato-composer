@@ -9,8 +9,6 @@ import java.util.TreeMap;
 import java.util.TreeSet;
 
 import org.rubato.rubettes.bigbang.model.edits.AbstractOperationEdit;
-import org.rubato.rubettes.bigbang.model.edits.AbstractTransformationEdit;
-import org.rubato.rubettes.util.DenotatorPath;
 
 import edu.uci.ics.jung.algorithms.shortestpath.DijkstraShortestPath;
 import edu.uci.ics.jung.graph.DirectedSparseMultigraph;
@@ -18,8 +16,8 @@ import edu.uci.ics.jung.graph.util.EdgeType;
 
 public class BigBangTransformationGraph extends DirectedSparseMultigraph<Integer,AbstractOperationEdit> {
 	
-	private UndoRedoModel model;
 	private Integer selectedCompositionState;
+	private Integer insertionState;
 	private AbstractOperationEdit selectedOperation;
 	//all edits in the graph in their logical order of execution 
 	private List<AbstractOperationEdit> allOperationsInLogicalOrder;
@@ -28,8 +26,7 @@ public class BigBangTransformationGraph extends DirectedSparseMultigraph<Integer
 	//all states reached on way to selectedCompositionState and the time when they are reached
 	private Map<Integer,Double> currentlyReachedStatesAndTimes;
 	
-	public BigBangTransformationGraph(UndoRedoModel model) {
-		this.model = model;
+	public BigBangTransformationGraph() {
 		this.allOperationsInLogicalOrder = new ArrayList<AbstractOperationEdit>();
 		this.addVertex(0);
 	}
@@ -37,14 +34,19 @@ public class BigBangTransformationGraph extends DirectedSparseMultigraph<Integer
 	/**
 	 * sets the composition state to be shown. can be null, which means that the final state is shown
 	 */
-	public void selectCompositionState(Integer vertex, boolean update) {
+	public void selectCompositionState(Integer vertex) {
 		if (vertex == null || vertex <= this.getEdgeCount()) {
 			this.selectedCompositionState = vertex;
 			this.updateCurrentlyExecutedEditsAndStatesAndTimes();
-			if (update) {
-				this.updateComposition(false);
-			}
 		}
+	}
+	
+	public void deselectCompositionStates() {
+		this.selectCompositionState(null);
+	}
+	
+	public Integer getSelectedCompositionState() {
+		return this.selectedCompositionState;
 	}
 	
 	public void selectOperation(AbstractOperationEdit operation) {
@@ -55,21 +57,28 @@ public class BigBangTransformationGraph extends DirectedSparseMultigraph<Integer
 		return this.selectedOperation;
 	}
 	
-	public void previewInsertedTransformationAt(AbstractTransformationEdit edit, Integer state) {
-		this.insertOperation(edit, state, true);
-		this.removeOperation(edit, false);
+	public void setInsertionState(Integer state) {
+		this.insertionState = state;
 	}
 	
-	public void previewTransformationAtEnd(AbstractTransformationEdit edit) {
-		this.addOperation(edit, true);
-		this.removeOperation(edit, false);
+	/**
+	 * If the insertionState is selected, insert the given operation. Otherwise add.
+	 * @return the state to be selected afterwards
+	 */
+	public Integer addOrInsertOperation(AbstractOperationEdit edit, boolean inPreviewMode) {
+		if (this.insertionState != null) {
+			this.insertOperation(edit, this.insertionState);
+			int stateToBeSelected = this.insertionState+1;
+			if (!inPreviewMode) {
+				this.insertionState = null;
+			}
+			return stateToBeSelected;
+		}
+		this.addOperation(edit);
+		return this.getLastState();
 	}
 	
-	public boolean insertOperation(AbstractOperationEdit edit, Integer state) {
-		return this.insertOperation(edit, state, false);
-	}
-	
-	private boolean insertOperation(AbstractOperationEdit edit, Integer state, boolean inPreviewMode) {
+	private boolean insertOperation(AbstractOperationEdit edit, Integer state) {
 		Integer endingVertex = this.getVertexCount();
 		this.addVertex(endingVertex);
 		//move all edges including the ones involving the given state back by 1
@@ -80,19 +89,6 @@ public class BigBangTransformationGraph extends DirectedSparseMultigraph<Integer
 			int index = this.getInsertionIndex(state+1);
 			this.allOperationsInLogicalOrder.add(index, edit);
 			this.updateCurrentlyExecutedEditsAndStatesAndTimes();
-			//select right composition state so that new transformation is shown!!
-			Integer previouslySelectedState = this.selectedCompositionState;
-			if (inPreviewMode && previouslySelectedState != null && previouslySelectedState <= state) {
-				this.selectCompositionState(state+1, false);
-			}
-			this.updateComposition(inPreviewMode);
-			//deselect state after operation in case it was selected for preview purposes
-			if (inPreviewMode && previouslySelectedState != null && previouslySelectedState <= state) {
-				this.selectCompositionState(previouslySelectedState, false);
-			//if state was selected before, select the one after the inserted operation 
-			} else if (previouslySelectedState != null && previouslySelectedState == state) {
-				this.selectCompositionState(state+1, true);
-			}
 		}
 		return added;
 	}
@@ -106,14 +102,9 @@ public class BigBangTransformationGraph extends DirectedSparseMultigraph<Integer
 		return minIndex;
 	}
 	
-	public boolean addOperation(AbstractOperationEdit edit) {
-		return this.addOperation(edit, false);
-	}
-	
-	private boolean addOperation(AbstractOperationEdit edit, boolean inPreviewMode) {
+	private boolean addOperation(AbstractOperationEdit edit) {
 		//startingVertex is either current selected vertex or the last vertex
 		Integer startVertex, endVertex = null;
-		Integer previouslySelectedCompositionState = this.selectedCompositionState;
 		if (this.selectedOperation != null) {
 			startVertex = this.getSource(this.selectedOperation);
 			endVertex = this.getDest(this.selectedOperation);
@@ -134,17 +125,8 @@ public class BigBangTransformationGraph extends DirectedSparseMultigraph<Integer
 		if (added) {
 			this.allOperationsInLogicalOrder.add(edit);
 			this.updateCurrentlyExecutedEditsAndStatesAndTimes();
-			//deselect composition state so that new transformation is shown!!
-			if (!inPreviewMode) {
-				this.model.deselectCompositionStates();
-			}
-			this.updateComposition(inPreviewMode);
 		}
 		
-		//restore selected composition state
-		if (inPreviewMode == true && previouslySelectedCompositionState != null) {
-			this.selectedCompositionState = previouslySelectedCompositionState;
-		}
 		return added;
 	}
 	
@@ -185,27 +167,10 @@ public class BigBangTransformationGraph extends DirectedSparseMultigraph<Integer
 			//now split and add parallel operations if there are any
 			for (AbstractOperationEdit currentOperation : parallelOperations) {
 				List<AbstractOperationEdit> currentSplitOperations = currentOperation.getSplitOperations(ratio);
-				this.removeOperation(currentOperation, false);
+				this.removeOperation(currentOperation);
 				this.addParallelOperation(lastSplitOperations.get(0), currentSplitOperations.get(0));
 				this.addParallelOperation(lastSplitOperations.get(1), currentSplitOperations.get(1));
 				lastSplitOperations = currentSplitOperations;
-			}
-		}
-	}
-	
-	public void updateComposition(boolean inPreviewMode) {
-		if (this.getEdgeCount() > 0) {
-			List<Map<DenotatorPath,DenotatorPath>> pathDifferences = new ArrayList<Map<DenotatorPath,DenotatorPath>>();
-			
-			AbstractOperationEdit lastEditExecuted = this.currentlyExecutedOperationsInOrder.get(this.currentlyExecutedOperationsInOrder.size()-1); 
-			lastEditExecuted.setInPreviewMode(inPreviewMode);
-			//TODO pretty bad...
-			lastEditExecuted.getScoreManager().resetScore();
-			
-			for (int i = 0; i < this.currentlyExecutedOperationsInOrder.size(); i++) {
-				//only send composition change with last one!!!!!!
-				boolean sendCompositionChange = i==this.currentlyExecutedOperationsInOrder.size()-1;
-				pathDifferences = this.currentlyExecutedOperationsInOrder.get(i).execute(pathDifferences, sendCompositionChange);
 			}
 		}
 	}
@@ -261,7 +226,7 @@ public class BigBangTransformationGraph extends DirectedSparseMultigraph<Integer
 		return dijkstra.getPath(state1, state2).size() > 0;
 	}
 	
-	public boolean removeOperation(AbstractOperationEdit operation, boolean update) {
+	public boolean removeOperation(AbstractOperationEdit operation) {
 		if (this.containsEdge(operation)) {
 			Integer operationInitialpoint = this.getEndpoints(operation).getFirst();
 			Integer operationEndpoint = this.getEndpoints(operation).getSecond();
@@ -277,9 +242,6 @@ public class BigBangTransformationGraph extends DirectedSparseMultigraph<Integer
 			}
 			this.updateCurrentlyExecutedEditsAndStatesAndTimes();
 			
-			if (update) {
-				this.updateComposition(false);
-			}
 			return true;
 		}
 		return false;
@@ -306,15 +268,11 @@ public class BigBangTransformationGraph extends DirectedSparseMultigraph<Integer
 		}
 	}
 	
-	//TODO IMPROVE AT SOME POINT
-	public AbstractOperationEdit removeLastOperation(boolean update) {
+	public AbstractOperationEdit removeLastOperation() {
 		AbstractOperationEdit lastEdit = this.getLastAddedOperation();
 		this.removeEdge(lastEdit);
 		this.removeVertex(this.getLastState());
 		this.allOperationsInLogicalOrder.remove(lastEdit);
-		if (update) {
-			this.updateComposition(false);
-		}
 		return lastEdit;
 	}
 	
@@ -329,7 +287,10 @@ public class BigBangTransformationGraph extends DirectedSparseMultigraph<Integer
 	}
 	
 	public AbstractOperationEdit getLastAddedOperation() {
-		return this.allOperationsInLogicalOrder.get(this.allOperationsInLogicalOrder.size()-1);
+		if (this.getEdgeCount() > 0) {
+			return this.allOperationsInLogicalOrder.get(this.allOperationsInLogicalOrder.size()-1);
+		}
+		return null;
 	}
 	
 	public List<AbstractOperationEdit> getCurrentlyExecutedOperationsInOrder() {

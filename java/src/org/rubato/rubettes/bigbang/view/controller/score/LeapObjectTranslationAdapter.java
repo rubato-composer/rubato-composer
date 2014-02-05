@@ -37,10 +37,11 @@ public class LeapObjectTranslationAdapter extends Listener {
 		PointND p = LeapUtil.fingerToScreenPoint(front);
 		if (isActive) {
 			endPoint = new Point2D.Double(p.getCoord(0), p.getCoord(1));
-			this.viewController.translateSelectedObjects(this.startPoint, this.endPoint, false, true);
+			this.viewController.translateSelectedObjects(this.startPoint, this.endPoint, false, false);
 		}
 		else {
 			startPoint = new Point2D.Double(p.getCoord(0), p.getCoord(1));
+			this.viewController.translateSelectedObjects(this.startPoint, this.startPoint, false, true);
 			isActive = true;
 		}
 	}

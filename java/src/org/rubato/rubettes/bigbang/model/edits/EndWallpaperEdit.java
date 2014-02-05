@@ -1,18 +1,12 @@
 package org.rubato.rubettes.bigbang.model.edits;
 
-import java.util.List;
-import java.util.Map;
-
-import org.rubato.rubettes.bigbang.model.BigBangScoreManager;
-import org.rubato.rubettes.util.DenotatorPath;
+import org.rubato.rubettes.bigbang.model.BigBangDenotatorManager;
+import org.rubato.rubettes.bigbang.model.OperationPathResults;
 
 public class EndWallpaperEdit extends AbstractOperationEdit {
 	
-	private BigBangScoreManager scoreManager;
-	
-	public EndWallpaperEdit(BigBangScoreManager manager) {
-		super(manager);
-		this.scoreManager = manager;
+	public EndWallpaperEdit(BigBangDenotatorManager denotatorManager) {
+		super(denotatorManager);
 		this.isAnimatable = false;
 		this.isSplittable = false;
 	}
@@ -21,14 +15,9 @@ public class EndWallpaperEdit extends AbstractOperationEdit {
 	protected void updateOperation() { }
 
 	@Override
-	public List<Map<DenotatorPath, DenotatorPath>> execute(List<Map<DenotatorPath, DenotatorPath>> pathDifferences, boolean fireCompositionChange) {
-		this.scoreManager.endWallpaper(fireCompositionChange);
-		return pathDifferences;
-	}
-
-	@Override
-	public void setInPreviewMode(boolean inPreviewMode) {
-		//do nothing for now
+	public OperationPathResults execute() {
+		this.denotatorManager.endWallpaper();
+		return new OperationPathResults();
 	}
 	
 	@Override

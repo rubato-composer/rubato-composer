@@ -25,11 +25,9 @@ public class DisplayContents {
 		this.playbackLine = new DisplayPlaybackLine(this, player);
 	}
 	
-	public void setNotes(DisplayObjects displayObjects) {
-		for (DisplayObject currentNote : displayObjects.getObjects()) {
-			currentNote.setDisplay(this);
-		}
+	public void setObjects(DisplayObjects displayObjects) {
 		this.displayObjects = displayObjects;
+		this.displayObjects.setDisplay(this);
 		this.updateNoteBounds();
 		this.axes = new DisplayAxes(this, displayObjects.getCoordinateSystemValueNames());
 	}

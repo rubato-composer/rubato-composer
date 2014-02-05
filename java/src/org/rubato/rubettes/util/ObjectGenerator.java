@@ -67,6 +67,14 @@ public class ObjectGenerator {
 		return form.equals(CoolFormRegistrant.SCORE_FORM) || form.equals(CoolFormRegistrant.MACRO_SCORE_FORM) || form.equals(CoolFormRegistrant.SOUND_SCORE_FORM);
 	}
 	
+	public List<Denotator> createObjects(Form objectForm, List<Map<DenotatorPath,Double>> pathsWithValues) {
+		List<Denotator> newObjects = new ArrayList<Denotator>();
+		for (Map<DenotatorPath,Double> currentPathsWithValues : pathsWithValues) {
+			newObjects.add(this.createObject(objectForm, currentPathsWithValues));
+		}
+		return newObjects;
+	}
+	
 	public Denotator createObject(Form form, Map<DenotatorPath,Double> pathsWithValues) {
 		Denotator object = form.createDefaultDenotator();
 		object = this.replaceColimitsIfNecessary(object, pathsWithValues.keySet());

@@ -1,69 +1,38 @@
 package org.rubato.rubettes.bigbang.view.player;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
-import org.rubato.math.yoneda.Form;
+import org.rubato.rubettes.bigbang.model.BigBangObject;
 import org.rubato.rubettes.util.CoolFormRegistrant;
 
-public class JSynObject {
+public class JSynObject implements Comparable<JSynObject> {
 	
 	public static final int ADDITIVE = 0;
 	public static final int RING_MODULATION = 1;
 	public static final int FREQUENCY_MODULATION = 2;
 	
+	private BigBangObject bbObject;
+	
 	private JSynObject parent;
-	private List<Double> intervalStructure;
-	private List<Double> frequencies;
+	private double frequencyTranspositionRatio;
 	private Double amplitude;
-	private Double duration;
-	private Integer voice;
-	private Double onset;
-	private Double pan;
-	private Integer operation;
-	private List<JSynObject> modulators;
+	private Integer satelliteType;
+	private List<JSynObject> satellites;
 	
-	public JSynObject(JSynObject parent) {
+	public JSynObject(JSynObject parent, BigBangObject bbObject, int satelliteType) {
+		this(bbObject, satelliteType);
 		this.parent = parent;
-		//TODO: modulators will just be children!!!!
-		this.modulators = new ArrayList<JSynObject>();
-		this.frequencies = new ArrayList<Double>();
-	}
-	
-	public void addValues(Form form, List<Double> values) {
-		if (form.equals(CoolFormRegistrant.ONSET_FORM) || form.equals(CoolFormRegistrant.BEAT_CLASS_FORM)) {
-			this.setOnset(this.getSingleValue(values));
-			if (form.equals(CoolFormRegistrant.BEAT_CLASS_FORM)) {
-				//TODO: loop
-			}
-		} else if (form.equals(CoolFormRegistrant.PITCH_FORM) || form.equals(CoolFormRegistrant.CHROMATIC_PITCH_FORM)) {
-			this.addPitch(this.getSingleValue(values));
-		} else if (form.equals(CoolFormRegistrant.PITCH_CLASS_FORM)) {
-			this.addPitch(60+this.getSingleValue(values));
-		} else if (form.equals(CoolFormRegistrant.OVERTONE_INDEX_FORM)) {
-			if (this.frequencies.size() > 0) {
-				this.setOvertoneFrequency(this.getMainFrequency(), (int)this.getSingleValue(values));
-			} else if (this.parent != null) {
-				this.setOvertoneFrequency(this.parent.getMainFrequency(), (int)this.getSingleValue(values));
-			}
-		} else if (form.equals(CoolFormRegistrant.LOUDNESS_FORM)) {
-			this.setLoudness((int)this.getSingleValue(values));
-		} else if (form.equals(CoolFormRegistrant.DURATION_FORM)) {
-			this.setDuration(this.getSingleValue(values));
-		} else if (form.equals(CoolFormRegistrant.VOICE_FORM)) {
-			this.setVoice((int)this.getSingleValue(values));
-		} else if (form.equals(CoolFormRegistrant.QUALITY_FORM)) {
-			this.setTriadQuality((int)this.getSingleValue(values));
-		} else if (form.equals(CoolFormRegistrant.PAN_FORM)) {
-			this.pan = this.getSingleValue(values);
-		} else if (form.equals(CoolFormRegistrant.OPERATION_FORM)) {
-			this.operation = (int)this.getSingleValue(values);
+		if (parent != null) {
+			parent.addSatellite(this);
 		}
 	}
 	
-	private double getSingleValue(List<Double> values) {
-		return values.get(0);
+	//used during cloning
+	protected JSynObject(BigBangObject bbObject, int satelliteType) {
+		this.bbObject = bbObject;
+		this.satellites = new ArrayList<JSynObject>();
+		this.satelliteType = satelliteType;
 	}
 	
 	/**
@@ -71,38 +40,18 @@ public class JSynObject {
 	 * one frequency. 
 	 */
 	public boolean isPlayable() {
-		return this.frequencies.size() > 0;
+		return this.getFrequencies().size() > 0;
 	}
 	
 	
 	//TIME
 	
-	/**
-	 * sets onset and adjusts offset to match the object's duration
-	 */
-	private void setOnset(Double onset) {
-		this.onset = onset;
-	}
-	
 	public double getOnset() {
-		if (this.onset != null) {
-			return this.onset;
-		}
-		return 0;
-	}
-	
-	/*
-	 * sets duration and adjusts offset
-	 */
-	private void setDuration(Double duration) {
-		this.duration = duration;
+		return this.getFirstValue(0.0, CoolFormRegistrant.ONSET_NAME, CoolFormRegistrant.BEAT_CLASS_NAME);
 	}
 	
 	public double getDuration() {
-		if (this.duration != null) {
-			return this.duration;
-		}
-		return Double.MAX_VALUE;
+		return this.getFirstValue(Double.MAX_VALUE, CoolFormRegistrant.DURATION_NAME);
 	}
 	
 	public Double getOffset() {
@@ -122,76 +71,103 @@ public class JSynObject {
 	}
 
 	public List<Double> getFrequencies() {
-		if (this.frequencies.size() > 0) {
-			return this.frequencies;
+		//get all possible forms of pitches
+		List<Double> pitches = this.getAllKindsOfPitches();
+		//get overtones at this point since they are built on parent frequencies if there are no pitches present here
+		List<Double> frequencies = this.getOvertoneFrequencies(pitches);
+		//middle c in case there are no pitches
+		if (pitches.isEmpty()) {
+			pitches.add(60.0);
 		}
-		return Arrays.asList(this.midiToFrequency(60));
-	}
-
-	private void addPitch(Double pitch) {
-		this.addFrequency(this.midiToFrequency(pitch));
-	}
-	
-	private void setTriadQuality(int quality) {
-		if (quality < 2) {
-			this.addInterval(3);
-		} else {
-			this.addInterval(4);
+		//create interval structure with first pitch
+		this.addIntervalStructure(pitches);
+		//convert all pitches into frequencies and add to where potentially the overtones are
+		for (double currentPitch : pitches) {
+			frequencies.add(this.midiToFrequency(currentPitch)*this.frequencyTranspositionRatio);
 		}
-		if (quality % 2 == 0) {
-			this.addInterval(3);
-		} else {
-			this.addInterval(4);
+		return frequencies;
+	}
+	
+	private List<Double> getAllKindsOfPitches() {
+		//get pitches and chromatic pitches
+		List<Double> pitches = this.bbObject.getValues(CoolFormRegistrant.PITCH_NAME);
+		pitches.addAll(this.bbObject.getValues(CoolFormRegistrant.CHROMATIC_PITCH_NAME));
+		//get pitch classes and make them start at 60
+		List<Double> pitchClasses = this.bbObject.getValues(CoolFormRegistrant.PITCH_CLASS_NAME);
+		for (int i = 0; i < pitchClasses.size(); i++) {
+			pitchClasses.set(i, 60+pitchClasses.get(i));
 		}
-		this.updateFrequencies();
+		pitches.addAll(pitchClasses);
+		return pitches;
 	}
 	
-	private void addInterval(double interval) {
-		if (this.intervalStructure == null) {
-			this.intervalStructure = new ArrayList<Double>();
+	//if there is an interval structure, builds it on the first pitch in the given list
+	private void addIntervalStructure(List<Double> pitches) {
+		List<Integer> intervalStructure = this.getIntervalStructure();
+		double currentPitch = pitches.get(0);
+		for (double currentInterval : intervalStructure) {
+			currentPitch += currentInterval;
+			pitches.add(currentPitch);
 		}
-		this.intervalStructure.add(interval);
 	}
 	
-	private void setFrequency(Double frequency) {
-		this.frequencies = new ArrayList<Double>();
-		this.addFrequency(frequency);
-		this.updateFrequencies();
-	}
-	
-	private void addFrequency(Double frequency) {
-		this.frequencies.add(frequency);
-	}
-	
-	private void setFrequencies(List<Double> frequencies) {
-		this.frequencies = frequencies;
-	}
-	
-	private void updateFrequencies() {
-		if (this.intervalStructure != null) {
-			double currentFrequency = this.frequencies.get(0);
-			for (double currentInterval : this.intervalStructure) {
-				currentFrequency = currentFrequency*this.intervalToRatio(currentInterval);
-				this.addFrequency(currentFrequency);
+	private List<Integer> getIntervalStructure() {
+		List<Integer> intervalStructure = new ArrayList<Integer>();
+		Double quality = this.getFirstValue(null, CoolFormRegistrant.TRIAD_QUALITY_NAME);
+		if (quality != null) {
+			if (quality < 2) {
+				intervalStructure.add(3);
+			} else {
+				intervalStructure.add(4);
+			}
+			if (quality % 2 == 0) {
+				intervalStructure.add(3);
+			} else {
+				intervalStructure.add(4);
 			}
 		}
+		return intervalStructure;
 	}
 	
-	private void setOvertoneFrequency(double baseFrequency, int overtoneIndex) {
-		double overtoneFrequency = baseFrequency;
-		while (overtoneIndex > 0) {
-			overtoneFrequency = overtoneFrequency*(overtoneIndex+1)/overtoneIndex;
-			overtoneIndex--;
+	/*
+	 * if there are overtones build them from the first of the given pitches
+	 * if there are none, from the parent object
+	 * @return a list of overtone frequencies if there are some, an empty list if there are none
+	 */
+	private List<Double> getOvertoneFrequencies(List<Double> pitches) {
+		if (!pitches.isEmpty()) {
+			return this.getOvertoneFrequencies(this.midiToFrequency(pitches.get(0)));
+		} else if (this.parent != null) {
+			Double parentMainFrequency = this.parent.getMainFrequency();
+			if (parentMainFrequency != null) {
+				return this.getOvertoneFrequencies(parentMainFrequency);
+			}
 		}
-		this.setFrequency(overtoneFrequency);
+		return this.getOvertoneFrequencies(this.midiToFrequency(60));
 	}
 	
-	public void adjustFrequencies(double interval) {
-		for (int i = 0; i < this.frequencies.size(); i++) {
-			this.frequencies.set(i, this.frequencies.get(i)*this.intervalToRatio(interval));
+	private List<Double> getOvertoneFrequencies(Double baseFrequency) {
+		List<Double> overtoneFrequencies = new ArrayList<Double>();
+		Double overtoneIndex = this.getFirstValue(null, CoolFormRegistrant.OVERTONE_INDEX_NAME);
+		if (overtoneIndex != null) {
+			double overtoneFrequency = baseFrequency;
+			while (overtoneIndex > 0) {
+				overtoneFrequency = overtoneFrequency*(overtoneIndex+1)/overtoneIndex;
+				overtoneIndex--;
+			}
+			overtoneFrequencies.add(overtoneFrequency);
 		}
-		for (JSynObject currentModulator : this.modulators) {
-			currentModulator.adjustFrequencies(interval);
+		return overtoneFrequencies;
+	}
+	
+	/**
+	 * Sets a transposition interval by which all frequencies of the object and satellites will be transposed.  
+	 * @param interval an interval in half steps (can be microtonal)
+	 */
+	public void setTranspositionInterval(double interval) {
+		this.frequencyTranspositionRatio = this.intervalToRatio(interval);
+		for (JSynObject currentModulator : this.satellites) {
+			currentModulator.setTranspositionInterval(interval);
 		}
 	}
 	
@@ -199,24 +175,18 @@ public class JSynObject {
 	//AMPLITUDE
 
 	public double getAmplitude() {
-		if (this.amplitude != null) {
-			return this.amplitude;
+		double amplitude = this.midiToAmplitude(this.getFirstValue(100.0, CoolFormRegistrant.LOUDNESS_NAME));
+		if (this.parent != null && this.satelliteType == JSynObject.FREQUENCY_MODULATION) {
+			//higher amplitude so that FM audible
+			return amplitude*2000;
 		}
-		return this.midiToAmplitude(100);
-	}
-	
-	private void setLoudness(int loudness) {
-		this.setAmplitude(this.midiToAmplitude(loudness));
-	}
-
-	private void setAmplitude(Double amplitude) {
-		this.amplitude = amplitude;
+		return amplitude;
 	}
 	
 	public void adjustAmplitude(double ratio) {
 		if (this.amplitude != null) {
 			this.amplitude *= ratio;
-			for (JSynObject currentModulator : this.modulators) {
+			for (JSynObject currentModulator : this.satellites) {
 				currentModulator.adjustAmplitude(ratio);
 			}
 		}
@@ -226,69 +196,57 @@ public class JSynObject {
 	//VOICE
 	
 	public int getVoice() {
-		if (this.voice != null) {
-			return this.voice;
-		}
-		return 0;
-	}
-	
-	private void setVoice(Integer voice) {
-		this.voice = voice;
+		return this.getFirstValue(0.0, CoolFormRegistrant.VOICE_NAME).intValue();
 	}
 	
 	
 	//PAN
 	public double getPan() {
-		if (this.pan != null) {
-			return this.midiToPan(this.pan);
-		}
-		return 0;
-	}
-	
-	private void setPan(Double pan) {
-		this.pan = pan;
+		return this.midiToPan(this.getFirstValue(63.5, CoolFormRegistrant.PAN_NAME));
 	}
 	
 	
-	//MODULATORS
+	//SATELLITES
 	
-	public JSynObject addModulator() {
-		JSynObject modulator = new JSynObject(this);
-		this.modulators.add(modulator);
-		return modulator;
+	public void addSatellite(JSynObject satellite) {
+		this.satellites.add(satellite);
 	}
 	
-	public List<JSynObject> getModulators() {
-		return this.modulators;
+	public List<JSynObject> getSatellites() {
+		return this.satellites;
 	}
 	
-	public int getModulatorType() {
-		if (this.operation != null) {
-			if (this.operation == 0) {
-				return JSynObject.ADDITIVE;
-			} else if (this.operation == 1) {
+	public int getSatelliteType() {
+		if (this.satelliteType != null) {
+			if (this.satelliteType == 1) {
 				return JSynObject.RING_MODULATION;
-			} return JSynObject.FREQUENCY_MODULATION;
+			} else if (this.satelliteType == 2) {
+				return JSynObject.FREQUENCY_MODULATION;
+			}
 		}
-		return JSynObject.FREQUENCY_MODULATION;
-	}
-	
-	private void setModulators(List<JSynObject> modulators) {
-		this.modulators = modulators;
-	}
-	
-	private void setOperation(int operation) {
-		this.operation = operation;
+		return this.getFirstValue(new Double(JSynObject.ADDITIVE), CoolFormRegistrant.OPERATION_NAME).intValue();
 	}
 	
 	
 	//UTIL
 	
-	private double midiToFrequency(double midiPitch) {
+	private Double getFirstValue(Double standardValue, String... formNames) {
+		if (this.bbObject != null) {
+			for (String currentFormName : formNames) {
+				Double currentFirstValue = this.bbObject.getNthValue(currentFormName, 0);
+				if (currentFirstValue != null) {
+					return currentFirstValue;
+				}
+			}
+		}
+		return standardValue;
+	}
+	
+	protected double midiToFrequency(double midiPitch) {
 		return JSynPlayer.BASE_A4*Math.pow(2, (midiPitch-57)/12);
 	}
 	
-	private double midiToAmplitude(double loudness) {
+	protected double midiToAmplitude(double loudness) {
 		loudness = Math.min(loudness, 127);
 		loudness = Math.max(loudness, 0);
 		return loudness/127;
@@ -297,37 +255,56 @@ public class JSynObject {
 	private double midiToPan(double pan) {
 		pan = Math.min(pan, 127);
 		pan = Math.max(pan, 0);
-		return (pan/64)-1;
+		return (pan/63.5)-1;
 	}
 	
 	private double intervalToRatio(double interval) {
 		return Math.pow(Math.sqrt(Math.sqrt(Math.cbrt(2))), interval); //12th root of two
 	}
 	
-	//TODO: IMPROVE!!! 
 	public JSynObject clone() {
-		JSynObject clone = new JSynObject(this.parent);
-		clone.setOnset(this.onset);
-		clone.setFrequencies(new ArrayList<Double>(this.frequencies));
-		clone.setAmplitude(this.amplitude);
-		clone.setDuration(this.duration);
-		clone.setVoice(this.voice);
-		clone.setPan(this.pan);
-		if (this.operation != null) {
-			clone.setOperation(this.operation);
-		}
-		if (this.modulators.size() > 0) {
-			List<JSynObject> clonedModulators = new ArrayList<JSynObject>();
-			for (JSynObject currentModulator : this.modulators) {
-				clonedModulators.add(currentModulator.clone());
+		JSynObject clone = new JSynObject(this.bbObject, this.satelliteType);
+		if (this.satellites.size() > 0) {
+			List<JSynObject> clonedSatellites = new ArrayList<JSynObject>();
+			for (JSynObject currentSatellite : this.satellites) {
+				JSynObject satelliteClone = currentSatellite.clone();
+				satelliteClone.parent = clone;
+				clonedSatellites.add(satelliteClone);
 			}
-			clone.setModulators(clonedModulators);
+			//System.out.println(clonedSatellites + " " + satelliteClone.);
+			clone.satellites = clonedSatellites;
 		}
 		return clone;
 	}
 	
 	public String toString() {
-		return "(" + this.onset + " " + this.frequencies + " " + this.amplitude + " " + this.duration + ")";
+		return "(" + this.getOnset() + " " + this.getFrequencies() + " " + this.getAmplitude() + " " + this.getDuration() + ")";
 	}
+	
+	public int compareTo(JSynObject other) {
+		return this.bbObject.compareTo(other.bbObject);
+	}
+
+	/*//TODO NOT COMPLETE YET!
+	public int compareTo(JSynObject other) {
+		if (this.getOnset() < other.getOnset()) {
+			return -1;
+		} else if (this.getOnset() > other.getOnset()) {
+			return 1;
+		} else if (this.getMainFrequency() < other.getMainFrequency()) {
+			return -1;
+		} else if (this.getMainFrequency() > other.getMainFrequency()) {
+			return 1;
+		} else if (this.getAmplitude() < other.getAmplitude()) {
+			return -1;
+		} else if (this.getAmplitude() > other.getAmplitude()) {
+			return 1;
+		} else if (this.getDuration() < other.getDuration()) {
+			return -1;
+		} else if (this.getDuration() > other.getDuration()) {
+			return 1;
+		}
+		return 0;
+	}*/
 
 }

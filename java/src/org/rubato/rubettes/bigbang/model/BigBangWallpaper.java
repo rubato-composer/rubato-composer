@@ -1,32 +1,34 @@
 package org.rubato.rubettes.bigbang.model;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 import java.util.TreeSet;
 
-import org.rubato.rubettes.bigbang.view.model.SelectedObjectsPaths;
+import org.rubato.math.yoneda.Denotator;
 import org.rubato.rubettes.util.DenotatorPath;
 
 public class BigBangWallpaper {
 	
-	private SelectedObjectsPaths motif;
+	private BigBangDenotatorManager denotatorManager;
+	private Denotator compositionBeforeWallpaper;
+	private Set<DenotatorPath> motif;
 	private List<BigBangWallpaperDimension> dimensions;
 	
-	public BigBangWallpaper(SelectedObjectsPaths motif) {
+	public BigBangWallpaper(BigBangDenotatorManager denotatorManager, Set<DenotatorPath> motif) {
+		this.denotatorManager = denotatorManager;
+		this.compositionBeforeWallpaper = denotatorManager.getComposition();
 		this.motif = motif;
 		this.dimensions = new ArrayList<BigBangWallpaperDimension>();
 	}
 	
-	public SelectedObjectsPaths getMotif() {
-		return this.motif;
+	public Denotator getCompositionBeforeWallpaper() {
+		return this.compositionBeforeWallpaper;
 	}
 	
 	public void addDimension(int rangeFrom, int rangeTo) {
 		this.dimensions.add(new BigBangWallpaperDimension(rangeFrom, rangeTo));
-	}
-	
-	public List<BigBangWallpaperDimension> getDimensions() {
-		return this.dimensions;
 	}
 	
 	public void addTransformationToLastDimension(BigBangTransformation transformation) {
@@ -34,58 +36,42 @@ public class BigBangWallpaper {
 		this.dimensions.get(dimensions.size()-1).addTransformation(transformation);
 	}
 	
-	public void removeLastTransformation() {
-		this.dimensions.get(dimensions.size()-1).removeLastTransformation();
-	}
-	
-	public DenotatorPath getLastAnchorPath() {
-		if (this.dimensions.size() > 0) {
-			BigBangTransformation t = this.dimensions.get(dimensions.size()-1).getLastTransformation();
-			if (t != null) {
-				return t.getAnchorNodePath();
+	public OperationPathResults update() {
+		//System.out.println("..."+((PowerDenotator)score.getComposition()).getFactorCount());
+		Set<DenotatorPath> currentMotif = this.motif;
+		OperationPathResults lastDimensionResults = null;
+		for (int i = 0; i < this.dimensions.size(); i++) {
+			if (i == this.dimensions.size()-1) {
+				lastDimensionResults = new OperationPathResults();
 			}
+			BigBangWallpaperDimension currentDimension = this.dimensions.get(i);
+			currentMotif = this.mapDimension(currentMotif, currentDimension, lastDimensionResults);
 		}
-		return null;
+		//System.out.println("..."+((PowerDenotator)score.getComposition()).getFactorCount());
+		return lastDimensionResults;
 	}
 	
-	public void setRange(int dimension, boolean rangeTo, int value) {
-		BigBangWallpaperDimension currentDimension = this.dimensions.get(dimension);
-		if (rangeTo) {
-			currentDimension.setRangeTo(value);
-		} else {
-			currentDimension.setRangeFrom(value);
-		}
-	}
-	
-	public void applyTo(BigBangComposition score) {
-		List<DenotatorPath> currentMotif = this.motif.get(0);
-		for (BigBangWallpaperDimension currentDimension: this.dimensions) {
-			currentMotif = this.mapDimension(score, currentMotif, currentDimension);
-		}
-		
-	}
-	
-	private List<DenotatorPath> mapDimension(BigBangComposition score, List<DenotatorPath> currentPaths, BigBangWallpaperDimension dimension) {
-		List<DenotatorPath> resultPaths = new ArrayList<DenotatorPath>();
+	private Set<DenotatorPath> mapDimension(Set<DenotatorPath> currentPaths, BigBangWallpaperDimension dimension, OperationPathResults lastTransformationResults) {
+		Set<DenotatorPath> resultPaths = new TreeSet<DenotatorPath>();
 		int rangeFrom = dimension.getRangeFrom();
 		int rangeTo = dimension.getRangeTo();
 		int i = 0;
 		if (rangeFrom > 0) {
 			while (i < rangeFrom) {
-				currentPaths = this.map(score, currentPaths, dimension, false, false);
+				currentPaths = this.mapIteration(currentPaths, dimension, false, false, lastTransformationResults);
 				i++;
 			}
 			resultPaths.addAll(currentPaths);
 		} else {
 			while (i > rangeFrom) {
-				currentPaths = this.map(score, currentPaths, dimension, false, true);
+				currentPaths = this.mapIteration(currentPaths, dimension, false, true, lastTransformationResults);
 				i--;
 			}
 			resultPaths.addAll(currentPaths);
 		}
 		
 		while (i < rangeTo) {
-			currentPaths = this.map(score, currentPaths, dimension, true, false);
+			currentPaths = this.mapIteration(currentPaths, dimension, true, false, lastTransformationResults);
 			resultPaths.addAll(currentPaths);
 			i++;
 		}
@@ -93,23 +79,33 @@ public class BigBangWallpaper {
 		return resultPaths;
 	}
 	
-	private List<DenotatorPath> map(BigBangComposition score, List<DenotatorPath> currentPaths, BigBangWallpaperDimension dimension, boolean copyAndMap, boolean inverse) {
-		List<BigBangTransformation> transformations = dimension.getTransformations();
+	private Set<DenotatorPath> mapIteration(Set<DenotatorPath> currentPaths, BigBangWallpaperDimension dimension, boolean copyAndMap, boolean inverse, OperationPathResults lastTransformationResults) {
+		List<BigBangTransformation> transformations = new ArrayList<BigBangTransformation>(dimension.getTransformations());
 		if (inverse) {
-			for (int i = transformations.size()-1; i >= 0; i--) {
-				BigBangTransformation currentTransformation = transformations.get(i).inverse(); 
-				currentTransformation.setCopyAndMap(copyAndMap && i == transformations.size()-1);
-				//TODO: BAD!!! make ready for categorized objects!!!!
-				currentPaths = new BigBangMapper(score, currentTransformation).mapCategorizedObjects(new SelectedObjectsPaths(new TreeSet<DenotatorPath>(currentPaths), null)).get(0);
-			}
-		} else {
-			for (int i = 0; i < transformations.size(); i++) {
-				BigBangTransformation currentTransformation = transformations.get(i); 
-				currentTransformation.setCopyAndMap(copyAndMap && i == 0);
-				//TODO: BAD!!! make ready for categorized objects!!!!
-				currentPaths = new BigBangMapper(score, currentTransformation).mapCategorizedObjects(new SelectedObjectsPaths(new TreeSet<DenotatorPath>(currentPaths), null)).get(0);
-			}
+			Collections.reverse(transformations);
 		}
+		OperationPathResults iterationPathResults = new OperationPathResults();
+		for (int i = 0; i < transformations.size(); i++) {
+			BigBangTransformation currentTransformation = transformations.get(i); 
+			if (inverse) {
+				currentTransformation = currentTransformation.inverse();
+			}
+			currentTransformation.setCopyAndMap(copyAndMap && i == 0);
+			System.out.println("m " + currentPaths);
+			OperationPathResults currentPathResults = new BigBangMapper(this.denotatorManager, currentTransformation).mapCategorizedObjects(currentPaths);
+			System.out.print("IT ");
+			iterationPathResults.updatePaths(currentPathResults);
+			//if last transformation of last dimension, record changed paths
+			if (lastTransformationResults != null && i == transformations.size()-1) {
+				System.out.print("DI ");
+				lastTransformationResults.updatePaths(currentPathResults);
+			}
+			
+			currentPaths = iterationPathResults.getNewPaths();
+		}
+		//score.resetLastNewPaths();
+		//return new paths of created iteration (motif for next iteration)
+		System.out.println("p "+currentPaths + " " + lastTransformationResults);
 		return currentPaths;
 	}
 	

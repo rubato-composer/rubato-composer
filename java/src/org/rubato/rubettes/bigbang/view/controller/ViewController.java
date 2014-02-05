@@ -67,6 +67,8 @@ public class ViewController extends Controller {
 	public static final String ACTIVE_SATELLITE_LEVEL = "setActiveSatelliteLevel";
 	public static final String ADD_OBJECTS = "addObjects";
 	public static final String DELETE_OBJECTS = "deleteSelectedObjects";
+	public static final String DEACTIVATE_OBJECTS = "deactivateSelectedObjects";
+	public static final String ACTIVATE_OBJECTS = "activateAllObjects";
 	public static final String COPY_OBJECTS = "copySelectedObjectsTo";
 	public static final String COPY_OBJECTS_NEW = "copySelectedObjectsToNewLayer";
 	public static final String MOVE_OBJECTS = "moveSelectedObjectsTo";
@@ -210,48 +212,48 @@ public class ViewController extends Controller {
 		this.callModelMethod(ViewController.MODIFY_OPERATION, operationNumber, midiValue);
 	}
 	
-	public void modifyCenterOfSelectedTransformation(Point2D.Double newCenter, boolean inPreviewMode) {
-		this.callModelMethod(ViewController.MODIFY_CENTER_OF_SELECTED_TRANSFORMATION, newCenter, inPreviewMode);
+	public void modifyCenterOfSelectedTransformation(Point2D.Double newCenter) {
+		this.callModelMethod(ViewController.MODIFY_CENTER_OF_SELECTED_TRANSFORMATION, newCenter);
 	}
 	
-	public void modifyEndPointOfSelectedTransformation(Point2D.Double newEndPoint, boolean inPreviewMode) {
-		this.callModelMethod(ViewController.MODIFY_ENDPOINT_OF_SELECTED_TRANSFORMATION, newEndPoint, inPreviewMode);
+	public void modifyEndPointOfSelectedTransformation(Point2D.Double newEndPoint) {
+		this.callModelMethod(ViewController.MODIFY_ENDPOINT_OF_SELECTED_TRANSFORMATION, newEndPoint);
 	}
 	
-	public void modifySelectedTransformation(double[] newValues, boolean inPreviewMode) {
-		this.callModelMethod(ViewController.MODIFY_SELECTED_TRANSFORMATION, newValues, inPreviewMode);
+	public void modifySelectedTransformation(double[] newValues) {
+		this.callModelMethod(ViewController.MODIFY_SELECTED_TRANSFORMATION, newValues);
 	}
 	
-	public void modifyRotationAngle(Double angle, boolean inPreviewMode) {
-		this.callModelMethod(ViewController.MODIFY_ROTATION, angle, inPreviewMode);
+	public void modifyRotationAngle(Double angle) {
+		this.callModelMethod(ViewController.MODIFY_ROTATION, angle);
 	}
 	
-	public void translateSelectedObjects(Point2D.Double center, Point2D.Double endPoint, boolean copyAndTranslate, boolean previewMode) {
-		this.callModelMethod(ViewController.TRANSLATE_OBJECTS, center, endPoint, copyAndTranslate, previewMode);
+	public void translateSelectedObjects(Point2D.Double center, Point2D.Double endPoint, boolean copyAndTranslate, boolean startNewTransformation) {
+		this.callModelMethod(ViewController.TRANSLATE_OBJECTS, center, endPoint, copyAndTranslate, startNewTransformation);
 	}
 	
-	public void rotateSelectedObjects(Point2D.Double center, Point2D.Double startPoint, Point2D.Double endPoint, double angle, boolean copyAndTranslate, boolean previewMode) {
-		this.callModelMethod(ViewController.ROTATE_OBJECTS, center, startPoint, endPoint, angle, copyAndTranslate, previewMode);
+	public void rotateSelectedObjects(Point2D.Double center, Point2D.Double startPoint, Point2D.Double endPoint, double angle, boolean copyAndTranslate, boolean startNewTransformation) {
+		this.callModelMethod(ViewController.ROTATE_OBJECTS, center, startPoint, endPoint, angle, copyAndTranslate, startNewTransformation);
 	}
 	
-	public void scaleSelectedObjects(Point2D.Double center, Point2D.Double endPoint, double[] scaleFactors, boolean copyAndTranslate, boolean previewMode) {
-		this.callModelMethod(ViewController.SCALE_OBJECTS, center, endPoint, scaleFactors, copyAndTranslate, previewMode);
+	public void scaleSelectedObjects(Point2D.Double center, Point2D.Double endPoint, double[] scaleFactors, boolean copyAndTranslate, boolean startNewTransformation) {
+		this.callModelMethod(ViewController.SCALE_OBJECTS, center, endPoint, scaleFactors, copyAndTranslate, startNewTransformation);
 	}
 	
-	public void reflectSelectedObjects(Point2D.Double center, Point2D.Double endPoint, double[] reflectionVector, boolean copyAndTranslate, boolean previewMode) {
-		this.callModelMethod(ViewController.REFLECT_OBJECTS, center, endPoint, reflectionVector, copyAndTranslate, previewMode);
+	public void reflectSelectedObjects(Point2D.Double center, Point2D.Double endPoint, double[] reflectionVector, boolean copyAndTranslate, boolean startNewTransformation) {
+		this.callModelMethod(ViewController.REFLECT_OBJECTS, center, endPoint, reflectionVector, copyAndTranslate, startNewTransformation);
 	}
 	
-	public void shearSelectedObjects(Point2D.Double center, Point2D.Double endPoint, double[] shearingFactors, boolean copyAndTranslate, boolean previewMode) {
-		this.callModelMethod(ViewController.SHEAR_OBJECTS, center, endPoint, shearingFactors, copyAndTranslate, previewMode);
+	public void shearSelectedObjects(Point2D.Double center, Point2D.Double endPoint, double[] shearingFactors, boolean copyAndTranslate, boolean startNewTransformation) {
+		this.callModelMethod(ViewController.SHEAR_OBJECTS, center, endPoint, shearingFactors, copyAndTranslate, startNewTransformation);
 	}
 	
-	public void affineTransformSelectedObjects(Point2D.Double center, Point2D.Double endPoint, double[] shift, RMatrix transform, boolean copyAndTransform, boolean previewMode) {
-		this.callModelMethod(ViewController.AFFINE_TRANSFORM_OBJECTS, center, endPoint, shift, transform, copyAndTransform, previewMode);
+	public void affineTransformSelectedObjects(Point2D.Double center, Point2D.Double endPoint, double[] shift, RMatrix transform, boolean copyAndTransform, boolean startNewTransformation) {
+		this.callModelMethod(ViewController.AFFINE_TRANSFORM_OBJECTS, center, endPoint, shift, transform, copyAndTransform, startNewTransformation);
 	}
 	
-	public void shapeSelectedObjects(TreeMap<Integer,Integer> location, boolean copyAndTransform, boolean previewMode) {
-		this.callModelMethod(ViewController.SHAPE_OBJECTS, location, copyAndTransform, previewMode);
+	public void shapeSelectedObjects(TreeMap<Integer,Integer> location, boolean copyAndTransform, boolean startNewTransformation) {
+		this.callModelMethod(ViewController.SHAPE_OBJECTS, location, copyAndTransform, startNewTransformation);
 	}
 
 	public void addObjects(ArrayList<PointND> locations, boolean inPreviewMode) {
@@ -260,6 +262,14 @@ public class ViewController extends Controller {
 	
 	public void deleteSelectedObjects() {
 		this.callModelMethod(ViewController.DELETE_OBJECTS);
+	}
+	
+	public void deactivateSelectedObjects() {
+		this.callModelMethod(ViewController.DEACTIVATE_OBJECTS);
+	}
+	
+	public void activateAllObjects() {
+		this.callModelMethod(ViewController.ACTIVATE_OBJECTS);
 	}
 	
 	public void copySelectedObjectsTo(int layerIndex) {

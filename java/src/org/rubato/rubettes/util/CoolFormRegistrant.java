@@ -15,7 +15,18 @@ import org.rubato.math.yoneda.SimpleForm;
 
 public class CoolFormRegistrant {
 	
-	public static final String ONSET = "Onset";
+	public static final String ONSET_NAME = "Onset R";
+	public static final String PITCH_NAME = "Pitch Q";
+	public static final String CHROMATIC_PITCH_NAME = "ChromaticPitch Z";
+	public static final String PITCH_CLASS_NAME = "PitchClass Z_12";
+	public static final String LOUDNESS_NAME = "Loudness Z";
+	public static final String DURATION_NAME = "Duration R";
+	public static final String VOICE_NAME = "Voice Z";
+	public static final String PAN_NAME = "Pan R";
+	public static final String OPERATION_NAME = "Operation Z";
+	public static final String BEAT_CLASS_NAME = "BeatClass Z_16";
+	public static final String TRIAD_QUALITY_NAME = "TriadQuality Z_4";
+	public static final String OVERTONE_INDEX_NAME = "OvertoneIndex Z";
 	
 	public static final Repository REPOSITORY = Repository.systemRepository();
 	public static final SimpleForm ONSET_FORM = (SimpleForm)REPOSITORY.getForm("Onset");
@@ -37,6 +48,7 @@ public class CoolFormRegistrant {
 	public static ColimitForm NOTE_OR_REST_FORM;
 	public static SimpleForm PAN_FORM;
 	public static SimpleForm OVERTONE_INDEX_FORM;
+	public static Form FM_SET_FORM;
 	public static LimitForm FM_NODE_FORM;
 	public static LimitForm SOUND_NOTE_FORM;
 	public static SimpleForm OPERATION_FORM;
@@ -100,10 +112,10 @@ public class CoolFormRegistrant {
 		this.registerLimitForm("DetunableSpectrum", PITCH_FORM, detunableOvertones);
 		
 		//FM
-		Form fmSet = new FormReference("FMSet", Form.POWER);
-		FM_NODE_FORM = this.registerLimitForm("FMNode", partial, fmSet);
-		fmSet = this.registerPowerForm("FMSet", FM_NODE_FORM);
-		fmSet.resolveReferences(REPOSITORY);
+		FM_SET_FORM = new FormReference("FMSet", Form.POWER);
+		FM_NODE_FORM = this.registerLimitForm("FMNode", partial, FM_SET_FORM);
+		FM_SET_FORM = this.registerPowerForm("FMSet", FM_NODE_FORM);
+		FM_SET_FORM.resolveReferences(REPOSITORY);
 		
 		//GenericSound
 		LimitForm anchorSound = this.registerLimitForm("AnchorSound", LOUDNESS_FORM, PITCH_FORM, OVERTONE_INDEX_FORM);

@@ -1,52 +1,46 @@
 package org.rubato.rubettes.bigbang.model.edits;
 
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
+import java.util.Set;
 
-import org.rubato.rubettes.bigbang.model.BigBangScoreManager;
+import org.rubato.rubettes.bigbang.model.BigBangDenotatorManager;
+import org.rubato.rubettes.bigbang.model.BigBangObject;
+import org.rubato.rubettes.bigbang.model.OperationPathResults;
 import org.rubato.rubettes.util.DenotatorPath;
 
 public class BuildSatellitesEdit extends AbstractPathBasedOperationEdit {
 	
-	private DenotatorPath anchorPath;
+	private BigBangObject anchorObject;
 	private int powersetIndex;
-	private List<DenotatorPath> previousResultPaths;
 	
 	//used for cloning
-	protected BuildSatellitesEdit(BigBangScoreManager scoreManager) {
-		super(scoreManager);
+	protected BuildSatellitesEdit(BigBangDenotatorManager denotatorManager) {
+		super(denotatorManager);
 	}
 	
-	public BuildSatellitesEdit(BigBangScoreManager scoreManager, List<DenotatorPath> objectPaths, DenotatorPath anchorPath, int powersetIndex) {
-		super(scoreManager, objectPaths);
-		this.anchorPath = anchorPath;
+	public BuildSatellitesEdit(BigBangDenotatorManager denotatorManager, Set<BigBangObject> objects, BigBangObject anchorObject, int powersetIndex) {
+		super(denotatorManager, objects);
+		this.anchorObject = anchorObject;
 		this.powersetIndex = powersetIndex;
 	}
 	
 	@Override
-	public List<Map<DenotatorPath,DenotatorPath>> execute(List<Map<DenotatorPath, DenotatorPath>> pathDifferences, boolean fireCompositionChange) {
-		List<DenotatorPath> newResultPaths = this.scoreManager.moveObjectsToParent(this.modifiedObjectPaths, this.anchorPath, this.powersetIndex, fireCompositionChange);
-		this.addMissingObjectPaths(newResultPaths);
-		pathDifferences = this.getPathDifferences(this.previousResultPaths, newResultPaths);
-		this.previousResultPaths = newResultPaths;
-		//System.out.println(pathDifferences);
-		return pathDifferences;
+	public OperationPathResults execute() {
+		Set<DenotatorPath> objectPaths = this.getObjectPaths(this.modifiedObjects);
+		DenotatorPath anchorPath = this.anchorObject.getTopDenotatorPathAt(this);
+		return this.denotatorManager.buildSatelliteObjects(objectPaths, anchorPath, this.powersetIndex);
 	}
 	
 	@Override
 	protected String getSpecificPresentationName() {
 		return "Build Satellites";
 	}
-
-	@Override
-	public void setInPreviewMode(boolean inPreviewMode) {
-		// TODO Auto-generated method stub
-	}
 	
 	public BuildSatellitesEdit clone() {
 		BuildSatellitesEdit clone;
 		clone = (BuildSatellitesEdit)super.clone();
-		clone.anchorPath = this.anchorPath;
+		clone.anchorObject = this.anchorObject;
 		clone.powersetIndex = this.powersetIndex;
 		return clone;
 	}

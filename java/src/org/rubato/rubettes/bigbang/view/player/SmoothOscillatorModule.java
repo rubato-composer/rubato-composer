@@ -6,25 +6,98 @@ import com.jsyn.unitgen.Add;
 import com.jsyn.unitgen.Multiply;
 import com.jsyn.unitgen.UnitBinaryOperator;
 
+/**
+ * A synthesizer module that can easily be plugged together with others. Input B is where the oscillator is plugged
+ * into and input A serves to potentially connect to other modules. Plugging can be done using the insertAfter,
+ * insertBetween, and remove methods.
+ * 
+ * A B
+ * |/
+ * O
+ * 
+ * @author florian thalmann
+ *
+ */
 public class SmoothOscillatorModule {
 	
+	private JSynPlayer player;
 	private UnitBinaryOperator operator;
 	private UnitOutputPort thingInInputA;
-	private UnitOutputPort thingInInputB;
+	private SmoothOscillator oscillatorInInputB;
 	private UnitInputPort thingInOutput;
 	private int type;
 	
-	public SmoothOscillatorModule(UnitBinaryOperator operator, UnitOutputPort newOutput) { //int type) {
-		this.operator = operator;
-		this.thingInInputB = newOutput;
-		this.thingInInputB.connect(this.operator.inputB);
-		this.type = type;
+	public SmoothOscillatorModule(JSynPlayer player, int type) {
+		this.player = player;
+		this.oscillatorInInputB = new SmoothOscillator(this.player, null);
+		this.setType(type);
 	}
 	
-	public void insertBetween(SmoothOscillatorModule module) {
+	/**
+	 * Sets the type of this module and creates or replaces the operator unit if needed.
+	 */
+	public void setType(int moduleType) {
+		if ((moduleType == JSynObject.FREQUENCY_MODULATION || moduleType == JSynObject.ADDITIVE)
+				&& (this.operator == null || !(this.operator instanceof Add))) {
+			this.setOperatorUnit(new Add());
+		} else if (moduleType == JSynObject.RING_MODULATION
+				&& (this.operator == null || !(this.operator instanceof Multiply))) {
+			this.setOperatorUnit(new Multiply());
+		}
+		this.type = moduleType;
+	}
+	
+	/*
+	 * Replaces the operator unit with a new one and connects everything appropriately.
+	 */
+	private void setOperatorUnit(UnitBinaryOperator newOperator) {
+		//System.out.println(this.thingInInputA + " " + this.oscillatorInInputB + " " + this.thingInOutput);
+		if (this.operator != null) {
+			this.disconnectOperator();
+		}
+		if (this.thingInInputA != null) {
+			this.thingInInputA.connect(newOperator.inputA);
+		}
+		this.oscillatorInInputB.getOutput().connect(newOperator.inputB);
+		if (this.thingInOutput != null) {
+			this.thingInOutput.connect(newOperator.output);
+		}
+		this.operator = newOperator;
+		this.player.addToSynth(newOperator);
+	}
+	
+	/**
+	 * Inserts this module after (or before) the given one by disconnecting and reconnecting a and o as shown below.
+	 * 
+	 * 			a
+	 * a b		|
+	 * |/	->	A B
+	 * o		|/
+	 * 			O b
+	 * 			|/
+	 * 			o
+	 * 
+	 * @param module any module
+	 */
+	public void insertAfter(SmoothOscillatorModule module) {
 		this.insertBetween(module.getThingInInputA(), module.getThingInOutput());
 	}
 	
+	/**
+	 * Disconnects the given out from the in and inserts this module between them. the given out ends up in inputA
+	 * and the output of the module goes to the given in.
+	 * 
+	 * 			i
+	 * o		|
+	 * |	->	A B
+	 * i		|/
+	 * 			O
+	 * 			|
+	 * 			i
+	 * 
+	 * @param out a unit connected to the given in
+	 * @param in a unit connected that the given out is connected to
+	 */
 	public void insertBetween(UnitOutputPort out, UnitInputPort in) {
 		out.disconnect(in);
 		out.connect(this.operator.inputA);
@@ -33,29 +106,29 @@ public class SmoothOscillatorModule {
 		this.thingInOutput = in;
 	}
 	
-	public void remove() {
+	/**
+	 * Disconnects this module and reconnects the thing in inputA to the thing in the output. 
+	 */
+	public void disconnect() {
 		this.disconnectOperator();
-		this.thingInInputA.connect(this.thingInOutput);
+		if (this.thingInInputA != null && this.thingInOutput != null) {
+			this.thingInInputA.connect(this.thingInOutput);
+		}
 		this.thingInInputA = null;
 		this.thingInOutput = null;
 	}
 	
+	/*
+	 * Disconnects the operator from all connected units
+	 */
 	private void disconnectOperator() {
 		if (this.thingInOutput != null) {
 			this.operator.output.disconnect(this.thingInOutput);
 		}
-		this.thingInInputA.disconnect(this.operator.inputA);
-		this.thingInInputB.disconnect(this.operator.inputB);
-	}
-	
-	private void replaceOperatorUnit(UnitBinaryOperator newOperator) {
-		this.disconnectOperator();
-		this.thingInInputA.connect(newOperator.inputA);
-		this.thingInInputB.connect(newOperator.inputB);
-		if (this.thingInOutput != null) {
-			this.thingInOutput.connect(newOperator.output);
+		if (this.thingInInputA != null) {
+			this.thingInInputA.disconnect(this.operator.inputA);
 		}
-		this.operator = newOperator;
+		this.oscillatorInInputB.getOutput().disconnect(this.operator.inputB);
 	}
 	
 	public UnitInputPort getThingInOutput() {
@@ -66,21 +139,26 @@ public class SmoothOscillatorModule {
 		return this.thingInInputA;
 	}
 	
-	public UnitBinaryOperator getOperatorUnit() {
-		return this.operator;
+	public SmoothOscillator getOscillator() {
+		return this.oscillatorInInputB;
 	}
 	
-	public void setType(int modulatorType) {
-		if ((modulatorType == JSynObject.FREQUENCY_MODULATION || modulatorType == JSynObject.ADDITIVE)
-				&& !(this.operator instanceof Add)) {
-			this.replaceOperatorUnit(new Add());
-		} else if (modulatorType == JSynObject.RING_MODULATION && !(this.operator instanceof Multiply)) {
-			this.replaceOperatorUnit(new Multiply());
-		}
+	public UnitOutputPort getOutput() {
+		return this.operator.output;
 	}
 	
 	public int getType() {
 		return this.type;
+	}
+	
+	public String toString() {
+		return this.type + " " + this.operator + " " + this.thingInInputA + " " + this.oscillatorInInputB + " " + this.thingInOutput;
+	}
+	
+	public void removeFromSynthAndStop() {
+		this.disconnect();
+		this.player.removeFromSynthAndStop(this.operator);
+		this.oscillatorInInputB.removeFromSynthAndStop();
 	}
 
 }

@@ -7,9 +7,9 @@ import java.util.TreeMap;
 
 import org.rubato.math.matrix.RMatrix;
 import org.rubato.math.yoneda.Form;
+import org.rubato.rubettes.bigbang.model.BigBangObject;
 import org.rubato.rubettes.bigbang.model.TransformationProperties;
 import org.rubato.rubettes.bigbang.model.edits.AbstractOperationEdit;
-import org.rubato.rubettes.bigbang.view.model.SelectedObjectsPaths;
 import org.rubato.rubettes.util.DenotatorPath;
 
 public class BigBangController extends Controller {
@@ -18,13 +18,13 @@ public class BigBangController extends Controller {
 	public static final String UNDO = "undo";
 	public static final String REDO = "redo";
 	public static final String GRAPH = "graph";
-	public static final String MODIFIED_OPERATION = "modifiedOperation";
+	public static final String OPERATION_MODIFIED = "operationModified";
 	public static final String MODIFY_OPERATION = "modifyOperation";
 	public static final String SELECT_COMPOSITION_STATE = "selectCompositionState";
 	public static final String DESELECT_COMPOSITION_STATES = "deselectCompositionStates";
 	public static final String SELECT_OPERATION = "selectOperation";
 	public static final String DESELECT_OPERATIONS = "deselectOperations";
-	public static final String INSERT_OPERATION = "insertOperation";
+	public static final String INSERTION_STATE = "setInsertionState";
 	public static final String REMOVE_OPERATION = "removeOperation";
 	public static final String TOGGLE_GRAPH_ANIMATION = "toggleGraphAnimation";
 	public static final String GRAPH_ANIMATION_POSITION = "setGraphAnimationPosition";
@@ -36,14 +36,14 @@ public class BigBangController extends Controller {
 	public static final String COMPOSITION = "Composition";
 	public static final String ADD_OBJECTS = "addObjects";
 	public static final String DELETE_OBJECTS = "deleteObjects";
-	public static final String COPY_OBJECTS = "copyObjects";
-	public static final String MOVE_OBJECTS = "moveObjects";
+	
 	public static final String TRANSLATE_OBJECTS = "translateObjects";
 	public static final String ROTATE_OBJECTS = "rotateObjects";
 	public static final String SCALE_OBJECTS = "scaleObjects";
 	public static final String REFLECT_OBJECTS = "reflectObjects";
 	public static final String SHEAR_OBJECTS = "shearObjects";
 	public static final String AFFINE_TRANSFORM_OBJECTS = "affineTransformObjects";
+	
 	public static final String SHAPE_OBJECTS = "shapeObjects";
 	public static final String BUILD_SATELLITES = "buildSatellites";
 	public static final String FLATTEN_OBJECTS = "flattenObjects";
@@ -70,8 +70,8 @@ public class BigBangController extends Controller {
 		this.callModelMethod(BigBangController.REDO);
 	}
 	
-	public void modifiedOperation(boolean inPreviewMode) {
-		this.callModelMethod(BigBangController.MODIFIED_OPERATION, inPreviewMode);
+	public void operationModified() {
+		this.callModelMethod(BigBangController.OPERATION_MODIFIED);
 	}
 	
 	public void modifyOperation(int operationIndex, double ratio) {
@@ -99,7 +99,7 @@ public class BigBangController extends Controller {
 	}
 	
 	public void insertOperation(Integer vertex) {
-		this.callModelMethod(BigBangController.INSERT_OPERATION, vertex);
+		this.callModelMethod(BigBangController.INSERTION_STATE, vertex);
 	}
 	
 	public void toggleGraphAnimation() {
@@ -130,16 +130,8 @@ public class BigBangController extends Controller {
 		this.callModelMethod(BigBangController.ADD_OBJECTS, denotatorValues, powersetPaths, inPreviewMode);
 	}
 	
-	public void deleteObjects(List<DenotatorPath> objectsPaths) {
-		this.callModelMethod(BigBangController.DELETE_OBJECTS, objectsPaths);
-	}
-	
-	public void copyObjects(Set<DenotatorPath> objectsPaths, int layerIndex) {
-		this.callModelMethod(BigBangController.COPY_OBJECTS, objectsPaths, layerIndex);
-	}
-	
-	public void moveObjects(Set<DenotatorPath> objectsPaths, int layerIndex) {
-		this.callModelMethod(BigBangController.MOVE_OBJECTS, objectsPaths, layerIndex);
+	public void deleteObjects(Set<BigBangObject> objects) {
+		this.callModelMethod(BigBangController.DELETE_OBJECTS, objects);
 	}
 	
 	public void translateObjects(TransformationProperties properties) {
@@ -170,16 +162,16 @@ public class BigBangController extends Controller {
 		this.callModelMethod(BigBangController.AFFINE_TRANSFORM_OBJECTS, properties, shift, transform);
 	}
 	
-	public void buildSatellites(List<DenotatorPath> satellitePaths, DenotatorPath anchorNodePath, int powersetIndex) {
-		this.callModelMethod(BigBangController.BUILD_SATELLITES, satellitePaths, anchorNodePath, powersetIndex);
+	public void buildSatellites(Set<BigBangObject> objects, BigBangObject anchor, int powersetIndex) {
+		this.callModelMethod(BigBangController.BUILD_SATELLITES, objects, anchor, powersetIndex);
 	}
 	
-	public void flattenObjects(List<DenotatorPath> satellitePaths) {
-		this.callModelMethod(BigBangController.FLATTEN_OBJECTS, satellitePaths);
+	public void flattenObjects(Set<BigBangObject> satellites) {
+		this.callModelMethod(BigBangController.FLATTEN_OBJECTS, satellites);
 	}
 	
-	public void addWallpaperDimension(SelectedObjectsPaths paths, int rangeFrom, int rangeTo) {
-		this.callModelMethod(BigBangController.ADD_DIMENSION, paths, rangeFrom, rangeTo);
+	public void addWallpaperDimension(Set<BigBangObject> objects, int rangeFrom, int rangeTo) {
+		this.callModelMethod(BigBangController.ADD_DIMENSION, objects, rangeFrom, rangeTo);
 	}
 	
 	public void endWallpaper() {

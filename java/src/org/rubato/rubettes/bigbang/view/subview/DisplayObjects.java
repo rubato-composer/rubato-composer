@@ -3,9 +3,9 @@ package org.rubato.rubettes.bigbang.view.subview;
 import java.awt.Point;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
-import java.beans.PropertyChangeEvent;
 import java.util.ArrayList;
 import java.util.ConcurrentModificationException;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -15,69 +15,77 @@ import java.util.TreeSet;
 import org.rubato.math.yoneda.ColimitForm;
 import org.rubato.math.yoneda.Form;
 import org.rubato.math.yoneda.SimpleForm;
-import org.rubato.rubettes.bigbang.view.View;
-import org.rubato.rubettes.bigbang.view.controller.ViewController;
-import org.rubato.rubettes.bigbang.view.model.DenotatorValueExtractor;
+import org.rubato.rubettes.bigbang.model.BigBangObject;
+import org.rubato.rubettes.bigbang.model.BigBangObjects;
 import org.rubato.rubettes.bigbang.view.model.DisplayObject;
-import org.rubato.rubettes.bigbang.view.model.LayerState;
-import org.rubato.rubettes.bigbang.view.model.LayerStates;
-import org.rubato.rubettes.bigbang.view.model.SelectedObjectsPaths;
 import org.rubato.rubettes.bigbang.view.model.ViewParameters;
 import org.rubato.rubettes.util.DenotatorObject;
-import org.rubato.rubettes.util.DenotatorObjectConfiguration;
 import org.rubato.rubettes.util.DenotatorPath;
 import org.rubato.rubettes.util.FormValueFinder;
+import org.rubato.rubettes.util.PerformanceCheck;
 
-public class DisplayObjects implements View {
+public class DisplayObjects {
 	
-	//active object is the one selected for being drawn etc
-	private Form baseForm;
-	private FormValueFinder finder;
-	private int indexOfActiveObjectType;
-	private List<Integer> activeColimitCoordinates;
-	//number for each object type, null if no satellites possible for the type
-	private List<Integer> maxSatelliteLevels;
-	private int activeSatelliteLevel;
-	private List<String> coordinateSystemValueNames;
+	private BigBangObjects bbObjects;
+	private Map<BigBangObject,DisplayObject> objectMap;
+	//objects contains only objects currently present. has to be taken as a reference for selectedObjects 
 	private TreeSet<DisplayObject> objects;
+	//selectedObjects also contains objects currently not present that were selected, e.g. during animation 
 	private Set<DisplayObject> selectedObjects;
+	//selectedAnchor might also not be present currently
 	private DisplayObject selectedAnchor;
 	
-	public DisplayObjects(ViewController controller, Form baseForm) {
-		controller.addView(this);
-		this.baseForm = baseForm;
-		
-		this.finder = new FormValueFinder(this.baseForm, true);
+	//active object is the one selected for being drawn etc
+	private int indexOfActiveObjectType;
+	private List<Integer> activeColimitCoordinates;
+	private int activeSatelliteLevel;
+	
+	public DisplayObjects(BigBangObjects bbObjects) {
+		PerformanceCheck.startTask("initDO");
+		this.bbObjects = bbObjects;
 		this.indexOfActiveObjectType = 0;
-		this.initActiveColimitCoordinates(this.finder.getObjectAt(0).getColimits().size());
-		this.maxSatelliteLevels = new ArrayList<Integer>();
-		for (Boolean currentObjectCanBeSatellite : this.finder.getObjectsCanBeSatellites()) {
-			if (currentObjectCanBeSatellite) {
-				this.maxSatelliteLevels.add(-1);
-			} else {
-				this.maxSatelliteLevels.add(null);
-			}
-		}
+		this.initActiveColimitCoordinates(this.bbObjects.getNumberOfColimits(0));
 		this.activeSatelliteLevel = 0;
-		
-		List<String> coordinateSystemValueNames = new ArrayList<String>(finder.getCoordinateSystemValueNames());
-		if (this.finder.formAllowsForSatellites()) {
-			coordinateSystemValueNames.add(DenotatorValueExtractor.SATELLITE_LEVEL);
-			coordinateSystemValueNames.add(DenotatorValueExtractor.SIBLING_NUMBER);
-		}
-		if (this.finder.formContainsColimits()) {
-			coordinateSystemValueNames.add(DenotatorValueExtractor.COLIMIT_INDEX);
-		}
-		this.coordinateSystemValueNames = coordinateSystemValueNames;
-		
-		this.objects = new TreeSet<DisplayObject>();
-		this.selectedObjects = new TreeSet<DisplayObject>();
+		this.initObjects();
 	}
 	
 	private void initActiveColimitCoordinates(int numberOfColimits) {
 		this.activeColimitCoordinates = new ArrayList<Integer>();
 		for (int i = 0; i < numberOfColimits; i++) {
 			this.activeColimitCoordinates.add(0);
+		}
+	}
+	
+	private void initObjects() {
+		this.objectMap = new HashMap<BigBangObject,DisplayObject>();
+		this.objects = new TreeSet<DisplayObject>();
+		this.selectedObjects = new TreeSet<DisplayObject>();
+		this.addObjects(this.bbObjects.getObjects());
+	}
+	
+	public void addObjects(Set<BigBangObject> newObjects) {
+		PerformanceCheck.startTask("addDO");
+		//reset object since they might temporarily not exist (e.g. during animation)
+		this.objects = new TreeSet<DisplayObject>();
+		for (BigBangObject currentObject : newObjects) {
+			if (!this.objectMap.containsKey(currentObject)) {
+				//create and add new objects
+				DisplayObject newObject = new DisplayObject(currentObject);
+				this.objects.add(newObject);
+				this.objectMap.put(currentObject, newObject);
+			} else {
+				//add objects that existed before
+				if (currentObject.getTopDenotatorPath() != null) {
+					this.objects.add(this.objectMap.get(currentObject));
+				}
+			}
+		}
+	}
+	
+	public void removeObjects(Set<BigBangObject> removedObjects) {
+		for (BigBangObject currentObject : removedObjects) {
+			this.objects.remove(currentObject);
+			this.objectMap.remove(currentObject);
 		}
 	}
 	
@@ -107,130 +115,44 @@ public class DisplayObjects implements View {
 		}
 	}
 	
+	public Form getBaseForm() {
+		return this.bbObjects.getBaseForm();
+	}
+	
+	public boolean baseFormAllowsForSatellites() {
+		return this.bbObjects.baseFormAllowsForSatellites();
+	}
+	
 	public Integer getMaxSatelliteLevelOfActiveObject() {
-		return this.maxSatelliteLevels.get(this.indexOfActiveObjectType);
+		return this.bbObjects.getMaxSatelliteLevel(this.indexOfActiveObjectType);
 	}
 	
 	public void setActiveSatelliteLevel(int satelliteLevel) {
 		this.activeSatelliteLevel = satelliteLevel;
 	}
 	
-	public Integer getActiveSatelliteLevel() {
-		return this.activeSatelliteLevel;
+	public List<String> getCoordinateSystemValueNames() {
+		return this.bbObjects.getCoordinateSystemValueNames();
 	}
 	
-	public List<String> getCoordinateSystemValueNames() {
-		return this.coordinateSystemValueNames;
+	public int getInstanceNumberOfCoordinateValueName(int coordinateSystemValueIndex) {
+		return this.bbObjects.getInstanceNumberOfCoordinateValueName(coordinateSystemValueIndex);
 	}
 	
 	public int getNumberOfNonAnalyticalCoordinateSystemValues() {
-		return this.finder.getCoordinateSystemValueNames().size();
-	}
-	
-	public Form getBaseForm() {
-		return this.baseForm;
-	}
-	
-	public boolean baseFormAllowsForSatellites() {
-		return this.finder.formAllowsForSatellites();
-	}
-	
-	public boolean baseFormContainsColimits() {
-		return this.finder.formContainsColimits();
+		return this.bbObjects.getNumberOfNonAnalyticalCoordinateSystemValues();
 	}
 	
 	private List<DenotatorPath> getActiveObjectValuePaths() {
 		return this.getActiveObjectType().getColimitConfigurationValuePaths(this.activeColimitCoordinates);
 	}
 	
-	public void addObject(DisplayObject object) {
-		this.objects.add(object);
-		int objectIndex = this.finder.indexOf(object.getTopDenotatorPath().getEndForm());
-		Integer currentLevel = this.maxSatelliteLevels.get(objectIndex);
-		if (currentLevel != null) {
-			int currentMax = Math.max(currentLevel, (int)object.getNthValue(DenotatorValueExtractor.SATELLITE_LEVEL, 0).doubleValue());
-			this.maxSatelliteLevels.set(objectIndex, currentMax);
-		}
-	}
-	
-	public TreeSet<DisplayObject> getObjects() {
-		return this.objects;
-	}
-	
-	public void clearObjects() {
-		this.objects = new TreeSet<DisplayObject>();
-		this.selectedObjects = new TreeSet<DisplayObject>();
-	}
-	
-	/**
-	 * @return the number of the instance of the valueName of the value at the given index (number of previous
-	 * instances + the instance itself. 1 if it is the first)
-	 */
-	public int getInstanceNumberOfCoordinateValueName(int coordinateSystemValueIndex) {
-		if (coordinateSystemValueIndex < this.finder.getCoordinateSystemValueNames().size()) {
-			return this.finder.getInstanceNumberOfCoordinateValueName(coordinateSystemValueIndex);
-		}
-		//in case of satellitelevel/siblingnumber
-		return 0;
-	}
-	
-	public DenotatorObjectConfiguration getObjectType(Form objectForm, DenotatorPath longestColimitPath) {
-		return this.finder.getConfiguration(objectForm, longestColimitPath);
-	}
-	
-	public DenotatorObjectConfiguration getStandardObjectType(Form objectForm) {
-		return this.finder.getStandardConfiguration(objectForm);
-	}
-	
 	public DenotatorPath getActiveObjectValuePathAt(int valueIndex) {
 		return this.getActiveObjectValuePaths().get(valueIndex);
 	}
 	
-	public List<List<DenotatorPath>> getAllObjectConfigurationsValuePathsAt(int coordinateSystemValueIndex) {
-		return this.finder.getAllObjectConfigurationsValuePathsAt(coordinateSystemValueIndex);
-	}
-	
-	/**
-	 * @return the path of the closest powerset at the given coordinateSystemValueIndex, if it is closer to the given
-	 * currentClosestPowersetPath
-	 */
-	public DisplayObject getClosestObject(int[] coordinateSystemValueIndices, double[] values, DenotatorPath examplePowersetPath) {
-		Form formOfObjectInExamplePowerset = examplePowersetPath.getTopPath().getEndForm();
-		DisplayObject closestObject = null;
-		double shortestDistance = Double.MAX_VALUE;
-			
-		//if (this.indexOfActiveObjectType >= 0) {
-			for (DisplayObject currentObject : this.objects) {
-				if (currentObject.getTopDenotatorPath().getEndForm().equals(formOfObjectInExamplePowerset)
-						&& currentObject.getTopDenotatorPath().size() == examplePowersetPath.getTopPath().size()) {
-					//calculate Euclidean distance
-					double currentDistance = 0;
-					for (int i = 0; i < values.length; i++) {
-						String valueName = this.coordinateSystemValueNames.get(coordinateSystemValueIndices[i]);
-						int nameIndex = this.getInstanceNumberOfCoordinateValueName(coordinateSystemValueIndices[i]);
-						
-						Double currentValue = currentObject.getNthValue(valueName, nameIndex);
-						if (currentValue != null) {
-							currentDistance += Math.pow(currentValue-values[i], 2);
-						}
-					}
-					currentDistance = Math.sqrt(currentDistance);
-					if (currentDistance < shortestDistance) {
-						shortestDistance = currentDistance;
-						closestObject = currentObject;
-					}
-				}
-			}
-		//}
-		return closestObject;
-	}
-	
-	public List<Form> getObjectTypes() {
-		return this.finder.getObjectForms();
-	}
-	
 	public DenotatorObject getActiveObjectType() {
-		return this.finder.getObjectAt(this.indexOfActiveObjectType);
+		return this.bbObjects.getObjectType(this.indexOfActiveObjectType);
 	}
 	
 	public DenotatorPath getActiveObjectAndLevelPowersetPath() {
@@ -257,15 +179,56 @@ public class DisplayObjects implements View {
 	}
 	
 	public int getActiveObjectValueIndex(int coordinateSystemValueIndex) {
-		return this.finder.getActiveObjectValueIndex(coordinateSystemValueIndex, this.indexOfActiveObjectType, this.activeColimitCoordinates);
+		return this.bbObjects.getObjectValueIndex(coordinateSystemValueIndex, this.indexOfActiveObjectType, this.activeColimitCoordinates);
 	}
 	
 	public int getActiveObjectFirstValueIndex(SimpleForm form) {
-		return this.finder.getActiveObjectFirstValueIndex(form, this.indexOfActiveObjectType, this.activeColimitCoordinates);
+		return this.bbObjects.getObjectFirstValueIndex(form, this.indexOfActiveObjectType, this.activeColimitCoordinates);
+	}
+	
+	public List<List<DenotatorPath>> getAllObjectConfigurationsValuePathsAt(int coordinateSystemValueIndex) {
+		return this.bbObjects.getAllObjectConfigurationsValuePathsAt(coordinateSystemValueIndex);
+	}
+	
+	public DenotatorPath findClosestPowersetPath(int[] coordinateSystemValueIndices, double[] values, DenotatorPath examplePowersetPath) {
+		if (examplePowersetPath != null) {
+			BigBangObject closestObject = this.bbObjects.getClosestObject(coordinateSystemValueIndices, values, examplePowersetPath);
+			if (closestObject != null) {
+				return closestObject.getTopDenotatorPath().getDescendantPathAccordingTo(examplePowersetPath);
+			}
+		}
+		return examplePowersetPath;
+	}
+	
+	public List<Form> getObjectTypes() {
+		return this.bbObjects.getObjectTypes();
+	}
+	
+	private DisplayObject getParent(DisplayObject object) {
+		BigBangObject parent = object.getBigBangObject().getParent();
+		if (parent != null) {
+			return this.objectMap.get(parent);
+		}
+		return null;
+	}
+	
+	private Set<DisplayObject> getChildren(DisplayObject object) {
+		Set<DisplayObject> children = new TreeSet<DisplayObject>();
+		Set<BigBangObject> bbChildren = object.getBigBangObject().getChildren();
+		for (BigBangObject currentBBObject : object.getBigBangObject().getChildren()) {
+			children.add(this.objectMap.get(currentBBObject));
+		}
+		return children;
 	}
 	
 	
 	//------------------------
+	
+	public void setDisplay(DisplayContents display) {
+		for (DisplayObject currentObject : this.objects) {
+			currentObject.setDisplay(display);
+		}
+	}
 	
 	public void tempSelectObjects(Rectangle2D.Double area) {
 		for (DisplayObject currentObject: this.objects) {
@@ -313,16 +276,16 @@ public class DisplayObjects implements View {
 			|| this.selectedAnchor == null;
 	}
 	
-	private void deselectParents(DisplayObject note) {
-		DisplayObject parent = note.getParent(); 
+	private void deselectParents(DisplayObject object) {
+		DisplayObject parent = this.getParent(object); 
 		if (parent != null) {
 			this.deselectObject(parent);
 			this.deselectParents(parent);
 		}
 	}
 	
-	private void deselectChildren(DisplayObject note) {
-		for (DisplayObject currentChild: note.getChildren()) {
+	private void deselectChildren(DisplayObject object) {
+		for (DisplayObject currentChild: this.getChildren(object)) {
 			this.deselectObject(currentChild);
 			this.deselectChildren(currentChild);
 		}
@@ -347,16 +310,29 @@ public class DisplayObjects implements View {
 		this.selectedObjects = new TreeSet<DisplayObject>();
 	}
 	
+	public void deactivateSelectedObjects() {
+		for (DisplayObject currentObject : this.selectedObjects) {
+			currentObject.setActive(false);
+		}
+	}
+	
+	public void activateAllObjects() {
+		for (DisplayObject currentObject : this.objects) {
+			currentObject.setActive(true);
+		}
+	}
+	
 	public DisplayObject getObjectAt(Point location) {
 		return this.getObjectAt(location, this.objects);
 	}
 	
 	public boolean hasSelectedObjectAt(Point location) {
+		//TODO rethink, selectedObjects might contain one that objects doesn't
 		return this.getObjectAt(location, this.selectedObjects) != null;
 	}
 	
-	private DisplayObject getObjectAt(Point location, Set<DisplayObject> notes) {
-		for (DisplayObject currentObject : notes) {
+	private DisplayObject getObjectAt(Point location, Set<DisplayObject> objects) {
+		for (DisplayObject currentObject : objects) {
 			if (currentObject.getRectangle().contains(location)) {
 				return currentObject;
 			}
@@ -369,29 +345,39 @@ public class DisplayObjects implements View {
 		if (noteInLocation != null) {
 			if (noteInLocation.equals(this.selectedAnchor)) {
 				this.selectedAnchor = null;
-			} else if (noteInLocation.hasChildren()) {
-				this.setSelectedAnchorObject(noteInLocation);
+			} else if (noteInLocation.getBigBangObject().hasChildren()) {
+				this.setSelectedAnchor(noteInLocation);
 			}
 		} else {
 			this.selectedAnchor = null;
 		}
 	}
 	
-	public void setSelectedAnchorObject(DisplayObject note) {
-		this.selectedAnchor = note;
-		this.selectedObjects.remove(note);
+	public void setSelectedAnchor(DisplayObject object) {
+		this.selectedAnchor = object;
+		this.selectedObjects.remove(object);
 	}
 	
-	public DenotatorPath getSelectedAnchorObjectPath() {
-		if (this.selectedAnchor != null) {
-			return this.selectedAnchor.getTopDenotatorPath();
+	public Point2D.Double getSelectedAnchorCenter() {
+		if (this.selectedAnchor != null && this.objects.contains(this.selectedAnchor)) {
+			return this.selectedAnchor.getLocation();
 		}
 		return null;
 	}
 	
-	public Point2D.Double getSelectedAnchorNodeCenter() {
-		if (this.selectedAnchor != null) {
-			return this.selectedAnchor.getLocation();
+	public Set<BigBangObject> getSelectedBigBangObjects() {
+		Set<BigBangObject> selectedObjects = new TreeSet<BigBangObject>();
+		for (DisplayObject currentObject : this.selectedObjects) {
+			if (this.objects.contains(currentObject)) {
+				selectedObjects.add(currentObject.getBigBangObject());
+			}
+		}
+		return selectedObjects; 
+	}
+	
+	public BigBangObject getSelectedBigBangAnchor() {
+		if (this.selectedAnchor != null && this.objects.contains(this.selectedAnchor)) {
+			return this.selectedAnchor.getBigBangObject();
 		}
 		return null;
 	}
@@ -402,8 +388,8 @@ public class DisplayObjects implements View {
 	/*
 	 * @return a list of sets of selected objects sorted by object type. some sets may be empty if no representative
 	 * is selected!
-	 */
-	public SelectedObjectsPaths getCategorizedSelectedObjectsPaths() {
+	 *
+	public SelectedObjectPaths getCategorizedSelectedObjectsPaths() {
 		List<List<DenotatorPath>> selectedObjectPaths = new ArrayList<List<DenotatorPath>>();
 		for (int i = 0; i < this.finder.getObjectCount(); i++) {
 			selectedObjectPaths.add(new ArrayList<DenotatorPath>());
@@ -412,7 +398,7 @@ public class DisplayObjects implements View {
 			int objectTypeIndex = this.finder.getObjectForms().indexOf(currentObject.getTopDenotatorPath().getEndForm());
 			selectedObjectPaths.get(objectTypeIndex).add(currentObject.getTopDenotatorPath());
 		}
-		return new SelectedObjectsPaths(selectedObjectPaths, this.getSelectedAnchorObjectPath());
+		return new SelectedObjectPaths(selectedObjectPaths, this.getSelectedAnchorObjectPath());
 	}
 	
 	public List<DenotatorPath> getSelectedObjectsPaths() {
@@ -421,9 +407,9 @@ public class DisplayObjects implements View {
 			objectPaths.add(currentObject.getTopDenotatorPath());
 		}
 		return objectPaths;
-	}
+	}*/
 	
-	private void makeAllModulatorsVisible() {
+	/*private void makeAllModulatorsVisible() {
 		for (DisplayObject currentObject: this.objects) {
 			currentObject.setVisibility(LayerState.active);
 		}
@@ -438,7 +424,7 @@ public class DisplayObjects implements View {
 				currentObject.setVisibility(LayerState.invisible);
 				this.deselectObject(currentObject);
 			}
-		}*/
+		}
 	}
 	
 	private void updateVisibility(LayerStates states) {
@@ -451,7 +437,7 @@ public class DisplayObjects implements View {
 		}
 		
 		//deselect or select notes!!!
-	}
+	}*/
 	
 	public void updateBounds(double xZoomFactor, double yZoomFactor, int xPosition, int yPosition) {
 		for (DisplayObject currentObject : this.objects) {
@@ -481,7 +467,12 @@ public class DisplayObjects implements View {
 	
 	private void paintConnectors(AbstractPainter painter, Set<DisplayObject> notes) {
 		for (DisplayObject currentObject : notes) {
-			currentObject.paintConnectors(painter);
+			if (currentObject.isVisible()) {
+				DisplayObject currentParent = this.getParent(currentObject);
+				if (currentParent != null && currentParent.isVisible()) {
+					currentObject.paintConnectors(painter, currentParent.getCenter().x, currentParent.getCenter().y);
+				}
+			}
 		}
 	}
 	
@@ -502,8 +493,10 @@ public class DisplayObjects implements View {
 	}
 	
 	private void paintSelectedObjects(AbstractPainter painter) {
-		for (DisplayObject currentObject : this.selectedObjects) {
-			currentObject.paint(painter);
+		for (DisplayObject currentObject : this.objects) {
+			if (this.selectedObjects.contains(currentObject)) {
+				currentObject.paint(painter);
+			}
 		}
 	}
 	
@@ -513,7 +506,7 @@ public class DisplayObjects implements View {
 		}
 	}
 
-	public void modelPropertyChange(PropertyChangeEvent event) {
+	/*public void modelPropertyChange(PropertyChangeEvent event) {
 		String propertyName = event.getPropertyName();
 		if (propertyName.equals(ViewController.LAYERS)) {
 			this.updateVisibility((LayerStates)event.getNewValue());
@@ -526,7 +519,7 @@ public class DisplayObjects implements View {
 			int[] selectedMods = (int[])event.getNewValue();
 			this.updateModulatorVisibility(selectedMods[0], selectedMods[1]);
 		}
-	}
+	}*/
 	
 	//TODO: pretty lame, but used in two places: BigBangView and DisplayContents
 	public int getTimeAxisIndex(ViewParameters viewParameters) {
@@ -542,14 +535,6 @@ public class DisplayObjects implements View {
 			}
 		}
 		return -1;
-	}
-	
-	public DisplayObject first() {
-		return this.objects.first();
-	}
-	
-	public DisplayObject last() {
-		return this.objects.last();
 	}
 	
 	public int size() {

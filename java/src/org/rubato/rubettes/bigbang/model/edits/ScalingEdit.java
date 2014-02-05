@@ -1,30 +1,25 @@
 package org.rubato.rubettes.bigbang.model.edits;
 
 import org.rubato.math.matrix.RMatrix;
-import org.rubato.rubettes.bigbang.model.BigBangScoreManager;
+import org.rubato.rubettes.bigbang.model.BigBangDenotatorManager;
 import org.rubato.rubettes.bigbang.model.TransformationProperties;
 
 public class ScalingEdit extends AbstractLocalTransformationEdit {
 	
 	private double[] scaleFactors;
 	
-	protected ScalingEdit(BigBangScoreManager scoreManager) {
-		super(scoreManager);
+	protected ScalingEdit(BigBangDenotatorManager denotatorManager) {
+		super(denotatorManager);
 	}
 	
-	public ScalingEdit(BigBangScoreManager scoreLayers, TransformationProperties properties, double[] scaleFactors) {
-		super(scoreLayers, properties);
-		this.setScaleFactors(scaleFactors);
-	}
-	
-	private void setScaleFactors(double[] scaleFactors) {
-		this.scaleFactors = scaleFactors;
-		this.updateOperation();
+	public ScalingEdit(BigBangDenotatorManager denotatorManager, TransformationProperties properties, double[] scaleFactors) {
+		super(denotatorManager, properties);
+		this.modify(scaleFactors);
 	}
 	
 	@Override
-	public void modify(double[] newValues) {
-		this.scaleFactors = newValues;
+	public void modify(double[] newScaleFactors) {
+		this.scaleFactors = newScaleFactors;
 		this.updateOperation();
 	}
 	
@@ -33,7 +28,7 @@ public class ScalingEdit extends AbstractLocalTransformationEdit {
 		ScalingEdit modifiedCopy = (ScalingEdit)this.clone();
 		double[] partialScaling = new double[]{this.getModifiedScaleFactor(this.scaleFactors[0], ratio),
 				this.getModifiedScaleFactor(this.scaleFactors[1], ratio)};
-		modifiedCopy.setScaleFactors(partialScaling);
+		modifiedCopy.modify(partialScaling);
 		return modifiedCopy;
 	}
 	
