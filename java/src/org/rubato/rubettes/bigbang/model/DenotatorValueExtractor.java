@@ -36,16 +36,6 @@ public class DenotatorValueExtractor {
 		this.maxValues = new TreeMap<String,Double>();
 		this.extractValues(composition);
 	}
-
-	/*private void extractValues(Denotator composition) {
-		for (BigBangObject currentObject : this.objects.getObjects()) {
-			List<Double> currentValues = new ArrayList<Double>();
-			for (DenotatorPath currentPath : this.objects.getStandardObjectType(currentObject.getTopDenotatorPath().getEndForm()).getValuePaths()) {
-				currentValues.add(composition.get.get(currentPath.toIntArray()));
-			}
-			currentObject.addValues(com)
-		}
-	}*/
 	
 	private void extractValues(Denotator score) {
 		//PerformanceCheck.startTask("extract");
@@ -106,7 +96,7 @@ public class DenotatorValueExtractor {
 						this.extractObjects(onlyChild, parentObject, currentObject, satelliteLevel, siblingNumber, childIndex, childPath);
 					}
 				}
-			} else if (denotatorType == Denotator.SIMPLE && currentObject != null) {
+			} else if (denotatorType == Denotator.SIMPLE) {
 				this.addSimpleValues(parentObject, currentObject, (SimpleDenotator)currentDenotator);
 			}
 		}
@@ -133,6 +123,7 @@ public class DenotatorValueExtractor {
 				this.objects.updateMaxSatelliteLevels(object);
 			}
 		}
+		//System.out.println(path + " " + object);
 		return object;
 	}
 	

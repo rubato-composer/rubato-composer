@@ -1,6 +1,8 @@
 package org.rubato.rubettes.bigbang.model;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -59,7 +61,6 @@ public class OperationPathResults {
 	}
 	
 	public void updatePaths(OperationPathResults pathResults) {
-		System.out.println(pathResults);
 		this.updatePaths(pathResults.getChangedPaths(), pathResults.getNewPaths());
 	}
 	
@@ -74,12 +75,15 @@ public class OperationPathResults {
 	}
 	
 	private void updatePaths(Map<DenotatorPath,DenotatorPath> changedPaths, Collection<DenotatorPath> newPaths) {
-		//System.out.println("......."+previousPaths + " " + currentPaths);
 		//need to build new sets and maps separately so that no values are changed back and forth, e.g. in cases
 		//of two paths being switched
 		Set<DenotatorPath> newNewPaths = new TreeSet<DenotatorPath>(this.newPaths);
 		BidiMap<DenotatorPath,DenotatorPath> newChangedPaths = new TreeBidiMap<DenotatorPath,DenotatorPath>(this.changedPaths);
-		for (DenotatorPath keyPath : changedPaths.keySet()) {
+		
+		//go through key paths backwards to not repeatedly change same path
+		List<DenotatorPath> keyPathsList = new ArrayList<DenotatorPath>(changedPaths.keySet());
+		Collections.reverse(keyPathsList);
+		for (DenotatorPath keyPath : keyPathsList) {
 			DenotatorPath valuePath = changedPaths.get(keyPath);
 			
 			if (this.newPaths.contains(keyPath)) {

@@ -77,57 +77,6 @@ public class BigBangDenotatorManager {
 		this.currentPathResults = new OperationPathResults();
 	}
 	
-	/*
-	 * Updates the currentChangedPaths with the given paths. Accounts for some already being contained.
-	 *
-	private void updatePaths(List<DenotatorPath> previousPaths, List<DenotatorPath> currentPaths, Collection<DenotatorPath> newPaths) {
-		System.out.println("......."+previousPaths + " " + currentPaths);
-		//need to build new sets and maps separately so that no values are changed back and forth, e.g. in cases
-		//of two paths being switched
-		Set<DenotatorPath> newNewPaths = new TreeSet<DenotatorPath>(this.currentNewPaths);
-		BidiMap<DenotatorPath,DenotatorPath> newChangedPaths = new TreeBidiMap<DenotatorPath,DenotatorPath>(this.currentChangedPaths);
-		for (int i = previousPaths.size()-1; i >= 0; i--) {
-			DenotatorPath keyPath = previousPaths.get(i);
-			DenotatorPath valuePath = currentPaths.get(i);
-			
-			if (this.currentNewPaths.contains(keyPath)) {
-				newNewPaths.remove(keyPath);
-				newNewPaths.add(valuePath);
-			} else if (this.currentChangedPaths.containsValue(keyPath)) {
-				DenotatorPath oldKey = this.currentChangedPaths.getKey(keyPath);
-				if (!oldKey.equals(valuePath)) {
-					//adjust previous changed path
-					newChangedPaths.put(oldKey, valuePath);
-				} else {
-					//remove if results in x=x
-					newChangedPaths.remove(oldKey);
-				}
-			} else if (!keyPath.equals(valuePath)){
-				newChangedPaths.put(keyPath, valuePath);
-			}
-		}
-		this.currentNewPaths = newNewPaths;
-		this.currentChangedPaths = newChangedPaths;
-		//only add new paths after changes made!!
-		if (newPaths != null) {
-			this.currentNewPaths.addAll(newPaths);
-			this.lastNewPaths.addAll(newPaths);
-		}
-	}
-	
-	/**
-	 * @return all newPaths accumulated since the last time this method or getPathResults() was called
-	 *
-	public Set<DenotatorPath> getLastNewPaths() {
-		//Set<DenotatorPath> lastNewPaths = new TreeSet<DenotatorPath>(this.lastNewPaths);
-		System.out.println("....."+lastNewPaths+" "+this.currentNewPaths+" "+this.currentChangedPaths+" "+this.currentRemovedPaths);
-		return this.lastNewPaths;
-	}
-	
-	public void resetLastNewPaths() {
-		this.lastNewPaths = new TreeSet<DenotatorPath>();
-	}*/
-	
 	public OperationPathResults getPathResults() {
 		OperationPathResults pathResults = this.currentPathResults;
 		this.resetCurrentPaths();
@@ -200,7 +149,6 @@ public class BigBangDenotatorManager {
 			//add transformation
 			this.currentWallpaper.addTransformationToLastDimension(transformation);
 			//reset composition
-			System.out.println(((PowerDenotator)this.composition).getFactorCount() + " " + ((PowerDenotator)this.currentWallpaper.getCompositionBeforeWallpaper()).getFactorCount());
 			this.composition = this.currentWallpaper.getCompositionBeforeWallpaper().copy();
 			//returns pathresults of last transformation of wallpaper
 			return this.currentWallpaper.update();
@@ -219,14 +167,6 @@ public class BigBangDenotatorManager {
 		this.currentWallpaper.addDimension(rangeFrom, rangeTo);
 		//this.createWallpaper();
 	}
-	
-	/*private OperationPathResults createWallpaper() {
-		//SelectedObjectPaths motifPaths = this.currentWallpaper.getMotif();
-		//List<List<Denotator>> motifNodes = this.extractObjects(motifPaths.get(0));
-		this.currentWallpaper.applyTo(this);
-		//List<DenotatorPath> newMotifPaths = this.addObjects(motifNodes);
-		return this.getPathResults();
-	}*/
 	
 	public void endWallpaper() {
 		//this.createWallpaper();
@@ -502,7 +442,10 @@ public class BigBangDenotatorManager {
 		if (objects != null) {
 			List<Denotator> addedObjects = new ArrayList<Denotator>();
 			for (int i = 0; i < objects.size(); i++) {
-				addedObjects.add(this.internalAddObject(objects.get(i), powersetPath));
+				Denotator addedObject = this.internalAddObject(objects.get(i), powersetPath);
+				if (addedObject != null) {
+					addedObjects.add(addedObject);
+				}
 			}
 			return addedObjects;
 		}
@@ -522,15 +465,21 @@ public class BigBangDenotatorManager {
 	}
 	
 	/*
-	 * returns the added element, which is a new denotator that might even be converted to another type
+	 * returns the added element, which is a new denotator that might even be converted to another type. returns null
+	 * if an equal denotator already existed and was merely replaced by the object
 	 */
 	private Denotator internalAddObject(Denotator object, DenotatorPath powersetPath) {
+		FactorDenotator powerset = this.getPowersetOrList(powersetPath);
+		int previousFactorCount = powerset.getFactorCount();
+		object = this.objectGenerator.convertDenotatorIfNecessary(object, ((Denotator)powerset).getForm().getForms().get(0));
 		try {
-			FactorDenotator powerset = this.getPowersetOrList(powersetPath);
-			object = this.objectGenerator.convertDenotatorIfNecessary(object, ((Denotator)powerset).getForm().getForms().get(0));
 			powerset.appendFactor(object);
 		} catch (RubatoException e) { e.printStackTrace(); }
-		return object;
+		if (powerset.getFactorCount() > previousFactorCount) {
+			return object;
+		}
+		//if the object merely replaced an precisely equal one, it has not really been added. return null
+		return null;
 	}
 	
 	/*

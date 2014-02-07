@@ -37,7 +37,6 @@ public class BigBangWallpaper {
 	}
 	
 	public OperationPathResults update() {
-		//System.out.println("..."+((PowerDenotator)score.getComposition()).getFactorCount());
 		Set<DenotatorPath> currentMotif = this.motif;
 		OperationPathResults lastDimensionResults = null;
 		for (int i = 0; i < this.dimensions.size(); i++) {
@@ -47,7 +46,6 @@ public class BigBangWallpaper {
 			BigBangWallpaperDimension currentDimension = this.dimensions.get(i);
 			currentMotif = this.mapDimension(currentMotif, currentDimension, lastDimensionResults);
 		}
-		//System.out.println("..."+((PowerDenotator)score.getComposition()).getFactorCount());
 		return lastDimensionResults;
 	}
 	
@@ -91,21 +89,16 @@ public class BigBangWallpaper {
 				currentTransformation = currentTransformation.inverse();
 			}
 			currentTransformation.setCopyAndMap(copyAndMap && i == 0);
-			System.out.println("m " + currentPaths);
 			OperationPathResults currentPathResults = new BigBangMapper(this.denotatorManager, currentTransformation).mapCategorizedObjects(currentPaths);
-			System.out.print("IT ");
 			iterationPathResults.updatePaths(currentPathResults);
 			//if last transformation of last dimension, record changed paths
 			if (lastTransformationResults != null && i == transformations.size()-1) {
-				System.out.print("DI ");
 				lastTransformationResults.updatePaths(currentPathResults);
 			}
 			
 			currentPaths = iterationPathResults.getNewPaths();
 		}
-		//score.resetLastNewPaths();
 		//return new paths of created iteration (motif for next iteration)
-		System.out.println("p "+currentPaths + " " + lastTransformationResults);
 		return currentPaths;
 	}
 	

@@ -164,7 +164,7 @@ public class BigBangObjects {
 	public void updatePaths(AbstractOperationEdit previousOperation, AbstractOperationEdit operation, OperationPathResults pathResults) {
 		//update existing objects
 		PerformanceCheck.startTask("changedpaths");
-		System.out.println("UP " + previousOperation + " " + operation + " " + pathResults.getNewPaths() + " " + pathResults.getChangedPaths() + " " + pathResults.getRemovedPaths());
+		//System.out.println("UP " + previousOperation + " " + operation + " " + pathResults.getNewPaths() + " " + pathResults.getChangedPaths() + " " + pathResults.getRemovedPaths());
 		Set<DenotatorPath> removedPaths = new TreeSet<DenotatorPath>(pathResults.getRemovedPaths());
 		Set<DenotatorPath> newPaths = new TreeSet<DenotatorPath>(pathResults.getNewPaths());
 		Map<DenotatorPath,DenotatorPath> changedPaths = pathResults.getChangedPaths();
@@ -245,13 +245,14 @@ public class BigBangObjects {
 				this.addObject(previousOperation, operation, null, currentNewPath);
 			}
 		}
-		System.out.println("END " + this.objects + " " + this.objectsMaps);
+		//System.out.println("END " + this.objects + " " + this.objectsMaps);
 	}
 	
 	private void addObject(AbstractOperationEdit previousOperation, AbstractOperationEdit operation, BigBangObject parent, DenotatorPath path) {
 		BigBangObject object;
 		if (this.removedObjects.get(operation) != null && this.removedObjects.get(operation).containsKey(path)) {
 			object = this.removedObjects.get(operation).remove(path);
+			object.setParent(operation, parent);
 		} else {
 			object = new BigBangObject(previousOperation, operation, parent, path);
 		}
