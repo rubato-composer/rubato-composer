@@ -82,7 +82,7 @@ public class BigBangTransformationGraphTest extends TestCase {
 		Set<BigBangObject> satelliteObjects = this.getBBObjectsFromModel(0, 2);
 		BigBangObject anchorObject = this.getBBObjectsFromModel(3, 3).iterator().next();
 		this.model.buildSatellites(new TreeSet<BigBangObject>(satelliteObjects), anchorObject, 0);
-		/*TestCase.assertEquals(1, ((PowerDenotator)this.model.getComposition()).getFactorCount());
+		TestCase.assertEquals(1, ((PowerDenotator)this.model.getComposition()).getFactorCount());
 		
 		this.model.modifyOperation(2, 0.5);
 		//less satellites built so one anchor and a non-added satellite in top level
@@ -106,7 +106,14 @@ public class BigBangTransformationGraphTest extends TestCase {
 		
 		//test animation
 		this.model.setOperationDurations(.1);
-		this.model.toggleGraphAnimation();*/
+		this.model.toggleGraphAnimation();
+		/*//satellites should still be satellites
+		for (BigBangObject currentObject : this.model.getObjects().getObjects()) {
+			System.out.println(currentObject.getParent());
+		}
+		//TestCase.assertEquals(1, ((PowerDenotator)this.model.getComposition()).getFactorCount());
+		TestCase.assertEquals(4, this.model.getObjects().getObjects().size());
+		TestCase.assertEquals(3, this.model.getObjects().getObjects().iterator().next().getChildren().size());*/
 	}
 	
 	public void testModifyWithSatellitesAddedDirectly() {
@@ -164,7 +171,6 @@ public class BigBangTransformationGraphTest extends TestCase {
 		TransformationProperties properties = new TransformationProperties(object, null, Arrays.asList(this.nodePaths), false, true);
 		properties.setCenter(new double[]{0,0});
 		properties.setEndPoint(new double[]{2,0});
-		System.out.println("\n\n\n\n");
 		this.model.translateObjects(properties);
 		Denotator expectedResult = this.objects.generator.createFlatSoundScore(new double[][]{{1,60,0,0,0,0},{2,60,0,0,0,0}});
 		TestCase.assertEquals(expectedResult, this.model.getComposition());
@@ -366,6 +372,42 @@ public class BigBangTransformationGraphTest extends TestCase {
 		TestCase.assertEquals(4, this.model.getTransformationGraph().getEdgeCount());
 	}
 	
+	public void testModifyCopyAndTransform() {
+		this.model.setOrAddComposition(this.objects.flatSoundScore);
+		TreeSet<BigBangObject> objects = this.getBBObjectsFromModel(0, 2);
+		
+		TransformationProperties properties = new TransformationProperties(objects, null, Arrays.asList(this.nodePaths), true, true);
+		properties.setCenter(new double[]{0,0});
+		properties.setEndPoint(new double[]{2,2});
+		this.model.translateObjects(properties);
+		TestCase.assertEquals(6, this.model.getObjects().size());
+		
+		this.model.modifyOperation(1, 0.0);
+		TestCase.assertEquals(3, this.model.getObjects().size());
+	}
+	
+	public void testModifyWallpaper() {
+		//test modifying transformation so that motif displaced. other wallpaper tests in DenotatorManagerTests
+		this.model.setOrAddComposition(this.objects.flatSoundScore);
+		TreeSet<BigBangObject> objects = this.getBBObjectsFromModel(0, 1);
+		this.model.addWallpaperDimension(objects, 0, 5);
+		
+		TransformationProperties properties = new TransformationProperties(objects, null, Arrays.asList(this.nodePaths), false, true);
+		properties.setCenter(new double[]{0,0});
+		properties.setEndPoint(new double[]{1,1});
+		this.model.translateObjects(properties);
+		TestCase.assertEquals(3, this.model.getTransformationGraph().getEdgeCount());
+		TestCase.assertEquals(13, this.model.getObjects().size());
+		
+		//modify translation
+		properties = new TransformationProperties(objects, null, Arrays.asList(this.nodePaths), false, false);
+		properties.setCenter(new double[]{0,0});
+		properties.setEndPoint(new double[]{-1,-1});
+		this.model.translateObjects(properties);
+		TestCase.assertEquals(3, this.model.getTransformationGraph().getEdgeCount());
+		TestCase.assertEquals(13, this.model.getObjects().size());
+	}
+	
 	private ArrayList<Map<DenotatorPath,Double>> createNodePathAndValuesMapList(Form form, int[][] paths, double[][] values) {
 		ArrayList<Map<DenotatorPath,Double>> list = new ArrayList<Map<DenotatorPath,Double>>();
 		for (int i = 0; i < values.length; i++) {
@@ -391,9 +433,9 @@ public class BigBangTransformationGraphTest extends TestCase {
 		return valuesMap;
 	}
 	
-	private Set<BigBangObject> getBBObjectsFromModel(int fromIndex, int toIndex) {
+	private TreeSet<BigBangObject> getBBObjectsFromModel(int fromIndex, int toIndex) {
 		Iterator<BigBangObject> objectIterator = this.model.getObjects().getObjects().iterator();
-		Set<BigBangObject> objects = new TreeSet<BigBangObject>();
+		TreeSet<BigBangObject> objects = new TreeSet<BigBangObject>();
 		for (int i = 0; i <= toIndex; i++) {
 			BigBangObject nextObject = objectIterator.next(); 
 			if (i >= fromIndex) {

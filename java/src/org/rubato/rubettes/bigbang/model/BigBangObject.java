@@ -266,7 +266,7 @@ public class BigBangObject implements Comparable<BigBangObject> {
 	}
 	
 	public String toString() {
-		return "(" + this.topDenotatorPaths.toString() + " " +  this.values + ")";
+		return super.toString() + "(" + this.topDenotatorPaths.toString() + " " +  this.values + ")";
 		//return super.toString() +"(" + this.topDenotatorPaths.toString() + " " + this.values + ")";
 	}
 

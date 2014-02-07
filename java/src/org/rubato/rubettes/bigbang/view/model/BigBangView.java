@@ -324,7 +324,7 @@ public class BigBangView extends Model implements View {
 	
 	private void addDisplayAndJSynObjects(BigBangObjects newObjects) {
 		this.displayObjects.addObjects(newObjects.getObjects());
-		System.out.println("DO " +newObjects.getObjects()+ " " +this.displayObjects.size());
+		//System.out.println("DO " +newObjects.getObjects()+ " " +this.displayObjects.size());
 		this.player.setScore(new JSynScore(newObjects));
 		
 		//TODO UPDATE ALL THESE THINGS!!!

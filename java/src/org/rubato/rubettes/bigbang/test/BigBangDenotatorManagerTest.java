@@ -136,7 +136,6 @@ public class BigBangDenotatorManagerTest extends TestCase {
 		this.denotatorManager.setOrAddComposition(this.objects.flatSoundScore);
 		BigBangTransformation translation = this.makeTranslation(-1,-2, this.nodePaths);
 		Set<DenotatorPath> notePaths = this.makeNotePaths(new int[][]{{0},{2}});
-		System.out.println("\n\n\n");
 		OperationPathResults pathResults = this.denotatorManager.addTransformation(notePaths, null, translation);
 		Denotator expectedResult = this.objects.generator.createFlatSoundScore(new double[][]{{-1,58,120,1,0,0},{1,63,116,1,0,0},{1,58,121,1,1,0}});
 		TestCase.assertEquals(expectedResult, this.denotatorManager.getComposition());
@@ -420,7 +419,6 @@ public class BigBangDenotatorManagerTest extends TestCase {
 		expectedChangedPaths.put(new DenotatorPath(this.objects.SOUND_SCORE_FORM, new int[]{2}), new DenotatorPath(this.objects.SOUND_SCORE_FORM, new int[]{3}));
 		TestCase.assertEquals(expectedChangedPaths, pathResults.getChangedPaths());
 		
-		System.out.println("WP1");
 		//add second transformation to dimension
 		translation = this.makeTranslation(-2,-2, this.nodePaths);
 		pathResults = this.denotatorManager.addTransformation(notePaths, null, translation);
@@ -440,7 +438,6 @@ public class BigBangDenotatorManagerTest extends TestCase {
 	}
 	
 	public void testWallpaper2() {
-		System.out.println("WP2");
 		//test adding transformation that displaces motif
 		this.denotatorManager.setOrAddComposition(this.objects.flatSoundScore);
 		Set<DenotatorPath> notePaths = this.makeNotePaths(new int[][]{{0},{1}});
