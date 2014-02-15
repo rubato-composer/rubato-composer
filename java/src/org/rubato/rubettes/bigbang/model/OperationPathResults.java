@@ -1,8 +1,6 @@
 package org.rubato.rubettes.bigbang.model;
 
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -61,34 +59,38 @@ public class OperationPathResults {
 	}
 	
 	public void updatePaths(OperationPathResults pathResults) {
-		this.updatePaths(pathResults.getChangedPaths(), pathResults.getNewPaths());
+		this.updatePaths(pathResults.getChangedPaths(), pathResults.getNewPaths(), null);
 	}
 	
 	public void updatePaths(List<DenotatorPath> previousPaths, List<DenotatorPath> currentPaths, Collection<DenotatorPath> newPaths) {
 		Map<DenotatorPath,DenotatorPath> changedPaths = new TreeMap<DenotatorPath,DenotatorPath>();
+		Set<DenotatorPath> removedPaths = new TreeSet<DenotatorPath>();
 		for (int i = previousPaths.size()-1; i >= 0; i--) {
 			DenotatorPath keyPath = previousPaths.get(i);
 			DenotatorPath valuePath = currentPaths.get(i);
-			changedPaths.put(keyPath, valuePath);
+			if (valuePath != null) {
+				changedPaths.put(keyPath, valuePath);
+			} else {
+				removedPaths.add(keyPath);
+			}
 		}
-		this.updatePaths(changedPaths, newPaths);
+		this.updatePaths(changedPaths, newPaths, removedPaths);
 	}
 	
-	private void updatePaths(Map<DenotatorPath,DenotatorPath> changedPaths, Collection<DenotatorPath> newPaths) {
+	private void updatePaths(Map<DenotatorPath,DenotatorPath> changedPaths, Collection<DenotatorPath> newPaths, Set<DenotatorPath> removedPaths) {
 		//need to build new sets and maps separately so that no values are changed back and forth, e.g. in cases
 		//of two paths being switched
-		Set<DenotatorPath> newNewPaths = new TreeSet<DenotatorPath>(this.newPaths);
+		Set<DenotatorPath> newNewPaths = new TreeSet<DenotatorPath>();
 		BidiMap<DenotatorPath,DenotatorPath> newChangedPaths = new TreeBidiMap<DenotatorPath,DenotatorPath>(this.changedPaths);
 		
-		//go through key paths backwards to not repeatedly change same path
-		List<DenotatorPath> keyPathsList = new ArrayList<DenotatorPath>(changedPaths.keySet());
-		Collections.reverse(keyPathsList);
-		for (DenotatorPath keyPath : keyPathsList) {
+		for (DenotatorPath keyPath : changedPaths.keySet()) {
 			DenotatorPath valuePath = changedPaths.get(keyPath);
 			
+			//move changed newPaths to newNewPaths
 			if (this.newPaths.contains(keyPath)) {
-				newNewPaths.remove(keyPath);
+				this.newPaths.remove(keyPath);
 				newNewPaths.add(valuePath);
+			//adjust changedPaths
 			} else if (this.changedPaths.containsValue(keyPath)) {
 				DenotatorPath oldKey = this.changedPaths.getKey(keyPath);
 				if (!oldKey.equals(valuePath)) {
@@ -102,12 +104,18 @@ public class OperationPathResults {
 				newChangedPaths.put(keyPath, valuePath);
 			}
 		}
+		//add unchanged newPaths to newNewPaths
+		newNewPaths.addAll(this.newPaths);
 		this.newPaths = newNewPaths;
 		this.changedPaths = newChangedPaths;
-		//only add new paths after changes made!!
+		
+		//only add new and removed paths after changes made!!
 		if (newPaths != null) {
 			this.newPaths.addAll(newPaths);
 			//this.lastNewPaths.addAll(newPaths);
+		}
+		if (removedPaths != null) {
+			this.removedPaths.addAll(removedPaths);
 		}
 	}
 	

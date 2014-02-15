@@ -70,30 +70,16 @@ public class BigBangAlteration {
 	public void alter(BigBangDenotatorManager denotatorManager) {
 		if (this.composition0.size() > 0 && this.composition1.size() > 0 && this.alterationCoordinates.size() > 0) {
 			this.alterator.setCoordinates(this.alterationCoordinates);
+			List<Denotator> composition0 = denotatorManager.getAbsoluteObjects(this.composition0);
 			List<Denotator> composition1 = denotatorManager.getAbsoluteObjects(this.composition1);
 			if (composition1.size() > 0) {
 				for (Denotator currentNeighbor: composition1) {
 					this.alterator.addNeighbor(currentNeighbor);
 				}
-				List<DenotatorPath> anchorPaths = DenotatorPath.getAnchorPaths(this.composition0);
-				int[] powersetIndices = DenotatorPath.getPowersetIndices(this.composition0);
-				List<Denotator> composition0 = this.toDenotatorList(denotatorManager.removeObjects(this.composition0));
-				if (composition0.size() > 0) {
-					List<Denotator> alteredNodes = this.alterator.getBigBangAlteration(composition0, this.startDegree, this.endDegree);
-					denotatorManager.addObjects(alteredNodes, anchorPaths, powersetIndices);
-				} else {
-					denotatorManager.addObjects(composition0, anchorPaths, powersetIndices);
-				}
+				List<Denotator> alteredObjects = this.alterator.getBigBangAlteration(composition0, this.startDegree, this.endDegree);
+				denotatorManager.replaceObjects(alteredObjects, this.composition0);
 			}
 		}
-	}
-	
-	private List<Denotator> toDenotatorList(List<Denotator> limitDenotators) {
-		List<Denotator> denotators = new ArrayList<Denotator>();
-		for (Denotator currentDenotator: limitDenotators) {
-			denotators.add(currentDenotator);
-		}
-		return denotators;
 	}
 
 }

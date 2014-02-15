@@ -275,9 +275,15 @@ public class BigBangView extends Model implements View {
 			this.firePropertyChange(ViewController.DISPLAY_TOOL, null, tool);
 		} else {
 			int selectedObjectCount = this.displayObjects.selectObjects(area);
+			//TODO WHY SELECTEDOBJECTCOUNT??
 			this.firePropertyChange(ViewController.OBJECT_SELECTION, null, selectedObjectCount);
 			this.firePropertyChange(ViewController.DISPLAY_TOOL, null, null);
 		}
+	}
+	
+	private void selectObjects(Set<BigBangObject> newSelectedObjects) {
+		this.displayObjects.selectObjects(newSelectedObjects);
+		this.firePropertyChange(ViewController.OBJECT_SELECTION, null, newSelectedObjects.size());
 	}
 	
 	public void setDisplayTool(DisplayTool tool) {
@@ -294,6 +300,8 @@ public class BigBangView extends Model implements View {
 		String propertyName = event.getPropertyName();
 		if (propertyName.equals(BigBangController.COMPOSITION)) {
 			this.initDisplayAndJSynObjects((BigBangObjects)event.getNewValue());
+		} else if (propertyName.equals(BigBangController.OBJECT_SELECTION)) {
+			this.selectObjects((Set<BigBangObject>)event.getNewValue());
 		} else if (propertyName.equals(BigBangController.UNDO)) {
 			this.firePropertyChange(ViewController.UNDO, null, event.getNewValue());
 		} else if (propertyName.equals(BigBangController.REDO)) {
@@ -323,9 +331,13 @@ public class BigBangView extends Model implements View {
 	}
 	
 	private void addDisplayAndJSynObjects(BigBangObjects newObjects) {
-		this.displayObjects.addObjects(newObjects.getObjects());
 		//System.out.println("DO " +newObjects.getObjects()+ " " +this.displayObjects.size());
-		this.player.setScore(new JSynScore(newObjects));
+		//System.out.println("DO " + newObjects.size()  + " " +this.displayObjects.size());
+		Set<BigBangObject> lastObjects = newObjects.getObjectsAt(null);
+		if (lastObjects != null) {
+			this.displayObjects.addObjects(lastObjects);
+			this.player.setScore(new JSynScore(lastObjects, newObjects.getBaseForm()));
+		}
 		
 		//TODO UPDATE ALL THESE THINGS!!!
 		this.viewParameters.setDenotatorMinAndMaxValues(newObjects.getMinValues(), newObjects.getMaxValues());

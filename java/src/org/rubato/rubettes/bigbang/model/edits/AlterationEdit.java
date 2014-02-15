@@ -27,14 +27,6 @@ public class AlterationEdit extends AbstractOperationEdit {
 		this.endDegree = 0;
 	}
 	
-	public void fireAlterationComposition(int index) {
-		Set<BigBangObject> composition = this.foregroundComposition;
-		if (index == 1) {
-			composition = this.backgroundComposition;
-		}
-		//this.scoreManager.fireAlterationComposition(index, composition);
-	}
-	
 	public void setForegroundComposition(Set<BigBangObject> foregroundComposition) {
 		this.foregroundComposition = foregroundComposition;
 	}
@@ -45,6 +37,13 @@ public class AlterationEdit extends AbstractOperationEdit {
 	
 	public void setAlterationCoordinates(List<DenotatorPath> alterationCoordinates) {
 		this.alterationCoordinates = alterationCoordinates;
+	}
+	
+	public Set<BigBangObject> getAlterationComposition(int index) {
+		if (index == 0) {
+			return this.foregroundComposition;
+		}
+		return this.backgroundComposition;
 	}
 	
 	public List<DenotatorPath> getAlterationCoordinates() {

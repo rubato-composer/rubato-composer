@@ -15,6 +15,7 @@ import org.rubato.math.yoneda.Denotator;
 import org.rubato.math.yoneda.FactorDenotator;
 import org.rubato.math.yoneda.Form;
 import org.rubato.math.yoneda.LimitDenotator;
+import org.rubato.math.yoneda.PowerDenotator;
 import org.rubato.math.yoneda.SimpleDenotator;
 import org.rubato.rubettes.util.DenotatorPath;
 import org.rubato.rubettes.util.FormValueFinder;

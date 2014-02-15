@@ -127,7 +127,10 @@ public class BigBangObjects {
 	}
 	
 	public Set<BigBangObject> getObjectsAt(AbstractOperationEdit operation) {
-		return new TreeSet<BigBangObject>(this.objectsMaps.get(operation).values());
+		if (this.objectsMaps.containsKey(operation)) {
+			return new TreeSet<BigBangObject>(this.objectsMaps.get(operation).values());
+		}
+		return null;
 	}
 	
 	public Set<BigBangObject> getRemovedObjectsAt(AbstractOperationEdit operation) {

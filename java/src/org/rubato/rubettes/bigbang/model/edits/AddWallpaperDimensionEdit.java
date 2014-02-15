@@ -16,6 +16,7 @@ public class AddWallpaperDimensionEdit extends AbstractOperationEdit {
 		this.objects = objects;
 		this.rangeFrom = rangeFrom;
 		this.rangeTo = rangeTo;
+		this.duration = 0;
 	}
 	
 	//not changed by modification!!

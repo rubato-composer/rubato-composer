@@ -230,6 +230,13 @@ public class DisplayObjects {
 		}
 	}
 	
+	public void selectObjects(Set<BigBangObject> newSelectedObjects) {
+		this.deselectAllObjects();
+		for (BigBangObject currentBBObject : newSelectedObjects) {
+			this.selectedObjects.add(this.objectMap.get(currentBBObject));
+		}
+	}
+	
 	public void tempSelectObjects(Rectangle2D.Double area) {
 		for (DisplayObject currentObject: this.objects) {
 			if (!this.selectedObjects.contains(currentObject)) {

@@ -3,6 +3,7 @@ package org.rubato.rubettes.bigbang.model;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
@@ -226,10 +227,24 @@ public class BigBangModel extends Model {
 		this.firePropertyChange(BigBangController.MODIFY_OPERATION, null, this.transformationGraph.getLastAddedOperation());
 	}
 	
-	public void fireAlterationComposition(Integer index, List<DenotatorPath> paths) {
-		//this.alteration.resetDegrees();
-		this.fireCompositionChange();
-		this.firePropertyChange(BigBangController.FIRE_ALTERATION_COMPOSITION, null, index);
+	public void fireAlterationComposition(Integer index) {
+		if (this.transformationGraph.getSelectedOperation() instanceof AlterationEdit) {
+			//this.alteration.resetDegrees();
+			this.fireObjectSelectionChange(((AlterationEdit)this.transformationGraph.getSelectedOperation()).getAlterationComposition(index));
+			this.firePropertyChange(BigBangController.FIRE_ALTERATION_COMPOSITION, null, index);
+		}
+	}
+	
+	public void setAlterationStartDegree(Double startDegree) {
+		if (this.transformationGraph.getSelectedOperation() instanceof AlterationEdit) {
+			((AlterationEdit)this.transformationGraph.getSelectedOperation()).setStartDegree(startDegree);
+		}
+	}
+	
+	public void setAlterationEndDegree(Double endDegree) {
+		if (this.transformationGraph.getSelectedOperation() instanceof AlterationEdit) {
+			((AlterationEdit)this.transformationGraph.getSelectedOperation()).setEndDegree(endDegree);
+		}
 	}
 	
 	private void postEdit(AbstractOperationEdit edit) {
@@ -397,6 +412,10 @@ public class BigBangModel extends Model {
 			PerformanceCheck.startTask("fire");
 			this.fireCompositionChange();
 		}
+	}
+	
+	private void fireObjectSelectionChange(Set<BigBangObject> newSelection) {
+		this.firePropertyChange(BigBangController.OBJECT_SELECTION, null, newSelection);
 	}
 	
 	private void fireCompositionChange() {

@@ -34,6 +34,7 @@ public class BigBangController extends Controller {
 	public static final String INPUT_ACTIVE = "InputActive";
 	public static final String FORM = "setForm";
 	public static final String COMPOSITION = "Composition";
+	public static final String OBJECT_SELECTION = "ObjectSelection";
 	public static final String ADD_OBJECTS = "addObjects";
 	public static final String DELETE_OBJECTS = "deleteObjects";
 	

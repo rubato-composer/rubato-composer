@@ -455,6 +455,54 @@ public class BigBangDenotatorManagerTest extends TestCase {
 		TestCase.assertEquals(expectedChangedPaths, pathResults.getChangedPaths());
 	}
 	
+	public void testAlteration() throws RubatoException {
+		this.denotatorManager.setOrAddComposition(this.objects.flatSoundScore);
+		Set<DenotatorPath> comp0 = this.makeNotePaths(new int[][]{{0},{1}});
+		Set<DenotatorPath> comp1 = this.makeNotePaths(new int[][]{{2}});
+		List<DenotatorPath> alterationCoordinates = new ArrayList<DenotatorPath>();
+		alterationCoordinates.add(new DenotatorPath(this.objects.SOUND_NODE_FORM, new int[]{0,0}));
+		alterationCoordinates.add(new DenotatorPath(this.objects.SOUND_NODE_FORM, new int[]{0,1}));
+		alterationCoordinates.add(new DenotatorPath(this.objects.SOUND_NODE_FORM, new int[]{0,4}));
+		OperationPathResults pathResults = this.denotatorManager.addAlteration(comp0, comp1, alterationCoordinates, .75, .25);
+		
+		LimitDenotator expectedNode = this.objects.generator.createNodeDenotator(new double[]{1.25,62.25,116,1,0.25,0});
+		this.objects.assertEqualNonPowerDenotators(expectedNode, this.denotatorManager.getComposition().get(new int[]{0}));
+		expectedNode = this.objects.generator.createNodeDenotator(new double[]{1.5,60,120,1,0.75,0});
+		this.objects.assertEqualNonPowerDenotators(expectedNode, this.denotatorManager.getComposition().get(new int[]{1}));
+		expectedNode = this.objects.generator.createNodeDenotator(new double[]{2,60,121,1,1,0});
+		this.objects.assertEqualNonPowerDenotators(expectedNode, this.denotatorManager.getComposition().get(new int[]{2}));
+		
+		Map<DenotatorPath,DenotatorPath> expectedChangedPaths = new TreeMap<DenotatorPath,DenotatorPath>();
+		expectedChangedPaths.put(new DenotatorPath(this.objects.SOUND_SCORE_FORM, new int[]{0}), new DenotatorPath(this.objects.SOUND_SCORE_FORM, new int[]{1}));
+		expectedChangedPaths.put(new DenotatorPath(this.objects.SOUND_SCORE_FORM, new int[]{1}), new DenotatorPath(this.objects.SOUND_SCORE_FORM, new int[]{0}));
+		TestCase.assertEquals(expectedChangedPaths, pathResults.getChangedPaths());
+	}
+	
+	public void testTotalAlteration() throws RubatoException {
+		this.denotatorManager.setOrAddComposition(this.objects.flatSoundScore);
+		Set<DenotatorPath> comp0 = this.makeNotePaths(new int[][]{{0},{1}});
+		Set<DenotatorPath> comp1 = this.makeNotePaths(new int[][]{{2}});
+		List<DenotatorPath> alterationCoordinates = new ArrayList<DenotatorPath>();
+		alterationCoordinates.add(new DenotatorPath(this.objects.SOUND_NODE_FORM, new int[]{0,0}));
+		alterationCoordinates.add(new DenotatorPath(this.objects.SOUND_NODE_FORM, new int[]{0,1}));
+		alterationCoordinates.add(new DenotatorPath(this.objects.SOUND_NODE_FORM, new int[]{0,2}));
+		alterationCoordinates.add(new DenotatorPath(this.objects.SOUND_NODE_FORM, new int[]{0,4}));
+		OperationPathResults pathResults = this.denotatorManager.addAlteration(comp0, comp1, alterationCoordinates, 1, 1);
+		
+		TestCase.assertEquals(1, ((PowerDenotator)this.denotatorManager.getComposition()).getFactorCount());
+		LimitDenotator expectedNode = this.objects.generator.createNodeDenotator(new double[]{2,60,121,1,1,0});
+		this.objects.assertEqualNonPowerDenotators(expectedNode, this.denotatorManager.getComposition().get(new int[]{0}));
+		
+		Set<DenotatorPath> expectedRemovedPaths = new TreeSet<DenotatorPath>();
+		expectedRemovedPaths.add(new DenotatorPath(this.objects.SOUND_SCORE_FORM, new int[]{0}));
+		expectedRemovedPaths.add(new DenotatorPath(this.objects.SOUND_SCORE_FORM, new int[]{1}));
+		TestCase.assertEquals(expectedRemovedPaths, pathResults.getRemovedPaths());
+		
+		Map<DenotatorPath,DenotatorPath> expectedChangedPaths = new TreeMap<DenotatorPath,DenotatorPath>();
+		expectedChangedPaths.put(new DenotatorPath(this.objects.SOUND_SCORE_FORM, new int[]{2}), new DenotatorPath(this.objects.SOUND_SCORE_FORM, new int[]{0}));
+		TestCase.assertEquals(expectedChangedPaths, pathResults.getChangedPaths());
+	}
+	
 	private BigBangTransformation makeTranslation(int x, int y, TransformationPaths paths) {
 		RMatrix identity = new RMatrix(new double[][]{{1,0},{0,1}});
 		ModuleMorphism translation = RFreeAffineMorphism.make(identity, new double[]{x, y});
