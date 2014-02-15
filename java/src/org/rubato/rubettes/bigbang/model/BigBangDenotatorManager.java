@@ -277,12 +277,25 @@ public class BigBangDenotatorManager {
 				//System.out.print("......."+this.findPaths(newObjects, powersetPath) + "...");
 				//try {this.composition.get(powersetPath.toIntArray()).display();} catch(RubatoException e) {};
 				List<DenotatorPath> newPaths = this.findPaths(newObjects, powersetPath);
+				newPaths.removeAll(Collections.singleton(null));
 				this.currentPathResults.updatePaths(oldObjectPaths, this.findPaths(oldObjects, powersetPath), newPaths);
 			}
 			return newObjects;
 		}
 		this.setComposition(newObjects.get(0));
 		return null;
+	}
+	
+	public void replaceObjects(List<Denotator> newObjects, List<DenotatorPath> replacedObjectsPaths) {
+		int currentStartIndex = 0;
+		DenotatorPath currentPowersetPath = replacedObjectsPaths.get(0).getParentPath();
+		for (int i = 1; i < newObjects.size(); i++) {
+			if (!replacedObjectsPaths.get(i).getParentPath().equals(currentPowersetPath)) {
+				this.replaceSiblingObjects(newObjects.subList(currentStartIndex, i), replacedObjectsPaths.subList(currentStartIndex, i));
+				currentStartIndex = i;
+			}
+		}
+		this.replaceSiblingObjects(newObjects.subList(currentStartIndex, newObjects.size()), replacedObjectsPaths.subList(currentStartIndex, newObjects.size()));
 	}
 	
 	public void replaceSiblingObjects(List<Denotator> newObjects, List<DenotatorPath> replacedObjectsPaths) {
@@ -443,9 +456,9 @@ public class BigBangDenotatorManager {
 			List<Denotator> addedObjects = new ArrayList<Denotator>();
 			for (int i = 0; i < objects.size(); i++) {
 				Denotator addedObject = this.internalAddObject(objects.get(i), powersetPath);
-				if (addedObject != null) {
+				//if (addedObject != null) {
 					addedObjects.add(addedObject);
-				}
+				//}
 			}
 			return addedObjects;
 		}
@@ -529,9 +542,12 @@ public class BigBangDenotatorManager {
 	 */
 	private DenotatorPath findPath(Denotator object, DenotatorPath powersetPath) {
 		//System.out.println(object+ " "+powersetPath);
-		FactorDenotator powersetOrList = this.getPowersetOrList(powersetPath);
-		int objectIndex = this.getIndexOf(powersetOrList, object);
-		return powersetPath.getChildPath(objectIndex);
+		if (object != null) {
+			FactorDenotator powersetOrList = this.getPowersetOrList(powersetPath);
+			int objectIndex = this.getIndexOf(powersetOrList, object);
+			return powersetPath.getChildPath(objectIndex);
+		}
+		return null;
 		//return new DenotatorPath(this.objectGenerator.getBaseForm(), new int[]{index,0});
 	}
 	

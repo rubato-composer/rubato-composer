@@ -117,7 +117,7 @@ public class JMainToolBar extends JToolBar implements View {
 	private void enterAlterationMode(AlterationEdit edit) {
 		if (!Arrays.asList(this.getComponents()).contains(this.alterationPanel)) {
 			this.alterationButton.setSelected(true);
-			this.alterationPanel.setEdit(edit);
+			this.alterationPanel.updateValues(edit);
 			this.add(this.alterationPanel);
 			this.repaint();
 		}

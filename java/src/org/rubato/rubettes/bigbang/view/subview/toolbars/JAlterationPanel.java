@@ -32,7 +32,6 @@ public class JAlterationPanel extends JPanel implements View, ActionListener, It
 	private ViewController viewController;
 	private BigBangController bbController;
 	private TemporaryDisplayMode selectionMode;
-	private AlterationEdit edit;
 	
 	public JAlterationPanel(ViewController viewController, BigBangController bbController) {
 		viewController.addView(this);
@@ -92,8 +91,7 @@ public class JAlterationPanel extends JPanel implements View, ActionListener, It
 		}
 	}
 	
-	public void setEdit(AlterationEdit edit) {
-		this.edit = edit;
+	public void updateValues(AlterationEdit edit) {
 		//TODO MAKE POSSIBLE AGAIN this.updateCoordinateSelections(edit.getAlterationCoordinates());
 		this.updateSliderValue(this.startSlider, edit.getStartDegree());
 		this.updateSliderValue(this.endSlider, edit.getEndDegree());
@@ -135,9 +133,9 @@ public class JAlterationPanel extends JPanel implements View, ActionListener, It
 			this.viewController.changeAlterationComposition(oldSelectionIndex);
 		}
 		if (buttonIndex == oldSelectionIndex) {
-			this.edit.fireAlterationComposition(-1);
+			this.bbController.fireAlterationComposition(-1);
 		} else {
-			this.edit.fireAlterationComposition(buttonIndex);
+			this.bbController.fireAlterationComposition(buttonIndex);
 		}
 	}
 	
@@ -146,9 +144,9 @@ public class JAlterationPanel extends JPanel implements View, ActionListener, It
 		double value = degreeSlider.getValue();
 		double totalValues = degreeSlider.getMaximum()-degreeSlider.getMinimum();
 		if (degreeSlider.equals(this.startSlider)) {
-			this.edit.setStartDegree(value/totalValues);
+			this.bbController.changeAlterationStartDegree(value/totalValues);
 		} else {
-			this.edit.setEndDegree(value/totalValues);
+			this.bbController.changeAlterationEndDegree(value/totalValues);
 		}
 		this.bbController.operationModified();
 	}

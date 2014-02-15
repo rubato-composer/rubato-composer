@@ -1,13 +1,12 @@
 package org.rubato.rubettes.bigbang.view.player;
 
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
+import org.rubato.math.yoneda.Form;
 import org.rubato.rubettes.bigbang.model.BigBangObject;
-import org.rubato.rubettes.bigbang.model.BigBangObjects;
 import org.rubato.rubettes.util.CoolFormRegistrant;
 
 public class JSynScore {
@@ -16,13 +15,13 @@ public class JSynScore {
 	private Map<BigBangObject,JSynObject> objectMap;
 	private int satelliteType;
 	
-	public JSynScore(BigBangObjects objects) {
+	public JSynScore(Set<BigBangObject> objects, Form baseForm) {
 		this.objects = new TreeSet<JSynObject>();
 		this.objectMap = new HashMap<BigBangObject,JSynObject>();
-		if (objects.getBaseForm().equals(CoolFormRegistrant.FM_SET_FORM)) {
+		if (baseForm.equals(CoolFormRegistrant.FM_SET_FORM)) {
 			this.satelliteType = JSynObject.FREQUENCY_MODULATION;
 		}
-		this.addObjects(objects.getObjects());
+		this.addObjects(objects);
 	}
 	
 	/**

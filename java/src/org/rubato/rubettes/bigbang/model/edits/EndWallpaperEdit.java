@@ -9,6 +9,7 @@ public class EndWallpaperEdit extends AbstractOperationEdit {
 		super(denotatorManager);
 		this.isAnimatable = false;
 		this.isSplittable = false;
+		this.duration = 0;
 	}
 	
 	//not changed by modification!!

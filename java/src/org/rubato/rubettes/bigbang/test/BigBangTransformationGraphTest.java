@@ -373,6 +373,7 @@ public class BigBangTransformationGraphTest extends TestCase {
 	}
 	
 	public void testModifyCopyAndTransform() {
+		
 		this.model.setOrAddComposition(this.objects.flatSoundScore);
 		TreeSet<BigBangObject> objects = this.getBBObjectsFromModel(0, 2);
 		
