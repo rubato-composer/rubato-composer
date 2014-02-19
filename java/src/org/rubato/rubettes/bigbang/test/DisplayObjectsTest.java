@@ -45,7 +45,9 @@ public class DisplayObjectsTest extends TestCase {
 		BigBangModel model = new BigBangModel(new BigBangController());
 		model.setOrAddComposition(denotator);
 		new DenotatorValueExtractor(model.getObjects(), model.getComposition());
-		return new DisplayObjects(model.getObjects());
+		DisplayObjects objects = new DisplayObjects(model.getObjects());
+		objects.addObjects(model.getObjects().getObjectsAt(null));
+		return objects;
 	}
 
 }

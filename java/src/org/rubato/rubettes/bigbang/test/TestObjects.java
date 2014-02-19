@@ -10,10 +10,13 @@ import junit.framework.TestCase;
 
 import org.rubato.base.Repository;
 import org.rubato.base.RubatoException;
+import org.rubato.math.matrix.RMatrix;
 import org.rubato.math.module.DomainException;
 import org.rubato.math.module.Module;
 import org.rubato.math.module.ProductElement;
 import org.rubato.math.module.RElement;
+import org.rubato.math.module.morphism.ModuleMorphism;
+import org.rubato.math.module.morphism.RFreeAffineMorphism;
 import org.rubato.math.yoneda.ColimitDenotator;
 import org.rubato.math.yoneda.ColimitForm;
 import org.rubato.math.yoneda.Denotator;
@@ -25,6 +28,7 @@ import org.rubato.math.yoneda.PowerForm;
 import org.rubato.math.yoneda.SimpleDenotator;
 import org.rubato.math.yoneda.SimpleForm;
 import org.rubato.rubettes.bigbang.model.BigBangDenotatorManager;
+import org.rubato.rubettes.bigbang.model.BigBangTransformation;
 import org.rubato.rubettes.bigbang.model.TransformationPaths;
 import org.rubato.rubettes.util.CoolFormRegistrant;
 import org.rubato.rubettes.util.DenotatorPath;
@@ -228,6 +232,26 @@ public class TestObjects {
 			paths.setCodomainPaths(i, Arrays.asList(currentPath));
 		}
 		return paths;
+	}
+	
+	public BigBangTransformation makeTranslation(int x, int y, TransformationPaths paths) {
+		RMatrix identity = new RMatrix(new double[][]{{1,0},{0,1}});
+		ModuleMorphism translation = RFreeAffineMorphism.make(identity, new double[]{x, y});
+		return new BigBangTransformation(translation, Arrays.asList(paths), false, null);
+	}
+	
+	public BigBangTransformation makeScaling(int x, int y, TransformationPaths paths) {
+		RMatrix identity = new RMatrix(new double[][]{{x,0},{0,y}});
+		ModuleMorphism translation = RFreeAffineMorphism.make(identity, new double[]{0, 0});
+		return new BigBangTransformation(translation, Arrays.asList(paths), false, null);
+	}
+	
+	public Set<DenotatorPath> makeNotePaths(int[][] intNotePaths) {
+		Set<DenotatorPath> notePaths = new TreeSet<DenotatorPath>();
+		for (int[] currentPath: intNotePaths) {
+			notePaths.add(new DenotatorPath(this.SOUND_SCORE_FORM, currentPath));
+		}
+		return notePaths;
 	}
 	
 	public void assertEqualPowerDenotators(PowerDenotator d1, PowerDenotator d2) {

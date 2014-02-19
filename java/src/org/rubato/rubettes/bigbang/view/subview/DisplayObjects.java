@@ -19,6 +19,7 @@ import org.rubato.rubettes.bigbang.model.BigBangObject;
 import org.rubato.rubettes.bigbang.model.BigBangObjects;
 import org.rubato.rubettes.bigbang.view.model.DisplayObject;
 import org.rubato.rubettes.bigbang.view.model.ViewParameters;
+import org.rubato.rubettes.util.CoolFormRegistrant;
 import org.rubato.rubettes.util.DenotatorObject;
 import org.rubato.rubettes.util.DenotatorPath;
 import org.rubato.rubettes.util.FormValueFinder;
@@ -60,7 +61,6 @@ public class DisplayObjects {
 		this.objectMap = new HashMap<BigBangObject,DisplayObject>();
 		this.objects = new TreeSet<DisplayObject>();
 		this.selectedObjects = new TreeSet<DisplayObject>();
-		this.addObjects(this.bbObjects.getObjects());
 	}
 	
 	public void addObjects(Set<BigBangObject> newObjects) {
@@ -372,12 +372,14 @@ public class DisplayObjects {
 		return null;
 	}
 	
+	/**
+	 * @return the set of BigBangObjects corresponding to the selected DisplayObjects. May contain objects that are
+	 * currently not visible or not even present at the current state!!
+	 */
 	public Set<BigBangObject> getSelectedBigBangObjects() {
 		Set<BigBangObject> selectedObjects = new TreeSet<BigBangObject>();
 		for (DisplayObject currentObject : this.selectedObjects) {
-			if (this.objects.contains(currentObject)) {
-				selectedObjects.add(currentObject.getBigBangObject());
-			}
+			selectedObjects.add(currentObject.getBigBangObject());
 		}
 		return selectedObjects; 
 	}
@@ -530,10 +532,9 @@ public class DisplayObjects {
 	
 	//TODO: pretty lame, but used in two places: BigBangView and DisplayContents
 	public int getTimeAxisIndex(ViewParameters viewParameters) {
-		//TODO: take "Onset R" from somewhere
-		int timeValueIndex = this.getCoordinateSystemValueNames().indexOf("Onset R");
+		int timeValueIndex = this.getCoordinateSystemValueNames().indexOf(CoolFormRegistrant.ONSET_NAME);
 		if (timeValueIndex == -1) {
-			timeValueIndex = this.getCoordinateSystemValueNames().indexOf("BeatClass Z_16");
+			timeValueIndex = this.getCoordinateSystemValueNames().indexOf(CoolFormRegistrant.BEAT_CLASS_NAME);
 		}
 		if (timeValueIndex != -1) {
 			int onsetParameterIndex = viewParameters.getFirstIndexOfValue(timeValueIndex);

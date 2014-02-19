@@ -54,7 +54,6 @@ public abstract class AbstractOperationEdit extends AbstractUndoableEdit {
 				objectPaths.add(currentPath);
 			}
 		}
-		//System.out.println("GOP " + objectList + " " + objectPaths);
 		return objectPaths;
 	}
 	

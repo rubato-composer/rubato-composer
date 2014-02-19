@@ -15,7 +15,6 @@ import org.rubato.math.yoneda.Denotator;
 import org.rubato.math.yoneda.FactorDenotator;
 import org.rubato.math.yoneda.Form;
 import org.rubato.math.yoneda.LimitDenotator;
-import org.rubato.math.yoneda.PowerDenotator;
 import org.rubato.math.yoneda.SimpleDenotator;
 import org.rubato.rubettes.util.DenotatorPath;
 import org.rubato.rubettes.util.FormValueFinder;
@@ -38,9 +37,9 @@ public class DenotatorValueExtractor {
 		this.extractValues(composition);
 	}
 	
-	private void extractValues(Denotator score) {
+	private void extractValues(Denotator composition) {
 		//PerformanceCheck.startTask("extract");
-		Form baseForm = score.getForm();
+		Form baseForm = composition.getForm();
 		this.minValues = new TreeMap<String,Double>();
 		this.maxValues = new TreeMap<String,Double>();
 		this.objects.clearValues();
@@ -50,7 +49,11 @@ public class DenotatorValueExtractor {
 			this.objects = new BigBangObjects(baseForm);
 		}*/
 		try {
-			this.extractObjects(score, null, null, 0, 0, 0, new DenotatorPath(baseForm));
+			if (this.objects.getObjectsAt(null) != null) {
+				//System.out.println(this.objects.getObjectsAt(null).size() + " " + ((PowerDenotator)composition).getFactorCount());
+				//composition.display();
+			}
+			this.extractObjects(composition, null, null, 0, 0, 0, new DenotatorPath(baseForm));
 		} catch (RubatoException e) { e.printStackTrace(); }
 		this.objects.setMinMaxValues(this.getMinValues(), this.getMaxValues());
 	}

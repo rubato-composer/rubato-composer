@@ -211,11 +211,6 @@ public class BigBangObject implements Comparable<BigBangObject> {
 		return this.topDenotatorPaths.get(operation);
 	}
 	
-	public boolean isGhost() {
-		return this.topDenotatorPaths.keySet().size() == 1 && this.topDenotatorPaths.containsKey(null)
-			&& this.topDenotatorPaths.get(null) == null;
-	}
-	
 	public void setLayer(int layer) {
 		this.layer = layer;
 	}
@@ -229,7 +224,7 @@ public class BigBangObject implements Comparable<BigBangObject> {
 		//return this.getTopDenotatorPath().compareTo(other.getTopDenotatorPath());
 		DenotatorPath thisPath = this.getTopDenotatorPath();
 		DenotatorPath otherPath = other.getTopDenotatorPath();
-		if (thisPath != null && otherPath != null) {
+		if (thisPath != null && otherPath != null && !thisPath.equals(otherPath)) {
 			return thisPath.compareTo(otherPath);
 		}
 		List<AbstractOperationEdit> paths = new ArrayList<AbstractOperationEdit>(this.topDenotatorPaths.keySet());

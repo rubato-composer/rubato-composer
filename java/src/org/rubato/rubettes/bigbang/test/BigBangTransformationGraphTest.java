@@ -373,7 +373,6 @@ public class BigBangTransformationGraphTest extends TestCase {
 	}
 	
 	public void testModifyCopyAndTransform() {
-		
 		this.model.setOrAddComposition(this.objects.flatSoundScore);
 		TreeSet<BigBangObject> objects = this.getBBObjectsFromModel(0, 2);
 		
@@ -381,10 +380,46 @@ public class BigBangTransformationGraphTest extends TestCase {
 		properties.setCenter(new double[]{0,0});
 		properties.setEndPoint(new double[]{2,2});
 		this.model.translateObjects(properties);
-		TestCase.assertEquals(6, this.model.getObjects().size());
+		Set<BigBangObject> objectsAfterTranslation = this.model.getObjects().getObjectsAt(null);
+		TestCase.assertEquals(6, this.model.getObjects().getAllObjects().size());
+		TestCase.assertEquals(6, objectsAfterTranslation.size());
 		
 		this.model.modifyOperation(1, 0.0);
-		TestCase.assertEquals(3, this.model.getObjects().size());
+		TestCase.assertEquals(6, this.model.getObjects().getAllObjects().size());
+		TestCase.assertEquals(3, this.model.getObjects().getObjectsAt(null).size());
+		
+		this.model.modifyOperation(1, 1.0);
+		TestCase.assertEquals(6, this.model.getObjects().getAllObjects().size());
+		TestCase.assertEquals(6, this.model.getObjects().getObjectsAt(null).size());
+		TestCase.assertEquals(objectsAfterTranslation, this.model.getObjects().getObjectsAt(null));
+	}
+	
+	public void testProjection() {
+		//scale so that notes projected and made equal
+		this.model.setOrAddComposition(this.objects.generator.createFlatSoundScore(
+				new double[][]{{0,60,120,1,0,0},{1,60,120,1,0,0},{2,61,120,1,0,0}}));
+		TreeSet<BigBangObject> objects = this.getBBObjectsFromModel(0, 2);
+		TransformationProperties properties = new TransformationProperties(objects, null, Arrays.asList(this.nodePaths), false, true);
+		properties.setCenter(new double[]{0,0});
+		properties.setEndPoint(new double[]{-1,1});
+		Set<BigBangObject> objectsBeforeProjection = this.model.getObjects().getObjectsAt(null);
+		this.model.scaleObjects(properties, new double[]{0,2});
+		TestCase.assertEquals(3, this.model.getObjects().getAllObjects().size());
+		TestCase.assertEquals(2, this.model.getObjects().getObjectsAt(null).size());
+		
+		//undo projection and see if objects back
+		this.model.modifyOperation(1, 0.5);
+		TestCase.assertEquals(3, this.model.getObjects().getAllObjects().size());
+		TestCase.assertEquals(3, this.model.getObjects().getObjectsAt(null).size());
+		TestCase.assertEquals(objectsBeforeProjection, this.model.getObjects().getObjectsAt(null));
+		
+		//change to projection to one point
+		properties = new TransformationProperties(objects, null, Arrays.asList(this.nodePaths), false, true);
+		properties.setCenter(new double[]{0,0});
+		properties.setEndPoint(new double[]{-1,-1});
+		this.model.scaleObjects(properties, new double[]{0,0});
+		TestCase.assertEquals(3, this.model.getObjects().getAllObjects().size());
+		TestCase.assertEquals(1, this.model.getObjects().getObjectsAt(null).size());
 	}
 	
 	public void testModifyWallpaper() {
@@ -398,7 +433,7 @@ public class BigBangTransformationGraphTest extends TestCase {
 		properties.setEndPoint(new double[]{1,1});
 		this.model.translateObjects(properties);
 		TestCase.assertEquals(3, this.model.getTransformationGraph().getEdgeCount());
-		TestCase.assertEquals(13, this.model.getObjects().size());
+		TestCase.assertEquals(13, this.model.getObjects().getAllObjects().size());
 		
 		//modify translation
 		properties = new TransformationProperties(objects, null, Arrays.asList(this.nodePaths), false, false);
@@ -406,7 +441,7 @@ public class BigBangTransformationGraphTest extends TestCase {
 		properties.setEndPoint(new double[]{-1,-1});
 		this.model.translateObjects(properties);
 		TestCase.assertEquals(3, this.model.getTransformationGraph().getEdgeCount());
-		TestCase.assertEquals(13, this.model.getObjects().size());
+		TestCase.assertEquals(13, this.model.getObjects().getAllObjects().size());
 	}
 	
 	private ArrayList<Map<DenotatorPath,Double>> createNodePathAndValuesMapList(Form form, int[][] paths, double[][] values) {
@@ -435,7 +470,7 @@ public class BigBangTransformationGraphTest extends TestCase {
 	}
 	
 	private TreeSet<BigBangObject> getBBObjectsFromModel(int fromIndex, int toIndex) {
-		Iterator<BigBangObject> objectIterator = this.model.getObjects().getObjects().iterator();
+		Iterator<BigBangObject> objectIterator = this.model.getObjects().getAllObjects().iterator();
 		TreeSet<BigBangObject> objects = new TreeSet<BigBangObject>();
 		for (int i = 0; i <= toIndex; i++) {
 			BigBangObject nextObject = objectIterator.next(); 
