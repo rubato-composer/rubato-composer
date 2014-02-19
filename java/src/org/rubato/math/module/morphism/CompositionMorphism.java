@@ -63,7 +63,7 @@ public final class CompositionMorphism extends ModuleMorphism {
             return f;
         }
         else if (f.isConstant()) {
-            return f;
+        	return ModuleMorphism.getConstantMorphism(f.getCodomain(), f.atZero());
         }
         else if (g.isConstant()) {
             try {

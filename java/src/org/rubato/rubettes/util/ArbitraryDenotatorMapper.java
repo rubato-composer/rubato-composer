@@ -155,7 +155,6 @@ public class ArbitraryDenotatorMapper {
 	}
 	
 	private Denotator makeFinalProjections(Denotator mappedDenotator, ModuleMorphism m) throws RubatoException {
-		
 		for (int i = 0; i < this.codomainDim; i++) {
 			ModuleMorphism projectedM = m;
 			

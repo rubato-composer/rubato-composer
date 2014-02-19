@@ -420,7 +420,6 @@ public class BigBangModel extends Model {
 	
 	private void fireCompositionChange() {
 		//TODO REPOLACE BY JUST SENDING ADDED/CHANGED OR REMOVED OBJECTS!!!! 
-		//System.out.println(this.objects.getObjects().size());
 		this.firePropertyChange(BigBangController.COMPOSITION, null, this.objects);
 	}
 
