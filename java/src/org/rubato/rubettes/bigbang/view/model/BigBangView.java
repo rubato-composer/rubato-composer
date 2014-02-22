@@ -134,7 +134,7 @@ public class BigBangView extends Model implements View {
 	private void initStandardDenotatorValues() {
 		this.standardDenotatorValues = new TreeMap<String,Double>();
 		//insert some preset standard values
-		this.standardDenotatorValues.put(CoolFormRegistrant.ONSET_NAME, 60.0);
+		this.standardDenotatorValues.put(CoolFormRegistrant.PITCH_NAME, 60.0);
 		this.standardDenotatorValues.put(CoolFormRegistrant.LOUDNESS_NAME, 120.0);
 		this.standardDenotatorValues.put(CoolFormRegistrant.DURATION_NAME, 1.0);
 		this.standardDenotatorValues.put(CoolFormRegistrant.PAN_NAME, 64.0);

@@ -2,6 +2,7 @@ package org.rubato.rubettes.bigbang.model;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
@@ -84,6 +85,7 @@ public class BigBangWallpaper {
 		}
 		OperationPathResults iterationPathResults = new OperationPathResults();
 		for (int i = 0; i < transformations.size(); i++) {
+			//System.out.println(currentPaths);
 			BigBangTransformation currentTransformation = transformations.get(i); 
 			if (inverse) {
 				currentTransformation = currentTransformation.inverse();
@@ -95,11 +97,25 @@ public class BigBangWallpaper {
 			if (lastTransformationResults != null && i == transformations.size()-1) {
 				lastTransformationResults.updatePaths(currentPathResults);
 			}
-			
-			currentPaths = iterationPathResults.getNewPaths();
+			//System.out.println(iterationPathResults);
+			//if an anchor is copied, new paths include its satellites. need to be removed in order to yield motif 
+			currentPaths = this.getSetWithoutSatellites((TreeSet<DenotatorPath>)iterationPathResults.getNewPaths());
 		}
 		//return new paths of created iteration (motif for next iteration)
 		return currentPaths;
+	}
+	
+	private Set<DenotatorPath> getSetWithoutSatellites(TreeSet<DenotatorPath> paths) {
+		Set<DenotatorPath> anchorPaths = new TreeSet<DenotatorPath>();
+		Iterator<DenotatorPath> pathsIterator = paths.descendingIterator();
+		while (pathsIterator.hasNext()) {
+			DenotatorPath currentPath = pathsIterator.next();
+			DenotatorPath currentAnchor = currentPath.getAnchorPath();
+			if (currentAnchor == null || !paths.contains(currentAnchor)) {
+				anchorPaths.add(currentPath);
+			}
+		}
+		return anchorPaths;
 	}
 	
 	public String toString() {

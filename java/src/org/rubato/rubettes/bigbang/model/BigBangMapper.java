@@ -74,7 +74,7 @@ public class BigBangMapper extends BigBangScoreManipulator {
 		while (objectPathsIterator.hasNext()) {
 			currentSiblingPath = objectPathsIterator.next();
 			//PerformanceCheck.startTask(".next_sibs");
-			if (currentSiblingPath.isSatelliteOf(siblingsAnchorPath)) {
+			if (currentSiblingPath.isDirectSatelliteOf(siblingsAnchorPath)) {
 				Denotator currentSibling = this.denotatorManager.getAbsoluteObject(currentSiblingPath);
 				if (currentSibling != null) {
 					siblingsPaths.add(currentSiblingPath);

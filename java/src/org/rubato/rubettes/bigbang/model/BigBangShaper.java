@@ -60,7 +60,7 @@ public class BigBangShaper extends BigBangScoreManipulator {
 		while (nodePathsIterator.hasNext()) {
 			currentSiblingPath = nodePathsIterator.next();
 			//PerformanceCheck.startTask(".next_sibs");
-			if (currentSiblingPath.isSatelliteOf(siblingsAnchorPath)) {
+			if (currentSiblingPath.isDirectSatelliteOf(siblingsAnchorPath)) {
 				siblingsPaths.add(currentSiblingPath);
 				siblings.add(this.denotatorManager.getAbsoluteObject(currentSiblingPath));
 			} else {

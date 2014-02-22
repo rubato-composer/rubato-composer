@@ -112,7 +112,6 @@ public class BigBangObjects {
 	}
 	
 	public void updateMaxSatelliteLevels(BigBangObject object) {
-		//System.out.println("SAT "+object);
 		int objectIndex = this.finder.indexOf(object.getTopDenotatorPath().getEndForm());
 		Integer currentLevel = this.maxSatelliteLevels.get(objectIndex);
 		if (currentLevel != null) {
@@ -243,26 +242,12 @@ public class BigBangObjects {
 	
 	private void updateObject(BigBangObject object, BigBangObject parent, AbstractOperationEdit operation, DenotatorPath newPath) {
 		//this.removeObjectFromMap(operation, object);
-		this.updateParents(object, parent, operation);
-		object.updatePath(operation, newPath);
-		this.addObjectToMap(object, operation, newPath);
-	}
-	
-	private void updateParents(BigBangObject object, BigBangObject parent, AbstractOperationEdit operation) {
-		//remove from parent if there was one, then add new parent if not null
-		BigBangObject previousParent = object.getParentAt(operation);
-		if (previousParent != null && previousParent != parent) {
-			previousParent.removeChild(operation, object);
-		}
-		object.setParent(operation, parent);
-		if (parent != null) {
-			parent.addChild(operation, object);
-		}
+		object.updatePathAndParent(operation, newPath, parent);
+		this.updateObjectAndChildrenInMap(object, operation);
 	}
 	
 	private void removeObject(AbstractOperationEdit operation, BigBangObject objectToBeRemoved) {
-		objectToBeRemoved.updatePath(operation, null);
-		this.updateParents(objectToBeRemoved, null, operation);
+		objectToBeRemoved.updatePathAndParent(operation, null, null);
 		this.removeObjectFromMap(operation, objectToBeRemoved);
 	}
 	
@@ -271,6 +256,20 @@ public class BigBangObjects {
 			this.objectsMaps.put(operation, new TreeMap<DenotatorPath,BigBangObject>());
 		}
 		this.objectsMaps.get(operation).put(newPath, object);
+	}
+	
+	//recursively updates all children too
+	private void updateObjectAndChildrenInMap(BigBangObject object, AbstractOperationEdit operation) {
+		//TODO OLD ONE SHOULD BE REMOVED!!!!
+		DenotatorPath newPath = object.getTopDenotatorPathAt(operation);
+		//System.out.println("HEY "+ newPath + " " + object.getParent().getTopDenotatorPathAt(operation)+ " " + object);
+		this.addObjectToMap(object, operation, newPath);
+		Set<BigBangObject> children = object.getChildrenAt(operation);
+		if (children != null) {
+			for (BigBangObject currentChild : children) {
+				this.updateObjectAndChildrenInMap(currentChild, operation);
+			}
+		}
 	}
 	
 	private void removeObjectFromMap(AbstractOperationEdit operation, BigBangObject objectToBeRemoved) {

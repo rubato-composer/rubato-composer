@@ -402,7 +402,7 @@ public class BigBangModel extends Model {
 				this.objects.updatePaths(currentOperation, nextOperation, currentPathResults);
 				PerformanceCheck.startTask("updatepaths_done");
 			}
-			//System.out.println("BO "+this.objects.getObjects() + "\n");
+			//System.out.println("BO "+this.objects.getAllObjects() + "\n");
 			//System.out.println(operationsToBeExecuted + " " + this.objects.getObjects());
 			
 			PerformanceCheck.startTask("extract");

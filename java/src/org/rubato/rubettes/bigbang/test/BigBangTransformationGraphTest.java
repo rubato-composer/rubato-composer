@@ -2,7 +2,7 @@ package org.rubato.rubettes.bigbang.test;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
@@ -60,7 +60,7 @@ public class BigBangTransformationGraphTest extends TestCase {
 		TestCase.assertTrue(this.model.getTransformationGraph().getLastAddedOperation() instanceof AddObjectsEdit);
 		TestCase.assertEquals(4, ((PowerDenotator)this.model.getComposition()).getFactorCount());
 		
-		Set<BigBangObject> objects = this.getBBObjectsFromModel(0,3);
+		Set<BigBangObject> objects = this.getBBObjectsFromModel(0,4);
 		TransformationProperties properties = new TransformationProperties(objects, null, Arrays.asList(this.nodePaths), false, true);
 		properties.setCenter(new double[]{0,0});
 		properties.setEndPoint(new double[]{0,1});
@@ -68,6 +68,46 @@ public class BigBangTransformationGraphTest extends TestCase {
 		TestCase.assertEquals(4, ((PowerDenotator)this.model.getComposition()).getFactorCount());
 		this.model.modifyOperation(1, 0.5);
 		TestCase.assertEquals(2, ((PowerDenotator)this.model.getComposition()).getFactorCount());
+	}
+	
+	public void testModifyWithSatellitesAddedDirectly() {
+		this.model.setOrAddComposition(this.objects.generator.createEmptyScore());
+		int[][] paths = new int[][]{{0,0},{0,1}};
+		double[][] values = new double[][]{{0,60},{2,65},{3,66}};
+		ArrayList<DenotatorPath> pathList = this.createPathsList(new DenotatorPath(this.objects.SOUND_SCORE_FORM, new int[]{0,1}), 3);
+		pathList.add(0, new DenotatorPath(this.objects.SOUND_SCORE_FORM, new int[]{}));
+		this.model.addObjects(this.createNodePathAndValuesMapList(this.objects.SOUND_SCORE_FORM, paths, values),
+				pathList, false);
+		TestCase.assertTrue(this.model.getTransformationGraph().getLastAddedOperation() instanceof AddObjectsEdit);
+		//only one first-level note
+		TestCase.assertEquals(1, ((PowerDenotator)this.model.getComposition()).getFactorCount());
+		
+		this.model.modifyOperation(0, 0.5);
+		//anchor tone not there anymore so satellites should not be built. all we get are two of the four initial notes
+		TestCase.assertEquals(1, ((PowerDenotator)this.model.getComposition()).getFactorCount());
+		
+		//transform satellites
+		Set<BigBangObject> satelliteObjects = this.getBBObjectsFromModel(1, 3);
+		TransformationProperties properties = new TransformationProperties(satelliteObjects, null, Arrays.asList(this.nodePaths), false, true);
+		properties.setCenter(new double[]{0,0});
+		properties.setEndPoint(new double[]{0,1});
+		this.model.scaleObjects(properties, new double[]{2,2});
+		this.model.modifyOperation(1, 0.5);
+		TestCase.assertEquals(1, ((PowerDenotator)this.model.getComposition()).getFactorCount());
+		
+		//add one more
+		paths = new int[][]{{0,0},{0,1}};
+		values = new double[][]{{4,67}};
+		this.model.addObjects(this.createNodePathAndValuesMapList(this.objects.SOUND_SCORE_FORM, paths, values),
+				this.createPathsList(new DenotatorPath(this.objects.SOUND_SCORE_FORM, new int[]{0,1}), 1), false);
+		TestCase.assertTrue(this.model.getTransformationGraph().getLastAddedOperation() instanceof AddObjectsEdit);
+		//only one first-level note
+		TestCase.assertEquals(1, ((PowerDenotator)this.model.getComposition()).getFactorCount());
+		
+		//test animation
+		this.model.setOperationDurations(.1);
+		//this.model.toggleGraphAnimation();
+		TestCase.assertEquals(1, ((PowerDenotator)this.model.getComposition()).getFactorCount());
 	}
 	
 	public void testModifyWithSatellites() {
@@ -79,8 +119,8 @@ public class BigBangTransformationGraphTest extends TestCase {
 		TestCase.assertTrue(this.model.getTransformationGraph().getLastAddedOperation() instanceof AddObjectsEdit);
 		TestCase.assertEquals(4, ((PowerDenotator)this.model.getComposition()).getFactorCount());
 		
-		Set<BigBangObject> satelliteObjects = this.getBBObjectsFromModel(0, 2);
-		BigBangObject anchorObject = this.getBBObjectsFromModel(3, 3).iterator().next();
+		Set<BigBangObject> satelliteObjects = this.getBBObjectsFromModel(0, 3);
+		BigBangObject anchorObject = this.getBBObjectsFromModel(3, 4).iterator().next();
 		this.model.buildSatellites(new TreeSet<BigBangObject>(satelliteObjects), anchorObject, 0);
 		TestCase.assertEquals(1, ((PowerDenotator)this.model.getComposition()).getFactorCount());
 		
@@ -116,46 +156,6 @@ public class BigBangTransformationGraphTest extends TestCase {
 		TestCase.assertEquals(3, this.model.getObjects().getObjects().iterator().next().getChildren().size());*/
 	}
 	
-	public void testModifyWithSatellitesAddedDirectly() {
-		this.model.setOrAddComposition(this.objects.generator.createEmptyScore());
-		int[][] paths = new int[][]{{0,0},{0,1}};
-		double[][] values = new double[][]{{0,60},{2,65},{3,66}};
-		ArrayList<DenotatorPath> pathList = this.createPathsList(new DenotatorPath(this.objects.SOUND_SCORE_FORM, new int[]{0,1}), 3);
-		pathList.add(0, new DenotatorPath(this.objects.SOUND_SCORE_FORM, new int[]{}));
-		this.model.addObjects(this.createNodePathAndValuesMapList(this.objects.SOUND_SCORE_FORM, paths, values),
-				pathList, false);
-		TestCase.assertTrue(this.model.getTransformationGraph().getLastAddedOperation() instanceof AddObjectsEdit);
-		//only one first-level note
-		TestCase.assertEquals(1, ((PowerDenotator)this.model.getComposition()).getFactorCount());
-		
-		this.model.modifyOperation(0, 0.5);
-		//anchor tone not there anymore so satellites should not be built. all we get are two of the four initial notes
-		TestCase.assertEquals(1, ((PowerDenotator)this.model.getComposition()).getFactorCount());
-		
-		//transform satellites
-		Set<BigBangObject> satelliteObjects = this.getBBObjectsFromModel(1, 2);
-		TransformationProperties properties = new TransformationProperties(satelliteObjects, null, Arrays.asList(this.nodePaths), false, true);
-		properties.setCenter(new double[]{0,0});
-		properties.setEndPoint(new double[]{0,1});
-		this.model.scaleObjects(properties, new double[]{2,2});
-		this.model.modifyOperation(1, 0.5);
-		TestCase.assertEquals(1, ((PowerDenotator)this.model.getComposition()).getFactorCount());
-		
-		//add one more
-		paths = new int[][]{{0,0},{0,1}};
-		values = new double[][]{{4,67}};
-		this.model.addObjects(this.createNodePathAndValuesMapList(this.objects.SOUND_SCORE_FORM, paths, values),
-				this.createPathsList(new DenotatorPath(this.objects.SOUND_SCORE_FORM, new int[]{0,1}), 1), false);
-		TestCase.assertTrue(this.model.getTransformationGraph().getLastAddedOperation() instanceof AddObjectsEdit);
-		//only one first-level note
-		TestCase.assertEquals(1, ((PowerDenotator)this.model.getComposition()).getFactorCount());
-		
-		//test animation
-		this.model.setOperationDurations(.1);
-		this.model.toggleGraphAnimation();
-		TestCase.assertEquals(1, ((PowerDenotator)this.model.getComposition()).getFactorCount());
-	}
-	
 	public void testFatefulModificationOfPast() {
 		this.model.setOrAddComposition(this.objects.generator.createEmptyScore());
 		int[][] paths = new int[][]{{0,0},{0,1}};
@@ -166,7 +166,7 @@ public class BigBangTransformationGraphTest extends TestCase {
 		TestCase.assertEquals(2, ((PowerDenotator)this.model.getComposition()).getFactorCount());
 		
 		//translation so note0 ends up later than note1
-		Set<BigBangObject> object = this.getBBObjectsFromModel(0, 0);
+		Set<BigBangObject> object = this.getBBObjectsFromModel(0, 1);
 		//SelectedObjectPaths selectedPaths = this.createSelectedObjectsPaths(this.objects.SOUND_SCORE_FORM, new int[]{0});
 		TransformationProperties properties = new TransformationProperties(object, null, Arrays.asList(this.nodePaths), false, true);
 		properties.setCenter(new double[]{0,0});
@@ -198,8 +198,8 @@ public class BigBangTransformationGraphTest extends TestCase {
 		TestCase.assertEquals(3, ((PowerDenotator)this.model.getComposition()).getFactorCount());
 		
 		//get objects and build satellites
-		BigBangObject anchor = this.getBBObjectsFromModel(0, 0).iterator().next();
-		Set<BigBangObject> satellites = this.getBBObjectsFromModel(1, 2);
+		BigBangObject anchor = this.getBBObjectsFromModel(0, 1).iterator().next();
+		Set<BigBangObject> satellites = this.getBBObjectsFromModel(1, 3);
 		this.model.buildSatellites(new TreeSet<BigBangObject>(satellites), anchor, 0);
 		
 		//translate both satellites by 1 pitch
@@ -229,7 +229,7 @@ public class BigBangTransformationGraphTest extends TestCase {
 		this.model.addObjects(this.createNodePathAndValuesMapList(this.objects.SOUND_SCORE_FORM, paths, values),
 				this.createPathsList(new DenotatorPath(this.objects.SOUND_SCORE_FORM, new int[]{}), 1), false);
 		
-		Set<BigBangObject> object = this.getBBObjectsFromModel(0, 0);
+		Set<BigBangObject> object = this.getBBObjectsFromModel(0, 1);
 		TransformationProperties properties = new TransformationProperties(object, null, Arrays.asList(this.nodePaths), false, true);
 		properties.setCenter(new double[]{0,0});
 		properties.setEndPoint(new double[]{0,1});
@@ -255,7 +255,7 @@ public class BigBangTransformationGraphTest extends TestCase {
 		this.model.addObjects(this.createNodePathAndValuesMapList(this.objects.SOUND_SCORE_FORM, paths, values),
 				this.createPathsList(new DenotatorPath(this.objects.SOUND_SCORE_FORM, new int[]{}), 1), false);
 		
-		Set<BigBangObject> object = this.getBBObjectsFromModel(0, 0);
+		Set<BigBangObject> object = this.getBBObjectsFromModel(0, 1);
 		TransformationProperties properties = new TransformationProperties(object, null, Arrays.asList(this.nodePaths), false, true);
 		properties.setCenter(new double[]{0,0});
 		properties.setEndPoint(new double[]{0,1});
@@ -282,7 +282,7 @@ public class BigBangTransformationGraphTest extends TestCase {
 		this.model.addObjects(this.createNodePathAndValuesMapList(this.objects.SOUND_SCORE_FORM, paths, values),
 				this.createPathsList(new DenotatorPath(this.objects.SOUND_SCORE_FORM, new int[]{}), 1), false);
 		
-		Set<BigBangObject> object = this.getBBObjectsFromModel(0, 0);
+		Set<BigBangObject> object = this.getBBObjectsFromModel(0, 1);
 		TransformationProperties properties = new TransformationProperties(object, null, Arrays.asList(this.nodePaths), false, true);
 		properties.setCenter(new double[]{0,0});
 		properties.setEndPoint(new double[]{0,1});
@@ -306,7 +306,7 @@ public class BigBangTransformationGraphTest extends TestCase {
 		this.model.addObjects(this.createNodePathAndValuesMapList(this.objects.SOUND_SCORE_FORM, paths, values),
 				this.createPathsList(new DenotatorPath(this.objects.SOUND_SCORE_FORM, new int[]{}), 1), false);
 		
-		Set<BigBangObject> object = this.getBBObjectsFromModel(0, 0);
+		Set<BigBangObject> object = this.getBBObjectsFromModel(0, 1);
 		TransformationProperties properties = new TransformationProperties(object, null, Arrays.asList(this.nodePaths), false, true);
 		properties.setCenter(new double[]{0,0});
 		properties.setEndPoint(new double[]{0,1});
@@ -356,7 +356,7 @@ public class BigBangTransformationGraphTest extends TestCase {
 		this.model.addObjects(this.createNodePathAndValuesMapList(this.objects.SOUND_SCORE_FORM, paths, values),
 				this.createPathsList(new DenotatorPath(this.objects.SOUND_SCORE_FORM, new int[]{}), 1), false);
 		
-		Set<BigBangObject> object = this.getBBObjectsFromModel(0, 0);
+		Set<BigBangObject> object = this.getBBObjectsFromModel(0, 1);
 		TransformationProperties properties = new TransformationProperties(object, null, Arrays.asList(this.nodePaths), false, true);
 		properties.setCenter(new double[]{0,0});
 		properties.setEndPoint(new double[]{0,1});
@@ -374,7 +374,7 @@ public class BigBangTransformationGraphTest extends TestCase {
 	
 	public void testModifyCopyAndTransform() {
 		this.model.setOrAddComposition(this.objects.flatSoundScore);
-		TreeSet<BigBangObject> objects = this.getBBObjectsFromModel(0, 2);
+		TreeSet<BigBangObject> objects = this.getBBObjectsFromModel(0, 3);
 		
 		TransformationProperties properties = new TransformationProperties(objects, null, Arrays.asList(this.nodePaths), true, true);
 		properties.setCenter(new double[]{0,0});
@@ -398,7 +398,7 @@ public class BigBangTransformationGraphTest extends TestCase {
 		//scale so that notes projected and made equal
 		this.model.setOrAddComposition(this.objects.generator.createFlatSoundScore(
 				new double[][]{{0,60,120,1,0,0},{1,60,120,1,0,0},{2,61,120,1,0,0}}));
-		TreeSet<BigBangObject> objects = this.getBBObjectsFromModel(0, 2);
+		TreeSet<BigBangObject> objects = this.getBBObjectsFromModel(0, 3);
 		TransformationProperties properties = new TransformationProperties(objects, null, Arrays.asList(this.nodePaths), false, true);
 		properties.setCenter(new double[]{0,0});
 		properties.setEndPoint(new double[]{-1,1});
@@ -422,10 +422,72 @@ public class BigBangTransformationGraphTest extends TestCase {
 		TestCase.assertEquals(1, this.model.getObjects().getObjectsAt(null).size());
 	}
 	
+	public void testTransformAnchors() {
+		this.model.setOrAddComposition(this.objects.generator.createEmptyScore());
+		int[][] paths = new int[][]{{0,0},{0,1}};
+		double[][] values = new double[][]{{0,60},{2,65},{3,66},{4,67}};
+		this.model.addObjects(this.createNodePathAndValuesMapList(this.objects.SOUND_SCORE_FORM, paths, values),
+				this.createPathsList(new DenotatorPath(this.objects.SOUND_SCORE_FORM, new int[]{}), 4), false);
+		TestCase.assertTrue(this.model.getTransformationGraph().getLastAddedOperation() instanceof AddObjectsEdit);
+		TestCase.assertEquals(4, ((PowerDenotator)this.model.getComposition()).getFactorCount());
+		
+		List<BigBangObject> objects = new ArrayList<BigBangObject>(this.getBBObjectsFromModel(0, 4));
+		this.model.buildSatellites(new TreeSet<BigBangObject>(objects.subList(3, 4)), objects.get(0), 0);
+		this.model.buildSatellites(new TreeSet<BigBangObject>(objects.subList(2, 3)), objects.get(1), 0);
+		TestCase.assertEquals(2, ((PowerDenotator)this.model.getComposition()).getFactorCount());
+		TestCase.assertTrue(objects.get(3).getParent() == objects.get(0));
+		TestCase.assertTrue(objects.get(2).getParent() == objects.get(1));
+		
+		//make transformation that switches paths of anchor objects
+		TransformationProperties properties = new TransformationProperties(new TreeSet<BigBangObject>(objects.subList(0, 1)), null, Arrays.asList(this.nodePaths), false, true);
+		properties.setCenter(new double[]{0,0});
+		properties.setEndPoint(new double[]{4,1});
+		this.model.translateObjects(properties);
+		AbstractOperationEdit translation = this.model.getTransformationGraph().getLastAddedOperation();
+		TestCase.assertEquals(5, this.model.getTransformationGraph().getEdgeCount());
+		TestCase.assertEquals(2, ((PowerDenotator)this.model.getComposition()).getFactorCount());
+		//should still have the same parent
+		TestCase.assertSame(objects.get(3).getParent(), objects.get(0));
+		TestCase.assertSame(objects.get(2).getParent(), objects.get(1));
+		//should not have the same paths anymore since parent paths changed
+		TestCase.assertTrue(!objects.get(2).getTopDenotatorPathAt(translation).equals(objects.get(2).getTopDenotatorPathAt(null)));
+		TestCase.assertTrue(!objects.get(3).getTopDenotatorPathAt(translation).equals(objects.get(3).getTopDenotatorPathAt(null)));
+	}
+	
+	public void testCopyAndTransformAnchors() {
+		this.model.setOrAddComposition(this.objects.generator.createEmptyScore());
+		int[][] paths = new int[][]{{0,0},{0,1}};
+		double[][] values = new double[][]{{0,60},{2,65},{3,66},{4,67}};
+		this.model.addObjects(this.createNodePathAndValuesMapList(this.objects.SOUND_SCORE_FORM, paths, values),
+				this.createPathsList(new DenotatorPath(this.objects.SOUND_SCORE_FORM, new int[]{}), 4), false);
+		TestCase.assertTrue(this.model.getTransformationGraph().getLastAddedOperation() instanceof AddObjectsEdit);
+		TestCase.assertEquals(4, ((PowerDenotator)this.model.getComposition()).getFactorCount());
+		
+		List<BigBangObject> objects = new ArrayList<BigBangObject>(this.getBBObjectsFromModel(0, 4));
+		this.model.buildSatellites(new TreeSet<BigBangObject>(objects.subList(3, 4)), objects.get(0), 0);
+		this.model.buildSatellites(new TreeSet<BigBangObject>(objects.subList(2, 3)), objects.get(1), 0);
+		TestCase.assertEquals(2, ((PowerDenotator)this.model.getComposition()).getFactorCount());
+		TestCase.assertTrue(objects.get(3).getParent() == objects.get(0));
+		TestCase.assertTrue(objects.get(2).getParent() == objects.get(1));
+		
+		//make transformation that copies and transforms first anchor
+		TransformationProperties properties = new TransformationProperties(new TreeSet<BigBangObject>(objects.subList(0, 1)), null, Arrays.asList(this.nodePaths), true, true);
+		properties.setCenter(new double[]{0,0});
+		properties.setEndPoint(new double[]{1,1});
+		this.model.translateObjects(properties);
+		TestCase.assertEquals(5, this.model.getTransformationGraph().getEdgeCount());
+		//there should now be three anchors
+		TestCase.assertEquals(3, ((PowerDenotator)this.model.getComposition()).getFactorCount());
+		//there should now be a total of six objects
+		TestCase.assertEquals(6, this.model.getObjects().getAllObjects().size());
+		//second anchor should now be in third place
+		TestCase.assertEquals(new DenotatorPath(this.objects.SOUND_SCORE_FORM, new int[]{2}), objects.get(1).getTopDenotatorPathAt(null));
+	}
+	
 	public void testModifyWallpaper() {
 		//test modifying transformation so that motif displaced. other wallpaper tests in DenotatorManagerTests
 		this.model.setOrAddComposition(this.objects.flatSoundScore);
-		TreeSet<BigBangObject> objects = this.getBBObjectsFromModel(0, 1);
+		TreeSet<BigBangObject> objects = this.getBBObjectsFromModel(0, 2);
 		this.model.addWallpaperDimension(objects, 0, 5);
 		
 		TransformationProperties properties = new TransformationProperties(objects, null, Arrays.asList(this.nodePaths), false, true);
@@ -470,15 +532,8 @@ public class BigBangTransformationGraphTest extends TestCase {
 	}
 	
 	private TreeSet<BigBangObject> getBBObjectsFromModel(int fromIndex, int toIndex) {
-		Iterator<BigBangObject> objectIterator = this.model.getObjects().getAllObjects().iterator();
-		TreeSet<BigBangObject> objects = new TreeSet<BigBangObject>();
-		for (int i = 0; i <= toIndex; i++) {
-			BigBangObject nextObject = objectIterator.next(); 
-			if (i >= fromIndex) {
-				objects.add(nextObject);
-			}
-		}
-		return objects;
+		List<BigBangObject> objectList = new ArrayList<BigBangObject>(this.model.getObjects().getAllObjects());
+		return new TreeSet<BigBangObject>(objectList.subList(fromIndex, toIndex));
 	}
 
 }

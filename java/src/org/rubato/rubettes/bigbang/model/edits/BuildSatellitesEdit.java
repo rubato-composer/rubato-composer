@@ -1,7 +1,5 @@
 package org.rubato.rubettes.bigbang.model.edits;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Set;
 
 import org.rubato.rubettes.bigbang.model.BigBangDenotatorManager;
