@@ -110,13 +110,25 @@ public class ViewParameters extends Model {
 		return this.selectedViewParameters;
 	}
 	
-	//sets the first given number of view parameters diagonally
+	//sets the first given number of view parameters diagonally, adds color if too few parameters
 	public void initSelections(int numberOfSelectedOnes) {
 		int[] newSelections = new int[this.size()];
 		int i = 0;
 		for (; i < Math.min(numberOfSelectedOnes, 6); i++) {
 			newSelections[i] = i;
 		}
+		//add color if appropriate
+		if (this.inRGBMode()) {
+			if (numberOfSelectedOnes < 5) {
+				for (; i < 4; i++) {
+					newSelections[i] = -1;
+				}
+				for (; i < 7; i++) {
+					newSelections[i] = i-4;
+				}
+			}
+		}
+		//fill up with -1
 		for (; i < newSelections.length; i++) {
 			newSelections[i] = -1;
 		}

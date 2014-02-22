@@ -135,13 +135,9 @@ public class BigBangObjects {
 		return null;
 	}
 	
-	/*public Set<BigBangObject> getRemovedObjectsAt(AbstractOperationEdit operation) {
-		return new TreeSet<BigBangObject>(this.previouslyAddedObjects.get(operation).values());
-	}*/
-	
 	//returns the object that has the given path at the given operation, null if there is none
 	private BigBangObject getObject(AbstractOperationEdit operation, DenotatorPath path) {
-		if (this.objectsMaps.containsKey(operation)) {
+		if (path != null && this.objectsMaps.containsKey(operation)) {
 			return this.objectsMaps.get(operation).get(path);
 		}
 		return null;
@@ -168,7 +164,7 @@ public class BigBangObjects {
 	 */
 	public void updatePaths(AbstractOperationEdit previousOperation, AbstractOperationEdit operation, OperationPathResults pathResults) {
 		PerformanceCheck.startTask("changedpaths");
-		//System.out.println("UP " + previousOperation + " " + operation + " " + pathResults.getNewPaths() + " " + pathResults.getChangedPaths() + " " + pathResults.getRemovedPaths());
+		System.out.println("UP " + previousOperation + " " + operation + " " + pathResults.getNewPaths() + " " + pathResults.getChangedPaths() + " " + pathResults.getRemovedPaths());
 		
 		if (this.objectsMaps.containsKey(operation)) {
 			this.objectsMaps.get(operation).clear();

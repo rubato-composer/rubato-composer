@@ -105,7 +105,7 @@ public class BigBangDenotatorManager {
 			this.addObjectsToParent(((FactorDenotator)composition).getFactors(), topPowersetPath);
 			//find new paths since added factors may have several levels
 			ObjectPathFinder finder = new ObjectPathFinder();
-			Set<DenotatorPath> finderNewPaths = finder.findPaths(composition, new DenotatorPath(composition.getForm()));
+			Set<DenotatorPath> finderNewPaths = finder.findPaths(composition);
 			List<DenotatorPath> newPathsList = new ArrayList<DenotatorPath>(this.currentPathResults.getNewPaths());
 			//replace new paths with all found ones
 			Set<DenotatorPath> newPaths = new TreeSet<DenotatorPath>();
@@ -120,9 +120,12 @@ public class BigBangDenotatorManager {
 	
 	//replace the present composition with the given one
 	public void setComposition(Denotator composition) {
+		Set<DenotatorPath> previousPaths = new TreeSet<DenotatorPath>();
 		PerformanceCheck.startTask("set");
 		if (this.composition != null && !composition.getForm().equals(this.objectGenerator.getBaseForm())) {
 			this.setForm(composition.getForm());
+		} else if (this.composition != null) {
+			previousPaths = new ObjectPathFinder().findPaths(this.composition);
 		}
 		if (composition != null) {
 			this.composition = composition;
@@ -130,12 +133,13 @@ public class BigBangDenotatorManager {
 			this.currentWallpaper = null;
 			ObjectPathFinder finder = new ObjectPathFinder();
 			PerformanceCheck.startTask("find");
-			Set<DenotatorPath> newPaths = finder.findPaths(this.composition, new DenotatorPath(composition.getForm()));
+			Set<DenotatorPath> newPaths = finder.findPaths(this.composition);
 			this.currentPathResults.getNewPaths().addAll(newPaths);
 			//if no objects were found, the top level denotator is one and has to be added
 			if (this.currentPathResults.getNewPaths().size() == 0 && !finder.powersetOrListFound()) {
 				this.currentPathResults.getNewPaths().add(new DenotatorPath(composition.getForm()));
 			}
+			//TODO!!!! this.currentPathResults.getNewPaths().removeAll(previousPaths);
 		}
 	}
 	
@@ -283,6 +287,7 @@ public class BigBangDenotatorManager {
 				for (int i = 0; i < Math.min(newObjects.size(), newPaths.size()); i++) {
 					if (newObjects.get(i) != null) {
 						newPaths.addAll(new ObjectPathFinder().findPaths(newObjects.get(i), newPaths.get(i)));
+						//newPaths.addAll(new ObjectPathFinder().findPaths(newObjects.get(i)));
 					}
 				}
 				this.currentPathResults.updatePaths(oldObjectPaths, this.findPaths(oldObjects, powersetPath), newPaths);

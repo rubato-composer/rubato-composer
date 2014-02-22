@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
+import java.util.TreeSet;
 
 import javax.swing.JOptionPane;
 
@@ -324,6 +325,7 @@ public class BigBangView extends Model implements View {
 				this.viewParameters.initSelections(newObjects.getCoordinateSystemValueNames().size());
 			}
 			this.displayObjects = new DisplayObjects(newObjects);
+			this.player.setScore(new JSynScore(new TreeSet<BigBangObject>(), newObjects.getBaseForm()));
 			this.firePropertyChange(ViewController.FORM, null, this.displayObjects);
 			this.firePropertyChange(ViewController.ACTIVE_COLIMIT_COORDINATE, null, this.displayObjects.getActiveColimitCoordinates());
 		}
