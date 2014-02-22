@@ -19,6 +19,15 @@ public class ObjectPathFinder {
 		return this.foundObjectPaths;
 	}
 	
+	public Set<DenotatorPath> findPaths(Denotator currentDenotator) {
+		DenotatorPath topPath = new DenotatorPath(currentDenotator.getForm());
+		this.addObjectPathsToNewPaths(currentDenotator, topPath);
+		if (currentDenotator.getForm().getType() != Denotator.POWER) {
+			this.foundObjectPaths.add(topPath);
+		}
+		return this.foundObjectPaths;
+	}
+	
 	public boolean powersetOrListFound() {
 		return this.powersetOrListFound;
 	}

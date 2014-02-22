@@ -31,6 +31,10 @@ public class BigBangTransformationGraph extends DirectedSparseMultigraph<Integer
 		this.addVertex(0);
 	}
 	
+	public void update() {
+		this.updateCurrentlyExecutedEditsAndStatesAndTimes();
+	}
+	
 	/**
 	 * sets the composition state to be shown. can be null, which means that the final state is shown
 	 */

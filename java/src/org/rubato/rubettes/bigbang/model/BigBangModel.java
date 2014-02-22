@@ -326,6 +326,11 @@ public class BigBangModel extends Model {
 		this.firePropertyChange(BigBangController.DESELECT_OPERATIONS, null, null);
 	}
 	
+	public void setOperationDuration(AbstractOperationEdit operation, Double duration) {
+		operation.setDuration(duration);
+		this.transformationGraph.update();
+	}
+	
 	public void toggleGraphAnimation() {
 		if (this.animator != null && this.animator.isAlive()) {
 			this.animator.end();
@@ -419,7 +424,7 @@ public class BigBangModel extends Model {
 	}
 	
 	private void fireCompositionChange() {
-		//TODO REPOLACE BY JUST SENDING ADDED/CHANGED OR REMOVED OBJECTS!!!! 
+		//TODO REPOLACE BY JUST SENDING ADDED/CHANGED OR REMOVED OBJECTS!!!!
 		this.firePropertyChange(BigBangController.COMPOSITION, null, this.objects);
 	}
 

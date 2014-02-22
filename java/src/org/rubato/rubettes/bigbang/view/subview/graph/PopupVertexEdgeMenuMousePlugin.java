@@ -105,7 +105,7 @@ public class PopupVertexEdgeMenuMousePlugin extends AbstractPopupGraphMousePlugi
 	                    edge.getDuration());
 				try {
 					double duration = Double.parseDouble(answer);
-					edge.setDuration(duration);
+					controller.setOperationDuration(edge, duration);
 				} catch (NumberFormatException err) {
 					return;
 				};

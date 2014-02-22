@@ -26,6 +26,7 @@ public class BigBangController extends Controller {
 	public static final String DESELECT_OPERATIONS = "deselectOperations";
 	public static final String INSERTION_STATE = "setInsertionState";
 	public static final String REMOVE_OPERATION = "removeOperation";
+	public static final String OPERATION_DURATION = "setOperationDuration";
 	public static final String TOGGLE_GRAPH_ANIMATION = "toggleGraphAnimation";
 	public static final String GRAPH_ANIMATION_POSITION = "setGraphAnimationPosition";
 	public static final String SPLIT_OPERATION = "splitOperation";
@@ -101,6 +102,10 @@ public class BigBangController extends Controller {
 	
 	public void insertOperation(Integer vertex) {
 		this.callModelMethod(BigBangController.INSERTION_STATE, vertex);
+	}
+	
+	public void setOperationDuration(AbstractOperationEdit operation, Double duration) {
+		this.callModelMethod(BigBangController.OPERATION_DURATION, operation, duration);
 	}
 	
 	public void toggleGraphAnimation() {
