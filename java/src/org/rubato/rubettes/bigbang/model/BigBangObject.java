@@ -25,7 +25,7 @@ public class BigBangObject implements Comparable<BigBangObject> {
 	private DenotatorObjectConfiguration objectType;
 	
 	//these attributes are recorded for each operation before which this object exists
-	//TODO topDenotatorPaths are from root, i.e. parents/children are actually redundant but may improve performance..
+	//topDenotatorPaths are relative to parent's topDenotatorPath
 	private Map<AbstractOperationEdit,DenotatorPath> topDenotatorPaths;
 	//private Map<AbstractOperationEdit,DenotatorObjectConfiguration> objectType;
 	private Map<AbstractOperationEdit,BigBangObject> parents;
@@ -48,22 +48,14 @@ public class BigBangObject implements Comparable<BigBangObject> {
 		this.creatingOperation = creatingOperation;
 		this.values = new ArrayList<Double>();
 		this.topDenotatorPaths = new HashMap<AbstractOperationEdit,DenotatorPath>();
-		this.topDenotatorPaths.put(initialOperation, topDenotatorPath);
 		this.parents = new HashMap<AbstractOperationEdit,BigBangObject>();
 		this.children = new HashMap<AbstractOperationEdit,Set<BigBangObject>>();
-		this.parents.put(initialOperation, parent);
 		this.children.put(initialOperation, new TreeSet<BigBangObject>());
-		if (parent != null) {
-			parent.addChild(initialOperation, this);
-		}
+		this.updatePathAndParent(initialOperation, topDenotatorPath, parent);
 	}
 	
 	public void setObjectType(DenotatorObjectConfiguration objectType) {
 		this.objectType = objectType;
-	}
-	
-	public void setParent(AbstractOperationEdit operation, BigBangObject parent) {
-		this.parents.put(operation, parent);
 	}
 	
 	public BigBangObject getParent() {
@@ -75,6 +67,7 @@ public class BigBangObject implements Comparable<BigBangObject> {
 	}
 	
 	public void addChild(AbstractOperationEdit operation, BigBangObject newChild) {
+		//System.out.println(operation + " " + newChild + " " + this.children.get(operation) + " " + this.getTopDenotatorPath());
 		if (!this.children.containsKey(operation)) {
 			this.children.put(operation, new TreeSet<BigBangObject>());
 		}
@@ -130,20 +123,36 @@ public class BigBangObject implements Comparable<BigBangObject> {
 		this.structuralIndices = indices;
 	}
 	
-	public void updatePath(AbstractOperationEdit operation, DenotatorPath path) {
+	public void updatePathAndParent(AbstractOperationEdit operation, DenotatorPath entirePath, BigBangObject parent) {
+		//remove from parent if there was one, then add new parent if not null
+		BigBangObject previousParent = this.getParentAt(operation);
+		if (previousParent != null && previousParent != parent) {
+			previousParent.removeChild(operation, this);
+		}
+		
 		//System.out.println("UP " + operation + " " + path);
-		this.topDenotatorPaths.put(operation, path);
+		DenotatorPath subPath = entirePath;
+		if (parent != null) {
+			subPath = entirePath.subPath(parent.getTopDenotatorPathAt(operation).size());
+		}
+		this.topDenotatorPaths.put(operation, subPath);
+		
+		//add to new parent
+		this.parents.put(operation, parent);
+		if (parent != null) {
+			parent.addChild(operation, this);
+		}
 	}
 	
 	/*
 	 * Associates the previous final path with the given operation.
 	 */
-	public void concretizeFinalPath(AbstractOperationEdit operation) {
+	/*public void concretizeFinalPath(AbstractOperationEdit operation) {
 		this.topDenotatorPaths.put(operation, this.topDenotatorPaths.get(null));
 		this.parents.put(operation, this.parents.get(null));
 		this.children.put(operation, this.children.get(null));
 		//could remove all the null ones. but will typically be overwritten right after...
-	}
+	}*/
 	
 	public int getCurrentOccurrencesOfValueName(String valueName) {
 		return this.objectType.getOccurrencesOfValueName(valueName);
@@ -184,13 +193,22 @@ public class BigBangObject implements Comparable<BigBangObject> {
 	}
 	
 	public DenotatorPath getTopDenotatorPath() {
-		/*if (this.parents.get(null) != null) {
-			return this.parents.get(null).getTopDenotatorPath().append(this.topDenotatorPaths.get(null));
-		} else */if (this.topDenotatorPaths.get(null) != null) {
-			return this.topDenotatorPaths.get(null);
+		DenotatorPath topDenotatorPath = this.getTopDenotatorPathAt(null);
+		if (topDenotatorPath != null) {
+			return topDenotatorPath;
 		}
 		//often only option for new objects
 		return this.topDenotatorPaths.get(this.topDenotatorPaths.keySet().iterator().next());
+	}
+	
+	public DenotatorPath getTopDenotatorPathAt(AbstractOperationEdit operation) {
+		if (this.topDenotatorPaths.get(operation) != null) {
+			if (this.parents.get(operation) != null) {
+				return this.parents.get(operation).getTopDenotatorPathAt(operation).append(this.topDenotatorPaths.get(operation));
+			}
+			return this.topDenotatorPaths.get(operation);
+		}
+		return null;
 	}
 	
 	public AbstractOperationEdit getCreatingOperation() {
@@ -201,14 +219,6 @@ public class BigBangObject implements Comparable<BigBangObject> {
 		this.topDenotatorPaths.remove(operation);
 		this.parents.remove(operation);
 		this.children.remove(operation);
-	}
-	
-	public DenotatorPath getTopDenotatorPathAt(AbstractOperationEdit operation) {
-		//System.out.println("TDP " + this + " " + this.parents + " " +operation);
-		/*if (this.parents.get(operation) != null) {
-			return this.parents.get(operation).getTopDenotatorPathAt(operation).append(this.topDenotatorPaths.get(operation));
-		}*/
-		return this.topDenotatorPaths.get(operation);
 	}
 	
 	public void setLayer(int layer) {

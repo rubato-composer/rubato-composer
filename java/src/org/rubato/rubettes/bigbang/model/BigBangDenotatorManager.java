@@ -209,10 +209,11 @@ public class BigBangDenotatorManager {
 		int[] powersetIndices = DenotatorPath.getPowersetIndices(objectPathList);
 		List<Denotator> movedObjects = this.removeObjects(objectPathList);
 		movedObjects = this.addObjects(movedObjects, oldGrandParentPaths, powersetIndices);
-		//remove the newPaths and removedPaths added by the used methods and replace them by changedPaths
 		List<DenotatorPath> newPaths = this.findPaths(movedObjects, oldGrandParentPaths);
-		this.currentPathResults.getNewPaths().removeAll(newPaths);
-		this.currentPathResults.getRemovedPaths().removeAll(objectPaths);
+		//remove the newPaths and removedPaths added by the used methods
+		this.currentPathResults.getNewPaths().clear();
+		this.currentPathResults.getRemovedPaths().clear();
+		//replace them by changedPaths
 		this.currentPathResults.updatePaths(objectPathList, newPaths, null);
 		return this.getPathResults();
 	}
@@ -278,6 +279,12 @@ public class BigBangDenotatorManager {
 				//try {this.composition.get(powersetPath.toIntArray()).display();} catch(RubatoException e) {};
 				List<DenotatorPath> newPaths = this.findPaths(newObjects, powersetPath);
 				newPaths.removeAll(Collections.singleton(null));
+				//find satellites!!!
+				for (int i = 0; i < Math.min(newObjects.size(), newPaths.size()); i++) {
+					if (newObjects.get(i) != null) {
+						newPaths.addAll(new ObjectPathFinder().findPaths(newObjects.get(i), newPaths.get(i)));
+					}
+				}
 				this.currentPathResults.updatePaths(oldObjectPaths, this.findPaths(oldObjects, powersetPath), newPaths);
 			}
 			return newObjects;

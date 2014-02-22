@@ -86,12 +86,21 @@ public class OperationPathResults {
 		for (DenotatorPath keyPath : changedPaths.keySet()) {
 			DenotatorPath valuePath = changedPaths.get(keyPath);
 			
-			//move changed newPaths to newNewPaths
-			if (this.newPaths.contains(keyPath)) {
-				this.newPaths.remove(keyPath);
-				newNewPaths.add(valuePath);
+			//find instances of changedPath in newPaths and move to newNewPaths
+			Set<DenotatorPath> newPathsToRemove = new TreeSet<DenotatorPath>(); 
+			for (DenotatorPath currentNewPath : this.newPaths) {
+				if (currentNewPath.isSatelliteOf(keyPath)) {
+					newPathsToRemove.add(currentNewPath);
+					newNewPaths.add(currentNewPath.changeBeginning(valuePath, keyPath.size()));
+				} else if (currentNewPath.equals(keyPath)) {
+					newPathsToRemove.add(keyPath);
+					newNewPaths.add(valuePath);
+				}
+			}
+			this.newPaths.removeAll(newPathsToRemove);
+			
 			//adjust changedPaths
-			} else if (this.changedPaths.containsValue(keyPath)) {
+			if (this.changedPaths.containsValue(keyPath)) {
 				DenotatorPath oldKey = this.changedPaths.getKey(keyPath);
 				if (!oldKey.equals(valuePath)) {
 					//adjust previous changed path

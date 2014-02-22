@@ -472,6 +472,30 @@ public class BigBangDenotatorManagerTest extends TestCase {
 		TestCase.assertEquals(expectedChangedPaths, pathResults.getChangedPaths());
 	}
 	
+	public void testWallpaperWithSatellites() {
+		//test adding transformation that displaces motif
+		this.denotatorManager.setOrAddComposition(this.objects.multiLevelSoundScore);
+		Set<DenotatorPath> notePaths = this.objects.makeNotePaths(new int[][]{{0}});
+		this.denotatorManager.addWallpaperDimension(notePaths, 0, 2);
+		BigBangTransformation translation = this.objects.makeTranslation(-1,-1, this.nodePaths);
+		OperationPathResults pathResults = this.denotatorManager.addTransformation(notePaths, null, translation);
+		//should include new satellites as new paths too!
+		Set<DenotatorPath> expectedNewPaths = new TreeSet<DenotatorPath>();
+		expectedNewPaths.add(new DenotatorPath(this.objects.SOUND_SCORE_FORM, new int[]{0}));
+		expectedNewPaths.add(new DenotatorPath(this.objects.SOUND_SCORE_FORM, new int[]{1}));
+		expectedNewPaths.add(new DenotatorPath(this.objects.SOUND_SCORE_FORM, new int[]{0,1,0}));
+		expectedNewPaths.add(new DenotatorPath(this.objects.SOUND_SCORE_FORM, new int[]{0,1,0,1,0}));
+		expectedNewPaths.add(new DenotatorPath(this.objects.SOUND_SCORE_FORM, new int[]{1,1,0}));
+		expectedNewPaths.add(new DenotatorPath(this.objects.SOUND_SCORE_FORM, new int[]{1,1,0,1,0}));
+		TestCase.assertEquals(expectedNewPaths, pathResults.getNewPaths());
+		//should include only anchor as changed path
+		Map<DenotatorPath,DenotatorPath> expectedChangedPaths = new TreeMap<DenotatorPath,DenotatorPath>();
+		expectedChangedPaths.put(new DenotatorPath(this.objects.SOUND_SCORE_FORM, new int[]{0}), new DenotatorPath(this.objects.SOUND_SCORE_FORM, new int[]{2}));
+		TestCase.assertEquals(expectedChangedPaths, pathResults.getChangedPaths());
+		//should now include three anchors on top level
+		TestCase.assertEquals(3, ((PowerDenotator)this.denotatorManager.getComposition()).getFactorCount());
+	}
+	
 	public void testAlteration() throws RubatoException {
 		this.denotatorManager.setOrAddComposition(this.objects.flatSoundScore);
 		Set<DenotatorPath> comp0 = this.objects.makeNotePaths(new int[][]{{0},{1}});

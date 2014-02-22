@@ -20,7 +20,7 @@ import org.rubato.math.yoneda.SimpleForm;
  */
 public class DenotatorPath implements Comparable<Object> {
 	
-	private List<Integer> indices;
+	private ArrayList<Integer> indices;
 	private Form baseForm;
 	//form at which the path ends
 	private Form endForm;
@@ -44,7 +44,7 @@ public class DenotatorPath implements Comparable<Object> {
 	
 	public DenotatorPath(Form baseForm, List<Integer> path) {
 		this(baseForm);
-		this.indices = path;
+		this.indices = (ArrayList<Integer>)path;
 		this.updateFormAndModule();
 	}
 	
@@ -119,6 +119,15 @@ public class DenotatorPath implements Comparable<Object> {
 		return new DenotatorPath(this.baseForm, new ArrayList<Integer>(this.indices));
 	}
 	
+	/**
+	 * @return a copy of this path, the beginning part of the given length replaced with the given model 
+	 */
+	public DenotatorPath changeBeginning(DenotatorPath model, int beginningLength) {
+		ArrayList<Integer> newIndices = new ArrayList<Integer>(this.indices.subList(beginningLength, this.indices.size()));
+		newIndices.addAll(0, model.indices);
+		return new DenotatorPath(model.baseForm, newIndices);
+	}
+	
 	public DenotatorPath replaceLast(int index) {
 		DenotatorPath path = this.getParentPath();
 		path.add(index);
@@ -131,7 +140,7 @@ public class DenotatorPath implements Comparable<Object> {
 	
 	public DenotatorPath subPath(int fromIndex, int toIndex) {
 		try {
-			Form subForm = new DenotatorPath(this.baseForm, this.indices.subList(0, fromIndex)).getEndForm();
+			Form subForm = new DenotatorPath(this.baseForm, new ArrayList<Integer>(this.indices.subList(0, fromIndex))).getEndForm();
 			return new DenotatorPath(subForm, new ArrayList<Integer>(this.indices.subList(fromIndex, toIndex)));
 		} catch (IllegalArgumentException e) {
 			return null;
@@ -165,8 +174,8 @@ public class DenotatorPath implements Comparable<Object> {
 			throw new ClassCastException("DenotatorPath expected, got " + object.getClass());
 		}
 		DenotatorPath otherPath = (DenotatorPath)object;
-		if (this.indices.size() == otherPath.indices.size()) {
-			for (int i = 0; i < this.indices.size(); i++) {
+		if (this.size() == otherPath.size()) {
+			for (int i = 0; i < this.size(); i++) {
 				Integer thisIndex = this.indices.get(i);
 				Integer otherIndex = otherPath.indices.get(i);
 				if (!thisIndex.equals(otherIndex)) {
@@ -175,7 +184,7 @@ public class DenotatorPath implements Comparable<Object> {
 			}
 			return 0;
 		}
-		return this.indices.size() - otherPath.indices.size();
+		return this.size() - otherPath.size();
 	}
 	
 	public boolean equals(Object object) {
@@ -333,9 +342,30 @@ public class DenotatorPath implements Comparable<Object> {
 		return null;
 	}
 	
-	public boolean isSatelliteOf(DenotatorPath path) {
+	/**
+	 * @return true if this path is a direct satellite of the given path, i.e. contained in one of its powersets
+	 */
+	public boolean isDirectSatelliteOf(DenotatorPath path) {
 		DenotatorPath anchorPath = this.getTopPath().getAnchorPath();
-		return (path == null && anchorPath == null) || anchorPath.equals(path.getTopPath());
+		if (path != null && anchorPath != null) {
+			return anchorPath.equals(path.getTopPath());
+		}
+		return false;
+	}
+	
+	/**
+	 * @return true if this path is a direct or indirect satellite of the given path, i.e. maybe connected by
+	 * intermediate satellite levels.
+	 */
+	public boolean isSatelliteOf(DenotatorPath path) {
+		DenotatorPath currentPath = this;
+		while (currentPath != null) {
+			if (currentPath.isDirectSatelliteOf(path)) {
+				return true;
+			}
+			currentPath = currentPath.getAnchorPath();
+		}
+		return false;
 	}
 	
 	public boolean isPartOfSameObjectAs(DenotatorPath path) {

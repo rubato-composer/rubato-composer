@@ -111,7 +111,7 @@ public class DenotatorValueExtractor {
 		BigBangObject object = this.objects.getObject(path);
 		PerformanceCheck.startTask("ext");
 		if (object != null) {
-			//System.out.println("GBB "+path + " " + this.objects.getObjects() + " " + object);
+			//System.out.println("GBB "+path + " " + object);
 			List<Integer> structuralValues = new ArrayList<Integer>();
 			if (this.objects.baseFormAllowsForSatellites()) {
 				structuralValues.add(satelliteLevel);
