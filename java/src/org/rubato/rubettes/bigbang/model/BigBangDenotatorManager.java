@@ -139,7 +139,7 @@ public class BigBangDenotatorManager {
 			if (this.currentPathResults.getNewPaths().size() == 0 && !finder.powersetOrListFound()) {
 				this.currentPathResults.getNewPaths().add(new DenotatorPath(composition.getForm()));
 			}
-			//TODO!!!! this.currentPathResults.getNewPaths().removeAll(previousPaths);
+			//this.currentPathResults.getNewPaths().removeAll(previousPaths);
 		}
 	}
 	

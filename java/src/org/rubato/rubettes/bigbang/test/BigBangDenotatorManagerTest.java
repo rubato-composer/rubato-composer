@@ -18,7 +18,6 @@ import org.rubato.rubettes.bigbang.model.BigBangDenotatorManager;
 import org.rubato.rubettes.bigbang.model.BigBangTransformation;
 import org.rubato.rubettes.bigbang.model.OperationPathResults;
 import org.rubato.rubettes.bigbang.model.TransformationPaths;
-import org.rubato.rubettes.util.CoolFormRegistrant;
 import org.rubato.rubettes.util.DenotatorPath;
 
 public class BigBangDenotatorManagerTest extends TestCase {
@@ -42,8 +41,14 @@ public class BigBangDenotatorManagerTest extends TestCase {
 	
 	public void testAddComposition() {
 		OperationPathResults pathResults = this.denotatorManager.setOrAddComposition(this.objects.multiLevelSoundScore);
+		TestCase.assertEquals(1, ((PowerDenotator)this.denotatorManager.getComposition()).getFactorCount());
+		TestCase.assertEquals(3, pathResults.getNewPaths().size());
 		
-		
+		pathResults = this.denotatorManager.setOrAddComposition(this.objects.generator.createFlatSoundScore(
+				new double[][]{{0,59,120,1,0,0},{1,63,116,1,0,0},{2,60,121,1,1,0}}));
+		TestCase.assertEquals(4, ((PowerDenotator)this.denotatorManager.getComposition()).getFactorCount());
+		TestCase.assertEquals(3, pathResults.getNewPaths().size());
+		TestCase.assertEquals(1, pathResults.getChangedPaths().size());
 	}
 	
 	public void testSetComposition() {
@@ -216,10 +221,10 @@ public class BigBangDenotatorManagerTest extends TestCase {
 		BigBangTransformation translation = this.objects.makeTranslation(-2,-3, this.realTriplesPaths);
 		Set<DenotatorPath> emptyPath = new TreeSet<DenotatorPath>();
 		emptyPath.add(new DenotatorPath(this.objects.REAL_TRIPLE_FORM, new int[]{}));
-		System.out.println("\n\n");
+		//System.out.println("\n\n");
 		OperationPathResults pathResults = this.denotatorManager.addTransformation(emptyPath, null, translation);
 		TestCase.assertTrue(pathResults.getChangedPaths().isEmpty());
-		TestCase.assertTrue(pathResults.getNewPaths().isEmpty());
+		TestCase.assertEquals(emptyPath, pathResults.getNewPaths());
 		TestCase.assertTrue(pathResults.getRemovedPaths().isEmpty());
 		Denotator expectedTriple = this.objects.createRealTriple(new double[]{0,1,2});
 		this.objects.assertEqualNonPowerDenotators(expectedTriple, this.denotatorManager.getComposition());
