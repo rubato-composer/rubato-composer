@@ -101,9 +101,11 @@ public class BigBangModel extends Model {
 			this.setForm(composition.getForm());
 		}
 		if (this.transformationGraph.getLastAddedOperation() instanceof SetOrAddCompositionEdit) {
-			((SetOrAddCompositionEdit)this.transformationGraph.getLastAddedOperation()).setComposition(composition);
+			((SetOrAddCompositionEdit)this.transformationGraph.getLastAddedOperation()).setOrAddComposition(composition);
+			this.operationModified();
 		} else if (this.transformationGraph.getSelectedOperation() instanceof SetOrAddCompositionEdit) {
-			((SetOrAddCompositionEdit)this.transformationGraph.getSelectedOperation()).setComposition(composition);
+			((SetOrAddCompositionEdit)this.transformationGraph.getSelectedOperation()).setOrAddComposition(composition);
+			this.operationModified();
 		} else {
 			this.postEdit(new SetOrAddCompositionEdit(this.denotators, composition));
 		}

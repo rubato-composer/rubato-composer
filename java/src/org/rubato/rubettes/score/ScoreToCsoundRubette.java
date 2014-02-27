@@ -72,6 +72,7 @@ public final class ScoreToCsoundRubette extends AbstractRubette {
                 ps.close();
             }
             catch (IOException e) {
+            	e.printStackTrace();
                 addError("File %%1 could not be written to.", scoFile.getName());
             }
         }

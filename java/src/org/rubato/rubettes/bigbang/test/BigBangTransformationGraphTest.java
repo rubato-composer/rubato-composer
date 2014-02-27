@@ -41,15 +41,7 @@ public class BigBangTransformationGraphTest extends TestCase {
 				this.objects.SOUND_NODE_FORM, new int[][]{{0,0},{0,1}});
 	}
 	
-	public void testRepeatedAddWithLimit() {
-		this.model.setOrAddComposition(this.objects.createInteger(3));
-		TestCase.assertEquals(3, ((SimpleDenotator)this.model.getComposition()).getInteger());
-		int[][] paths = new int[][]{{}};
-		double[][] values = new double[][]{{12}};
-		this.model.addObjects(this.createNodePathAndValuesMapList(this.objects.INTEGER_FORM, paths, values),
-				this.createPathsList(null, 1), false);
-		TestCase.assertEquals(12, ((SimpleDenotator)this.model.getComposition()).getInteger());
-	}
+	
 	
 	public void testModifyLeadingToTooManyPaths() {
 		this.model.setOrAddComposition(this.objects.generator.createEmptyScore());
@@ -146,7 +138,7 @@ public class BigBangTransformationGraphTest extends TestCase {
 		
 		//test animation
 		this.model.setOperationDurations(.1);
-		this.model.toggleGraphAnimation();
+		//this.model.toggleGraphAnimation();
 		/*//satellites should still be satellites
 		for (BigBangObject currentObject : this.model.getObjects().getObjects()) {
 			System.out.println(currentObject.getParent());
@@ -504,6 +496,45 @@ public class BigBangTransformationGraphTest extends TestCase {
 		this.model.translateObjects(properties);
 		TestCase.assertEquals(3, this.model.getTransformationGraph().getEdgeCount());
 		TestCase.assertEquals(13, this.model.getObjects().getAllObjects().size());
+	}
+	
+	public void testRepeatedAddAndTransformWithLimit() {
+		//add an integer
+		this.model.setOrAddComposition(this.objects.createInteger(3));
+		TestCase.assertEquals(1, this.model.getObjects().getAllObjects().size());
+		TestCase.assertEquals(3, ((SimpleDenotator)this.model.getComposition()).getInteger());
+		BigBangObject addedObject = this.model.getObjects().getObjectsAt(null).iterator().next();
+		
+		//add with addEdit, should be replaced by new object
+		int[][] paths = new int[][]{{}};
+		double[][] values = new double[][]{{11}};
+		this.model.addObjects(this.createNodePathAndValuesMapList(this.objects.INTEGER_FORM, paths, values),
+				this.createPathsList(null, 1), false);
+		TestCase.assertEquals(1, this.model.getObjects().getAllObjects().size());
+		TestCase.assertEquals(11, ((SimpleDenotator)this.model.getComposition()).getInteger());
+		//replaced object should be the same as the one added first!!
+		TestCase.assertTrue(addedObject == this.model.getObjects().getObjectsAt(null).iterator().next());
+		
+		//add again, should be replaced by same object
+		values = new double[][]{{12}};
+		this.model.addObjects(this.createNodePathAndValuesMapList(this.objects.INTEGER_FORM, paths, values),
+				this.createPathsList(null, 1), false);
+		TestCase.assertEquals(1, this.model.getObjects().getAllObjects().size());
+		TestCase.assertEquals(12, ((SimpleDenotator)this.model.getComposition()).getInteger());
+		//replaced object should be the same as the one added first!!
+		TestCase.assertTrue(addedObject == this.model.getObjects().getObjectsAt(null).iterator().next());
+		
+		//transform and see if replaced
+		Set<BigBangObject> objects = this.getBBObjectsFromModel(0,1);
+		List<TransformationPaths> transformationPaths = Arrays.asList(this.objects.createStandardTransformationPaths(this.objects.INTEGER_FORM, new int[][]{{0},null}));
+		TransformationProperties properties = new TransformationProperties(objects, null, transformationPaths, false, true);
+		properties.setCenter(new double[]{0,0});
+		properties.setEndPoint(new double[]{1,0});
+		this.model.scaleObjects(properties, new double[]{2,0});
+		TestCase.assertEquals(1, this.model.getObjects().getAllObjects().size());
+		TestCase.assertEquals(24, ((SimpleDenotator)this.model.getComposition()).getInteger());
+		//replaced object should be the same as the one added first!!
+		TestCase.assertTrue(addedObject == this.model.getObjects().getObjectsAt(null).iterator().next());
 	}
 	
 	private ArrayList<Map<DenotatorPath,Double>> createNodePathAndValuesMapList(Form form, int[][] paths, double[][] values) {

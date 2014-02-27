@@ -227,9 +227,12 @@ public class TestObjects {
 		TransformationPaths paths = new TransformationPaths();
 		//add Duration paths for both types of configurations: note and rest
 		for (int i = 0; i < intPaths.length; i++) {
-			DenotatorPath currentPath = new DenotatorPath(form, intPaths[i]);
-			paths.setDomainPaths(i, Arrays.asList(currentPath));
-			paths.setCodomainPaths(i, Arrays.asList(currentPath));
+			List<DenotatorPath> currentPaths = null;
+			if (intPaths[i] != null) {
+				currentPaths = Arrays.asList(new DenotatorPath(form, intPaths[i]));
+			}
+			paths.setDomainPaths(i, currentPaths);
+			paths.setCodomainPaths(i, currentPaths);
 		}
 		return paths;
 	}

@@ -164,7 +164,7 @@ public class BigBangObjects {
 	 */
 	public void updatePaths(AbstractOperationEdit previousOperation, AbstractOperationEdit operation, OperationPathResults pathResults) {
 		PerformanceCheck.startTask("changedpaths");
-		System.out.println("UP " + previousOperation + " " + operation + " " + pathResults.getNewPaths() + " " + pathResults.getChangedPaths() + " " + pathResults.getRemovedPaths());
+		//System.out.println("UP " + previousOperation + " " + operation + " " + pathResults.getNewPaths() + " " + pathResults.getChangedPaths() + " " + pathResults.getRemovedPaths());
 		
 		if (this.objectsMaps.containsKey(operation)) {
 			this.objectsMaps.get(operation).clear();
@@ -176,6 +176,7 @@ public class BigBangObjects {
 		}
 		
 		this.addObjects(previousOperation, operation, pathResults);
+		//System.out.println("END " + this.objectsMaps.get(operation) + " " + this.objects);
 	}
 	
 	private void removeObjects(AbstractOperationEdit previousOperation, AbstractOperationEdit operation, OperationPathResults pathResults) {
@@ -212,16 +213,21 @@ public class BigBangObjects {
 		Iterator<BigBangObject> previouslyAddedObjectsIterator = previouslyAddedObjects.iterator();
 		
 		for (DenotatorPath currentNewPath : pathResults.getNewPaths()) {
-			if (previouslyAddedObjectsIterator.hasNext()) {
-				BigBangObject parent = this.getObject(operation, currentNewPath.getAnchorPath());
-				this.updateObject(previouslyAddedObjectsIterator.next(), parent, operation, currentNewPath);
-			} else {
-				DenotatorPath parentPath = currentNewPath.getAnchorPath();
-				if (parentPath != null && parentPath.size() > 0) {
-					BigBangObject parent = this.getObject(operation, parentPath);
-					this.addObject(previousOperation, operation, parent, currentNewPath);
+			//only add new object if it does not already exist yet (important for non-powerset-toplevels)
+			if (this.objectsMaps.get(operation) == null || !this.objectsMaps.get(operation).containsKey(currentNewPath)) {
+				//add as many of the objects added in previous iterations as possible
+				if (previouslyAddedObjectsIterator.hasNext()) {
+					BigBangObject parent = this.getObject(operation, currentNewPath.getAnchorPath());
+					this.updateObject(previouslyAddedObjectsIterator.next(), parent, operation, currentNewPath);
+				//if more need to be added, create new ones
 				} else {
-					this.addObject(previousOperation, operation, null, currentNewPath);
+					DenotatorPath parentPath = currentNewPath.getAnchorPath();
+					if (parentPath != null && parentPath.size() > 0) {
+						BigBangObject parent = this.getObject(operation, parentPath);
+						this.addObject(previousOperation, operation, parent, currentNewPath);
+					} else {
+						this.addObject(previousOperation, operation, null, currentNewPath);
+					}
 				}
 			}
 		}
