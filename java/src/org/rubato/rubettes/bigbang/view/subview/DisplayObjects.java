@@ -254,11 +254,27 @@ public class DisplayObjects {
 		return this.selectedObjects.size();
 	}
 	
-	private void toggleSelected(DisplayObject note) {
-		if (note.isSelected()) {
-			this.deselectObject(note);
+	public void setObjectsOnLayerSelected(int layerIndex, boolean selected) {
+		for (DisplayObject currentObject: this.objects) {
+			if (currentObject.isOnLayer(layerIndex)) {
+				this.setObjectSelected(currentObject, selected);
+			}
+		}
+	}
+	
+	private void setObjectSelected(DisplayObject object, boolean selected) {
+		if (selected) {
+			this.selectObject(object);
 		} else {
-			this.selectObject(note);
+			this.deselectObject(object);
+		}
+	}
+	
+	private void toggleSelected(DisplayObject object) {
+		if (object.isSelected()) {
+			this.deselectObject(object);
+		} else {
+			this.selectObject(object);
 		}
 	}
 	
@@ -315,18 +331,6 @@ public class DisplayObjects {
 			currentObject.setSelected(false);
 		}
 		this.selectedObjects = new TreeSet<DisplayObject>();
-	}
-	
-	public void deactivateSelectedObjects() {
-		for (DisplayObject currentObject : this.selectedObjects) {
-			currentObject.setActive(false);
-		}
-	}
-	
-	public void activateAllObjects() {
-		for (DisplayObject currentObject : this.objects) {
-			currentObject.setActive(true);
-		}
 	}
 	
 	public DisplayObject getObjectAt(Point location) {

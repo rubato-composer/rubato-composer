@@ -9,6 +9,7 @@ import org.rubato.math.module.morphism.CompositionException;
 import org.rubato.math.module.morphism.ModuleMorphism;
 import org.rubato.math.module.morphism.RFreeAffineMorphism;
 import org.rubato.rubettes.bigbang.model.BigBangDenotatorManager;
+import org.rubato.rubettes.bigbang.model.BigBangModel;
 import org.rubato.rubettes.bigbang.model.BigBangObject;
 import org.rubato.rubettes.bigbang.model.BigBangTransformation;
 import org.rubato.rubettes.bigbang.model.OperationPathResults;
@@ -27,14 +28,14 @@ public abstract class AbstractTransformationEdit extends AbstractOperationEdit {
 	private ModuleMorphism transformation;
 	
 	//used for cloning
-	protected AbstractTransformationEdit(BigBangDenotatorManager denotatorManager) {
-		super(denotatorManager);
+	protected AbstractTransformationEdit(BigBangModel model) {
+		super(model);
 		this.isAnimatable = true;
 		this.isSplittable = true;
 	}
 	
-	public AbstractTransformationEdit(BigBangDenotatorManager denotatorManager, TransformationProperties properties) {
-		super(denotatorManager);
+	public AbstractTransformationEdit(BigBangModel model, TransformationProperties properties) {
+		super(model);
 		this.setProperties(properties);
 		this.isAnimatable = true;
 		this.isSplittable = true;
@@ -90,7 +91,7 @@ public abstract class AbstractTransformationEdit extends AbstractOperationEdit {
 			anchorPath = this.anchor.getTopDenotatorPathAt(this);
 		}
 		BigBangTransformation transformation = new BigBangTransformation(this.transformation, this.transformationPaths, this.copyAndTransform, anchorPath);
-		return this.denotatorManager.addTransformation(objectPaths, anchorPath, transformation);
+		return this.model.getDenotatorManager().addTransformation(objectPaths, anchorPath, transformation);
 	}
 	
 	public int[] getXYViewParameters() {
@@ -110,7 +111,7 @@ public abstract class AbstractTransformationEdit extends AbstractOperationEdit {
 	public AbstractTransformationEdit clone() {
 		AbstractTransformationEdit clone;
 		try {
-			clone = this.getClass().getDeclaredConstructor(BigBangDenotatorManager.class).newInstance(this.denotatorManager);
+			clone = this.getClass().getDeclaredConstructor(BigBangDenotatorManager.class).newInstance(this.model);
 			clone.objects = this.objects;
 			clone.transformationPaths = this.transformationPaths;
 			clone.anchor = this.anchor;

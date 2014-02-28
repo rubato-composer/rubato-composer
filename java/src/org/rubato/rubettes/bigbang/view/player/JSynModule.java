@@ -64,7 +64,7 @@ public class JSynModule {
 		this.pan.pan.set(object.getPan());
 		//adjust or schedule time
 		double currentSymbolicTime = this.performance.getCurrentSymbolicTime();
-		if (object.isPlayable()) {
+		if (object.isAudible()) {
 			if (object.getOnset() > currentSymbolicTime || (object.getOnset() < currentSymbolicTime && playInNextLoop)) {
 				double onset = this.performance.getSynthOnset(object.getOnset(), playInNextLoop);
 				double duration = this.player.convertToSynthDuration(object.getDuration());
@@ -96,6 +96,8 @@ public class JSynModule {
 				oscillator.removeLastSatellite();
 			}
 			//System.out.println(oscillator);
+		} else {
+			this.mute();
 		}
 	}
 	

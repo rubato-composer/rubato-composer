@@ -67,12 +67,13 @@ public class ViewController extends Controller {
 	public static final String ACTIVE_SATELLITE_LEVEL = "setActiveSatelliteLevel";
 	public static final String ADD_OBJECTS = "addObjects";
 	public static final String DELETE_OBJECTS = "deleteSelectedObjects";
-	public static final String DEACTIVATE_OBJECTS = "deactivateSelectedObjects";
-	public static final String ACTIVATE_OBJECTS = "activateAllObjects";
-	public static final String COPY_OBJECTS = "copySelectedObjectsTo";
-	public static final String COPY_OBJECTS_NEW = "copySelectedObjectsToNewLayer";
-	public static final String MOVE_OBJECTS = "moveSelectedObjectsTo";
-	public static final String MOVE_OBJECTS_NEW = "moveSelectedObjectsToNewLayer";
+	
+	public static final String ADD_TO_LAYER = "addSelectedObjectsTo";
+	public static final String ADD_TO_NEW_LAYER = "addSelectedObjectsToNewLayer";
+	public static final String MOVE_TO_LAYER = "moveSelectedObjectsTo";
+	public static final String MOVE_TO_NEW_LAYER = "moveSelectedObjectsToNewLayer";
+	public static final String LAYER_SELECTED = "setObjectsOnLayerSelected";
+	
 	public static final String SATELLITE_OBJECTS = "addSelectedObjectsAsSatellitesTo";
 	public static final String FLATTEN_OBJECTS = "flattenSelectedObjects";
 	
@@ -264,28 +265,24 @@ public class ViewController extends Controller {
 		this.callModelMethod(ViewController.DELETE_OBJECTS);
 	}
 	
-	public void deactivateSelectedObjects() {
-		this.callModelMethod(ViewController.DEACTIVATE_OBJECTS);
+	public void addSelectedObjectsTo(int layerIndex) {
+		this.callModelMethod(ViewController.ADD_TO_LAYER, layerIndex);
 	}
 	
-	public void activateAllObjects() {
-		this.callModelMethod(ViewController.ACTIVATE_OBJECTS);
-	}
-	
-	public void copySelectedObjectsTo(int layerIndex) {
-		this.callModelMethod(ViewController.COPY_OBJECTS, layerIndex);
-	}
-	
-	public void copySelectedObjectsToNewLayer() {
-		this.callModelMethod(ViewController.COPY_OBJECTS_NEW);
+	public void addSelectedObjectsToNewLayer() {
+		this.callModelMethod(ViewController.ADD_TO_NEW_LAYER);
 	}
 	
 	public void moveSelectedObjectsTo(int layerIndex) {
-		this.callModelMethod(ViewController.MOVE_OBJECTS, layerIndex);
+		this.callModelMethod(ViewController.MOVE_TO_LAYER, layerIndex);
 	}
 	
 	public void moveSelectedObjectsToNewLayer() {
-		this.callModelMethod(ViewController.MOVE_OBJECTS_NEW);
+		this.callModelMethod(ViewController.MOVE_TO_NEW_LAYER);
+	}
+	
+	public void setObjectsOnLayerSelected(int layerIndex, boolean selected) {
+		this.callModelMethod(ViewController.LAYER_SELECTED, layerIndex, selected);
 	}
 	
 	public void addSelectedObjectsAsSatellitesTo(DisplayObject parentObject, int powersetIndex) {

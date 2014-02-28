@@ -31,6 +31,16 @@ public class BigBangController extends Controller {
 	public static final String GRAPH_ANIMATION_POSITION = "setGraphAnimationPosition";
 	public static final String SPLIT_OPERATION = "splitOperation";
 	
+	public static final String LAYERS = "layers";
+	public static final String LAYER_NAME = "setLayerName";
+	public static final String LAYER_ACTIVE = "setLayerActive";
+	public static final String LAYER_AUDIBLE = "setLayerAudible";
+	public static final String LAYER_VISIBLE = "setLayerVisible";
+	public static final String ADD_TO_LAYER = "addObjectsToLayer";
+	public static final String ADD_TO_NEW_LAYER = "addObjectsToNewLayer";
+	public static final String MOVE_TO_LAYER = "moveObjectsToLayer";
+	public static final String MOVE_TO_NEW_LAYER = "moveObjectsToNewLayer";
+	
 	public static final String MULTITOUCH = "MultiTouch";
 	public static final String INPUT_ACTIVE = "InputActive";
 	public static final String FORM = "setForm";
@@ -118,6 +128,38 @@ public class BigBangController extends Controller {
 	
 	public void splitOperation() {
 		this.callModelMethod(BigBangController.SPLIT_OPERATION);
+	}
+	
+	public void setLayerName(int index, String name) {
+		this.callModelMethod(BigBangController.LAYER_NAME, index, name);
+	}
+	
+	public void setLayerActive(int index, boolean active) {
+		this.callModelMethod(BigBangController.LAYER_ACTIVE, index, active);
+	}
+	
+	public void setLayerAudible(int index, boolean audible) {
+		this.callModelMethod(BigBangController.LAYER_AUDIBLE, index, audible);
+	}
+	
+	public void setLayerVisible(int index, boolean visible) {
+		this.callModelMethod(BigBangController.LAYER_VISIBLE, index, visible);
+	}
+	
+	public void addObjectsToLayer(int layerIndex, Set<BigBangObject> objects) {
+		this.callModelMethod(BigBangController.ADD_TO_LAYER, layerIndex, objects);
+	}
+	
+	public void addObjectsToNewLayer(Set<BigBangObject> objects) {
+		this.callModelMethod(BigBangController.ADD_TO_NEW_LAYER, objects);
+	}
+	
+	public void moveObjectsToLayer(int layerIndex, Set<BigBangObject> objects) {
+		this.callModelMethod(BigBangController.MOVE_TO_LAYER, layerIndex, objects);
+	}
+	
+	public void moveObjectsToNewLayer(Set<BigBangObject> objects) {
+		this.callModelMethod(BigBangController.MOVE_TO_NEW_LAYER, objects);
 	}
 	
 	public void changeInputActive(boolean inputActive) {

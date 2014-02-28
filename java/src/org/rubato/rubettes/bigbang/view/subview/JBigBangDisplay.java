@@ -10,6 +10,7 @@ import java.beans.PropertyChangeEvent;
 import javax.swing.JPanel;
 import javax.swing.Timer;
 
+import org.rubato.rubettes.bigbang.controller.BigBangController;
 import org.rubato.rubettes.bigbang.view.View;
 import org.rubato.rubettes.bigbang.view.controller.ViewController;
 import org.rubato.rubettes.bigbang.view.controller.mode.DisplayModeAdapter;
@@ -26,10 +27,10 @@ public class JBigBangDisplay extends JPanel implements View {
 	private DisplayModeAdapter modeAdapter;
 	private Timer timer;
 	
-	public JBigBangDisplay(ViewController controller, BigBangPlayer player) {
+	public JBigBangDisplay(BigBangController bbController, ViewController controller, BigBangPlayer player) {
 		controller.addView(this);
 		this.contents = new DisplayContents(player);
-		JBigBangPopupMenu popup = new JBigBangPopupMenu(controller);
+		JBigBangPopupMenu popup = new JBigBangPopupMenu(bbController, controller);
 		this.setComponentPopupMenu(popup);
 	}
 	

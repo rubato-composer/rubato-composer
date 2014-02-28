@@ -10,6 +10,7 @@ import java.util.TreeSet;
 import junit.framework.TestCase;
 
 import org.rubato.math.yoneda.Form;
+import org.rubato.rubettes.bigbang.controller.BigBangController;
 import org.rubato.rubettes.bigbang.model.BigBangObject;
 import org.rubato.rubettes.bigbang.model.BigBangObjects;
 import org.rubato.rubettes.bigbang.model.OperationPathResults;
@@ -24,7 +25,7 @@ public class BigBangObjectsTest extends TestCase {
 	private BigBangObjects objects;
 	
 	protected void setUp() {
-		this.objects = new BigBangObjects(this.SOUND_SCORE_FORM);
+		this.objects = new BigBangObjects(this.SOUND_SCORE_FORM, new BigBangController());
 	}
 	
 	public void testGeneralMethods() {

@@ -1,12 +1,12 @@
 package org.rubato.rubettes.bigbang.model.edits;
 
-import org.rubato.rubettes.bigbang.model.BigBangDenotatorManager;
+import org.rubato.rubettes.bigbang.model.BigBangModel;
 import org.rubato.rubettes.bigbang.model.OperationPathResults;
 
 public class EndWallpaperEdit extends AbstractOperationEdit {
 	
-	public EndWallpaperEdit(BigBangDenotatorManager denotatorManager) {
-		super(denotatorManager);
+	public EndWallpaperEdit(BigBangModel model) {
+		super(model);
 		this.isAnimatable = false;
 		this.isSplittable = false;
 		this.duration = 0;
@@ -17,7 +17,7 @@ public class EndWallpaperEdit extends AbstractOperationEdit {
 
 	@Override
 	public OperationPathResults execute() {
-		this.denotatorManager.endWallpaper();
+		this.model.getDenotatorManager().endWallpaper();
 		return new OperationPathResults();
 	}
 	

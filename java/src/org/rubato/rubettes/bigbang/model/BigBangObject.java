@@ -34,7 +34,7 @@ public class BigBangObject implements Comparable<BigBangObject> {
 	//these attributes just reflect the final state (final state also reflected under null keys in maps!)
 	private List<Double> values;
 	private List<Integer> structuralIndices; //sibling number, satellite level, colimit index, etc
-	private int layer;
+	private List<BigBangLayer> layers;
 	
 	
 	/**
@@ -44,7 +44,7 @@ public class BigBangObject implements Comparable<BigBangObject> {
 	 * @param parent
 	 * @param topDenotatorPath
 	 */
-	public BigBangObject(AbstractOperationEdit creatingOperation, AbstractOperationEdit initialOperation, BigBangObject parent, DenotatorPath topDenotatorPath) {
+	public BigBangObject(AbstractOperationEdit creatingOperation, AbstractOperationEdit initialOperation, BigBangObject parent, DenotatorPath topDenotatorPath, BigBangLayer layer) {
 		this.creatingOperation = creatingOperation;
 		this.values = new ArrayList<Double>();
 		this.topDenotatorPaths = new HashMap<AbstractOperationEdit,DenotatorPath>();
@@ -52,6 +52,7 @@ public class BigBangObject implements Comparable<BigBangObject> {
 		this.children = new HashMap<AbstractOperationEdit,Set<BigBangObject>>();
 		this.children.put(initialOperation, new TreeSet<BigBangObject>());
 		this.updatePathAndParent(initialOperation, topDenotatorPath, parent);
+		this.setLayer(layer);
 	}
 	
 	public void setObjectType(DenotatorObjectConfiguration objectType) {
@@ -221,12 +222,49 @@ public class BigBangObject implements Comparable<BigBangObject> {
 		this.children.remove(operation);
 	}
 	
-	public void setLayer(int layer) {
-		this.layer = layer;
+	public void setLayer(BigBangLayer layer) {
+		this.layers = new ArrayList<BigBangLayer>();
+		this.addLayer(layer);
 	}
 	
-	public int getLayer() {
-		return this.layer;
+	public void addLayer(BigBangLayer layer) {
+		this.layers.add(layer);
+	}
+	
+	public boolean isOnLayer(int layerIndex) {
+		for (BigBangLayer currentLayer : this.layers) {
+			if (currentLayer.getIndex() == layerIndex) {
+				return true;
+			}
+		}
+		return false;
+	}
+	
+	public boolean isActive() {
+		for (BigBangLayer currentLayer : this.layers) {
+			if (currentLayer.isActive()) {
+				return true;
+			}
+		}
+		return false;
+	}
+	
+	public boolean isVisible() {
+		for (BigBangLayer currentLayer : this.layers) {
+			if (currentLayer.isVisible()) {
+				return true;
+			}
+		}
+		return false;
+	}
+	
+	public boolean isAudible() {
+		for (BigBangLayer currentLayer : this.layers) {
+			if (currentLayer.isAudible()) {
+				return true;
+			}
+		}
+		return false;
 	}
 	
 	//TODO improve....

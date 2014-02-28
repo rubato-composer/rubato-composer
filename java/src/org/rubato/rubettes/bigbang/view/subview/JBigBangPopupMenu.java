@@ -14,30 +14,27 @@ import javax.swing.KeyStroke;
 import javax.swing.undo.UndoManager;
 
 import org.rubato.math.yoneda.Form;
+import org.rubato.rubettes.bigbang.controller.BigBangController;
+import org.rubato.rubettes.bigbang.model.BigBangLayers;
 import org.rubato.rubettes.bigbang.view.View;
 import org.rubato.rubettes.bigbang.view.controller.ViewController;
-import org.rubato.rubettes.bigbang.view.controller.general.ActivateAction;
-import org.rubato.rubettes.bigbang.view.controller.general.DeactivateAction;
 import org.rubato.rubettes.bigbang.view.controller.general.RedoAction;
 import org.rubato.rubettes.bigbang.view.controller.general.UndoAction;
 import org.rubato.rubettes.bigbang.view.controller.score.actions.BuildSatellitesAction;
-import org.rubato.rubettes.bigbang.view.controller.score.actions.CopyToLayerAction;
-import org.rubato.rubettes.bigbang.view.controller.score.actions.CopyToNewLayerAction;
+import org.rubato.rubettes.bigbang.view.controller.score.actions.AddToLayerAction;
+import org.rubato.rubettes.bigbang.view.controller.score.actions.AddToNewLayerAction;
 import org.rubato.rubettes.bigbang.view.controller.score.actions.FlattenAction;
 import org.rubato.rubettes.bigbang.view.controller.score.actions.MoveToLayerAction;
 import org.rubato.rubettes.bigbang.view.controller.score.actions.MoveToNewLayerAction;
 import org.rubato.rubettes.bigbang.view.controller.score.actions.DeleteObjectsAction;
 import org.rubato.rubettes.bigbang.view.controller.score.actions.ShowWindowPreferencesAction;
-import org.rubato.rubettes.bigbang.view.model.LayerStates;
 
 public class JBigBangPopupMenu extends JPopupMenu implements View {
 	
 	private JMenuItem undoItem;
 	private JMenuItem redoItem;
 	//private JMenuItem flattenCompletelyItem;
-	private JMenuItem deactivateItem;
-	private JMenuItem activateAllItem;
-	private JMenu copyToMenu;
+	private JMenu addToMenu;
 	private JMenu moveToMenu;
 	private JMenuItem deleteItem;
 	private JMenu buildSatellitesMenu;
@@ -45,17 +42,16 @@ public class JBigBangPopupMenu extends JPopupMenu implements View {
 	private boolean satellitesAllowed;
 	private ViewController controller;
 	
-	public JBigBangPopupMenu(ViewController controller) {
+	public JBigBangPopupMenu(BigBangController bbController, ViewController controller) {
+		bbController.addView(this);
 		controller.addView(this);
 		this.controller = controller;
 		this.initItems();
 		this.add(this.undoItem);
 	    this.add(this.redoItem);
 	    this.add(new JSeparator());
-	    this.add(this.deactivateItem);
-	    this.add(this.activateAllItem);
-	    //this.add(this.copyToMenu);
-	    //this.add(this.moveToMenu);
+	    this.add(this.addToMenu);
+	    this.add(this.moveToMenu);
 	    this.add(this.deleteItem);
 	    this.add(this.buildSatellitesMenu);
 	    this.add(this.flattenItem);
@@ -68,15 +64,11 @@ public class JBigBangPopupMenu extends JPopupMenu implements View {
 	private void initItems() {
 		this.undoItem = this.createShortcutItem("Undo", KeyEvent.VK_Z, new UndoAction(this.controller));
 		this.redoItem = this.createShortcutItem("Redo", KeyEvent.VK_Y, new RedoAction(this.controller));
-		this.deactivateItem = this.createShortcutItem("Deactivate", KeyEvent.VK_D, new DeactivateAction(this.controller));
-		this.activateAllItem = this.createShortcutItem("Activate all", KeyEvent.VK_D, new ActivateAction(this.controller));
-		this.copyToMenu = this.createJLayerMenu("Copy to", new CopyToNewLayerAction(this.controller));
+		this.addToMenu = this.createJLayerMenu("Add to", new AddToNewLayerAction(this.controller));
 		this.moveToMenu = this.createJLayerMenu("Move to", new MoveToNewLayerAction(this.controller));
 		this.deleteItem = this.createKeyItem("Delete", new DeleteObjectsAction(this.controller), KeyEvent.VK_BACK_SPACE, KeyEvent.VK_DELETE);
 		this.buildSatellitesMenu = new JMenu("Build satellites");
 		this.flattenItem = this.createShortcutItem("Flatten", KeyEvent.VK_COMMA, new FlattenAction(this.controller));
-		//this.buildModulatorItem = this.createShortcutItem("Build Modulators", KeyEvent.VK_M, new BuildModulatorsAction(this.controller));
-		//this.removeModulatorItem = this.createShortcutItem("Disconnect Modulators", KeyEvent.VK_R, new RemoveModulatorsAction(this.controller));
 		this.enableEditItems(false);
 	}
 	
@@ -122,8 +114,8 @@ public class JBigBangPopupMenu extends JPopupMenu implements View {
 			this.updateUndoRedoItems(event);
 		} else if (propertyName.equals(ViewController.OBJECT_SELECTION)) {
 			this.enableEditItems((Integer)event.getNewValue() > 0);
-		} else if (propertyName.equals(ViewController.LAYERS)) {
-			this.updateLayerMenus((LayerStates)event.getNewValue());
+		} else if (propertyName.equals(BigBangController.LAYERS)) {
+			this.updateLayerMenus((BigBangLayers)event.getNewValue());
 		}
 	}
 	
@@ -155,15 +147,15 @@ public class JBigBangPopupMenu extends JPopupMenu implements View {
 		this.satellitesAllowed = allowed;
 	}
 	
-	private void updateLayerMenus(LayerStates states) {
-		while (this.copyToMenu.getItemCount()-2 < states.size()) {
-			int newIndex = this.copyToMenu.getItemCount()-2;
-			this.copyToMenu.add(new JMenuItem(new CopyToLayerAction(this.controller, newIndex)));
+	private void updateLayerMenus(BigBangLayers layers) {
+		while (this.addToMenu.getItemCount()-2 < layers.size()) {
+			int newIndex = this.addToMenu.getItemCount()-2;
+			this.addToMenu.add(new JMenuItem(new AddToLayerAction(this.controller, newIndex)));
 			this.moveToMenu.add(new JMenuItem(new MoveToLayerAction(this.controller, newIndex)));
 		}
-		while (this.copyToMenu.getItemCount()-2 > states.size()) {
-			int lastIndex = this.copyToMenu.getItemCount()-1;
-			this.copyToMenu.remove(lastIndex);
+		while (this.addToMenu.getItemCount()-2 > layers.size()) {
+			int lastIndex = this.addToMenu.getItemCount()-1;
+			this.addToMenu.remove(lastIndex);
 			this.moveToMenu.remove(lastIndex);
 		}
 	}

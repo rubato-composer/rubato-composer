@@ -36,13 +36,13 @@ public class JBigBangPanel extends JPanel {
 	public JBigBangPanel(ViewController controller, BigBangController bbController, ViewParameters viewParameters, BigBangPlayer player) {
 		this.setLayout(new BorderLayout());
 		this.add(this.createToolBarsPanel(controller, bbController), BorderLayout.NORTH);
-		this.display = new JBigBangDisplay(controller, player);
+		this.display = new JBigBangDisplay(bbController, controller, player);
 		this.initMenuComponents(this.display, controller, bbController, viewParameters);
 		this.add(this.display, BorderLayout.CENTER);
 		this.add(this.makeButtonPanel(controller), BorderLayout.EAST);
 		this.add(new JGraphPanel(controller, bbController), BorderLayout.WEST);
 		new JWindowPreferencesDialog(controller);
-		JBigBangPopupMenu popup = new JBigBangPopupMenu(controller);
+		JBigBangPopupMenu popup = new JBigBangPopupMenu(bbController, controller);
 		this.setComponentPopupMenu(popup);
 		this.initMidiKeys(controller);
 		this.initStateKeys(controller);
@@ -53,7 +53,7 @@ public class JBigBangPanel extends JPanel {
 		JPanel toolBarsPanel = new JPanel();
 		toolBarsPanel.setLayout(new GridLayout(2, 1));
 		toolBarsPanel.add(new JMainToolBar(controller, bbController));
-		toolBarsPanel.add(new JLayersToolBar(controller));
+		toolBarsPanel.add(new JLayersToolBar(bbController, controller));
 		return toolBarsPanel;
 	}
 	

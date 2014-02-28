@@ -4,7 +4,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.TreeMap;
 
-import org.rubato.rubettes.bigbang.model.BigBangDenotatorManager;
+import org.rubato.rubettes.bigbang.model.BigBangModel;
 import org.rubato.rubettes.bigbang.model.BigBangObject;
 import org.rubato.rubettes.bigbang.model.OperationPathResults;
 import org.rubato.rubettes.bigbang.model.TransformationPaths;
@@ -17,8 +17,8 @@ public class ShapingEdit extends AbstractOperationEdit {
 	List<TransformationPaths> shapingPaths;
 	boolean copyAndShape;
 	
-	public ShapingEdit(BigBangDenotatorManager denotatorManager, TransformationProperties properties, TreeMap<Double,Double> shapingLocations) {
-		super(denotatorManager);
+	public ShapingEdit(BigBangModel model, TransformationProperties properties, TreeMap<Double,Double> shapingLocations) {
+		super(model);
 		this.objects = properties.getObjects();
 		this.shapingLocations = shapingLocations;
 		this.shapingPaths = properties.getTransformationPaths();
@@ -28,7 +28,7 @@ public class ShapingEdit extends AbstractOperationEdit {
 
 	@Override
 	public OperationPathResults execute() {
-		return this.denotatorManager.shapeObjects(this.getObjectPaths(this.objects), this.shapingLocations, this.shapingPaths, this.copyAndShape);
+		return this.model.getDenotatorManager().shapeObjects(this.getObjectPaths(this.objects), this.shapingLocations, this.shapingPaths, this.copyAndShape);
 	}
 	
 	public String getPresentationName() {

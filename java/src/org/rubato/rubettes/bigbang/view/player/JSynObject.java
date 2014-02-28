@@ -39,8 +39,8 @@ public class JSynObject implements Comparable<JSynObject> {
 	 * @return true if the object is worth being played. for now this is only the case if it contains at least
 	 * one frequency. 
 	 */
-	public boolean isPlayable() {
-		return this.getFrequencies().size() > 0;
+	public boolean isAudible() {
+		return this.bbObject.isAudible() && this.getFrequencies().size() > 0;
 	}
 	
 	

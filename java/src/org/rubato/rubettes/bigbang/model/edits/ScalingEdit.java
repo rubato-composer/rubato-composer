@@ -1,19 +1,19 @@
 package org.rubato.rubettes.bigbang.model.edits;
 
 import org.rubato.math.matrix.RMatrix;
-import org.rubato.rubettes.bigbang.model.BigBangDenotatorManager;
+import org.rubato.rubettes.bigbang.model.BigBangModel;
 import org.rubato.rubettes.bigbang.model.TransformationProperties;
 
 public class ScalingEdit extends AbstractLocalTransformationEdit {
 	
 	private double[] scaleFactors;
 	
-	protected ScalingEdit(BigBangDenotatorManager denotatorManager) {
-		super(denotatorManager);
+	protected ScalingEdit(BigBangModel model) {
+		super(model);
 	}
 	
-	public ScalingEdit(BigBangDenotatorManager denotatorManager, TransformationProperties properties, double[] scaleFactors) {
-		super(denotatorManager, properties);
+	public ScalingEdit(BigBangModel model, TransformationProperties properties, double[] scaleFactors) {
+		super(model, properties);
 		this.modify(scaleFactors);
 	}
 	

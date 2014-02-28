@@ -2,7 +2,7 @@ package org.rubato.rubettes.bigbang.model.edits;
 
 import java.util.Set;
 
-import org.rubato.rubettes.bigbang.model.BigBangDenotatorManager;
+import org.rubato.rubettes.bigbang.model.BigBangModel;
 import org.rubato.rubettes.bigbang.model.BigBangObject;
 import org.rubato.rubettes.bigbang.model.OperationPathResults;
 
@@ -11,8 +11,8 @@ public class AddWallpaperDimensionEdit extends AbstractOperationEdit {
 	private Set<BigBangObject> objects;
 	private int rangeFrom, rangeTo;
 	
-	public AddWallpaperDimensionEdit(BigBangDenotatorManager denotatorManager, Set<BigBangObject> objects, int rangeFrom, int rangeTo) {
-		super(denotatorManager);
+	public AddWallpaperDimensionEdit(BigBangModel model, Set<BigBangObject> objects, int rangeFrom, int rangeTo) {
+		super(model);
 		this.objects = objects;
 		this.rangeFrom = rangeFrom;
 		this.rangeTo = rangeTo;
@@ -30,7 +30,7 @@ public class AddWallpaperDimensionEdit extends AbstractOperationEdit {
 	@Override
 	public OperationPathResults execute() {
 		//TODO could it be possible to have different paths for each dimension??? or even transformation??
-		this.denotatorManager.addWallpaperDimension(this.getObjectPaths(this.objects), this.rangeFrom, this.rangeTo);
+		this.model.getDenotatorManager().addWallpaperDimension(this.getObjectPaths(this.objects), this.rangeFrom, this.rangeTo);
 		return new OperationPathResults();
 	}
 	
