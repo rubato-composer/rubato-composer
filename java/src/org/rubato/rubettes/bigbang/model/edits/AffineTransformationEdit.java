@@ -1,7 +1,7 @@
 package org.rubato.rubettes.bigbang.model.edits;
 
 import org.rubato.math.matrix.RMatrix;
-import org.rubato.rubettes.bigbang.model.BigBangDenotatorManager;
+import org.rubato.rubettes.bigbang.model.BigBangModel;
 import org.rubato.rubettes.bigbang.model.TransformationProperties;
 
 public class AffineTransformationEdit extends AbstractLocalTransformationEdit {
@@ -10,12 +10,12 @@ public class AffineTransformationEdit extends AbstractLocalTransformationEdit {
 	private RMatrix transform;
 	
 	//used for cloning
-	protected AffineTransformationEdit(BigBangDenotatorManager scoreManager) {
-		super(scoreManager);
+	protected AffineTransformationEdit(BigBangModel model) {
+		super(model);
 	}
 	
-	public AffineTransformationEdit(BigBangDenotatorManager scoreLayers, TransformationProperties properties, double[] shift, RMatrix transform2x2) {
-		super(scoreLayers, properties);
+	public AffineTransformationEdit(BigBangModel model, TransformationProperties properties, double[] shift, RMatrix transform2x2) {
+		super(model, properties);
 		//System.out.println(properties.getCenter()[0] + " " + properties.getCenter()[1]);
 		this.setParameters(shift, transform2x2);
 	}

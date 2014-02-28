@@ -34,7 +34,8 @@ public class JSynScore {
 	
 	public void addObjects(Set<BigBangObject> newObjects) {
 		for (BigBangObject currentBBObject : newObjects) {
-			if (!this.objectMap.containsKey(currentBBObject) && currentBBObject.getTopDenotatorPath() != null) {
+			if (!this.objectMap.containsKey(currentBBObject)
+					&& currentBBObject.getTopDenotatorPath() != null) {
 				JSynObject parent = this.objectMap.get(currentBBObject.getParent());
 				JSynObject newJSynObject = new JSynObject(parent, currentBBObject, this.satelliteType);
 				//only add top level objects to score. others work as satellites

@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
 
-import org.rubato.rubettes.bigbang.model.BigBangDenotatorManager;
+import org.rubato.rubettes.bigbang.model.BigBangModel;
 import org.rubato.rubettes.bigbang.model.BigBangObject;
 
 public abstract class AbstractPathBasedOperationEdit extends AbstractOperationEdit {
@@ -14,16 +14,16 @@ public abstract class AbstractPathBasedOperationEdit extends AbstractOperationEd
 	private Set<BigBangObject> objects;
 	protected Set<BigBangObject> modifiedObjects;
 	
-	public AbstractPathBasedOperationEdit(BigBangDenotatorManager denotatorManager) {
-		super(denotatorManager);
+	public AbstractPathBasedOperationEdit(BigBangModel model) {
+		super(model);
 		this.isAnimatable = true;
 		this.isSplittable = false;
 		this.minModRatio = 0.0;
 		this.maxModRatio = 1.0;
 	}
 	
-	public AbstractPathBasedOperationEdit(BigBangDenotatorManager denotatorManager, Set<BigBangObject> objects) {
-		this(denotatorManager);
+	public AbstractPathBasedOperationEdit(BigBangModel model, Set<BigBangObject> objects) {
+		this(model);
 		this.setObjects(objects);
 	}
 	
@@ -77,7 +77,7 @@ public abstract class AbstractPathBasedOperationEdit extends AbstractOperationEd
 	public AbstractPathBasedOperationEdit clone() {
 		AbstractPathBasedOperationEdit clone;
 		try {
-			clone = this.getClass().getDeclaredConstructor(BigBangDenotatorManager.class).newInstance(this.denotatorManager);
+			clone = this.getClass().getDeclaredConstructor(BigBangModel.class).newInstance(this.model);
 			clone.setObjects(this.objects);
 			return clone;
 		} catch (Exception e) {

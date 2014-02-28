@@ -11,6 +11,7 @@ import java.util.TreeSet;
 
 import org.rubato.math.yoneda.Form;
 import org.rubato.math.yoneda.SimpleForm;
+import org.rubato.rubettes.bigbang.controller.BigBangController;
 import org.rubato.rubettes.bigbang.model.edits.AbstractOperationEdit;
 import org.rubato.rubettes.util.DenotatorObject;
 import org.rubato.rubettes.util.DenotatorObjectConfiguration;
@@ -29,9 +30,10 @@ public class BigBangObjects {
 	private HashMap<AbstractOperationEdit,Set<BigBangObject>> objects;
 	//keeps track of all objects currently existing at any state, with the following operation as a key
 	private HashMap<AbstractOperationEdit,Map<DenotatorPath,BigBangObject>> objectsMaps;
+	private BigBangLayers layers;
 	private List<Double> minValues, maxValues;
 	
-	public BigBangObjects(Form baseForm) {
+	public BigBangObjects(Form baseForm, BigBangController controller) {
 		this.baseForm = baseForm;
 		
 		this.finder = new FormValueFinder(this.baseForm, true);
@@ -53,6 +55,7 @@ public class BigBangObjects {
 			coordinateSystemValueNames.add(DenotatorValueExtractor.COLIMIT_INDEX);
 		}
 		this.coordinateSystemValueNames = coordinateSystemValueNames;
+		this.layers = new BigBangLayers(controller);
 		
 		this.clearObjects();
 		this.minValues = new ArrayList<Double>();
@@ -234,7 +237,7 @@ public class BigBangObjects {
 	}
 	
 	private void addObject(AbstractOperationEdit previousOperation, AbstractOperationEdit operation, BigBangObject parent, DenotatorPath path) {
-		BigBangObject object = new BigBangObject(previousOperation, operation, parent, path);
+		BigBangObject object = new BigBangObject(previousOperation, operation, parent, path, this.layers.get(0));
 		this.addObjectToMap(object, operation, path);
 		if (!this.objects.containsKey(previousOperation)) {
 			this.objects.put(previousOperation, new TreeSet<BigBangObject>());

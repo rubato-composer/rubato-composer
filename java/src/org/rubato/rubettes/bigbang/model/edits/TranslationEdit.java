@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.rubato.math.matrix.RMatrix;
-import org.rubato.rubettes.bigbang.model.BigBangDenotatorManager;
+import org.rubato.rubettes.bigbang.model.BigBangModel;
 import org.rubato.rubettes.bigbang.model.TransformationProperties;
 
 public class TranslationEdit extends AbstractTransformationEdit {
@@ -12,12 +12,12 @@ public class TranslationEdit extends AbstractTransformationEdit {
 	private double[] modifiedShift;
 	
 	//used for cloning
-	protected TranslationEdit(BigBangDenotatorManager denotatorManager) {
-		super(denotatorManager);
+	protected TranslationEdit(BigBangModel model) {
+		super(model);
 	}
 	
-	public TranslationEdit(BigBangDenotatorManager denotatorManager, TransformationProperties properties) {
-		super(denotatorManager, properties);
+	public TranslationEdit(BigBangModel model, TransformationProperties properties) {
+		super(model, properties);
 		this.updateOperation();
 	}
 	

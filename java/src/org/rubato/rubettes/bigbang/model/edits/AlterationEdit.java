@@ -5,7 +5,7 @@ import java.util.List;
 import java.util.TreeSet;
 import java.util.Set;
 
-import org.rubato.rubettes.bigbang.model.BigBangDenotatorManager;
+import org.rubato.rubettes.bigbang.model.BigBangModel;
 import org.rubato.rubettes.bigbang.model.BigBangObject;
 import org.rubato.rubettes.bigbang.model.OperationPathResults;
 import org.rubato.rubettes.util.DenotatorPath;
@@ -17,9 +17,9 @@ public class AlterationEdit extends AbstractOperationEdit {
 	private List<DenotatorPath> alterationCoordinates;
 	private double startDegree, endDegree;
 	
-	public AlterationEdit(BigBangDenotatorManager denotatorManager) {
-		super(denotatorManager);
-		this.denotatorManager = denotatorManager;
+	public AlterationEdit(BigBangModel model) {
+		super(model);
+		this.model = model;
 		this.foregroundComposition = new TreeSet<BigBangObject>();
 		this.backgroundComposition = new TreeSet<BigBangObject>();
 		this.alterationCoordinates = new ArrayList<DenotatorPath>();
@@ -80,7 +80,7 @@ public class AlterationEdit extends AbstractOperationEdit {
 		double modifiedEndDegree = this.modificationRatio*this.endDegree;
 		Set<DenotatorPath> foregroundCompositionPaths = this.getObjectPaths(this.foregroundComposition);
 		Set<DenotatorPath> backgroundCompositionPaths = this.getObjectPaths(this.backgroundComposition);
-		return this.denotatorManager.addAlteration(foregroundCompositionPaths, backgroundCompositionPaths, this.alterationCoordinates, modifiedStartDegree, modifiedEndDegree);
+		return this.model.getDenotatorManager().addAlteration(foregroundCompositionPaths, backgroundCompositionPaths, this.alterationCoordinates, modifiedStartDegree, modifiedEndDegree);
 	}
 
 }

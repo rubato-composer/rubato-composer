@@ -25,8 +25,15 @@ public class BigBangPlayer extends Thread {
 	
 	public synchronized void setScore(JSynScore score) {
 		this.score = score;
+		this.update();
+	}
+	
+	/**
+	 * reschedules the score this is playing right now (good in case of object state changes)
+	 */
+	public void update() {
 		if (this.isPlaying) {
-			this.player.replaceScore(score);
+			this.player.replaceScore(this.score);
 		}
 	}
 	

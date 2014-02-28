@@ -6,14 +6,14 @@ import java.util.TreeSet;
 
 import javax.swing.undo.AbstractUndoableEdit;
 
-import org.rubato.rubettes.bigbang.model.BigBangDenotatorManager;
+import org.rubato.rubettes.bigbang.model.BigBangModel;
 import org.rubato.rubettes.bigbang.model.BigBangObject;
 import org.rubato.rubettes.bigbang.model.OperationPathResults;
 import org.rubato.rubettes.util.DenotatorPath;
 
 public abstract class AbstractOperationEdit extends AbstractUndoableEdit {
 	
-	protected BigBangDenotatorManager denotatorManager;
+	protected BigBangModel model;
 	protected double modificationRatio;
 	protected Double minModRatio, maxModRatio;
 	protected boolean isAnimatable;
@@ -21,16 +21,12 @@ public abstract class AbstractOperationEdit extends AbstractUndoableEdit {
 	//duration in seconds
 	protected double duration;
 	
-	public AbstractOperationEdit(BigBangDenotatorManager denotatorManager) {
-		this.denotatorManager = denotatorManager;
+	public AbstractOperationEdit(BigBangModel model) {
+		this.model = model;
 		this.modificationRatio = 1;
 		this.isAnimatable = false;
 		this.isSplittable = false;
 		this.duration = 1;
-	}
-	
-	public BigBangDenotatorManager getDenotatorManager() {
-		return this.denotatorManager;
 	}
 	
 	protected abstract void updateOperation();
@@ -46,9 +42,13 @@ public abstract class AbstractOperationEdit extends AbstractUndoableEdit {
 		this.updateOperation();
 	}
 	
-	protected Set<DenotatorPath> getObjectPaths(Set<BigBangObject> objectList) {
+	protected Set<DenotatorPath> getObjectPaths(Set<BigBangObject> objects) {
 		Set<DenotatorPath> objectPaths = new TreeSet<DenotatorPath>();
-		for (BigBangObject currentObject : objectList) {
+		if (objects.size() == 0) {
+			//return all objects if none here!! operation will be applied to all!!
+			objects = this.model.getObjects().getObjectsAt(this);
+		}
+		for (BigBangObject currentObject : objects) {
 			DenotatorPath currentPath = currentObject.getTopDenotatorPathAt(this);
 			if (currentPath != null) {
 				objectPaths.add(currentPath);

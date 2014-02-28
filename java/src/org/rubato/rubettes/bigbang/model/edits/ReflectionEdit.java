@@ -1,15 +1,15 @@
 package org.rubato.rubettes.bigbang.model.edits;
 
 import org.rubato.math.matrix.RMatrix;
-import org.rubato.rubettes.bigbang.model.BigBangDenotatorManager;
+import org.rubato.rubettes.bigbang.model.BigBangModel;
 import org.rubato.rubettes.bigbang.model.TransformationProperties;
 
 public class ReflectionEdit extends AbstractLocalTransformationEdit {
 	
 	private double[] reflectionVector;
 	
-	public ReflectionEdit(BigBangDenotatorManager denotatorManager, TransformationProperties properties, double[] reflectionVector) {
-		super(denotatorManager, properties);
+	public ReflectionEdit(BigBangModel model, TransformationProperties properties, double[] reflectionVector) {
+		super(model, properties);
 		this.modify(reflectionVector);
 		this.isSplittable = false;
 	}

@@ -14,6 +14,8 @@ import javax.swing.JSpinner;
 import javax.swing.JToolBar;
 import javax.swing.SpinnerNumberModel;
 
+import org.rubato.rubettes.bigbang.controller.BigBangController;
+import org.rubato.rubettes.bigbang.model.BigBangLayers;
 import org.rubato.rubettes.bigbang.view.View;
 import org.rubato.rubettes.bigbang.view.controller.ViewController;
 import org.rubato.rubettes.bigbang.view.controller.general.ModFilterButtonAction;
@@ -21,12 +23,11 @@ import org.rubato.rubettes.bigbang.view.controller.general.PlayButtonAction;
 import org.rubato.rubettes.bigbang.view.controller.general.RecordButtonAction;
 import org.rubato.rubettes.bigbang.view.controller.score.ModFilterSpinnersListener;
 import org.rubato.rubettes.bigbang.view.controller.score.TempoListener;
-import org.rubato.rubettes.bigbang.view.model.LayerState;
-import org.rubato.rubettes.bigbang.view.model.LayerStates;
 import org.rubato.rubettes.bigbang.view.player.BigBangPlayer;
 
 public class JLayersToolBar extends JToolBar implements ActionListener, View {
 	
+	private BigBangController bbController;
 	private ViewController controller;
 	private JButton playButton, recordButton;
 	private JCheckBox isLoopingCheckBox;
@@ -35,9 +36,11 @@ public class JLayersToolBar extends JToolBar implements ActionListener, View {
 	private List<JSpinner> modFilterSpinners;
 	private List<JLayerButton> layerButtons;
 	
-	public JLayersToolBar(ViewController controller) {
+	public JLayersToolBar(BigBangController bbController, ViewController controller) {
 		this.controller = controller;
 		controller.addView(this);
+		this.bbController = bbController;
+		bbController.addView(this);
 		this.playButton = new JButton(new PlayButtonAction(controller));
 		this.recordButton = new JButton(new RecordButtonAction(controller));
 		this.add(this.playButton);
@@ -48,6 +51,7 @@ public class JLayersToolBar extends JToolBar implements ActionListener, View {
 		this.addTempoSlider();
 		this.addModFilterButtonAndSpinners();
 		this.layerButtons = new ArrayList<JLayerButton>();
+		this.setAlignmentX(LEFT_ALIGNMENT);
 	}
 	
 	private void addTempoSlider() {
@@ -80,7 +84,10 @@ public class JLayersToolBar extends JToolBar implements ActionListener, View {
 
 	public void modelPropertyChange(PropertyChangeEvent event) {
 		String propertyName = event.getPropertyName();
-		if (propertyName.equals(ViewController.LAYERS)) {
+		if (propertyName.equals(ViewController.LAYER_SELECTED)) {
+			JLayerButton button = this.layerButtons.get((Integer)event.getNewValue());
+			button.setSelected(!button.isSelected());
+		} else if (propertyName.equals(BigBangController.LAYERS)) {
 			this.updateLayerButtons(event);
 		} else if (propertyName.equals(ViewController.PLAY_MODE)) {
 			this.playButton.setSelected((Boolean)event.getNewValue());
@@ -106,24 +113,22 @@ public class JLayersToolBar extends JToolBar implements ActionListener, View {
 	}
 	
 	private void updateLayerButtons(PropertyChangeEvent event) {
-		LayerStates states = (LayerStates)event.getNewValue();
-		this.updateButtonCount(states);
+		BigBangLayers layers = (BigBangLayers)event.getNewValue();
+		this.updatePanelCount(layers);
 		for (int i = 0; i < this.layerButtons.size(); i++) {
-			LayerState currentState = states.get(i);
-			this.layerButtons.get(i).setState(currentState);
+			this.layerButtons.get(i).update(layers.get(i));
 		}
 		this.repaint();
 	}
 	
-	private void updateButtonCount(LayerStates states) {
-		while (this.layerButtons.size() > states.size()) {
-			JButton removedButton = this.layerButtons.remove(this.layerButtons.size()-1);
-			this.remove(removedButton);
+	private void updatePanelCount(BigBangLayers layers) {
+		while (this.layerButtons.size() > layers.size()) {
+			this.remove(this.layerButtons.remove(this.layerButtons.size()-1));
 		}
-		while (this.layerButtons.size() < states.size()) {
-			JLayerButton newButton = new JLayerButton(this.controller, this.layerButtons.size());
-			this.layerButtons.add(newButton);
-			this.add(newButton);
+		while (this.layerButtons.size() < layers.size()) {
+			JLayerButton newPanel = new JLayerButton(this.layerButtons.size(), this.controller, this.bbController);
+			this.layerButtons.add(newPanel);
+			this.add(newPanel);
 		}
 	}
 	

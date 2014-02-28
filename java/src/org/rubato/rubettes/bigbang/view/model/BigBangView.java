@@ -63,7 +63,6 @@ public class BigBangView extends Model implements View {
 	protected BigBangRecorder recorder;
 	protected BigBangMidiReceiver midiReceiver;
 	protected JBigBangPanel panel;
-	private LayerStates layerStates;
 	private DisplayModeAdapter displayMode;
 	protected Point displayPosition;
 	private boolean modFilterOn;
@@ -114,7 +113,6 @@ public class BigBangView extends Model implements View {
 		this.viewController.addModel(this);
 		this.initViewParameters();
 		this.initVisibleInterface();
-		this.layerStates = new LayerStates(this.viewController);
 	}
 	
 	protected void initViewParameters() {
@@ -303,6 +301,9 @@ public class BigBangView extends Model implements View {
 			this.initDisplayAndJSynObjects((BigBangObjects)event.getNewValue());
 		} else if (propertyName.equals(BigBangController.OBJECT_SELECTION)) {
 			this.selectObjects((Set<BigBangObject>)event.getNewValue());
+		} else if (propertyName.equals(BigBangController.LAYERS)) {
+			this.firePropertyChange(ViewController.LAYERS, null, event.getNewValue());
+			this.player.update();
 		} else if (propertyName.equals(BigBangController.UNDO)) {
 			this.firePropertyChange(ViewController.UNDO, null, event.getNewValue());
 		} else if (propertyName.equals(BigBangController.REDO)) {
@@ -364,14 +365,6 @@ public class BigBangView extends Model implements View {
 	
 	public DisplayObjects getDisplayObjects() {
 		return this.displayObjects;
-	}
-	
-	public void deactivateSelectedObjects() {
-		this.displayObjects.deactivateSelectedObjects();
-	}
-	
-	public void activateAllObjects() {
-		this.displayObjects.activateAllObjects();
 	}
 	
 	public void setStandardDenotatorValue(Integer index, Double value) {
@@ -631,14 +624,26 @@ public class BigBangView extends Model implements View {
 		}
 	}
 	
+	public void setObjectsOnLayerSelected(Integer layerIndex, Boolean selected) {
+		this.displayObjects.setObjectsOnLayerSelected(layerIndex, selected);
+		this.firePropertyChange(ViewController.LAYER_SELECTED, null, layerIndex);
+		this.firePropertyChange(ViewController.OBJECT_SELECTION, null, this.displayObjects.getSelectedBigBangObjects().size());
+	}
+	
+	public void addSelectedObjectsToNewLayer() {
+		this.controller.addObjectsToNewLayer(this.displayObjects.getSelectedBigBangObjects());
+	}
+	
+	public void addSelectedObjectsTo(Integer layerIndex) {
+		this.controller.addObjectsToLayer(layerIndex, this.displayObjects.getSelectedBigBangObjects());
+	}
+	
 	public void moveSelectedObjectsToNewLayer() {
-		this.moveSelectedObjectsToLayer(this.layerStates.size());
+		this.controller.moveObjectsToNewLayer(this.displayObjects.getSelectedBigBangObjects());
 	}
 	
 	public void moveSelectedObjectsToLayer(Integer layerIndex) {
-		for (BigBangObject currentObject : this.displayObjects.getSelectedBigBangObjects()) {
-			currentObject.setLayer(layerIndex);
-		}
+		this.controller.moveObjectsToLayer(layerIndex, this.displayObjects.getSelectedBigBangObjects());
 	}
 	
 	public void addSelectedObjectsAsSatellitesTo(DisplayObject anchor, Integer powersetIndex) {

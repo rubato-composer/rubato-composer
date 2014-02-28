@@ -5,7 +5,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.rubato.math.yoneda.Form;
-import org.rubato.rubettes.bigbang.model.BigBangDenotatorManager;
+import org.rubato.rubettes.bigbang.model.BigBangModel;
 import org.rubato.rubettes.bigbang.model.OperationPathResults;
 import org.rubato.rubettes.util.DenotatorPath;
 
@@ -20,12 +20,12 @@ public class AddObjectsEdit extends AbstractOperationEdit {
 	private List<List<Map<DenotatorPath,Double>>> modifiedPathsWithValues;
 	private Form objectForm;
 	
-	public AddObjectsEdit(BigBangDenotatorManager denotatorManager, List<Map<DenotatorPath,Double>> pathsWithValues, List<DenotatorPath> powersetPaths) {
-		this(denotatorManager, pathsWithValues, powersetPaths, false);
+	public AddObjectsEdit(BigBangModel model, List<Map<DenotatorPath,Double>> pathsWithValues, List<DenotatorPath> powersetPaths) {
+		this(model, pathsWithValues, powersetPaths, false);
 	}
 	
-	public AddObjectsEdit(BigBangDenotatorManager denotatorManager, List<Map<DenotatorPath,Double>> pathsWithValues, List<DenotatorPath> powersetPaths, boolean inPreviewMode) {
-		super(denotatorManager);
+	public AddObjectsEdit(BigBangModel model, List<Map<DenotatorPath,Double>> pathsWithValues, List<DenotatorPath> powersetPaths, boolean inPreviewMode) {
+		super(model);
 		this.definitePowersetPaths = new ArrayList<DenotatorPath>();
 		this.previewedPowersetPaths = new ArrayList<DenotatorPath>();
 		this.definitePathsWithValues = new ArrayList<Map<DenotatorPath,Double>>();
@@ -44,7 +44,7 @@ public class AddObjectsEdit extends AbstractOperationEdit {
 		if (powersetPath != null) {
 			this.objectForm = powersetPath.getChildPath(0).getEndForm();
 		} else {
-			this.objectForm = this.denotatorManager.getComposition().getForm();
+			this.objectForm = this.model.getComposition().getForm();
 		}
 	}
 	
@@ -69,10 +69,10 @@ public class AddObjectsEdit extends AbstractOperationEdit {
 	public List<AbstractOperationEdit> getSplitOperations(double ratio) {
 		List<AbstractOperationEdit> splitOperations = new ArrayList<AbstractOperationEdit>();
 		int firstNumberOfObjects = (int)Math.round(ratio*this.definitePathsWithValues.size());
-		splitOperations.add(new AddObjectsEdit(this.denotatorManager,
+		splitOperations.add(new AddObjectsEdit(this.model,
 				this.definitePathsWithValues.subList(0, firstNumberOfObjects),
 				this.definitePowersetPaths.subList(0, firstNumberOfObjects)));
-		splitOperations.add(new AddObjectsEdit(this.denotatorManager,
+		splitOperations.add(new AddObjectsEdit(this.model,
 				this.definitePathsWithValues.subList(firstNumberOfObjects, this.definitePathsWithValues.size()),
 				this.definitePowersetPaths.subList(firstNumberOfObjects, this.definitePathsWithValues.size())));
 		return splitOperations;
@@ -146,7 +146,7 @@ public class AddObjectsEdit extends AbstractOperationEdit {
 	public OperationPathResults execute() {
 		OperationPathResults pathResults = new OperationPathResults();
 		for (int i = 0; i < this.modifiedPowersetPaths.size(); i++) {
-			pathResults.addPaths(this.denotatorManager.addObjects(this.modifiedPowersetPaths.get(i), this.modifiedPathsWithValues.get(i)));
+			pathResults.addPaths(this.model.getDenotatorManager().addObjects(this.modifiedPowersetPaths.get(i), this.modifiedPathsWithValues.get(i)));
 		}
 		return pathResults;
 	}

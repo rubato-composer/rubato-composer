@@ -6,18 +6,18 @@ import javax.swing.AbstractAction;
 
 import org.rubato.rubettes.bigbang.view.controller.ViewController;
 
-public class CopyToLayerAction extends AbstractAction {
+public class AddToLayerAction extends AbstractAction {
 	
 	private ViewController controller;
 	private int layerIndex;
 	
-	public CopyToLayerAction(ViewController controller, int layerIndex) {
+	public AddToLayerAction(ViewController controller, int layerIndex) {
 		super("Layer "+layerIndex);
 		this.controller = controller;
 	}
 	
 	public void actionPerformed(ActionEvent event) {
-		this.controller.copySelectedObjectsTo(this.layerIndex);
+		this.controller.addSelectedObjectsTo(this.layerIndex);
 	}
 	
 }

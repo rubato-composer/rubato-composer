@@ -1,7 +1,7 @@
 package org.rubato.rubettes.bigbang.model.edits;
 
 import org.rubato.math.matrix.RMatrix;
-import org.rubato.rubettes.bigbang.model.BigBangDenotatorManager;
+import org.rubato.rubettes.bigbang.model.BigBangModel;
 import org.rubato.rubettes.bigbang.model.TransformationProperties;
 
 public class ShearingEdit extends AbstractLocalTransformationEdit {
@@ -9,12 +9,12 @@ public class ShearingEdit extends AbstractLocalTransformationEdit {
 	private double[] shearingFactors;
 	
 	//used for cloning
-	protected ShearingEdit(BigBangDenotatorManager denotatorManager) {
-		super(denotatorManager);
+	protected ShearingEdit(BigBangModel model) {
+		super(model);
 	}
 	
-	public ShearingEdit(BigBangDenotatorManager denotatorManager, TransformationProperties properties, double[] shearingFactors) {
-		super(denotatorManager, properties);
+	public ShearingEdit(BigBangModel model, TransformationProperties properties, double[] shearingFactors) {
+		super(model, properties);
 		this.modify(shearingFactors);
 	}
 	

@@ -40,6 +40,7 @@ public class BigBangModel extends Model {
 	
 	private boolean inputActive;
 	private boolean isMultiTouch;
+	private BigBangController controller;
 	private BigBangDenotatorManager denotators;
 	private BigBangObjects objects; //object-oriented representation of the denotator composition
 	private UndoManager undoManager;
@@ -49,10 +50,11 @@ public class BigBangModel extends Model {
 	private BigBangGraphAnimator animator;
 	
 	public BigBangModel(BigBangController controller) {
+		this.controller = controller;
 		controller.addModel(this);
 		this.denotators = new BigBangDenotatorManager();
 		this.setInputActive(true);
-		this.objects = new BigBangObjects(this.denotators.getForm());
+		this.objects = new BigBangObjects(this.denotators.getForm(), controller);
 		this.undoManager = new UndoManager();
 		this.undoSupport = new UndoableEditSupport();
 		this.undoSupport.addUndoableEditListener(new UndoAdaptor(this.undoManager));
@@ -86,7 +88,7 @@ public class BigBangModel extends Model {
 		if (!form.equals(this.denotators.getForm())) {
 			this.reset();
 			this.denotators.setForm(form);
-			this.objects = new BigBangObjects(this.denotators.getForm());
+			this.objects = new BigBangObjects(this.denotators.getForm(), this.controller);
 			this.fireCompositionChange();
 		}
 	}
@@ -107,12 +109,16 @@ public class BigBangModel extends Model {
 			((SetOrAddCompositionEdit)this.transformationGraph.getSelectedOperation()).setOrAddComposition(composition);
 			this.operationModified();
 		} else {
-			this.postEdit(new SetOrAddCompositionEdit(this.denotators, composition));
+			this.postEdit(new SetOrAddCompositionEdit(this, composition));
 		}
 	}
 	
 	public Denotator getComposition() {
 		return this.denotators.getComposition();
+	}
+	
+	public BigBangDenotatorManager getDenotatorManager() {
+		return this.denotators;
 	}
 	
 	public void addObjects(ArrayList<Map<DenotatorPath,Double>> pathsWithValues, ArrayList<DenotatorPath> powersetPaths, Boolean inPreviewMode) {
@@ -125,7 +131,7 @@ public class BigBangModel extends Model {
 					return;
 				}
 			}
-			this.postEdit(new AddObjectsEdit(this.denotators, pathsWithValues, powersetPaths, inPreviewMode));
+			this.postEdit(new AddObjectsEdit(this, pathsWithValues, powersetPaths, inPreviewMode));
 		}
 	}
 	
@@ -134,12 +140,12 @@ public class BigBangModel extends Model {
 	}
 	
 	public void deleteObjects(TreeSet<BigBangObject> objects) {
-		this.postEdit(new DeleteObjectsEdit(this.denotators, objects));
+		this.postEdit(new DeleteObjectsEdit(this, objects));
 	}
 	
 	public void translateObjects(TransformationProperties properties) {
 		if (properties.startNewTransformation()) {
-			this.postTransformation(properties, new TranslationEdit(this.denotators, properties));
+			this.postEdit(new TranslationEdit(this, properties));
 		} else if (this.updateTransformation(properties, TranslationEdit.class)) {
 			this.updateComposition();
 		}
@@ -147,7 +153,7 @@ public class BigBangModel extends Model {
 	
 	public void rotateObjects(TransformationProperties properties, double[] startingPoint, Double angle) {
 		if (properties.startNewTransformation()) {
-			this.postTransformation(properties, new RotationEdit(this.denotators, properties, startingPoint, angle));
+			this.postEdit(new RotationEdit(this, properties, startingPoint, angle));
 		} else if (this.updateTransformation(properties, RotationEdit.class)) {
 			RotationEdit lastRotation = (RotationEdit)this.transformationGraph.getLastAddedOperation();
 			lastRotation.setParameters(startingPoint, angle);
@@ -157,7 +163,7 @@ public class BigBangModel extends Model {
 	
 	public void scaleObjects(TransformationProperties properties, double[] scaleFactors) {
 		if (properties.startNewTransformation()) {
-			this.postTransformation(properties, new ScalingEdit(this.denotators, properties, scaleFactors));
+			this.postEdit(new ScalingEdit(this, properties, scaleFactors));
 		} else if (this.updateTransformation(properties, ScalingEdit.class)) {
 			this.modifyLastTransformation(scaleFactors);
 		}
@@ -165,7 +171,7 @@ public class BigBangModel extends Model {
 	
 	public void reflectObjects(TransformationProperties properties, double[] reflectionVector) {
 		if (properties.startNewTransformation()) {
-			this.postTransformation(properties, new ReflectionEdit(this.denotators, properties, reflectionVector));
+			this.postEdit(new ReflectionEdit(this, properties, reflectionVector));
 		} else if (this.updateTransformation(properties, ReflectionEdit.class)) {
 			this.modifyLastTransformation(reflectionVector);
 		}
@@ -173,7 +179,7 @@ public class BigBangModel extends Model {
 	
 	public void shearObjects(TransformationProperties properties, double[] shearingFactors) {
 		if (properties.startNewTransformation()) {
-			this.postTransformation(properties, new ShearingEdit(this.denotators, properties, shearingFactors));
+			this.postEdit(new ShearingEdit(this, properties, shearingFactors));
 		} else if (this.updateTransformation(properties, ShearingEdit.class)) {
 			this.modifyLastTransformation(shearingFactors);
 		}
@@ -195,37 +201,31 @@ public class BigBangModel extends Model {
 	}
 	
 	public void shapeObjects(TransformationProperties properties, TreeMap<Double,Double> shapingLocations) {
-		this.postTransformation(properties, new ShapingEdit(this.denotators, properties, shapingLocations));
+		this.postEdit(new ShapingEdit(this, properties, shapingLocations));
 	}
 	
 	public void affineTransformObjects(TransformationProperties properties, double[] shift, RMatrix transform) {
-		this.postTransformation(properties, new AffineTransformationEdit(this.denotators, properties, shift, transform));
-	}
-	
-	private void postTransformation(TransformationProperties properties, AbstractOperationEdit edit) {
-		if (properties.getObjects().size() > 0) {
-			this.postEdit(edit);
-		}
+		this.postEdit(new AffineTransformationEdit(this, properties, shift, transform));
 	}
 	
 	public void buildSatellites(TreeSet<BigBangObject> objects, BigBangObject anchorObject, Integer powersetIndex) {
-		this.postEdit(new BuildSatellitesEdit(this.denotators, objects, anchorObject, powersetIndex));
+		this.postEdit(new BuildSatellitesEdit(this, objects, anchorObject, powersetIndex));
 	}
 	
 	public void flattenObjects(TreeSet<BigBangObject> objects) {
-		this.postEdit(new FlattenEdit(this.denotators, objects));
+		this.postEdit(new FlattenEdit(this, objects));
 	}
 	
 	public void addWallpaperDimension(TreeSet<BigBangObject> objectPaths, Integer rangeFrom, Integer rangeTo) {
-		this.postEdit(new AddWallpaperDimensionEdit(this.denotators, objectPaths, rangeFrom, rangeTo));
+		this.postEdit(new AddWallpaperDimensionEdit(this, objectPaths, rangeFrom, rangeTo));
 	}
 	
 	public void endWallpaper() {
-		this.postEdit(new EndWallpaperEdit(this.denotators));
+		this.postEdit(new EndWallpaperEdit(this));
 	}
 	
 	public void addAlteration() {
-		this.postEdit(new AlterationEdit(this.denotators));
+		this.postEdit(new AlterationEdit(this));
 		this.firePropertyChange(BigBangController.MODIFY_OPERATION, null, this.transformationGraph.getLastAddedOperation());
 	}
 	

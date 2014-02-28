@@ -25,16 +25,12 @@ public class DisplayObject implements Comparable<DisplayObject> {
 	private Rectangle2D.Double rectangle;
 	private Point2D.Double center;
 	private boolean isSelected;
-	private boolean isVisible;
-	private boolean isActive;
 	
 	private float currentHue, currentOpacity;
 	private int currentRed, currentBlue, currentGreen;
 	
 	public DisplayObject(BigBangObject bbObject) {
 		this.bbObject = bbObject;
-		this.isVisible = true;
-		this.isActive = true;
 	}
 	
 	public BigBangObject getBigBangObject() {
@@ -49,12 +45,8 @@ public class DisplayObject implements Comparable<DisplayObject> {
 		return this.bbObject.getNthValue(valueName, nameInstanceNumber);
 	}
 	
-	public int getLayer() {
-		return this.bbObject.getLayer();
-	}
-	
 	public void setSelected(boolean selected) {
-		if (this.isActive) {
+		if (this.isActive()) {
 			this.isSelected = selected;
 		}
 	}
@@ -63,22 +55,16 @@ public class DisplayObject implements Comparable<DisplayObject> {
 		return this.isSelected;
 	}
 	
-	private void updateSelected() {
-		if (!this.isActive) {
-			this.isSelected = false;
-		}
-	}
-	
 	public boolean isVisible() {
-		return this.isVisible;
-	}
-	
-	public void setActive(boolean active) {
-		this.isActive = active;
+		return this.bbObject.isVisible();
 	}
 	
 	public boolean isActive() {
-		return this.isActive;
+		return this.bbObject.isActive();
+	}
+	
+	public boolean isOnLayer(int layerIndex) {
+		return this.bbObject.isOnLayer(layerIndex);
 	}
 	
 	private double getX(double xZoomFactor, int xPosition) {
@@ -104,13 +90,13 @@ public class DisplayObject implements Comparable<DisplayObject> {
 	public Color getColor() {
 		this.currentOpacity = new Float(this.display.translateValue(this, ViewParameters.SATURATION));
 		if (this.display.getViewParameters().inRGBMode()) {
-			if (!this.isActive) {
+			if (!this.isActive()) {
 				return new Color(200, 200, 200, Math.round(this.currentOpacity));
 			}
 			return this.getRGBColor();
 				
 		}
-		if (!this.isActive) {
+		if (!this.isActive()) {
 			//70-100% of maximal brightness
 			float brightness = 0.3f*(1-this.currentOpacity)+0.7f;
 			return Color.getHSBColor(this.currentHue, 0, brightness);
@@ -139,12 +125,6 @@ public class DisplayObject implements Comparable<DisplayObject> {
 		return DisplayObject.BRIGHT;
 	}
 	
-	public void setVisibility(LayerState state) {
-		this.isVisible = !state.equals(LayerState.invisible);
-		this.isActive = state.equals(LayerState.active);
-		this.updateSelected();
-	}
-	
 	public void updateBounds(double xZoomFactor, double yZoomFactor, int xPosition, int yPosition) {
 		double x = this.getX(xZoomFactor, xPosition);
 		double width = this.getWidth(xZoomFactor);
@@ -159,7 +139,7 @@ public class DisplayObject implements Comparable<DisplayObject> {
 	 * Paints a line that connects this object to the given point (x/y)  
 	 */
 	public void paintConnectors(AbstractPainter painter, double x, double y) {
-		if (this.display != null && this.isVisible && this.display.satellitesConnected()) {
+		if (this.display != null && this.isVisible() && this.display.satellitesConnected()) {
 			/*if (relation == DenotatorPath.SATELLITE) {
 				painter.setColor(Color.black);
 			} else {*/
@@ -170,7 +150,7 @@ public class DisplayObject implements Comparable<DisplayObject> {
 	}
 	
 	public void paintAnchorSelection(AbstractPainter painter) {
-		if (this.isVisible) {
+		if (this.isVisible()) {
 			Path2D.Double triangle = new Path2D.Double();
 			triangle.moveTo(this.rectangle.x, this.rectangle.y);
 			triangle.lineTo(this.rectangle.x, this.rectangle.y+this.rectangle.height);
@@ -182,7 +162,7 @@ public class DisplayObject implements Comparable<DisplayObject> {
 	}
 	
 	public void paint(AbstractPainter painter) {
-		if (this.isVisible && this.display != null && this.rectangle != null) {
+		if (this.isVisible() && this.display != null && this.rectangle != null) {
 			painter.setColor(this.getColor());
 			painter.fillNote(this.rectangle.x, this.rectangle.y, this.rectangle.width, this.rectangle.height);
 		}
