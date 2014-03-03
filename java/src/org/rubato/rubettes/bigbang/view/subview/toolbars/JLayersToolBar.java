@@ -30,7 +30,7 @@ public class JLayersToolBar extends JToolBar implements ActionListener, View {
 	private BigBangController bbController;
 	private ViewController controller;
 	private JButton playButton, recordButton;
-	private JCheckBox isLoopingCheckBox;
+	private JCheckBox synthCheckBox, midiCheckBox, isLoopingCheckBox;
 	private JSlider tempoSlider;
 	private JButton modFilterButton;
 	private List<JSpinner> modFilterSpinners;
@@ -45,6 +45,12 @@ public class JLayersToolBar extends JToolBar implements ActionListener, View {
 		this.recordButton = new JButton(new RecordButtonAction(controller));
 		this.add(this.playButton);
 		this.add(this.recordButton);
+		this.synthCheckBox = new JCheckBox("Synth");
+		this.synthCheckBox.addActionListener(this);
+		this.add(this.synthCheckBox);
+		this.midiCheckBox = new JCheckBox("Midi");
+		this.midiCheckBox.addActionListener(this);
+		this.add(this.midiCheckBox);
 		this.isLoopingCheckBox = new JCheckBox("Loop");
 		this.isLoopingCheckBox.addActionListener(this);
 		this.add(this.isLoopingCheckBox);
@@ -137,7 +143,11 @@ public class JLayersToolBar extends JToolBar implements ActionListener, View {
 	}
 
 	public void actionPerformed(ActionEvent event) {
-		if (event.getSource().equals(this.isLoopingCheckBox)) {
+		if (event.getSource().equals(this.synthCheckBox)) {
+			this.controller.setSynthActive(this.synthCheckBox.isSelected());
+		} else if (event.getSource().equals(this.midiCheckBox)) {
+			this.controller.setMidiActive(this.midiCheckBox.isSelected());
+		} else if (event.getSource().equals(this.isLoopingCheckBox)) {
 			this.controller.setIsLooping(this.isLoopingCheckBox.isSelected());
 		}
 	}

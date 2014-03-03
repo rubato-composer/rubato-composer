@@ -19,8 +19,8 @@ public class JSynMonitorObject extends JSynObject {
 		return Arrays.asList(this.midiToFrequency(this.pitch));
 	}
 	
-	public Double getLoudness() {
-		return this.midiToAmplitude(this.loudness);
+	public int getLoudness() {
+		return (int)this.loudness;
 	}
 	
 	@Override

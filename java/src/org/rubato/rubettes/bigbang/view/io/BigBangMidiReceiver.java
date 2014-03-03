@@ -1,4 +1,4 @@
-package org.rubato.rubettes.bigbang.view.input;
+package org.rubato.rubettes.bigbang.view.io;
 
 import java.util.ArrayList;
 import java.util.List;

@@ -5,6 +5,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
+import org.rubato.rubettes.bigbang.view.io.BigBangMidiTransmitter;
+
 import com.jsyn.JSyn;
 import com.jsyn.Synthesizer;
 import com.jsyn.unitgen.SawtoothOscillator;
@@ -32,10 +34,13 @@ public class JSynPlayer {
 	private Map<Integer,JSynPerformance> currentPerformances, currentMonitorPitches;
 	private String waveform;
 	private double tempo; //in bpm
+	private boolean synthActive;
+	private boolean midiActive;
 	private boolean isLooping;
 	private double loopOnset;
 	private double loopDuration;
 	private List<Integer> keysOfCurrentPerformancesInOrder;
+	BigBangMidiTransmitter midiTransmitter;
 	
 	private boolean inLiveMidiMode;
 	
@@ -48,6 +53,7 @@ public class JSynPlayer {
 		this.currentPerformances = new TreeMap<Integer,JSynPerformance>();
 		this.currentMonitorPitches = new TreeMap<Integer,JSynPerformance>();
 		this.keysOfCurrentPerformancesInOrder = new ArrayList<Integer>();
+		this.midiTransmitter = new BigBangMidiTransmitter();
 	}
 	
 	public void startSynth() {
@@ -93,6 +99,14 @@ public class JSynPlayer {
 		}
 	}
 	
+	public void setSynthActive(boolean synthActive) {
+		this.synthActive = synthActive;
+	}
+	
+	public void setMidiActive(boolean midiActive) {
+		this.midiActive = midiActive;
+	}
+	
 	public void setIsLooping(boolean isLooping) {
 		this.isLooping = isLooping;
 	}
@@ -119,10 +133,12 @@ public class JSynPlayer {
 	}
 	
 	public double getCurrentSynthTime() {
+		//System.out.println("STH "+this.synth.getCurrentTime());
 		return this.synth.getCurrentTime();
 	}
 	
 	public double getCurrentSymbolicTimeOfLatestPerformance() {
+		//System.out.println("PER "+this.currentPerformances.size());
 		if (this.currentPerformances.size() > 0) {
 			int latestPerformance = this.keysOfCurrentPerformancesInOrder.get(this.keysOfCurrentPerformancesInOrder.size()-1);
 			return this.currentPerformances.get(latestPerformance).getCurrentSymbolicTime();
@@ -155,6 +171,7 @@ public class JSynPlayer {
 		if (!this.inLiveMidiMode) {
 			this.playScoreVersion(60, 127);
 		}
+		//System.out.println("PLAY " + this.currentPerformances + " " + this.inLiveMidiMode);
 	}
 	
 	public void pressMidiKey(int pitch, int velocity, boolean recording) {
@@ -241,7 +258,7 @@ public class JSynPlayer {
 	 */
 	public void stopPlaying() {
 		if (this.isLooping) {
-			this.bbPlayer.interrupt();
+			//this.bbPlayer.interrupt();
 		}
 		this.stopAllScoreVersions();
 		this.inLiveMidiMode = false;
@@ -298,10 +315,20 @@ public class JSynPlayer {
 	}
 	
 	public double getRecommendedAmplitude() {
-		if (this.waveform.equals(JSynPlayer.WAVEFORMS[0]) || this.waveform.equals(JSynPlayer.WAVEFORMS[3])) {
-			return 0.3;
+		//TODO pretty bad to control this here...
+		if (this.synthActive) {
+			if (this.waveform.equals(JSynPlayer.WAVEFORMS[0]) || this.waveform.equals(JSynPlayer.WAVEFORMS[3])) {
+				return 0.3;
+			}
+			return 0.15;
 		}
-		return 0.15;
+		return 0;
+	}
+	
+	public void sendMidiMessages(int voice, int pitch, int velocity, int onset, int duration) {
+		if (this.midiActive) {
+			this.midiTransmitter.scheduleNote(voice, pitch, velocity, onset, duration, -1);
+		}
 	}
 
 }

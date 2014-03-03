@@ -102,6 +102,8 @@ public class ViewController extends Controller {
 	//playback feature
 	public static final String PLAY_MODE = "togglePlayMode";
 	public static final String RECORD_MODE = "toggleRecordMode";
+	public static final String SYNTH_ACTIVE = "setSynthActive";
+	public static final String MIDI_ACTIVE = "setMidiActive";
 	public static final String IS_LOOPING = "setIsLooping";
 	public static final String TEMPO = "setTempo";
 	public static final String PLAYBACK_POSITION = "setPlaybackPosition";
@@ -347,6 +349,14 @@ public class ViewController extends Controller {
 	
 	public void toggleRecordMode() {
 		this.callModelMethod(ViewController.RECORD_MODE);
+	}
+	
+	public void setSynthActive(boolean synthActive) {
+		this.callModelMethod(ViewController.SYNTH_ACTIVE, synthActive);
+	}
+	
+	public void setMidiActive(boolean midiActive) {
+		this.callModelMethod(ViewController.MIDI_ACTIVE, midiActive);
 	}
 	
 	public void setIsLooping(boolean isLooping) {

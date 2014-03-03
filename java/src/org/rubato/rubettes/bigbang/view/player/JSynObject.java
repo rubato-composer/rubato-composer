@@ -16,7 +16,7 @@ public class JSynObject implements Comparable<JSynObject> {
 	
 	private JSynObject parent;
 	private double frequencyTranspositionRatio;
-	private Double amplitude;
+	private double loudnessRatio;
 	private Integer satelliteType;
 	private List<JSynObject> satellites;
 	
@@ -33,6 +33,10 @@ public class JSynObject implements Comparable<JSynObject> {
 		this.bbObject = bbObject;
 		this.satellites = new ArrayList<JSynObject>();
 		this.satelliteType = satelliteType;
+	}
+	
+	public BigBangObject getBigBangObject() {
+		return this.bbObject;
 	}
 	
 	/**
@@ -175,7 +179,7 @@ public class JSynObject implements Comparable<JSynObject> {
 	//AMPLITUDE
 
 	public double getAmplitude() {
-		double amplitude = this.midiToAmplitude(this.getFirstValue(100.0, CoolFormRegistrant.LOUDNESS_NAME));
+		double amplitude = this.midiToAmplitude(this.getLoudness());
 		if (this.parent != null && this.satelliteType == JSynObject.FREQUENCY_MODULATION) {
 			//higher amplitude so that FM audible
 			return amplitude*2000;
@@ -183,12 +187,14 @@ public class JSynObject implements Comparable<JSynObject> {
 		return amplitude;
 	}
 	
-	public void adjustAmplitude(double ratio) {
-		if (this.amplitude != null) {
-			this.amplitude *= ratio;
-			for (JSynObject currentModulator : this.satellites) {
-				currentModulator.adjustAmplitude(ratio);
-			}
+	public int getLoudness() {
+		return (int)Math.round(this.getFirstValue(100.0, CoolFormRegistrant.LOUDNESS_NAME)*this.loudnessRatio);
+	}
+	
+	public void setLoudnessRatio(double ratio) {
+		this.loudnessRatio = ratio;
+		for (JSynObject currentModulator : this.satellites) {
+			currentModulator.setLoudnessRatio(ratio);
 		}
 	}
 	
@@ -244,6 +250,10 @@ public class JSynObject implements Comparable<JSynObject> {
 	
 	protected double midiToFrequency(double midiPitch) {
 		return JSynPlayer.BASE_A4*Math.pow(2, (midiPitch-57)/12);
+	}
+	
+	public int frequencyToMidi(double frequency) {
+		return (int)Math.round((Math.log(frequency/JSynPlayer.BASE_A4)/Math.log(2))*12+57);
 	}
 	
 	protected double midiToAmplitude(double loudness) {
