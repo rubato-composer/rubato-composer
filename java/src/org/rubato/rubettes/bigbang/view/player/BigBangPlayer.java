@@ -42,6 +42,7 @@ public class BigBangPlayer extends Thread {
 	}
 	
 	public double getCurrentSymbolicTime() {
+		//System.out.println("SMB "+this.player.getCurrentSymbolicTimeOfLatestPerformance());
 		return this.player.getCurrentSymbolicTimeOfLatestPerformance();
 	}
 	
@@ -58,6 +59,7 @@ public class BigBangPlayer extends Thread {
 	}
 	
 	private synchronized void startPlaying(long startingTime) {
+		//System.out.println("START " + this.threadRunning);
 		if (!this.threadRunning) {
 			this.threadRunning = true;
 			this.start();
@@ -93,8 +95,10 @@ public class BigBangPlayer extends Thread {
 	public void run() {
 		while(this.threadRunning) {
 			try { Thread.sleep(100); } catch (InterruptedException e) { } //e.printStackTrace(); }
+			//System.out.println("RUN " + this.player.isPlaying());
 			if (this.startingTime != 0 && System.currentTimeMillis() >= this.startingTime
 					&& this.score != null && !this.player.isPlaying()) {
+				//System.out.println("PLAY " + this.threadRunning);
 				this.player.play(this.score);
 				this.startingTime = 0;
 			}
@@ -106,6 +110,14 @@ public class BigBangPlayer extends Thread {
 		this.isPlaying = false;
 		this.interrupt(); //interrupt to stop thread and stop looping immediately in jsynplayer
 		this.startingTime = 0;
+	}
+	
+	public void setSynthActive(boolean synthActive) {
+		this.player.setSynthActive(synthActive);
+	}
+	
+	public void setMidiActive(boolean midiActive) {
+		this.player.setMidiActive(midiActive);
 	}
 	
 	public void setIsLooping(boolean isLooping) {

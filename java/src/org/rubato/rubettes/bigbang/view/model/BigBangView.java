@@ -43,7 +43,8 @@ import org.rubato.rubettes.bigbang.view.controller.mode.ScalingModeAdapter;
 import org.rubato.rubettes.bigbang.view.controller.mode.ShearingModeAdapter;
 import org.rubato.rubettes.bigbang.view.controller.mode.TranslationModeAdapter;
 import org.rubato.rubettes.bigbang.view.controller.mode.temp.TemporaryDisplayMode;
-import org.rubato.rubettes.bigbang.view.input.BigBangMidiReceiver;
+import org.rubato.rubettes.bigbang.view.io.BigBangMidiReceiver;
+import org.rubato.rubettes.bigbang.view.io.BigBangMidiTransmitter;
 import org.rubato.rubettes.bigbang.view.model.tools.DisplayTool;
 import org.rubato.rubettes.bigbang.view.model.tools.SelectionTool;
 import org.rubato.rubettes.bigbang.view.player.BigBangPlayer;
@@ -62,6 +63,7 @@ public class BigBangView extends Model implements View {
 	protected BigBangPlayer player;
 	protected BigBangRecorder recorder;
 	protected BigBangMidiReceiver midiReceiver;
+	protected BigBangMidiTransmitter midiTransmitter;
 	protected JBigBangPanel panel;
 	private DisplayModeAdapter displayMode;
 	protected Point displayPosition;
@@ -772,6 +774,16 @@ public class BigBangView extends Model implements View {
 	
 	public JBigBangPanel getPanel() {
 		return this.panel;
+	}
+	
+	public void setSynthActive(Boolean synthActive) {
+		this.player.setSynthActive(synthActive);
+		this.firePropertyChange(ViewController.SYNTH_ACTIVE, null, synthActive);
+	}
+	
+	public void setMidiActive(Boolean midiActive) {
+		this.player.setMidiActive(midiActive);
+		this.firePropertyChange(ViewController.MIDI_ACTIVE, null, midiActive);
 	}
 	
 	public void setIsLooping(Boolean isLooping) {

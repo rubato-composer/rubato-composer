@@ -10,6 +10,7 @@ public class JSynModule {
 	
 	private JSynPerformance performance;
 	private JSynPlayer player;
+	private JSynObject currentObject;
 	private List<SmoothOscillator> carriers;
 	private LineOut lineOut;
 	private Pan pan;
@@ -26,6 +27,10 @@ public class JSynModule {
 	 	this.carriers = new ArrayList<SmoothOscillator>();
 	 	this.addCarrier();
 	 	this.start();
+	}
+	
+	public JSynObject getCurrentObject() {
+		return this.currentObject;
 	}
 	
 	private void addCarrier() {
@@ -53,6 +58,7 @@ public class JSynModule {
 			}
 			this.playOrAdjustObject(this.carriers.get(i), object, currentFrequency, playInNextLoop);
 		}
+		this.currentObject = object;
 	}
 	
 	//recursive method
@@ -69,6 +75,9 @@ public class JSynModule {
 				double onset = this.performance.getSynthOnset(object.getOnset(), playInNextLoop);
 				double duration = this.player.convertToSynthDuration(object.getDuration());
 				oscillator.queueEnvelope(duration, onset, true);
+				int onsetMillis = (int)Math.round((onset-this.player.getCurrentSynthTime())*1000);
+				int durationMillis = (int)Math.round(duration*1000);
+				this.player.sendMidiMessages(object.getVoice(), object.frequencyToMidi(frequency), object.getLoudness(), onsetMillis, durationMillis);
 			} else {
 				double remainingDuration = this.player.convertToSynthDuration(object.getDuration()-(currentSymbolicTime-object.getOnset()));
 				if (remainingDuration > 0) {

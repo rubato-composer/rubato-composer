@@ -1,8 +1,13 @@
 package org.rubato.rubettes.bigbang.view.player;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.TreeMap;
+
+import org.rubato.rubettes.bigbang.model.BigBangObject;
 
 public class JSynPerformance {
 	
@@ -185,7 +190,7 @@ public class JSynPerformance {
 					clone.setTranspositionInterval(this.pitch-60);
 				}
 				if (this.velocity != null) {
-					clone.adjustAmplitude(((double)this.velocity)/127);
+					clone.setLoudnessRatio(((double)this.velocity)/127);
 				}
 				this.addNoteToConvenientThread(clone, threads);
 			}
@@ -222,18 +227,22 @@ public class JSynPerformance {
 	//reallocate sound modules in order to get as few glitches as possible
 	private synchronized void allocateModules(JSynThreadGroup threads) {
 		
-		//associate closest modules or create new ones
-		List<JSynModule> remainingModules = new ArrayList<JSynModule>(this.modules);
+		//associate currently playing threads with modules playing same BigBangObjects, or create new ones
+		Set<JSynModule> remainingModules = new HashSet<JSynModule>(this.modules);
+		Map<BigBangObject,JSynModule> objectModuleMap = this.getCurrentObjectModuleMap();
 		double currentTime = this.player.getSynth().getCurrentTime();
 		List<JSynThread> notPlayingThreads = new ArrayList<JSynThread>();
+		
 		for (JSynThread currentThread : threads) {
 			JSynObject objectAtCurrentTime = currentThread.getObjectAt(currentTime);
-			JSynModule closestModule = null;
+			
 			//System.out.println(remainingModules);
 			if (objectAtCurrentTime != null) {
-				closestModule = this.getModuleWithClosestParameters(objectAtCurrentTime, remainingModules);
-				if (closestModule != null) {
-					currentThread.setModule(closestModule);
+				JSynModule objectModule = objectModuleMap.get(objectAtCurrentTime.getBigBangObject());
+				
+				if (objectModule != null) {
+					currentThread.setModule(objectModule);
+					remainingModules.remove(objectModule);
 					//System.out.println(currentFrequency + " " + closestModule.getCarrierFrequency());
 				} else {
 					JSynModule newModule = new JSynModule(this);
@@ -264,32 +273,15 @@ public class JSynPerformance {
 		}
 	}
 	
-	private JSynModule getModuleWithClosestParameters(JSynObject object, List<JSynModule> modules) {
-		//TODO: MAYBE NORMALIZE DISTANCE??
-		JSynModule closestModule = null;
-		double closestDistance = Double.MAX_VALUE;
-		double[] objectValues = new double[]{object.getMainFrequency(), object.getAmplitude(), object.getPan()};
-		for (JSynModule currentModule : modules) {
-			double[] moduleValues = new double[]{currentModule.getMainCarrierFrequency(), currentModule.getMainCarrierAmplitude(), currentModule.getPan()};
-			double currentDistance = this.calculateEuclideanDistance(objectValues, moduleValues);
-			if (currentDistance < closestDistance) {
-				closestDistance = currentDistance;
-				closestModule = currentModule;
+	private Map<BigBangObject,JSynModule> getCurrentObjectModuleMap() {
+		Map<BigBangObject,JSynModule> objectModuleMap = new TreeMap<BigBangObject,JSynModule>();
+		for (JSynModule currentModule : this.modules) {
+			BigBangObject currentBBObject = currentModule.getCurrentObject().getBigBangObject();
+			if (currentBBObject != null) {
+				objectModuleMap.put(currentBBObject, currentModule);
 			}
 		}
-		//System.out.println(objectValues + " " + closestDistance + " " + closestModule);
-		modules.remove(closestModule);
-		return closestModule;
-	}
-	
-	private double calculateEuclideanDistance(double[] p1, double[] p2) {
-		double sum = 0;
-		if (p1.length > 0 && p1.length == p2.length) {
-			for (int i = 0; i < p1.length; i++) {
-				sum += Math.pow(p1[i]-p2[i], 2);
-			}
-		}
-		return Math.sqrt(sum);
+		return objectModuleMap;
 	}
 
 }
