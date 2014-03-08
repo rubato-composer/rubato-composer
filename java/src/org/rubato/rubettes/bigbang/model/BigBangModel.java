@@ -201,7 +201,18 @@ public class BigBangModel extends Model {
 	}
 	
 	public void shapeObjects(TransformationProperties properties, TreeMap<Double,Double> shapingLocations) {
-		this.postEdit(new ShapingEdit(this, properties, shapingLocations));
+		ShapingEdit edit = null;
+		if (this.transformationGraph.getLastAddedOperation() instanceof ShapingEdit) {
+			edit = (ShapingEdit)this.transformationGraph.getLastAddedOperation();
+		} else if (this.transformationGraph.getSelectedOperation() instanceof ShapingEdit) {
+			edit = (ShapingEdit)this.transformationGraph.getSelectedOperation();
+		}
+		if (edit != null && edit.getShapingPaths().equals(properties.getTransformationPaths())) {
+			edit.addShapingLocations(shapingLocations);
+			this.updateComposition();
+		} else {	
+			this.postEdit(new ShapingEdit(this, properties, shapingLocations));
+		}
 	}
 	
 	public void affineTransformObjects(TransformationProperties properties, double[] shift, RMatrix transform) {
@@ -417,6 +428,9 @@ public class BigBangModel extends Model {
 			
 			//TODO reconsider how to select paths. will be taken from bbobjects or saved in visualobjects..
 			PerformanceCheck.startTask("fire");
+			this.fireCompositionChange();
+		} else {
+			this.objects.clearObjects();
 			this.fireCompositionChange();
 		}
 	}

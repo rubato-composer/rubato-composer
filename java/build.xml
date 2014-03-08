@@ -30,13 +30,22 @@
         <exclude name="**/*Test.class"/>
         <exclude name="**/*.java"/>
       </fileset>
-      <zipfileset src="jar/xercesImpl.jar"/>
-      <zipfileset src="jar/jsyn_beta_160.jar"/>
-      <zipfileset src="jar/mt4j.jar"/>
+      <zipfileset src="jar/collections-generic-4.01.jar"/>
+      <zipfileset src="jar/commons-math3-3.2.jar"/>
       <zipfileset src="jar/core.jar"/>
+      <zipfileset src="jar/jportaudio.jar"/>
+      <zipfileset src="jar/jsyn-beta-16.5.14.jar"/>
+      <zipfileset src="jar/jung-algorithms-2.0.1.jar"/>
+      <zipfileset src="jar/jung-api-2.0.1.jar"/>
+      <zipfileset src="jar/jung-graph-impl-2.0.1.jar"/>
+      <zipfileset src="jar/jung-visualization-2.0.1.jar"/>
+      <!--<zipfileset excludes="META-INF/**/*" src="jar/LeapJava.jar" />-->
+      <zipfileset src="jar/mt4j.jar"/>
+      <zipfileset src="jar/xercesImpl.jar"/>
       <manifest>
         <attribute name="Built-By" value="Gérard Milmeister"/>
         <attribute name="Main-Class" value="org.rubato.composer.Composer"/>
+      	<attribute name="Class-Path" value="jar/LeapJava.jar"/>
       </manifest>
     </jar>
   </target>

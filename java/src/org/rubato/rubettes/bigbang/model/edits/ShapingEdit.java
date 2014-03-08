@@ -25,6 +25,14 @@ public class ShapingEdit extends AbstractOperationEdit {
 		this.copyAndShape = properties.copyAndTransform();
 		this.execute();
 	}
+	
+	public void addShapingLocations(TreeMap<Double,Double> shapingLocations) {
+		this.shapingLocations.putAll(shapingLocations);
+	}
+	
+	public List<TransformationPaths> getShapingPaths() {
+		return this.shapingPaths;
+	}
 
 	@Override
 	public OperationPathResults execute() {

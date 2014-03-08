@@ -96,7 +96,7 @@ public class ModuleListView
 	}
 
 	public void mousePressed(MouseEvent e) {
-		if (e.getButton() == MouseEvent.BUTTON3) {
+		if (e.getButton() == MouseEvent.BUTTON3 || e.isControlDown()) { //control-click for mac...
 			if (list.getSelectedIndex() >= 0) {
 				popupMenu(e.getX(), e.getY(), list.getSelectedIndex());
 			}

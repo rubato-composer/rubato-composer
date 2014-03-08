@@ -223,7 +223,7 @@ class JGraphSelect
     
 
     public void mouseClicked(MouseEvent e) {
-        if (e.getButton() == MouseEvent.BUTTON3) {
+        if (e.getButton() == MouseEvent.BUTTON3 || e.isControlDown()) { //control-click for mac...
             int i = getNear(e.getX(), e.getY());
             if (i >= 0) {
                 config.removePoint(i);
