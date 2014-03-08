@@ -67,16 +67,18 @@ public class DisplayObjects {
 		PerformanceCheck.startTask("addDO");
 		//reset object since they might temporarily not exist (e.g. during animation)
 		this.objects = new TreeSet<DisplayObject>();
-		for (BigBangObject currentObject : newObjects) {
-			if (!this.objectMap.containsKey(currentObject)) {
-				//create and add new objects
-				DisplayObject newObject = new DisplayObject(currentObject);
-				this.objects.add(newObject);
-				this.objectMap.put(currentObject, newObject);
-			} else {
-				//add objects that existed before
-				if (currentObject.getTopDenotatorPath() != null) {
-					this.objects.add(this.objectMap.get(currentObject));
+		if (newObjects != null) {
+			for (BigBangObject currentObject : newObjects) {
+				if (!this.objectMap.containsKey(currentObject)) {
+					//create and add new objects
+					DisplayObject newObject = new DisplayObject(currentObject);
+					this.objects.add(newObject);
+					this.objectMap.put(currentObject, newObject);
+				} else {
+					//add objects that existed before
+					if (currentObject.getTopDenotatorPath() != null) {
+						this.objects.add(this.objectMap.get(currentObject));
+					}
 				}
 			}
 		}

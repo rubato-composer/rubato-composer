@@ -68,9 +68,9 @@ public class ViewController extends Controller {
 	public static final String ADD_OBJECTS = "addObjects";
 	public static final String DELETE_OBJECTS = "deleteSelectedObjects";
 	
-	public static final String ADD_TO_LAYER = "addSelectedObjectsTo";
+	public static final String ADD_TO_LAYER = "addSelectedObjectsToLayer";
 	public static final String ADD_TO_NEW_LAYER = "addSelectedObjectsToNewLayer";
-	public static final String MOVE_TO_LAYER = "moveSelectedObjectsTo";
+	public static final String MOVE_TO_LAYER = "moveSelectedObjectsToLayer";
 	public static final String MOVE_TO_NEW_LAYER = "moveSelectedObjectsToNewLayer";
 	public static final String LAYER_SELECTED = "setObjectsOnLayerSelected";
 	

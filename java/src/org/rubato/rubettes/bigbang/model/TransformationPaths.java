@@ -104,5 +104,13 @@ public class TransformationPaths {
 	public String toString() {
 		return this.domainPaths.toString() + " " + this.codomainPaths.toString();
 	}
+	
+	public boolean equals(Object object) {
+		if (object instanceof TransformationPaths) {
+			TransformationPaths other = (TransformationPaths)object;
+			return Arrays.equals(this.xyCoordinates, other.xyCoordinates);
+		}
+		return false;
+	}
 
 }

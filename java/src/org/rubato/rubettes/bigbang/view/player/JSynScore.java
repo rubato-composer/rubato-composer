@@ -21,7 +21,9 @@ public class JSynScore {
 		if (baseForm.equals(CoolFormRegistrant.FM_SET_FORM)) {
 			this.satelliteType = JSynObject.FREQUENCY_MODULATION;
 		}
-		this.addObjects(objects);
+		if (objects != null) {
+			this.addObjects(objects);
+		}
 	}
 	
 	/**

@@ -339,10 +339,8 @@ public class BigBangView extends Model implements View {
 		//System.out.println("DO " +newObjects.getObjects()+ " " +this.displayObjects.size());
 		//System.out.println("DO " + newObjects.size()  + " " +this.displayObjects.size());
 		Set<BigBangObject> lastObjects = newObjects.getObjectsAt(null);
-		if (lastObjects != null) {
-			this.displayObjects.addObjects(lastObjects);
-			this.player.setScore(new JSynScore(lastObjects, newObjects.getBaseForm()));
-		}
+		this.displayObjects.addObjects(lastObjects);
+		this.player.setScore(new JSynScore(lastObjects, newObjects.getBaseForm()));
 		
 		//TODO UPDATE ALL THESE THINGS!!!
 		this.viewParameters.setDenotatorMinAndMaxValues(newObjects.getMinValues(), newObjects.getMaxValues());
@@ -636,7 +634,7 @@ public class BigBangView extends Model implements View {
 		this.controller.addObjectsToNewLayer(this.displayObjects.getSelectedBigBangObjects());
 	}
 	
-	public void addSelectedObjectsTo(Integer layerIndex) {
+	public void addSelectedObjectsToLayer(Integer layerIndex) {
 		this.controller.addObjectsToLayer(layerIndex, this.displayObjects.getSelectedBigBangObjects());
 	}
 	

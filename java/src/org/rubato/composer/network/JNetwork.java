@@ -508,8 +508,8 @@ public class JNetwork extends JLayeredPane
     public void mousePressed(MouseEvent e) {
         if (isRunning()) { return; }
         if (!e.isConsumed()) {
-            if (e.getButton() == MouseEvent.BUTTON3) {
-                // open popup menu
+            if (e.getButton() == MouseEvent.BUTTON3 || e.isControlDown()) { //control-click for mac...
+            	// open popup menu
                 JLink jlink = getLinkAt(e.getPoint());
                 if (jlink != null) {
                     JPopupMenu popup = getLinkPopup(jlink);

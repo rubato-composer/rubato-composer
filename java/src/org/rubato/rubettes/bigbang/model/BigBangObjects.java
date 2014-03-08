@@ -134,6 +134,8 @@ public class BigBangObjects {
 	public Set<BigBangObject> getObjectsAt(AbstractOperationEdit operation) {
 		if (this.objectsMaps.containsKey(operation)) {
 			return new TreeSet<BigBangObject>(this.objectsMaps.get(operation).values());
+		} else if (this.objectsMaps.containsKey(null)) {
+			return new TreeSet<BigBangObject>(this.objectsMaps.get(null).values());
 		}
 		return null;
 	}

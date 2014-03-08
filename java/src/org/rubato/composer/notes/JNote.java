@@ -114,7 +114,7 @@ public class JNote
             }
             e.consume();
         }
-        else if (e.getButton() == MouseEvent.BUTTON3) {
+        else if (e.getButton() == MouseEvent.BUTTON3 || e.isControlDown()) { //control-click for mac...
             // popup menu for JNote
             JPopupMenu menu = createPopupMenu();
             menu.show(this, e.getX(), e.getY());

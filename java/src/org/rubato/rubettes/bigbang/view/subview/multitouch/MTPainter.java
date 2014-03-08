@@ -141,14 +141,16 @@ public class MTPainter extends AbstractPainter {
 	public int getStringHeight(String s) {
 		MTTextArea textField = new MTTextArea(this.mtApplication, this.font);
 		textField.setText(s);
-		return Math.round(textField.getWidthXYVectLocal().length());
+		//WAS DEPRECATED return Math.round(textField.getWidthXYVectLocal().length());
+		return Math.round(textField.getWidthXY(null));
 	}
 
 	@Override
 	public int getStringWidth(String s) {
 		MTTextArea textField = new MTTextArea(this.mtApplication, this.font);
 		textField.setText(s);
-		return Math.round(textField.getHeightXYVectLocal().length());
+		//WAS DEPRECATED return Math.round(textField.getHeightXYVectLocal().length());
+		return Math.round(textField.getHeightXY(null));
 	}
 	
 	/*private Polygon createPolygonFromRectangle(int x, int y, int width, int height) {

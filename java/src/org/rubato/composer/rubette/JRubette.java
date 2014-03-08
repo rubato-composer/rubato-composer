@@ -650,7 +650,7 @@ public final class JRubette extends JPanel
             }
             e.consume();
         }
-        else if (e.getButton() == MouseEvent.BUTTON3) {
+        else if (e.getButton() == MouseEvent.BUTTON3 || e.isControlDown()) { //control-click for mac...
             // popup menu for JRubette
             JPopupMenu menu = createPopupMenu();
             menu.show(this, e.getX(), e.getY());
