@@ -8,6 +8,7 @@ import org.rubato.rubettes.bigbang.view.View;
 import org.rubato.rubettes.bigbang.view.controller.ViewController;
 import org.rubato.rubettes.bigbang.view.controller.mode.multitouch.MTDisplayModeAdapter;
 import org.rubato.rubettes.bigbang.view.model.ViewParameters;
+import org.rubato.rubettes.bigbang.view.model.ZoomChange;
 import org.rubato.rubettes.bigbang.view.model.tools.DisplayTool;
 import org.rubato.rubettes.bigbang.view.player.BigBangPlayer;
 import org.rubato.rubettes.bigbang.view.subview.DisplayContents;
@@ -88,6 +89,9 @@ public class MTBigBangApp extends MTApplication implements View {
 			this.repaint(event.getNewValue() == null);
 		} else if (propertyName.equals(ViewController.ZOOM_FACTORS)) {
 			this.contents.setZoomFactors((double[])event.getNewValue());
+			this.repaint();
+		} else if (propertyName.equals(ViewController.ZOOM_CHANGE)) {
+			this.contents.changeZoomFactors((ZoomChange)event.getNewValue());
 			this.repaint(false);
 		} else if (propertyName.equals(ViewController.DISPLAY_POSITION)) {
 			this.contents.setPosition((Point)event.getNewValue());
@@ -109,6 +113,10 @@ public class MTBigBangApp extends MTApplication implements View {
 		} else if (propertyName.equals(ViewController.MOD_FILTER_VALUES)) {
 			this.repaint();
 		}
+	}
+	
+	public DisplayContents getContents() {
+		return this.contents;
 	}
 
 }

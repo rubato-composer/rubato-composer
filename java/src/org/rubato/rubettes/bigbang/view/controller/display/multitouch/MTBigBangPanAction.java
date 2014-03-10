@@ -8,11 +8,11 @@ import org.mt4j.input.inputProcessors.componentProcessors.panProcessor.PanEvent;
 import org.mt4j.util.math.Vector3D;
 import org.rubato.rubettes.bigbang.view.controller.ViewController;
 
-public class BigBangPanAction extends DefaultPanAction {
+public class MTBigBangPanAction extends DefaultPanAction {
 	
 	private ViewController controller;
 	
-	public BigBangPanAction(ViewController controller) {
+	public MTBigBangPanAction(ViewController controller) {
 		this.controller = controller;
 	}
 	

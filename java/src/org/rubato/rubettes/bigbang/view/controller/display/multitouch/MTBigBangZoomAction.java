@@ -6,11 +6,11 @@ import org.mt4j.input.inputProcessors.componentProcessors.zoomProcessor.ZoomEven
 import org.mt4j.util.camera.Icamera;
 import org.rubato.rubettes.bigbang.view.controller.ViewController;
 
-public class BigBangZoomAction extends DefaultZoomAction {
+public class MTBigBangZoomAction extends DefaultZoomAction {
 	
 	private ViewController controller;
 	
-	public BigBangZoomAction(ViewController controller) {
+	public MTBigBangZoomAction(ViewController controller) {
 		this.controller = controller;
 	}
 	

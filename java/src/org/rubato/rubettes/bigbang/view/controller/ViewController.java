@@ -34,8 +34,10 @@ public class ViewController extends Controller {
 	public static final String SELECTED_VIEW_PARAMETERS = "SelectedViewParameters";
 	public static final String MANUAL_DENOTATOR_LIMITS = "setManualDenotatorLimits";
 	public static final String PARAMETER_MIN_MAX = "setParameterMinAndMax";
-	public static final String ZOOM_FACTORS = "changeZoomFactors";
+	public static final String ZOOM_FACTORS = "setZoomFactors";
+	public static final String ZOOM_CHANGE = "changeZoomFactors";
 	public static final String DISPLAY_POSITION = "changeDisplayPosition";
+	public static final String CENTER_VIEW = "centerView";
 	public static final String SATELLITES_CONNECTED = "SatellitesConnected";
 	public static final String LAYERS = "changeLayerState";
 	public static final String TOGGLE_MOD_FILTER = "toggleModFilter";
@@ -176,15 +178,19 @@ public class ViewController extends Controller {
 	}
 	
 	public void changeZoomFactors(ZoomChange zoomChange) {
-		this.callModelMethod(ViewController.ZOOM_FACTORS, zoomChange);
+		this.callModelMethod(ViewController.ZOOM_CHANGE, zoomChange);
 	}
 	
 	public void setZoomFactors(double zoomFactor) {
-		this.callModelMethod("setZoomFactors", zoomFactor, zoomFactor);
+		this.callModelMethod(ViewController.ZOOM_FACTORS, zoomFactor, zoomFactor);
 	}
 	
 	public void changeDisplayPosition(Dimension difference) {
 		this.callModelMethod(ViewController.DISPLAY_POSITION, difference);
+	}
+	
+	public void centerView() {
+		this.callModelMethod(ViewController.CENTER_VIEW);
 	}
 	
 	public void setDisplayPosition(Point center) {

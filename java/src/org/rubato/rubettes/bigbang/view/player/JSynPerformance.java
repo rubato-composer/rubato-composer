@@ -229,7 +229,7 @@ public class JSynPerformance {
 		
 		//associate currently playing threads with modules playing same BigBangObjects, or create new ones
 		Set<JSynModule> remainingModules = new HashSet<JSynModule>(this.modules);
-		Map<BigBangObject,JSynModule> objectModuleMap = this.getCurrentObjectModuleMap();
+		Map<BigBangObject,JSynModule> objectModuleMap = this.getCurrentObjectAndModules();
 		double currentTime = this.player.getSynth().getCurrentTime();
 		List<JSynThread> notPlayingThreads = new ArrayList<JSynThread>();
 		
@@ -273,12 +273,12 @@ public class JSynPerformance {
 		}
 	}
 	
-	private Map<BigBangObject,JSynModule> getCurrentObjectModuleMap() {
+	private Map<BigBangObject,JSynModule> getCurrentObjectAndModules() {
 		Map<BigBangObject,JSynModule> objectModuleMap = new TreeMap<BigBangObject,JSynModule>();
 		for (JSynModule currentModule : this.modules) {
-			BigBangObject currentBBObject = currentModule.getCurrentObject().getBigBangObject();
-			if (currentBBObject != null) {
-				objectModuleMap.put(currentBBObject, currentModule);
+			JSynObject currentObject = currentModule.getCurrentObject();
+			if (currentObject != null) {
+				objectModuleMap.put(currentObject.getBigBangObject(), currentModule);
 			}
 		}
 		return objectModuleMap;

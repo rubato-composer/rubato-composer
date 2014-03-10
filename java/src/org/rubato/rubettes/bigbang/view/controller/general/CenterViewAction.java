@@ -7,17 +7,17 @@ import javax.swing.AbstractButton;
 
 import org.rubato.rubettes.bigbang.view.controller.ViewController;
 
-public class InputActiveAction extends AbstractAction {
+public class CenterViewAction extends AbstractAction {
 	
 	private ViewController controller;
 	
-	public InputActiveAction(ViewController controller) {
-		super("Input active");
+	public CenterViewAction(ViewController controller) {
+		super("Center view");
 		this.controller = controller;
 	}
 
 	public void actionPerformed(ActionEvent event) {
-		this.controller.changeInputActive(((AbstractButton)event.getSource()).isSelected());
+		this.controller.centerView();
 	}
 
 }
