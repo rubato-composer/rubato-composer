@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Vector;
 
+import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
@@ -22,6 +23,7 @@ import org.rubato.math.yoneda.Form;
 import org.rubato.rubettes.bigbang.controller.BigBangController;
 import org.rubato.rubettes.bigbang.view.View;
 import org.rubato.rubettes.bigbang.view.controller.ViewController;
+import org.rubato.rubettes.bigbang.view.controller.general.CenterViewAction;
 import org.rubato.rubettes.bigbang.view.controller.general.InputActiveAction;
 import org.rubato.rubettes.bigbang.view.model.ViewParameters;
 import org.rubato.util.SpringUtilities;
@@ -51,16 +53,17 @@ public class JMainOptionsPanel extends JPanel implements ActionListener, View {
 	}
 	
 	private void initNorthernPanel(ViewController controller) {
-		JPanel inputActivePanel = new JPanel();
-		inputActivePanel.setBorder(Utilities.makeTitledBorder("Input active"));
+		JPanel optionsPanel = new JPanel();
+		optionsPanel.setBorder(Utilities.makeTitledBorder("Options"));
 		this.inputActiveCheckBox = new JCheckBox(new InputActiveAction(controller));
-		inputActivePanel.add(this.inputActiveCheckBox);
+		optionsPanel.add(this.inputActiveCheckBox);
+		optionsPanel.add(new JButton(new CenterViewAction(controller)));
 		this.selectFormPanel = new JSelectForm(Repository.systemRepository());
 		this.selectFormPanel.addActionListener(this);
 		
 		JPanel northernPanel = new JPanel();
 		northernPanel.setLayout(new BorderLayout(0,0));
-		northernPanel.add(inputActivePanel, BorderLayout.NORTH);
+		northernPanel.add(optionsPanel, BorderLayout.NORTH);
 		northernPanel.add(this.selectFormPanel, BorderLayout.CENTER);
 		this.add(northernPanel, BorderLayout.NORTH);
 	}

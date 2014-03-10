@@ -66,10 +66,8 @@ public class BigBangView extends Model implements View {
 	protected BigBangMidiTransmitter midiTransmitter;
 	protected JBigBangPanel panel;
 	private DisplayModeAdapter displayMode;
-	protected Point displayPosition;
 	private boolean modFilterOn;
 	private int modLevel, modNumber;
-	protected double xZoomFactor, yZoomFactor;
 	private boolean mainOptionsVisible;
 	private boolean viewParametersVisible;
 	protected ViewParameters viewParameters;
@@ -143,18 +141,14 @@ public class BigBangView extends Model implements View {
 	
 	public void setDisplayPosition(Point position) {
 		//Point oldValue = this.displayPosition;
-		this.displayPosition = position;
 		//System.out.println("dp " + position);
-		this.firePropertyChange(ViewController.DISPLAY_POSITION, null, this.displayPosition);
+		this.firePropertyChange(ViewController.DISPLAY_POSITION, null, position);
 	}
 	
 	public void setZoomFactors(Double xZoomFactor, Double yZoomFactor) {
-		double[] oldValue = new double[]{this.xZoomFactor, this.yZoomFactor};
-		this.xZoomFactor = xZoomFactor;
-		this.yZoomFactor = yZoomFactor;
-		double[] newValue = new double[]{this.xZoomFactor, this.yZoomFactor};
+		double[] newValue = new double[]{xZoomFactor, yZoomFactor};
 		//System.out.println("zf " + this.xZoomFactor + " " + this.yZoomFactor);
-		this.firePropertyChange(ViewController.ZOOM_FACTORS, oldValue, newValue);
+		this.firePropertyChange(ViewController.ZOOM_FACTORS, null, newValue);
 	}
 	
 	public void showWindowPreferences() {
@@ -194,25 +188,17 @@ public class BigBangView extends Model implements View {
 	}
 	
 	public void changeZoomFactors(ZoomChange zoomChange) {
-		double oldXZoomFactor = this.xZoomFactor;
-		double oldYZoomFactor = this.yZoomFactor;
-		double xZoomFactor = this.xZoomFactor * zoomChange.getChangeFactor();
-		double yZoomFactor = this.yZoomFactor * zoomChange.getChangeFactor();
-		this.setZoomFactors(xZoomFactor, yZoomFactor);
-		//zusammenfassen????
-		int x = zoomChange.getX();
-		int xPos = this.displayPosition.x;
-		int xPosition = (int)Math.round(xPos + (x-xPos)*(1-(this.xZoomFactor/oldXZoomFactor)));
-		int y = zoomChange.getY();
-		int yPos = this.displayPosition.y;
-		int yPosition = (int)Math.round(yPos + (y-yPos)*(1-(this.yZoomFactor/oldYZoomFactor)));
-		this.setDisplayPosition(new Point(xPosition, yPosition));
+		this.firePropertyChange(ViewController.ZOOM_CHANGE, null, zoomChange);
 	}
 	
 	public void changeDisplayPosition(Dimension difference) {
-		Point position = this.displayPosition;
+		Point position = this.panel.getDisplayPosition();
 		position.translate(difference.width, difference.height);
 		this.setDisplayPosition(position);
+	}
+	
+	public void centerView() {
+		this.firePropertyChange(ViewController.CENTER_VIEW, null, null);
 	}
 	
 	public void toggleModFilter() {
@@ -425,13 +411,13 @@ public class BigBangView extends Model implements View {
 			if (operation instanceof AddObjectsEdit) {
 				this.setDisplayMode(new DrawingModeAdapter(this.viewController));
 			} else if (operation instanceof TranslationEdit) {
-				double[] startingPoint = this.getXYDisplayValues(((TranslationEdit)operation).getStartingPoint());
-				double[] endingPoint = this.getXYDisplayValues(((TranslationEdit)operation).getEndingPoint());
+				double[] startingPoint = this.panel.getXYDisplayValues(((TranslationEdit)operation).getStartingPoint());
+				double[] endingPoint = this.panel.getXYDisplayValues(((TranslationEdit)operation).getEndingPoint());
 				this.setDisplayMode(new TranslationModeAdapter(this.viewController, startingPoint, endingPoint));
 			} else if (operation instanceof AbstractLocalTransformationEdit) {
 				AbstractLocalTransformationEdit localEdit = (AbstractLocalTransformationEdit)operation;
-				double[] center = this.getXYDisplayValues(localEdit.getCenter());
-				double[] endingPoint = this.getXYDisplayValues(localEdit.getEndingPoint());
+				double[] center = this.panel.getXYDisplayValues(localEdit.getCenter());
+				double[] endingPoint = this.panel.getXYDisplayValues(localEdit.getEndingPoint());
 				if (operation instanceof RotationEdit) {
 					double[] startingPoint = ((RotationEdit)operation).getStartingPoint();
 					double angle = ((RotationEdit)operation).getAngle();
@@ -469,13 +455,13 @@ public class BigBangView extends Model implements View {
 	}
 	
 	public void modifyCenterOfSelectedTransformation(Point2D.Double newCenter) {
-		((AbstractTransformationEdit)this.selectedOperation).modifyCenter(this.getXYDenotatorValues(newCenter));
+		((AbstractTransformationEdit)this.selectedOperation).modifyCenter(this.panel.getXYZDenotatorValues(new PointND(newCenter)));
 		this.controller.operationModified();
 	}
 	
 	public void modifyEndPointOfSelectedTransformation(Point2D.Double newEndPoint) {
 		//TODO not great: only used in translation
-		((AbstractTransformationEdit)this.selectedOperation).modify(this.getXYDenotatorValues(newEndPoint));
+		((AbstractTransformationEdit)this.selectedOperation).modify(this.panel.getXYZDenotatorValues(new PointND(newEndPoint)));
 		this.controller.operationModified();
 	}
 	
@@ -569,13 +555,13 @@ public class BigBangView extends Model implements View {
 	private TransformationProperties getLocalTransformationProperties(Point2D.Double center, Point2D.Double endPoint, boolean copyAndTransform, boolean startNewTransformation) {
 		//the end point is merely recorded for the display tool to be the same size....
 		TransformationProperties properties = this.getTransformationProperties(copyAndTransform, startNewTransformation);
-		double[] denotatorCenter = this.getXYDenotatorValues(center);
-		double[] denotatorEndPoint = this.getXYDenotatorValues(endPoint);
+		double[] denotatorCenter = this.panel.getXYZDenotatorValues(new PointND(center));
+		double[] denotatorEndPoint = this.panel.getXYZDenotatorValues(new PointND(endPoint));
 		if (properties.getAnchor() != null) {
 			/*if (this.selectedObjectsPaths != null) {
 				properties.setAnchorNodePath(this.selectedObjectsPaths.getAnchorPath());
 			}*/
-			double[] anchorValues = this.getXYDenotatorValues(this.displayObjects.getSelectedAnchorCenter());
+			double[] anchorValues = this.panel.getXYZDenotatorValues(new PointND(this.displayObjects.getSelectedAnchorCenter()));
 			denotatorCenter[0] -= anchorValues[0];
 			denotatorCenter[1] -= anchorValues[1];
 		}
@@ -661,22 +647,10 @@ public class BigBangView extends Model implements View {
 		TreeMap<Double,Double> translatedValues = new TreeMap<Double,Double>();
 		for (Integer currentXPosition: xPositions) {
 			Point2D.Double currentPoint = new Point2D.Double(currentXPosition, locations.get(currentXPosition));
-			double[] currentXYDenotatorValues = this.getXYDenotatorValues(currentPoint);
+			double[] currentXYDenotatorValues = this.panel.getXYZDenotatorValues(new PointND(currentPoint));
 			translatedValues.put(currentXYDenotatorValues[0], currentXYDenotatorValues[1]);
 		}
 		return translatedValues;
-	}
-	
-	private double[] getXYDisplayValues(double[] denotatorValues) {
-		double xValue = this.getDisplayValue(denotatorValues[0], 0, this.displayPosition.x, this.xZoomFactor);
-		double yValue = this.getDisplayValue(denotatorValues[1], 1, this.displayPosition.y, this.yZoomFactor);
-		return new double[] {xValue, yValue};
-	}
-	
-	private double[] getXYDenotatorValues(Point2D.Double location) {
-		double xValue = this.getDenotatorValue(location.x, 0, this.displayPosition.x, this.xZoomFactor);
-		double yValue = this.getDenotatorValue(location.y, 1, this.displayPosition.y, this.yZoomFactor);
-		return new double[] {xValue, yValue};
 	}
 	
 	private DenotatorPath editObjectValuesAndFindClosestPowerset(PointND location, Map<DenotatorPath,Double> denotatorValues) {
@@ -685,50 +659,28 @@ public class BigBangView extends Model implements View {
 		int xValueIndex = this.displayObjects.getActiveObjectValueIndex(xyzParameters[0]);
 		int yValueIndex = this.displayObjects.getActiveObjectValueIndex(xyzParameters[1]);
 		int zValueIndex = this.displayObjects.getActiveObjectValueIndex(xyzParameters[2]);
-		double[] xyzDenotatorValues = new double[location.getDimension()];
-		xyzDenotatorValues[0] = this.getDenotatorValue(location.getCoord(0), 0, this.displayPosition.x, this.xZoomFactor);
-		xyzDenotatorValues[1] = this.getDenotatorValue(location.getCoord(1), 1, this.displayPosition.y, this.yZoomFactor);
-		double averageZoom = 2;
-		if (location.getDimension() > 2) {
-			xyzDenotatorValues[2] = this.getDenotatorValue(location.getCoord(2), 2, 0, averageZoom); // TODO fix zoom and display position
-		}
+		double[] xyzDenotatorValues = this.panel.getXYZDenotatorValues(location);
+		
 		if (xValueIndex >= 0) {
-			this.replaceDenotatorValue(location.getCoord(0), xValueIndex, 0, this.displayPosition.x, this.xZoomFactor, denotatorValues);
+			this.replaceDenotatorValue(location.getCoord(0), xValueIndex, 0, denotatorValues);
 		}
 		if (yValueIndex >= 0 && (xValueIndex < 0 || yValueIndex != xValueIndex)) {
-			this.replaceDenotatorValue(location.getCoord(1), yValueIndex, 1, this.displayPosition.y, this.yZoomFactor, denotatorValues);
+			this.replaceDenotatorValue(location.getCoord(1), yValueIndex, 1, denotatorValues);
 		}
 		if (location.getDimension() > 2 && zValueIndex >= 0 && (zValueIndex != yValueIndex && zValueIndex != xValueIndex)) {
-			this.replaceDenotatorValue(location.getCoord(2), zValueIndex, 2, 0, averageZoom, denotatorValues); // parameters may be wrong
+			this.replaceDenotatorValue(location.getCoord(2), zValueIndex, 2, denotatorValues);
 		}
 		DenotatorPath closestPowersetPath = this.displayObjects.findClosestPowersetPath(xyzParameters, xyzDenotatorValues, parentPowersetPath);
 		return closestPowersetPath;
 	}
 	
-	private void replaceDenotatorValue(double displayValue, int valueIndex, int parameterIndex, int position, double zoomFactor, Map<DenotatorPath,Double> values) {
-		double denotatorValue = this.getDenotatorValue(displayValue, parameterIndex, position, zoomFactor);
+	private void replaceDenotatorValue(double displayValue, int valueIndex, int parameterIndex, Map<DenotatorPath,Double> values) {
+		double denotatorValue = this.panel.getDenotatorValue(displayValue, parameterIndex);
 		DenotatorPath associatedPath = this.displayObjects.getActiveObjectValuePathAt(valueIndex);
 		//null happens when parent value, satellite/sibling level is selected, or when path not in active colimits
 		if (associatedPath != null) {
 			values.put(associatedPath, denotatorValue);
 		}
-	}
-	
-	
-	
-	protected double getDenotatorValue(double displayValue, int parameterIndex, int position, double zoomFactor) {
-		double value = (displayValue-position)/zoomFactor;
-		if (parameterIndex == 2) {
-			// TODO this should probably be handled by the view along with the x and y parameters.
-			ViewParameter param = this.viewParameters.get(parameterIndex); 
-			param.setDenotatorLimitsIfNotManual(param.getMinGoalValue(), param.getMaxGoalValue()); 
-		}
-		return this.viewParameters.get(parameterIndex).translateDisplayValue(value);		
-	}
-	
-	protected double getDisplayValue(double denotatorValue, int parameterIndex, int position, double zoomFactor) {
-		double displayValue = this.viewParameters.get(parameterIndex).translateDenotatorValue(denotatorValue);
-		return (displayValue*zoomFactor)+position;
 	}
 	
 	private List<TransformationPaths> getXYTransformationPaths() {
@@ -797,7 +749,7 @@ public class BigBangView extends Model implements View {
 	public void setPlaybackPosition(Point2D.Double location) {
 		int timeAxisIndex = this.displayObjects.getTimeAxisIndex(this.viewParameters);
 		if (timeAxisIndex != -1) {
-			double[] xyDenotatorValues = this.getXYDenotatorValues(location);
+			double[] xyDenotatorValues = this.panel.getXYZDenotatorValues(new PointND(location));
 			this.player.setPlaybackPosition(xyDenotatorValues[timeAxisIndex]);
 		}
 	}

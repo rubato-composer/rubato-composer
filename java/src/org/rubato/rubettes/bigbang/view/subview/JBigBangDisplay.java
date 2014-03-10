@@ -15,6 +15,7 @@ import org.rubato.rubettes.bigbang.view.View;
 import org.rubato.rubettes.bigbang.view.controller.ViewController;
 import org.rubato.rubettes.bigbang.view.controller.mode.DisplayModeAdapter;
 import org.rubato.rubettes.bigbang.view.model.ViewParameters;
+import org.rubato.rubettes.bigbang.view.model.ZoomChange;
 import org.rubato.rubettes.bigbang.view.model.tools.DisplayTool;
 import org.rubato.rubettes.bigbang.view.player.BigBangPlayer;
 import org.rubato.rubettes.util.PerformanceCheck;
@@ -91,11 +92,17 @@ public class JBigBangDisplay extends JPanel implements View {
 			PerformanceCheck.startTask("done");
 			//PerformanceCheck.print();
 			//System.out.println("\n\n");
+		} else if (propertyName.equals(ViewController.CENTER_VIEW)) {
+			this.contents.centerView();
+			this.repaint();
 		} else if (propertyName.equals(ViewController.DISPLAY_TOOL)) {
 			this.contents.setTool((DisplayTool)event.getNewValue());
 			this.repaint();
 		} else if (propertyName.equals(ViewController.ZOOM_FACTORS)) {
 			this.contents.setZoomFactors((double[])event.getNewValue());
+			this.repaint();
+		} else if (propertyName.equals(ViewController.ZOOM_CHANGE)) {
+			this.contents.changeZoomFactors((ZoomChange)event.getNewValue());
 			this.repaint();
 		} else if (propertyName.equals(ViewController.DISPLAY_POSITION)) {
 			this.contents.setPosition((Point)event.getNewValue());

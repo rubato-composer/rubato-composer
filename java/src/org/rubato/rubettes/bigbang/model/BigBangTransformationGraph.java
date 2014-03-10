@@ -184,6 +184,12 @@ public class BigBangTransformationGraph extends DirectedSparseMultigraph<Integer
 	 * selected composition states. simultaneously updates currentlyReachedStatesAndTimes
 	 */
 	private void updateCurrentlyExecutedEditsAndStatesAndTimes() {
+		if (!this.containsVertex(this.selectedCompositionState)) {
+			this.selectedCompositionState = null;
+		}
+		if (!this.containsEdge(this.selectedOperation)) {
+			this.selectedOperation = null;
+		}
 		Set<AbstractOperationEdit> currentlyExecutedEdits = new HashSet<AbstractOperationEdit>();
 		this.currentlyReachedStatesAndTimes = new TreeMap<Integer,Double>();
 		this.currentlyReachedStatesAndTimes.put(0, 0.0);

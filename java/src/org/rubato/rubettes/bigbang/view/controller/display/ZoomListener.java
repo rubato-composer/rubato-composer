@@ -15,7 +15,13 @@ public class ZoomListener implements MouseWheelListener {
 	}
 	
 	public void mouseWheelMoved(MouseWheelEvent event) {
-		ZoomChange zoomChange = new ZoomChange(event.getUnitsToScroll(), event.getX(), event.getY());
+		int activeCoordinates = ZoomChange.BOTH;
+		if (event.isAltDown()) {
+			activeCoordinates = ZoomChange.X_ONLY;
+		} else if (event.isShiftDown()) {
+			activeCoordinates = ZoomChange.Y_ONLY;
+		}
+		ZoomChange zoomChange = new ZoomChange(event.getUnitsToScroll(), event.getX(), event.getY(), activeCoordinates);
 		this.controller.changeZoomFactors(zoomChange);
 	}
 

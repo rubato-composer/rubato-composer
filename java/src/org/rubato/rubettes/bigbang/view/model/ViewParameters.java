@@ -171,10 +171,6 @@ public class ViewParameters extends Model {
 		this.firePropertyChange(ViewController.VIEW_PARAMETERS, null, this);
 	}
 	
-	public double[] getMaxValues() {
-		return this.getMaxValues();
-	}
-	
 	private void updateMinAndMaxValues() {
 		for (int i = 0; i < this.parameters.size(); i++) {
 			int d = this.selectedViewParameters[i];

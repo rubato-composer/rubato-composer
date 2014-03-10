@@ -91,6 +91,14 @@ public class DisplayObjects {
 		}
 	}
 	
+	public List<Double> getMinValues() {
+		return this.bbObjects.getMinValues();
+	}
+	
+	public List<Double> getMaxValues() {
+		return this.bbObjects.getMaxValues();
+	}
+	
 	public void setIndexOfActiveObjectType(int indexOfActiveObjectType) {
 		this.indexOfActiveObjectType = indexOfActiveObjectType;
 	}
