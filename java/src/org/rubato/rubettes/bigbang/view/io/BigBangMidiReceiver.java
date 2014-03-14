@@ -48,16 +48,18 @@ public class BigBangMidiReceiver implements Receiver {
 		if (message instanceof ShortMessage) {
 			ShortMessage shortMessage = (ShortMessage)message;
 			if (shortMessage.getCommand() == ShortMessage.NOTE_ON) {
+				int channel = shortMessage.getChannel();
 				int pitch = shortMessage.getData1();
 				int velocity = shortMessage.getData2();
 				if (velocity == 0) {
-					this.controller.releaseMidiKey(pitch);
+					this.controller.releaseMidiKey(channel, pitch);
 				} else {
-					this.controller.pressMidiKey(pitch, velocity);
+					this.controller.pressMidiKey(channel, pitch, velocity);
 				}
 			} else if (shortMessage.getCommand() == ShortMessage.NOTE_OFF) {
+				int channel = shortMessage.getChannel();
 				int pitch = shortMessage.getData1();
-				this.controller.releaseMidiKey(pitch);
+				this.controller.releaseMidiKey(channel, pitch);
 			} else if (shortMessage.getCommand() == ShortMessage.CONTROL_CHANGE) {
 				int controlChangeNumber = shortMessage.getData1();
 				int controlChangeValue = shortMessage.getData2();

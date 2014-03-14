@@ -1,15 +1,15 @@
 package org.rubato.rubettes.bigbang.view.player;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.TreeMap;
 
 import org.rubato.rubettes.bigbang.model.BigBangObject;
 
-public class JSynPerformance {
+public class JSynPerformance extends Thread {
 	
 	private JSynPlayer player;
 	private JSynScore score;
@@ -117,6 +117,9 @@ public class JSynPerformance {
 	 * Clean up synthesis by overriding stop() method.
 	 */
 	public void stopPlaying(boolean justMute) {
+		this.interrupt();
+		System.out.println("STOP " + Thread.activeCount());
+		this.isPlaying = false;
 		for (JSynModule currentModule : this.modules) {
 			currentModule.mute();
 		}
@@ -128,7 +131,11 @@ public class JSynPerformance {
 		}
 	}
 	
-	public void playScore() {
+	public void startPlaying() {
+		this.start();
+	}
+	
+	public void run() {
 		if (this.score != null) {
 			if (!this.isPlaying) {
 				this.player.startSynth();
@@ -149,24 +156,28 @@ public class JSynPerformance {
 				while (this.player.isLooping() && this.isPlaying) {
 					double currentLoopDuration = this.player.convertToSynthDuration(this.player.getLoopDuration());
 					timeOfNextLoop += currentLoopDuration;
+					System.out.println(this + " " +  this.isPlaying + " " + timeOfNextLoop + " " + this.player.getCurrentSynthTime());
 					
 					while (timeOfNextLoop - JSynPlayer.DEFAULT_ADVANCE > this.player.getCurrentSynthTime()) {
 						try {
-							this.player.getSynth().sleepUntil(timeOfNextLoop - JSynPlayer.DEFAULT_ADVANCE);
+							long sleepTime = (long)Math.ceil((timeOfNextLoop - JSynPlayer.DEFAULT_ADVANCE - this.player.getCurrentSynthTime())*1000);
+							Thread.sleep(sleepTime);
+							System.out.println(sleepTime);
 						} catch (InterruptedException e) {
-							if (this.player.isLooping() && this.isPlaying) {
+							System.out.println(this + " INT");
+							/*if (this.player.isLooping() && this.isPlaying) {
 								timeOfNextLoop -= currentLoopDuration;
 								currentLoopDuration = this.player.convertToSynthDuration(this.player.getLoopDuration());
 								timeOfNextLoop += currentLoopDuration;
 								//go back to sleep
-							} else {
+							} else {*/
 								this.threads.stop();
 								return;
-							}
+							//}
 						}
 					}
 					
-					//System.out.println("loop "+ this.score + " "  + this.getCurrentSynthTime());
+					//System.out.println("loop "+ this.score + " "  + this.player.getCurrentSynthTime());
 					//this.threads.stop();
 					this.threads = this.generateThreads(true);
 					this.allocateModules(this.threads);
@@ -229,7 +240,7 @@ public class JSynPerformance {
 		
 		//associate currently playing threads with modules playing same BigBangObjects, or create new ones
 		Set<JSynModule> remainingModules = new HashSet<JSynModule>(this.modules);
-		Map<BigBangObject,JSynModule> objectModuleMap = this.getCurrentObjectAndModules();
+		Map<BigBangObject,JSynModule> objectsAndModulesMap = this.getCurrentObjectsAndModules();
 		double currentTime = this.player.getSynth().getCurrentTime();
 		List<JSynThread> notPlayingThreads = new ArrayList<JSynThread>();
 		
@@ -238,7 +249,7 @@ public class JSynPerformance {
 			
 			//System.out.println(remainingModules);
 			if (objectAtCurrentTime != null) {
-				JSynModule objectModule = objectModuleMap.get(objectAtCurrentTime.getBigBangObject());
+				JSynModule objectModule = objectsAndModulesMap.get(objectAtCurrentTime.getBigBangObject());
 				
 				if (objectModule != null) {
 					currentThread.setModule(objectModule);
@@ -273,15 +284,15 @@ public class JSynPerformance {
 		}
 	}
 	
-	private Map<BigBangObject,JSynModule> getCurrentObjectAndModules() {
-		Map<BigBangObject,JSynModule> objectModuleMap = new TreeMap<BigBangObject,JSynModule>();
+	private Map<BigBangObject,JSynModule> getCurrentObjectsAndModules() {
+		Map<BigBangObject,JSynModule> objectsAndModulesMap = new HashMap<BigBangObject,JSynModule>();
 		for (JSynModule currentModule : this.modules) {
 			JSynObject currentObject = currentModule.getCurrentObject();
 			if (currentObject != null) {
-				objectModuleMap.put(currentObject.getBigBangObject(), currentModule);
+				objectsAndModulesMap.put(currentObject.getBigBangObject(), currentModule);
 			}
 		}
-		return objectModuleMap;
+		return objectsAndModulesMap;
 	}
 
 }

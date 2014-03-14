@@ -54,30 +54,33 @@ public class BigBangRecorder extends Thread {
 		this.startingTime = startingTime;
 	}
 	
-	public synchronized void pressMidiKey(int pitch, int velocity) {
+	public synchronized void pressMidiKey(int channel, int pitch, int velocity) {
 		if (this.isRecording) {
-			this.currentKeyOnsets.put(pitch, this.player.getCurrentSymbolicTime());
-			this.currentKeyVelocities.put(pitch, velocity);
+			int key = this.getChannelPitchKey(channel, pitch);
+			this.currentKeyOnsets.put(key, this.player.getCurrentSymbolicTime());
+			this.currentKeyVelocities.put(key, velocity);
 		}
 	}
 	
-	public synchronized void releaseMidiKey(int pitch) {
+	public synchronized void releaseMidiKey(int channel, int pitch) {
 		if (this.isRecording) {
 			//TODO make flexible for other forms!!!!
+			int key = this.getChannelPitchKey(channel, pitch);
 			Map<DenotatorPath,Double> denotatorValues = new TreeMap<DenotatorPath,Double>();
-			this.putDenotatorValueIfFormPresent(CoolFormRegistrant.ONSET_FORM, this.currentKeyOnsets.get(pitch), denotatorValues);
+			this.putDenotatorValueIfFormPresent(CoolFormRegistrant.ONSET_FORM, this.currentKeyOnsets.get(key), denotatorValues);
 			this.putDenotatorValueIfFormPresent(CoolFormRegistrant.PITCH_FORM, new Double(pitch), denotatorValues);
-			this.putDenotatorValueIfFormPresent(CoolFormRegistrant.LOUDNESS_FORM, this.currentKeyVelocities.get(pitch).doubleValue(), denotatorValues);
-			double duration = this.player.getCurrentSymbolicTime()-this.currentKeyOnsets.get(pitch);
+			this.putDenotatorValueIfFormPresent(CoolFormRegistrant.LOUDNESS_FORM, this.currentKeyVelocities.get(key).doubleValue(), denotatorValues);
+			double duration = this.player.getCurrentSymbolicTime()-this.currentKeyOnsets.get(key);
 			this.putDenotatorValueIfFormPresent(CoolFormRegistrant.DURATION_FORM, duration, denotatorValues);
+			this.putDenotatorValueIfFormPresent(CoolFormRegistrant.VOICE_FORM, channel, denotatorValues);
 			List<Map<DenotatorPath,Double>> denotatorValuesList = new ArrayList<Map<DenotatorPath,Double>>();
 			denotatorValuesList.add(denotatorValues);
 			List<DenotatorPath> powersetPaths = new ArrayList<DenotatorPath>();
 			powersetPaths.add(this.view.getDisplayObjects().getActiveObjectType().getPath().getParentPath());
 			
 			this.controller.addObjects(denotatorValuesList, powersetPaths, false);
-			this.currentKeyOnsets.remove(pitch);
-			this.currentKeyVelocities.remove(pitch);
+			this.currentKeyOnsets.remove(key);
+			this.currentKeyVelocities.remove(key);
 		}
 	}
 	
@@ -103,6 +106,10 @@ public class BigBangRecorder extends Thread {
 		this.interrupt(); //interrupt to stop thread and stop looping immediately in jsynplayer
 		this.startingTime = 0;
 		this.isRecording = false;
+	}
+	
+	private int getChannelPitchKey(int channel, int pitch) {
+		return (channel+1)*pitch;
 	}
 
 }

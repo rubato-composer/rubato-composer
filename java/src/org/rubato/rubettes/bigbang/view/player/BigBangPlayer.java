@@ -1,6 +1,6 @@
 package org.rubato.rubettes.bigbang.view.player;
 
-public class BigBangPlayer extends Thread {
+public class BigBangPlayer {
 	
 	public static final int MIN_BPM = 1;
 	public static final int MAX_BPM = 5000;
@@ -8,7 +8,6 @@ public class BigBangPlayer extends Thread {
 	
 	//needs separate variable since player only starts after a brief delay
 	private boolean isPlaying;
-	private boolean threadRunning;
 	private long startingTime;
 	private JSynPlayer player;
 	
@@ -47,6 +46,7 @@ public class BigBangPlayer extends Thread {
 	}
 	
 	public synchronized void togglePlayMode() {
+		//System.out.println("\n\nTOG "+this.isPlaying);
 		if (!this.isPlaying()) {
 			this.startPlaying();
 		} else {
@@ -59,24 +59,23 @@ public class BigBangPlayer extends Thread {
 	}
 	
 	private synchronized void startPlaying(long startingTime) {
-		//System.out.println("START " + this.threadRunning);
-		if (!this.threadRunning) {
-			this.threadRunning = true;
-			this.start();
+		//System.out.println("START " + this + " " + this.isAlive() + " " + this.isInterrupted());
+		if (this.score != null && !this.player.isPlaying()) {
+			this.player.play(this.score);
 		}
 		this.startingTime = startingTime;
 		this.isPlaying = true;
 	}
 	
-	public synchronized void pressMidiKey(int pitch, int velocity, boolean recording) {
+	public synchronized void pressMidiKey(int channel, int pitch, int velocity, boolean recording) {
 		if (this.isPlaying()) {
-			this.player.pressMidiKey(pitch, velocity, recording);
+			this.player.pressMidiKey(channel, pitch, velocity, recording);
 		}
 	}
 	
-	public synchronized void releaseMidiKey(int pitch, boolean recording) {
+	public synchronized void releaseMidiKey(int channel, int pitch, boolean recording) {
 		if (this.isPlaying()) {
-			this.player.releaseMidiKey(pitch, recording);
+			this.player.releaseMidiKey(channel, pitch, recording);
 		}
 	}
 	
@@ -92,10 +91,10 @@ public class BigBangPlayer extends Thread {
 		}
 	}
 	
-	public void run() {
-		while(this.threadRunning) {
-			try { Thread.sleep(100); } catch (InterruptedException e) { } //e.printStackTrace(); }
-			//System.out.println("RUN " + this.player.isPlaying());
+	/*public void run() {
+		while(true) {
+			try { Thread.sleep(100); } catch (InterruptedException e) { }
+			//System.out.println("RUN "+ this + " "+ (System.currentTimeMillis() >= this.startingTime) + " "+this.player.isPlaying());
 			if (this.startingTime != 0 && System.currentTimeMillis() >= this.startingTime
 					&& this.score != null && !this.player.isPlaying()) {
 				//System.out.println("PLAY " + this.threadRunning);
@@ -103,12 +102,12 @@ public class BigBangPlayer extends Thread {
 				this.startingTime = 0;
 			}
 		}
-	}
+	}*/
 	
 	public void stopPlaying() {
 		this.player.stopPlaying();
 		this.isPlaying = false;
-		this.interrupt(); //interrupt to stop thread and stop looping immediately in jsynplayer
+		//this.interrupt(); //interrupt to stop thread and stop looping immediately in jsynplayer
 		this.startingTime = 0;
 	}
 	

@@ -51,7 +51,9 @@ public class BigBangMidiTransmitter {
 	public void scheduleNote(int channel, int pitch, int velocity, int onset, int duration, int rate) {
 		//System.out.println( pitch + " " +  velocity + " " +  onset+ " " +  duration);
 		this.sendNoteOn(channel, pitch, velocity, onset);
-		this.sendNoteOff(channel, pitch, onset+duration);
+		if (onset+duration > 0) {
+			this.sendNoteOff(channel, pitch, onset+duration);
+		}
 	}
 	
 	private void sendNoteOn(int channel, int pitch, int velocity, long timeStamp) {
@@ -64,7 +66,7 @@ public class BigBangMidiTransmitter {
 		this.timer.schedule(noteOnTask, timeStamp);
 	}
 	
-	private void sendNoteOff(int channel, int pitch, long timeStamp) {
+	public void sendNoteOff(int channel, int pitch, long timeStamp) {
 		MidiTimerTask noteOffTask = this.createNoteTask(false, channel, pitch, 0, timeStamp);
 		//TODO REMOVE CONFLICTING TASKS!!
 		this.noteOffTasks.put(pitch, noteOffTask);

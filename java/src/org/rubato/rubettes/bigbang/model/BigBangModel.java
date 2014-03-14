@@ -98,14 +98,15 @@ public class BigBangModel extends Model {
 		//TODO ALSO FIRE COMPOSITION CHANGE
 	}
 	
+	/**
+	 * if the currently selected operation is a SetOrAddCompositionEdit, replace its composition.
+	 * else post a new SetOrAddCompositionEdit
+	 */
 	public void setOrAddComposition(Denotator composition) {
 		if (!this.denotators.isFormCompatibleWithCurrentForm(composition.getForm())) {
 			this.setForm(composition.getForm());
 		}
-		if (this.transformationGraph.getLastAddedOperation() instanceof SetOrAddCompositionEdit) {
-			((SetOrAddCompositionEdit)this.transformationGraph.getLastAddedOperation()).setOrAddComposition(composition);
-			this.operationModified();
-		} else if (this.transformationGraph.getSelectedOperation() instanceof SetOrAddCompositionEdit) {
+		if (this.transformationGraph.getSelectedOperation() instanceof SetOrAddCompositionEdit) {
 			((SetOrAddCompositionEdit)this.transformationGraph.getSelectedOperation()).setOrAddComposition(composition);
 			this.operationModified();
 		} else {

@@ -29,9 +29,9 @@ public class JSynScore {
 	/**
 	 * Creates a score with just one object with the given pitch and velocity
 	 */
-	public JSynScore(int pitch, int velocity) {
+	public JSynScore(int channel, int pitch, int velocity) {
 		this.objects = new TreeSet<JSynObject>();
-		this.objects.add(new JSynMonitorObject(pitch, velocity));
+		this.objects.add(new JSynMonitorObject(channel, pitch, velocity));
 	}
 	
 	public void addObjects(Set<BigBangObject> newObjects) {

@@ -87,7 +87,7 @@ public class JSynPlayer {
 			this.loopDuration = this.getLastOffset()-this.loopOnset;
 		}
 		//System.out.println("LOOP "+ this.loopOnset + " " + this.getLastOffset() + " " + this.loopDuration);
-		this.bbPlayer.interrupt();
+		//this.bbPlayer.interrupt();
 		//System.out.println(score.getObjects());
 	}
 	
@@ -121,7 +121,7 @@ public class JSynPlayer {
 			performance.updateStartOrChangeTimes();
 			performance.interrupt();
 		}
-		this.bbPlayer.interrupt();
+		//this.bbPlayer.interrupt();
 	}
 	
 	public void setPlaybackPosition(double playbackPosition) {
@@ -171,12 +171,12 @@ public class JSynPlayer {
 		if (!this.inLiveMidiMode) {
 			this.playScoreVersion(60, 127);
 		}
-		//System.out.println("PLAY " + this.currentPerformances + " " + this.inLiveMidiMode);
+		//System.out.println("PLAY " + this.currentPerformances + " " + this.inLiveMidiMode + " " + this.isLooping);
 	}
 	
-	public void pressMidiKey(int pitch, int velocity, boolean recording) {
+	public void pressMidiKey(int channel, int pitch, int velocity, boolean recording) {
 		if (recording) {
-			this.playMonitorPitch(pitch, velocity);
+			this.playMonitorPitch(channel, pitch, velocity);
 		} else {
 			if (!this.inLiveMidiMode) {
 				this.stopAllScoreVersions();
@@ -188,24 +188,25 @@ public class JSynPlayer {
 	
 	private void playScoreVersion(int pitch, int velocity) {
 		JSynPerformance performance = new JSynPerformance(this, this.score, pitch, velocity);
+		//System.out.println("PSV " + this.isLooping);
 		if (this.isLooping) {
 			performance.setSymbolicStartOrChangeTime(this.loopOnset);
 		}
 		this.currentPerformances.put(pitch, performance);
 		this.keysOfCurrentPerformancesInOrder.add(pitch);
-		performance.playScore();
+		performance.startPlaying();
 	}
 	
-	private void playMonitorPitch(int pitch, int velocity) {
-		JSynScore recordingMonitorScore = new JSynScore(pitch, velocity);
+	private void playMonitorPitch(int channel, int pitch, int velocity) {
+		JSynScore recordingMonitorScore = new JSynScore(channel, pitch, velocity);
 		JSynPerformance performance = new JSynPerformance(this, recordingMonitorScore);
-		this.currentMonitorPitches.put(pitch, performance);
-		performance.playScore();
+		this.currentMonitorPitches.put(this.getChannelPitchKey(channel, pitch), performance);
+		performance.startPlaying();
 	}
 	
-	public void releaseMidiKey(int pitch, boolean recording) {
+	public void releaseMidiKey(int channel, int pitch, boolean recording) {
 		if (recording) {
-			JSynPerformance performance = this.currentMonitorPitches.remove(pitch);
+			JSynPerformance performance = this.currentMonitorPitches.remove(this.getChannelPitchKey(channel, pitch));
 			performance.stopPlaying(false);
 		} else {
 			this.stopScoreVersion(pitch);
@@ -220,7 +221,7 @@ public class JSynPlayer {
 	
 	private void stopAllScoreVersions() {
 		for (JSynPerformance performance : this.currentPerformances.values()) {
-			performance.stopPlaying(this.isLooping);
+			performance.stopPlaying(false);
 		}
 		this.currentPerformances = new TreeMap<Integer,JSynPerformance>();
 		this.keysOfCurrentPerformancesInOrder = new ArrayList<Integer>();
@@ -329,6 +330,16 @@ public class JSynPlayer {
 		if (this.midiActive) {
 			this.midiTransmitter.scheduleNote(voice, pitch, velocity, onset, duration, -1);
 		}
+	}
+	
+	public void sendNoteOff(int voice, int pitch, int onset) {
+		if (this.midiActive) {
+			this.midiTransmitter.sendNoteOff(voice, pitch, onset);
+		}
+	}
+	
+	private int getChannelPitchKey(int channel, int pitch) {
+		return (channel+1)*pitch;
 	}
 
 }

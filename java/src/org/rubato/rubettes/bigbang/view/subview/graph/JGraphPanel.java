@@ -78,7 +78,7 @@ public class JGraphPanel extends JPanel implements View, ActionListener {
 		this.animateSlider.addChangeListener(new AnimationPositionListener(this.bbController));
 		this.northPanel.add(this.animateSlider);
 		
-		this.modeSelektor = new JComboBox(new Mode[]{Mode.TRANSFORMING,Mode.PICKING,Mode.EDITING});
+		this.modeSelektor = new JComboBox(new Mode[]{Mode.TRANSFORMING,Mode.PICKING});
 		this.modeSelektor.addActionListener(this);
 		this.northPanel.add(this.modeSelektor);
 	}
@@ -133,7 +133,7 @@ public class JGraphPanel extends JPanel implements View, ActionListener {
 		VertexFactory vf = new VertexFactory(this.layout);
 		EdgeFactory ef = new EdgeFactory(this.layout);
 		this.graphMouse = new EditingModalGraphMouse<Integer,AbstractOperationEdit>(this.graphViewer.getRenderContext(), vf, ef);
-		this.setMode(Mode.PICKING);
+		//this.setMode(Mode.PICKING);
 		
 		PopupVertexEdgeMenuMousePlugin myPlugin = new PopupVertexEdgeMenuMousePlugin(this.bbController);
 		//this.graphMouse.remove(this.graphMouse.get
@@ -159,6 +159,9 @@ public class JGraphPanel extends JPanel implements View, ActionListener {
 		verticalBox.add(Box.createVerticalGlue()); 
 		verticalBox.add(horizontalBox); // one inside the other
 		verticalBox.add(Box.createVerticalGlue());*/
+		
+		//strangely, popups appear in picking mode if selected here. exactly what we want!
+		this.setMode(Mode.PICKING);
 		
 		this.setPreferredSize(new Dimension(300,JBigBangPanel.CENTER_PANEL_HEIGHT));
 		this.setLayout(new BorderLayout());

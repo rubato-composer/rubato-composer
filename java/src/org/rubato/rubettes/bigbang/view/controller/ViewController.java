@@ -385,12 +385,12 @@ public class ViewController extends Controller {
 		this.setModelProperty(ViewController.WAVEFORM, waveform);
 	}
 	
-	public void pressMidiKey(int pitch, int velocity) {
-		this.callModelMethod(ViewController.PRESS_MIDI_KEY, pitch, velocity);
+	public void pressMidiKey(Integer channel, int pitch, int velocity) {
+		this.callModelMethod(ViewController.PRESS_MIDI_KEY, channel, pitch, velocity);
 	}
 	
-	public void releaseMidiKey(int pitch) {
-		this.callModelMethod(ViewController.RELEASE_MIDI_KEY, pitch);
+	public void releaseMidiKey(Integer channel, int pitch) {
+		this.callModelMethod(ViewController.RELEASE_MIDI_KEY, channel, pitch);
 	}
 	
 	public void changeOctave(boolean up) {
