@@ -303,6 +303,7 @@ public class SetRubette extends AbstractRubette {
     public Rubette duplicate() {
         SetRubette newRubette = new SetRubette();
         newRubette.op = op;
+        newRubette.setInCount(this.getInCount());
         return newRubette;
     }
     

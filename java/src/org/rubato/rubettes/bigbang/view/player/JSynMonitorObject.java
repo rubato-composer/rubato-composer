@@ -5,13 +5,20 @@ import java.util.List;
 
 public class JSynMonitorObject extends JSynObject {
 	
+	private int voice;
 	private double pitch;
 	private double loudness;
 	
-	public JSynMonitorObject(double pitch, double loudness) {
+	public JSynMonitorObject(int voice, double pitch, double loudness) {
 		super(null, JSynObject.ADDITIVE);
+		this.voice = voice;
 		this.pitch = pitch;
 		this.loudness = loudness;
+	}
+	
+	@Override
+	public boolean isAudible() {
+		return true;
 	}
 	
 	@Override
@@ -23,9 +30,13 @@ public class JSynMonitorObject extends JSynObject {
 		return (int)this.loudness;
 	}
 	
+	public int getVoice() {
+		return this.voice;
+	}
+	
 	@Override
 	public JSynObject clone() {
-		return new JSynMonitorObject(this.pitch, this.loudness);
+		return new JSynMonitorObject(this.voice, this.pitch, this.loudness);
 	}
 
 }

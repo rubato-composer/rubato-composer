@@ -358,7 +358,7 @@ public class BigBangView extends Model implements View {
 		this.firePropertyChange(ViewController.STANDARD_DENOTATOR_VALUES, null, this.getStandardDenotatorValues());
 	}
 	
-	public List<Double> getStandardDenotatorValues() {
+	private List<Double> getStandardDenotatorValues() {
 		List<Double> values = new ArrayList<Double>();
 		for (String currentValueName : this.displayObjects.getCoordinateSystemValueNames()) {
 			if (this.standardDenotatorValues.containsKey(currentValueName)) {
@@ -764,22 +764,35 @@ public class BigBangView extends Model implements View {
 		this.firePropertyChange(ViewController.WAVEFORM, null, waveform);
 	}
 	
-	public void pressMidiKey(Integer pitch, Integer velocity) {
+	public void pressMidiKey(Integer channel, Integer pitch, Integer velocity) {
+		if (channel < 0) {
+			channel = this.getChannel();
+		}
 		if (this.recorder.isRecording()) {
-			this.recorder.pressMidiKey(pitch, velocity);
-			this.player.pressMidiKey(pitch, velocity, true);
+			this.recorder.pressMidiKey(channel, pitch, velocity);
+			this.player.pressMidiKey(channel, pitch, velocity, true);
 		} else {
-			this.player.pressMidiKey(pitch, velocity, false);
+			this.player.pressMidiKey(channel, pitch, velocity, false);
 		}
 	}
 	
-	public void releaseMidiKey(Integer pitch) {
-		if (this.recorder.isRecording()) {
-			this.recorder.releaseMidiKey(pitch);
-			this.player.releaseMidiKey(pitch, true);
-		} else {
-			this.player.releaseMidiKey(pitch, false);
+	public void releaseMidiKey(Integer channel, Integer pitch) {
+		if (channel < 0) {
+			channel = this.getChannel();
 		}
+		if (this.recorder.isRecording()) {
+			this.recorder.releaseMidiKey(channel, pitch);
+			this.player.releaseMidiKey(channel, pitch, true);
+		} else {
+			this.player.releaseMidiKey(channel, pitch, false);
+		}
+	}
+	
+	private int getChannel() {
+		if (this.standardDenotatorValues.containsKey(CoolFormRegistrant.VOICE_NAME)) {
+			return this.standardDenotatorValues.get(CoolFormRegistrant.VOICE_NAME).intValue();
+		}
+		return 0;
 	}
 	
 	public void changeOctave(Boolean up) {

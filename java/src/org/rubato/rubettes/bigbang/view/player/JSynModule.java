@@ -82,8 +82,12 @@ public class JSynModule {
 				double remainingDuration = this.player.convertToSynthDuration(object.getDuration()-(currentSymbolicTime-object.getOnset()));
 				if (remainingDuration > 0) {
 					oscillator.queueEnvelopeWithoutAttackAndDecay(remainingDuration, this.player.getCurrentSynthTime());
+					int onsetMillis = (int)Math.round(0*1000);
+					int durationMillis = (int)Math.round(remainingDuration*1000);
+					this.player.sendMidiMessages(object.getVoice(), object.frequencyToMidi(frequency), object.getLoudness(), onsetMillis, durationMillis);
 				} else {
 					this.mute();
+					this.player.sendNoteOff(object.getVoice(), object.frequencyToMidi(frequency), 0);
 				}
 			}
 			//recursively create or adjust modulators 
