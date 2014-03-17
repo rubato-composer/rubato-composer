@@ -8,7 +8,6 @@ import org.rubato.math.matrix.RMatrix;
 import org.rubato.math.module.morphism.CompositionException;
 import org.rubato.math.module.morphism.ModuleMorphism;
 import org.rubato.math.module.morphism.RFreeAffineMorphism;
-import org.rubato.rubettes.bigbang.model.BigBangDenotatorManager;
 import org.rubato.rubettes.bigbang.model.BigBangModel;
 import org.rubato.rubettes.bigbang.model.BigBangObject;
 import org.rubato.rubettes.bigbang.model.BigBangTransformation;
@@ -111,14 +110,14 @@ public abstract class AbstractTransformationEdit extends AbstractOperationEdit {
 	public AbstractTransformationEdit clone() {
 		AbstractTransformationEdit clone;
 		try {
-			clone = this.getClass().getDeclaredConstructor(BigBangDenotatorManager.class).newInstance(this.model);
+			clone = this.getClass().getDeclaredConstructor(BigBangModel.class).newInstance(this.model);
 			clone.objects = this.objects;
 			clone.transformationPaths = this.transformationPaths;
 			clone.anchor = this.anchor;
 			clone.copyAndTransform = this.copyAndTransform;
 			clone.center = this.center;
 			clone.endingPoint = this.endingPoint;
-			//clone.updateOperation();
+			clone.modificationRatio = modificationRatio;
 			return clone;
 		} catch (Exception e) {
 			e.printStackTrace();

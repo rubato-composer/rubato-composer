@@ -249,11 +249,11 @@ public class JSynObject implements Comparable<JSynObject> {
 	}
 	
 	protected double midiToFrequency(double midiPitch) {
-		return JSynPlayer.BASE_A4*Math.pow(2, (midiPitch-57)/12);
+		return BigBangPlayer.BASE_A4*Math.pow(2, (midiPitch-57)/12);
 	}
 	
 	public int frequencyToMidi(double frequency) {
-		return (int)Math.round((Math.log(frequency/JSynPlayer.BASE_A4)/Math.log(2))*12+57);
+		return (int)Math.round((Math.log(frequency/BigBangPlayer.BASE_A4)/Math.log(2))*12+57);
 	}
 	
 	protected double midiToAmplitude(double loudness) {

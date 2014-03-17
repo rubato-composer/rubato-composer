@@ -11,7 +11,7 @@ import org.rubato.rubettes.bigbang.model.BigBangObject;
 
 public class JSynPerformance extends Thread {
 	
-	private JSynPlayer player;
+	private BigBangPlayer player;
 	private JSynScore score;
 	private JSynThreadGroup threads;
 	private List<JSynModule> modules;
@@ -20,11 +20,11 @@ public class JSynPerformance extends Thread {
 	private boolean isPlaying;
 	private Integer pitch, velocity;
 	
-	public JSynPerformance(JSynPlayer player, JSynScore score) {
+	public JSynPerformance(BigBangPlayer player, JSynScore score) {
 		this(player, score, null, null);
 	}
 	
-	public JSynPerformance(JSynPlayer player, JSynScore score, Integer pitch, Integer velocity) {
+	public JSynPerformance(BigBangPlayer player, JSynScore score, Integer pitch, Integer velocity) {
 		this.player = player;
 		this.score = score;
 		this.threads = new JSynThreadGroup(false);
@@ -35,7 +35,7 @@ public class JSynPerformance extends Thread {
 		this.velocity = velocity;
 	}
 	
-	public JSynPlayer getPlayer() {
+	public BigBangPlayer getPlayer() {
 		return this.player;
 	}
 	
@@ -158,9 +158,9 @@ public class JSynPerformance extends Thread {
 					timeOfNextLoop += currentLoopDuration;
 					System.out.println(this + " " +  this.isPlaying + " " + timeOfNextLoop + " " + this.player.getCurrentSynthTime());
 					
-					while (timeOfNextLoop - JSynPlayer.DEFAULT_ADVANCE > this.player.getCurrentSynthTime()) {
+					while (timeOfNextLoop - BigBangPlayer.DEFAULT_ADVANCE > this.player.getCurrentSynthTime()) {
 						try {
-							long sleepTime = (long)Math.ceil((timeOfNextLoop - JSynPlayer.DEFAULT_ADVANCE - this.player.getCurrentSynthTime())*1000);
+							long sleepTime = (long)Math.ceil((timeOfNextLoop - BigBangPlayer.DEFAULT_ADVANCE - this.player.getCurrentSynthTime())*1000);
 							Thread.sleep(sleepTime);
 							System.out.println(sleepTime);
 						} catch (InterruptedException e) {

@@ -18,7 +18,7 @@ public class SmoothOscillator {
 	private final double DECAY = 0.03;
 	private final double RELEASE = 0.1;
 	
-	private JSynPlayer player;
+	private BigBangPlayer player;
 	private UnitOscillator oscillator;
 	private LinearRamp frequencySweeper;
 	private LinearRamp amplitudeSweeper;
@@ -29,7 +29,7 @@ public class SmoothOscillator {
 	private List<SmoothOscillatorModule> parallelModules; //additive oscillators and ring modulators
 	private UnitInputPort outputTo;
 	
-	public SmoothOscillator(JSynPlayer player, UnitInputPort outputTo) {
+	public SmoothOscillator(BigBangPlayer player, UnitInputPort outputTo) {
 		this.player = player;
 		this.player.addToSynth(this.oscillator = player.getSpecificOscillator());
 		

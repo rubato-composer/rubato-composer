@@ -166,8 +166,7 @@ public class DenotatorPath implements Comparable<Object> {
 	}
 	
 	/**
-	 * New implementation, where all shorter paths and there the paths having smaller last
-	 * indices are smaller.
+	 * Shorter paths and there the paths having smaller indices are smaller.
 	 */
 	public int compareTo(Object object) {
 		if (!(object instanceof DenotatorPath)) {
@@ -191,7 +190,8 @@ public class DenotatorPath implements Comparable<Object> {
 		if (object == null || !(object instanceof DenotatorPath)) {
 			return false;
 		}
-		return this.indices.equals(((DenotatorPath)object).indices);
+		boolean eq = this.indices.equals(((DenotatorPath)object).indices);
+		return eq;
 	}
 	
 	public boolean equalsExceptForPowersetIndices(DenotatorPath path) {

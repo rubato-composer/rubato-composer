@@ -78,28 +78,36 @@ public class OperationPathResults {
 	}
 	
 	private void updatePaths(Map<DenotatorPath,DenotatorPath> changedPaths, Collection<DenotatorPath> newPaths, Set<DenotatorPath> removedPaths) {
-		//need to build new sets and maps separately so that no values are changed back and forth, e.g. in cases
-		//of two paths being switched
+		//need to build new sets and maps separately so that no values are changed back and forth,
+		//e.g. in cases of two paths being switched
 		Set<DenotatorPath> newNewPaths = new TreeSet<DenotatorPath>();
 		BidiMap<DenotatorPath,DenotatorPath> newChangedPaths = new TreeBidiMap<DenotatorPath,DenotatorPath>(this.changedPaths);
 		
+		//go through all newPaths and see if they or any of their anchors are in the given changedPaths
+		//replace them or their anchor path and add to newNewPath
+		Set<DenotatorPath> newPathsToRemove = new TreeSet<DenotatorPath>();
+		for (DenotatorPath currentNewPath : this.newPaths) {
+			DenotatorPath currentAnchorPath = currentNewPath;
+			while (currentAnchorPath != null) {
+				if (changedPaths.containsKey(currentAnchorPath)) {
+					DenotatorPath newAnchorPath = changedPaths.get(currentAnchorPath);
+					newPathsToRemove.add(currentNewPath);
+					//currentNewPath itself changed
+					if (currentAnchorPath.size() == currentNewPath.size()) {
+						newNewPaths.add(newAnchorPath);
+					//some anchor path of currentNewPath changed
+					} else {
+						newNewPaths.add(currentNewPath.changeBeginning(newAnchorPath, currentAnchorPath.size()));
+					}
+				}
+				currentAnchorPath = currentAnchorPath.getAnchorPath();
+			}
+		}
+		this.newPaths.removeAll(newPathsToRemove);
+			
+		//adjust changedPaths according to the given changedPaths
 		for (DenotatorPath keyPath : changedPaths.keySet()) {
 			DenotatorPath valuePath = changedPaths.get(keyPath);
-			
-			//find instances of changedPath in newPaths and move to newNewPaths
-			Set<DenotatorPath> newPathsToRemove = new TreeSet<DenotatorPath>(); 
-			for (DenotatorPath currentNewPath : this.newPaths) {
-				if (currentNewPath.isSatelliteOf(keyPath)) {
-					newPathsToRemove.add(currentNewPath);
-					newNewPaths.add(currentNewPath.changeBeginning(valuePath, keyPath.size()));
-				} else if (currentNewPath.equals(keyPath)) {
-					newPathsToRemove.add(keyPath);
-					newNewPaths.add(valuePath);
-				}
-			}
-			this.newPaths.removeAll(newPathsToRemove);
-			
-			//adjust changedPaths
 			if (this.changedPaths.containsValue(keyPath)) {
 				DenotatorPath oldKey = this.changedPaths.getKey(keyPath);
 				if (!oldKey.equals(valuePath)) {

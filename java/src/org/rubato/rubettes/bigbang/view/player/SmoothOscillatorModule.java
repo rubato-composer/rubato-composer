@@ -20,14 +20,14 @@ import com.jsyn.unitgen.UnitBinaryOperator;
  */
 public class SmoothOscillatorModule {
 	
-	private JSynPlayer player;
+	private BigBangPlayer player;
 	private UnitBinaryOperator operator;
 	private UnitOutputPort thingInInputA;
 	private SmoothOscillator oscillatorInInputB;
 	private UnitInputPort thingInOutput;
 	private int type;
 	
-	public SmoothOscillatorModule(JSynPlayer player, int type) {
+	public SmoothOscillatorModule(BigBangPlayer player, int type) {
 		this.player = player;
 		this.oscillatorInInputB = new SmoothOscillator(this.player, null);
 		this.setType(type);

@@ -85,13 +85,12 @@ public class JBigBangDisplay extends JPanel implements View {
 			this.contents.setViewParameters((ViewParameters)event.getNewValue());
 			this.repaint();
 		} else if (propertyName.equals(ViewController.DISPLAY_OBJECTS)) {
-			PerformanceCheck.startTask("setDO");
 			this.contents.setObjects((DisplayObjects)event.getNewValue());
-			PerformanceCheck.startTask("repaint");
 			this.repaint();
 			PerformanceCheck.startTask("done");
 			//PerformanceCheck.print();
 			//System.out.println("\n\n");
+			PerformanceCheck.reset();
 		} else if (propertyName.equals(ViewController.CENTER_VIEW)) {
 			this.contents.centerView();
 			this.repaint();

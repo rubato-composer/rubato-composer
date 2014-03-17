@@ -84,7 +84,6 @@ public class BigBangDenotatorManager {
 	}
 	
 	public OperationPathResults setOrAddComposition(Denotator composition) {
-		PerformanceCheck.startTask("convert");
 		Denotator convertedComposition = this.objectGenerator.convertDenotatorIfCompatible(composition);
 		if (convertedComposition != null) {
 			if (convertedComposition.getForm().getType() == Form.POWER || convertedComposition.getForm().getType() == Form.LIST) {
@@ -121,7 +120,6 @@ public class BigBangDenotatorManager {
 	//replace the present composition with the given one
 	public void setComposition(Denotator composition) {
 		Set<DenotatorPath> previousPaths = new TreeSet<DenotatorPath>();
-		PerformanceCheck.startTask("set");
 		if (this.composition != null && !composition.getForm().equals(this.objectGenerator.getBaseForm())) {
 			this.setForm(composition.getForm());
 		} else if (this.composition != null) {
@@ -132,7 +130,6 @@ public class BigBangDenotatorManager {
 			this.resetCurrentPaths();
 			this.currentWallpaper = null;
 			ObjectPathFinder finder = new ObjectPathFinder();
-			PerformanceCheck.startTask("find");
 			Set<DenotatorPath> newPaths = finder.findPaths(this.composition);
 			this.currentPathResults.getNewPaths().addAll(newPaths);
 			//if no objects were found, the top level denotator is one and has to be added
@@ -155,6 +152,7 @@ public class BigBangDenotatorManager {
 			//reset composition
 			this.composition = this.currentWallpaper.getCompositionBeforeWallpaper().copy();
 			//returns pathresults of last transformation of wallpaper
+			PerformanceCheck.startTask("update wallpaper");
 			return this.currentWallpaper.update();
 			//List<DenotatorPath> newMotifPaths = this.addObjects(motifNodes);
 		}
