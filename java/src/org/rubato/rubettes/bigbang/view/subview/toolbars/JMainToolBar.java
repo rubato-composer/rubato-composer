@@ -97,6 +97,7 @@ public class JMainToolBar extends JToolBar implements View {
 	}
 	
 	private void wallpaperDimensionSelected(int rangeFrom, int rangeTo) {
+		this.resetWallpaperModeIfNecessary();
 		this.startWallpaperButton.setSelected(true);
 		this.addNewRangeSpinner(new WallpaperRangeListener(this.viewController, false));
 		this.addNewRangeSpinner(new WallpaperRangeListener(this.viewController, true));

@@ -73,7 +73,7 @@ class JSynThread extends Thread {
 			double nextOnset = nextNote.getOnset();
 			
 			//System.out.println("sleep " + nextNote.toString() + " " + this.player.getSynthOnset(nextNote.getOnset(), this.playInNextLoop) + " " + this.player.getCurrentSynthTime());
-			this.performance.getPlayer().getSynth().sleepUntil(this.performance.getSynthOnset(nextNote.getOnset(), this.playInNextLoop) - JSynPlayer.DEFAULT_ADVANCE);
+			this.performance.getPlayer().getSynth().sleepUntil(this.performance.getSynthOnset(nextNote.getOnset(), this.playInNextLoop) - BigBangPlayer.DEFAULT_ADVANCE);
 			
 			while(this.group.isRunning()) {
 				
@@ -87,7 +87,7 @@ class JSynThread extends Thread {
 					nextOnset = nextNote.getOnset();
 					/* sleep until advanceTime BEFORE we have to play the next note */
 					//System.out.println("sleep2 " + nextNote.toString() + " " + this.player.getSynthOnset(nextNote.getOnset(), this.playInNextLoop) + " " + this.player.getCurrentSynthTime());
-					this.performance.getPlayer().getSynth().sleepUntil(this.performance.getSynthOnset(nextOnset, this.playInNextLoop) - JSynPlayer.DEFAULT_ADVANCE);
+					this.performance.getPlayer().getSynth().sleepUntil(this.performance.getSynthOnset(nextOnset, this.playInNextLoop) - BigBangPlayer.DEFAULT_ADVANCE);
 				} else {
 					break;
 				}

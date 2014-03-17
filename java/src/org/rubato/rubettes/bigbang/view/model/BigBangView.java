@@ -291,7 +291,11 @@ public class BigBangView extends Model implements View {
 			this.selectObjects((Set<BigBangObject>)event.getNewValue());
 		} else if (propertyName.equals(BigBangController.LAYERS)) {
 			this.firePropertyChange(ViewController.LAYERS, null, event.getNewValue());
-			this.player.update();
+			if (this.displayObjects != null) {
+				this.displayObjects.updateObjectSelections();
+				this.firePropertyChange(ViewController.DISPLAY_OBJECTS, null, this.displayObjects);
+				this.player.updatePerformances();
+			}
 		} else if (propertyName.equals(BigBangController.UNDO)) {
 			this.firePropertyChange(ViewController.UNDO, null, event.getNewValue());
 		} else if (propertyName.equals(BigBangController.REDO)) {

@@ -42,7 +42,6 @@ public class DisplayObjects {
 	private int activeSatelliteLevel;
 	
 	public DisplayObjects(BigBangObjects bbObjects) {
-		PerformanceCheck.startTask("initDO");
 		this.bbObjects = bbObjects;
 		this.indexOfActiveObjectType = 0;
 		this.initActiveColimitCoordinates(this.bbObjects.getNumberOfColimits(0));
@@ -64,7 +63,6 @@ public class DisplayObjects {
 	}
 	
 	public void addObjects(Set<BigBangObject> newObjects) {
-		PerformanceCheck.startTask("addDO");
 		//reset object since they might temporarily not exist (e.g. during animation)
 		this.objects = new TreeSet<DisplayObject>();
 		if (newObjects != null) {
@@ -334,6 +332,14 @@ public class DisplayObjects {
 		}
 		this.deselectAllObjects();
 		return this.selectedObjects.size();
+	}
+	
+	public void updateObjectSelections() {
+		for (DisplayObject currentObject: this.objects) {
+			if (!currentObject.isActive() && this.selectedObjects.contains(currentObject)) {
+				this.selectedObjects.remove(currentObject);
+			}
+		}
 	}
 	
 	private void deselectAllObjects() {

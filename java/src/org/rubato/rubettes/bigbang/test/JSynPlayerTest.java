@@ -6,7 +6,6 @@ import org.rubato.rubettes.bigbang.model.BigBangModel;
 import org.rubato.rubettes.bigbang.model.DenotatorValueExtractor;
 import org.rubato.rubettes.bigbang.view.player.BigBangPlayer;
 import org.rubato.rubettes.bigbang.view.player.JSynObject;
-import org.rubato.rubettes.bigbang.view.player.JSynPlayer;
 import org.rubato.rubettes.bigbang.view.player.JSynScore;
 import org.rubato.rubettes.bigbang.view.player.SmoothOscillator;
 import org.rubato.rubettes.util.SoundNoteGenerator;
@@ -26,7 +25,7 @@ public class JSynPlayerTest extends TestCase {
 	
 	public void testSmoothOscillatorOffline() {
 		//create player and line out
-		JSynPlayer player = new JSynPlayer(new BigBangPlayer());
+		BigBangPlayer player = new BigBangPlayer(false);
 		player.startSynth();
 		LineOut lineOut = new LineOut();
 		player.addToSynth(lineOut);
@@ -59,7 +58,7 @@ public class JSynPlayerTest extends TestCase {
 	
 	public void testPlayerWithSoundScore() throws InterruptedException {
 		//TODO test with both modulators and normal satellites
-		JSynPlayer player = new JSynPlayer(new BigBangPlayer());
+		BigBangPlayer player = new BigBangPlayer(false);
 		player.startSynth();
 		LineOut lineOut = new LineOut();
 		player.addToSynth(lineOut);
@@ -73,7 +72,8 @@ public class JSynPlayerTest extends TestCase {
 		TestCase.assertEquals(JSynObject.ADDITIVE, testScore.getObjects().iterator().next().getSatellites().get(0).getSatelliteType());
 		
 		//System.out.println(testScore);
-		player.play(testScore);
+		player.setScore(testScore);
+		player.togglePlayMode();
 		player.getSynth().sleepFor(1.5);
 		lineOut.stop();
 	}

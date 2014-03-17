@@ -404,13 +404,11 @@ public class BigBangModel extends Model {
 	
 	public void updateComposition() {
 		if (this.transformationGraph.getEdgeCount() > 0) {
-			PerformanceCheck.startTask("prepare");
 			List<AbstractOperationEdit> operationsToBeExecuted = this.transformationGraph.getCurrentlyExecutedOperationsInOrder();
 			this.denotators.reset();
 			
 			OperationPathResults currentPathResults = null;
 			for (int i = 0; i < operationsToBeExecuted.size(); i++) {
-				PerformanceCheck.startTask("prepare");
 				AbstractOperationEdit currentOperation = operationsToBeExecuted.get(i);
 				AbstractOperationEdit nextOperation = null;
 				if (i < operationsToBeExecuted.size()-1) {
@@ -418,8 +416,8 @@ public class BigBangModel extends Model {
 				}
 				PerformanceCheck.startTask("execute");
 				currentPathResults = currentOperation.execute();
+				PerformanceCheck.startTask("update paths");
 				this.objects.updatePaths(currentOperation, nextOperation, currentPathResults);
-				PerformanceCheck.startTask("updatepaths_done");
 			}
 			//System.out.println("BO "+this.objects.getAllObjects() + "\n");
 			//System.out.println(operationsToBeExecuted + " " + this.objects.getObjects());

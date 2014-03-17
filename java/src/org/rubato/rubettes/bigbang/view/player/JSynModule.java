@@ -9,7 +9,7 @@ import com.jsyn.unitgen.Pan;
 public class JSynModule {
 	
 	private JSynPerformance performance;
-	private JSynPlayer player;
+	private BigBangPlayer player;
 	private JSynObject currentObject;
 	private List<SmoothOscillator> carriers;
 	private LineOut lineOut;

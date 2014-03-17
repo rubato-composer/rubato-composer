@@ -5,7 +5,6 @@ import java.awt.GridLayout;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.beans.PropertyChangeEvent;
-import java.util.Arrays;
 
 import javax.swing.BorderFactory;
 import javax.swing.JCheckBox;
@@ -20,7 +19,7 @@ import org.rubato.rubettes.bigbang.controller.BigBangController;
 import org.rubato.rubettes.bigbang.view.View;
 import org.rubato.rubettes.bigbang.view.controller.ViewController;
 import org.rubato.rubettes.bigbang.view.model.ViewParameters;
-import org.rubato.rubettes.bigbang.view.player.JSynPlayer;
+import org.rubato.rubettes.bigbang.view.player.BigBangPlayer;
 import org.rubato.rubettes.util.SoundNoteGenerator;
 
 public class JWindowPreferencesDialog extends JDialog implements View, ItemListener {
@@ -58,7 +57,7 @@ public class JWindowPreferencesDialog extends JDialog implements View, ItemListe
 		this.fmModel.addItemListener(this);
 		soundPanel.add(this.fmModel);
 		soundPanel.add(new JLabel("Waveform"));
-		this.waveform = new JComboBox(JSynPlayer.WAVEFORMS);
+		this.waveform = new JComboBox(BigBangPlayer.WAVEFORMS);
 		this.waveform.addItemListener(this);
 		soundPanel.add(this.waveform);
 		this.add(BorderLayout.CENTER, soundPanel);

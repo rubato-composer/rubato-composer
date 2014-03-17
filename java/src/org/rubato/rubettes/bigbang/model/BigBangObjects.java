@@ -168,7 +168,6 @@ public class BigBangObjects {
 	 * changedPaths. Sets the new paths at the given operation.
 	 */
 	public void updatePaths(AbstractOperationEdit previousOperation, AbstractOperationEdit operation, OperationPathResults pathResults) {
-		PerformanceCheck.startTask("changedpaths");
 		//System.out.println("UP " + previousOperation + " " + operation + " " + pathResults.getNewPaths() + " " + pathResults.getChangedPaths() + " " + pathResults.getRemovedPaths());
 		
 		if (this.objectsMaps.containsKey(operation)) {

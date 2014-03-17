@@ -9,6 +9,7 @@ import java.util.TreeSet;
 
 import org.rubato.math.yoneda.Denotator;
 import org.rubato.rubettes.util.DenotatorPath;
+import org.rubato.rubettes.util.PerformanceCheck;
 
 public class BigBangWallpaper {
 	
@@ -50,27 +51,27 @@ public class BigBangWallpaper {
 		return lastDimensionResults;
 	}
 	
-	private Set<DenotatorPath> mapDimension(Set<DenotatorPath> currentPaths, BigBangWallpaperDimension dimension, OperationPathResults lastTransformationResults) {
+	private Set<DenotatorPath> mapDimension(Set<DenotatorPath> currentPaths, BigBangWallpaperDimension dimension, OperationPathResults lastDimensionResults) {
 		Set<DenotatorPath> resultPaths = new TreeSet<DenotatorPath>();
 		int rangeFrom = dimension.getRangeFrom();
 		int rangeTo = dimension.getRangeTo();
 		int i = 0;
 		if (rangeFrom > 0) {
 			while (i < rangeFrom) {
-				currentPaths = this.mapIteration(currentPaths, dimension, false, false, lastTransformationResults);
+				currentPaths = this.mapIteration(currentPaths, dimension, false, false, lastDimensionResults);
 				i++;
 			}
 			resultPaths.addAll(currentPaths);
 		} else {
 			while (i > rangeFrom) {
-				currentPaths = this.mapIteration(currentPaths, dimension, false, true, lastTransformationResults);
+				currentPaths = this.mapIteration(currentPaths, dimension, false, true, lastDimensionResults);
 				i--;
 			}
 			resultPaths.addAll(currentPaths);
 		}
 		
 		while (i < rangeTo) {
-			currentPaths = this.mapIteration(currentPaths, dimension, true, false, lastTransformationResults);
+			currentPaths = this.mapIteration(currentPaths, dimension, true, false, lastDimensionResults);
 			resultPaths.addAll(currentPaths);
 			i++;
 		}
@@ -79,6 +80,7 @@ public class BigBangWallpaper {
 	}
 	
 	private Set<DenotatorPath> mapIteration(Set<DenotatorPath> currentPaths, BigBangWallpaperDimension dimension, boolean copyAndMap, boolean inverse, OperationPathResults lastTransformationResults) {
+		PerformanceCheck.startTask("iteration");
 		List<BigBangTransformation> transformations = new ArrayList<BigBangTransformation>(dimension.getTransformations());
 		if (inverse) {
 			Collections.reverse(transformations);
@@ -91,16 +93,21 @@ public class BigBangWallpaper {
 				currentTransformation = currentTransformation.inverse();
 			}
 			currentTransformation.setCopyAndMap(copyAndMap && i == 0);
+			PerformanceCheck.startTask("map");
 			OperationPathResults currentPathResults = new BigBangMapper(this.denotatorManager, currentTransformation).mapCategorizedObjects(currentPaths);
+			PerformanceCheck.startTask("UPPATHS");
 			iterationPathResults.updatePaths(currentPathResults);
 			//if last transformation of last dimension, record changed paths
+			PerformanceCheck.startTask("UPPATHS2");
 			if (lastTransformationResults != null && i == transformations.size()-1) {
 				lastTransformationResults.updatePaths(currentPathResults);
 			}
 			//System.out.println(iterationPathResults);
-			//if an anchor is copied, new paths include its satellites. need to be removed in order to yield motif 
+			//if an anchor is copied, new paths include its satellites. need to be removed in order to yield motif
+			PerformanceCheck.startTask("satellites");
 			currentPaths = this.getSetWithoutSatellites((TreeSet<DenotatorPath>)iterationPathResults.getNewPaths());
 		}
+		PerformanceCheck.startTask("return");
 		//return new paths of created iteration (motif for next iteration)
 		return currentPaths;
 	}
