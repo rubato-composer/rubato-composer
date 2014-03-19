@@ -298,6 +298,7 @@ public class BigBangPlayer {
 		this.stopAllScoreVersions();
 		this.inLiveMidiMode = false;
 		this.synth.stop();
+		this.isPlaying = false;
 	}
 	
 	/*

@@ -103,6 +103,7 @@ public class OperationPathResults {
 				currentAnchorPath = currentAnchorPath.getAnchorPath();
 			}
 		}
+		//System.out.println("r " +newPathsToRemove);
 		this.newPaths.removeAll(newPathsToRemove);
 			
 		//adjust changedPaths according to the given changedPaths
@@ -126,14 +127,22 @@ public class OperationPathResults {
 		this.newPaths = newNewPaths;
 		this.changedPaths = newChangedPaths;
 		
+		//System.out.println("p " +this.newPaths);
+		
 		//only add new and removed paths after changes made!!
 		if (newPaths != null) {
 			this.newPaths.addAll(newPaths);
+			//System.out.println("p2 " +this.newPaths);
 			//this.lastNewPaths.addAll(newPaths);
 		}
 		if (removedPaths != null) {
 			this.removedPaths.addAll(removedPaths);
 		}
+	}
+	
+	public void resetChangedAndRemovedPaths() {
+		this.changedPaths = new TreeBidiMap<DenotatorPath,DenotatorPath>();
+		this.removedPaths = new TreeSet<DenotatorPath>();
 	}
 	
 	public void setNewPaths(Set<DenotatorPath> newPaths) {

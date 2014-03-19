@@ -430,38 +430,7 @@ public class BigBangDenotatorManagerTest extends TestCase {
 		this.objects.assertEqualNonPowerDenotators(expectedTriple, this.denotatorManager.getComposition().get(new int[]{2}));
 	}
 	
-	public void testWallpaper() {
-		this.denotatorManager.setOrAddComposition(this.objects.flatSoundScore);
-		Set<DenotatorPath> notePaths = this.objects.makeNotePaths(new int[][]{{0},{1}});
-		this.denotatorManager.addWallpaperDimension(notePaths, 0, 1);
-		BigBangTransformation translation = this.objects.makeTranslation(1,1, this.nodePaths);
-		OperationPathResults pathResults = this.denotatorManager.addTransformation(notePaths, null, translation);
-		Set<DenotatorPath> expectedNewPaths = new TreeSet<DenotatorPath>();
-		expectedNewPaths.add(new DenotatorPath(this.objects.SOUND_SCORE_FORM, new int[]{1}));
-		expectedNewPaths.add(new DenotatorPath(this.objects.SOUND_SCORE_FORM, new int[]{4}));
-		TestCase.assertEquals(expectedNewPaths, pathResults.getNewPaths());
-		Map<DenotatorPath,DenotatorPath> expectedChangedPaths = new TreeMap<DenotatorPath,DenotatorPath>();
-		expectedChangedPaths.put(new DenotatorPath(this.objects.SOUND_SCORE_FORM, new int[]{1}), new DenotatorPath(this.objects.SOUND_SCORE_FORM, new int[]{2}));
-		expectedChangedPaths.put(new DenotatorPath(this.objects.SOUND_SCORE_FORM, new int[]{2}), new DenotatorPath(this.objects.SOUND_SCORE_FORM, new int[]{3}));
-		TestCase.assertEquals(expectedChangedPaths, pathResults.getChangedPaths());
-		
-		//add second transformation to dimension
-		translation = this.objects.makeTranslation(-2,-2, this.nodePaths);
-		pathResults = this.denotatorManager.addTransformation(notePaths, null, translation);
-		Set<DenotatorPath> expectedEmptyPaths = new TreeSet<DenotatorPath>();
-		TestCase.assertEquals(expectedEmptyPaths, pathResults.getNewPaths());
-		expectedChangedPaths = new TreeMap<DenotatorPath,DenotatorPath>();
-		expectedChangedPaths.put(new DenotatorPath(this.objects.SOUND_SCORE_FORM, new int[]{0}), new DenotatorPath(this.objects.SOUND_SCORE_FORM, new int[]{1}));
-		expectedChangedPaths.put(new DenotatorPath(this.objects.SOUND_SCORE_FORM, new int[]{1}), new DenotatorPath(this.objects.SOUND_SCORE_FORM, new int[]{0}));
-		expectedChangedPaths.put(new DenotatorPath(this.objects.SOUND_SCORE_FORM, new int[]{2}), new DenotatorPath(this.objects.SOUND_SCORE_FORM, new int[]{3}));
-		expectedChangedPaths.put(new DenotatorPath(this.objects.SOUND_SCORE_FORM, new int[]{3}), new DenotatorPath(this.objects.SOUND_SCORE_FORM, new int[]{4}));
-		expectedChangedPaths.put(new DenotatorPath(this.objects.SOUND_SCORE_FORM, new int[]{4}), new DenotatorPath(this.objects.SOUND_SCORE_FORM, new int[]{2}));
-		TestCase.assertEquals(expectedChangedPaths, pathResults.getChangedPaths());
-		
-		//TODO add second dimension with transformation
-		
-		//TODO end wallpaper
-	}
+	
 	
 	public void testWallpaper2() {
 		//test adding transformation that displaces motif
@@ -551,6 +520,58 @@ public class BigBangDenotatorManagerTest extends TestCase {
 		Map<DenotatorPath,DenotatorPath> expectedChangedPaths = new TreeMap<DenotatorPath,DenotatorPath>();
 		expectedChangedPaths.put(new DenotatorPath(this.objects.SOUND_SCORE_FORM, new int[]{2}), new DenotatorPath(this.objects.SOUND_SCORE_FORM, new int[]{0}));
 		TestCase.assertEquals(expectedChangedPaths, pathResults.getChangedPaths());
+	}
+	
+	public void testWallpaper() {
+		this.denotatorManager.setOrAddComposition(this.objects.flatSoundScore);
+		Set<DenotatorPath> notePaths = this.objects.makeNotePaths(new int[][]{{0},{1}});
+		this.denotatorManager.addWallpaperDimension(notePaths, 0, 1);
+		BigBangTransformation translation = this.objects.makeTranslation(1,1, this.nodePaths);
+		OperationPathResults pathResults = this.denotatorManager.addTransformation(notePaths, null, translation);
+		Set<DenotatorPath> expectedNewPaths = new TreeSet<DenotatorPath>();
+		expectedNewPaths.add(new DenotatorPath(this.objects.SOUND_SCORE_FORM, new int[]{1}));
+		expectedNewPaths.add(new DenotatorPath(this.objects.SOUND_SCORE_FORM, new int[]{4}));
+		TestCase.assertEquals(expectedNewPaths, pathResults.getNewPaths());
+		Map<DenotatorPath,DenotatorPath> expectedChangedPaths = new TreeMap<DenotatorPath,DenotatorPath>();
+		expectedChangedPaths.put(new DenotatorPath(this.objects.SOUND_SCORE_FORM, new int[]{1}), new DenotatorPath(this.objects.SOUND_SCORE_FORM, new int[]{2}));
+		expectedChangedPaths.put(new DenotatorPath(this.objects.SOUND_SCORE_FORM, new int[]{2}), new DenotatorPath(this.objects.SOUND_SCORE_FORM, new int[]{3}));
+		TestCase.assertEquals(expectedChangedPaths, pathResults.getChangedPaths());
+		
+		//add second transformation to dimension
+		translation = this.objects.makeTranslation(-2,-2, this.nodePaths);
+		pathResults = this.denotatorManager.addTransformation(notePaths, null, translation);
+		Set<DenotatorPath> expectedEmptyPaths = new TreeSet<DenotatorPath>();
+		TestCase.assertEquals(expectedEmptyPaths, pathResults.getNewPaths());
+		expectedChangedPaths = new TreeMap<DenotatorPath,DenotatorPath>();
+		expectedChangedPaths.put(new DenotatorPath(this.objects.SOUND_SCORE_FORM, new int[]{0}), new DenotatorPath(this.objects.SOUND_SCORE_FORM, new int[]{1}));
+		expectedChangedPaths.put(new DenotatorPath(this.objects.SOUND_SCORE_FORM, new int[]{1}), new DenotatorPath(this.objects.SOUND_SCORE_FORM, new int[]{0}));
+		expectedChangedPaths.put(new DenotatorPath(this.objects.SOUND_SCORE_FORM, new int[]{2}), new DenotatorPath(this.objects.SOUND_SCORE_FORM, new int[]{3}));
+		expectedChangedPaths.put(new DenotatorPath(this.objects.SOUND_SCORE_FORM, new int[]{3}), new DenotatorPath(this.objects.SOUND_SCORE_FORM, new int[]{4}));
+		expectedChangedPaths.put(new DenotatorPath(this.objects.SOUND_SCORE_FORM, new int[]{4}), new DenotatorPath(this.objects.SOUND_SCORE_FORM, new int[]{2}));
+		TestCase.assertEquals(expectedChangedPaths, pathResults.getChangedPaths());
+		
+		//add second dimension with different range
+		//{0,60,120,1,0,0},{1,63,116,1,0,0},{2,60,121,1,1,0}}
+		//-1 59 0 60 0 62 1 63 generated by first dimension .. 2 60 stays
+		//1 61 2 62 2 64 3 65 transformed by second dimension .. 2 60 stays
+		//3 63 4 66 added by second iteration of second dimension
+		//4 64 5 67 added by third iteration of second dimension SINCE 2 62 3 65 ALREADY EXISTED NOT FURTHER TRANSFORMED!!! 
+		//NEW PATHS: 4 6 7 8
+		this.denotatorManager.addWallpaperDimension(notePaths, 2, 4);
+		translation = this.objects.makeTranslation(1,1, this.nodePaths);
+		pathResults = this.denotatorManager.addTransformation(notePaths, null, translation);
+		expectedNewPaths = new TreeSet<DenotatorPath>();
+		expectedNewPaths.add(new DenotatorPath(this.objects.SOUND_SCORE_FORM, new int[]{4}));
+		for (int i = 6; i <= 8; i++) {
+			expectedNewPaths.add(new DenotatorPath(this.objects.SOUND_SCORE_FORM, new int[]{i}));
+		}
+		TestCase.assertEquals(expectedNewPaths, pathResults.getNewPaths());
+		expectedChangedPaths = new TreeMap<DenotatorPath,DenotatorPath>();
+		expectedChangedPaths.put(new DenotatorPath(this.objects.SOUND_SCORE_FORM, new int[]{4}), new DenotatorPath(this.objects.SOUND_SCORE_FORM, new int[]{5}));
+		expectedChangedPaths.put(new DenotatorPath(this.objects.SOUND_SCORE_FORM, new int[]{6}), new DenotatorPath(this.objects.SOUND_SCORE_FORM, new int[]{7}));
+		TestCase.assertEquals(expectedChangedPaths, pathResults.getChangedPaths());
+		
+		//TODO end wallpaper
 	}
 	
 	@SuppressWarnings("unchecked")

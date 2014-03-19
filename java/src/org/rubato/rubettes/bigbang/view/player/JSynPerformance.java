@@ -118,7 +118,6 @@ public class JSynPerformance extends Thread {
 	 */
 	public void stopPlaying(boolean justMute) {
 		this.interrupt();
-		System.out.println("STOP " + Thread.activeCount());
 		this.isPlaying = false;
 		for (JSynModule currentModule : this.modules) {
 			currentModule.mute();
@@ -156,15 +155,12 @@ public class JSynPerformance extends Thread {
 				while (this.player.isLooping() && this.isPlaying) {
 					double currentLoopDuration = this.player.convertToSynthDuration(this.player.getLoopDuration());
 					timeOfNextLoop += currentLoopDuration;
-					System.out.println(this + " " +  this.isPlaying + " " + timeOfNextLoop + " " + this.player.getCurrentSynthTime());
 					
 					while (timeOfNextLoop - BigBangPlayer.DEFAULT_ADVANCE > this.player.getCurrentSynthTime()) {
 						try {
 							long sleepTime = (long)Math.ceil((timeOfNextLoop - BigBangPlayer.DEFAULT_ADVANCE - this.player.getCurrentSynthTime())*1000);
 							Thread.sleep(sleepTime);
-							System.out.println(sleepTime);
 						} catch (InterruptedException e) {
-							System.out.println(this + " INT");
 							/*if (this.player.isLooping() && this.isPlaying) {
 								timeOfNextLoop -= currentLoopDuration;
 								currentLoopDuration = this.player.convertToSynthDuration(this.player.getLoopDuration());
