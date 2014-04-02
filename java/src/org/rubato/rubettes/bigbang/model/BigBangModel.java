@@ -305,7 +305,7 @@ public class BigBangModel extends Model {
 	}
 	
 	public void undo() {
-		this.undoneOperations.add(this.transformationGraph.removeLastOperation());
+		this.undoneOperations.add(this.transformationGraph.removeLastAddedOperation());
 		this.updateComposition();
 		this.firePropertyChange(BigBangController.UNDO, null, this.undoManager);
 		this.firePropertyChange(BigBangController.GRAPH, null, this.transformationGraph);

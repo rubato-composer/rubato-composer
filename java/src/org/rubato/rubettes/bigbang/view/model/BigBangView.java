@@ -326,7 +326,7 @@ public class BigBangView extends Model implements View {
 	}
 	
 	private void addDisplayAndJSynObjects(BigBangObjects newObjects) {
-		//System.out.println("DO " +newObjects.getObjects()+ " " +this.displayObjects.size());
+		//System.out.println("DO " +newObjects.getAllObjects()+ " " +this.displayObjects.size());
 		//System.out.println("DO " + newObjects.size()  + " " +this.displayObjects.size());
 		Set<BigBangObject> lastObjects = newObjects.getObjectsAt(null);
 		this.displayObjects.addObjects(lastObjects);
