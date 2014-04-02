@@ -76,32 +76,34 @@ public class DenotatorValueExtractor {
 			if (currentObject == null) {
 				currentObject = this.getBigBangObject(parentObject, satelliteLevel, siblingNumber, colimitIndex, currentPath);
 			}
-			if (denotatorType == Denotator.LIMIT) {
-				LimitDenotator currentLimit = (LimitDenotator)currentDenotator;
-				for (int i = 0; i < currentLimit.getFactorCount(); i++) {
-					Denotator currentChild = currentLimit.getFactor(i);
-					this.extractObjects(currentChild, parentObject, currentObject, satelliteLevel, siblingNumber, colimitIndex, currentPath.getChildPath(i));
-				}
-			} else if (denotatorType == Denotator.COLIMIT) {
-				ColimitDenotator currentColimit = (ColimitDenotator)currentDenotator;
-				Denotator onlyChild = currentColimit.getFactor();
-				int childIndex = currentColimit.getIndex();
-				currentObject.setColimitIndex(colimitIndex+childIndex);
-				colimitIndex += currentColimit.getFactorCount();
-				for (int i = 0; i < currentColimit.getForm().getFormCount(); i++) {
-					if (i == childIndex) {
-						DenotatorPath childPath = currentPath.getChildPath(childIndex);
-						//TODO: uiui, not great, but should work for now
-						DenotatorPath path = childPath;
-						if (childPath.getTopPath().size() > 0) {
-							path = path.subPath(childPath.size()-childPath.getTopPath().size());
-						}
-						currentObject.setObjectType(this.objects.getObjectType(currentObject.getTopDenotatorPath().getEndForm(), path));
-						this.extractObjects(onlyChild, parentObject, currentObject, satelliteLevel, siblingNumber, childIndex, childPath);
+			if (currentObject != null) {
+				if (denotatorType == Denotator.LIMIT) {
+					LimitDenotator currentLimit = (LimitDenotator)currentDenotator;
+					for (int i = 0; i < currentLimit.getFactorCount(); i++) {
+						Denotator currentChild = currentLimit.getFactor(i);
+						this.extractObjects(currentChild, parentObject, currentObject, satelliteLevel, siblingNumber, colimitIndex, currentPath.getChildPath(i));
 					}
+				} else if (denotatorType == Denotator.COLIMIT) {
+					ColimitDenotator currentColimit = (ColimitDenotator)currentDenotator;
+					Denotator onlyChild = currentColimit.getFactor();
+					int childIndex = currentColimit.getIndex();
+					currentObject.setColimitIndex(colimitIndex+childIndex);
+					colimitIndex += currentColimit.getFactorCount();
+					for (int i = 0; i < currentColimit.getForm().getFormCount(); i++) {
+						if (i == childIndex) {
+							DenotatorPath childPath = currentPath.getChildPath(childIndex);
+							//TODO: uiui, not great, but should work for now
+							DenotatorPath path = childPath;
+							if (childPath.getTopPath().size() > 0) {
+								path = path.subPath(childPath.size()-childPath.getTopPath().size());
+							}
+							currentObject.setObjectType(this.objects.getObjectType(currentObject.getTopDenotatorPath().getEndForm(), path));
+							this.extractObjects(onlyChild, parentObject, currentObject, satelliteLevel, siblingNumber, childIndex, childPath);
+						}
+					}
+				} else if (denotatorType == Denotator.SIMPLE) {
+					this.addSimpleValues(parentObject, currentObject, (SimpleDenotator)currentDenotator);
 				}
-			} else if (denotatorType == Denotator.SIMPLE) {
-				this.addSimpleValues(parentObject, currentObject, (SimpleDenotator)currentDenotator);
 			}
 		}
 	}

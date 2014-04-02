@@ -17,7 +17,7 @@
   </target>
 
   <target name="compile" depends="init">
-    <javac srcdir="${src}" source="1.5" target="1.5" debug="on">
+    <javac srcdir="${src}" source="1.6" target="1.6" debug="on">
        <classpath refid="project.jars"/>
     </javac>
   </target>
@@ -39,11 +39,11 @@
       <zipfileset src="jar/jung-api-2.0.1.jar"/>
       <zipfileset src="jar/jung-graph-impl-2.0.1.jar"/>
       <zipfileset src="jar/jung-visualization-2.0.1.jar"/>
-      <!--<zipfileset excludes="META-INF/**/*" src="jar/LeapJava.jar" />-->
+      <zipfileset excludes="META-INF/**/*" src="jar/LeapJava.jar" />
       <zipfileset src="jar/mt4j.jar"/>
       <zipfileset src="jar/xercesImpl.jar"/>
       <manifest>
-        <attribute name="Built-By" value="Gérard Milmeister"/>
+        <attribute name="Built-By" value="Florian Thalmann"/>
         <attribute name="Main-Class" value="org.rubato.composer.Composer"/>
       	<attribute name="Class-Path" value="jar/LeapJava.jar"/>
       </manifest>

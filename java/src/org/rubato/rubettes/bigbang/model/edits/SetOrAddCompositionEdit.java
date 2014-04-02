@@ -24,6 +24,7 @@ public class SetOrAddCompositionEdit extends AbstractOperationEdit {
 	
 	public void setOrAddComposition(Denotator composition) {
 		this.composition = composition;
+		this.updateOperation();
 	}
 
 	/*

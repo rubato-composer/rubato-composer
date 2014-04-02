@@ -62,7 +62,7 @@ public class DisplayObjects {
 		this.selectedObjects = new TreeSet<DisplayObject>();
 	}
 	
-	public void addObjects(Set<BigBangObject> newObjects) {
+	public synchronized void addObjects(Set<BigBangObject> newObjects) {
 		//reset object since they might temporarily not exist (e.g. during animation)
 		this.objects = new TreeSet<DisplayObject>();
 		if (newObjects != null) {
@@ -521,8 +521,9 @@ public class DisplayObjects {
 		}
 	}
 	
-	private void paintSelectedObjects(AbstractPainter painter) {
-		for (DisplayObject currentObject : this.objects) {
+	private synchronized void paintSelectedObjects(AbstractPainter painter) {
+		//avoid concurrent modification exception..
+		for (DisplayObject currentObject : new TreeSet<DisplayObject>(this.objects)) {
 			if (this.selectedObjects.contains(currentObject)) {
 				currentObject.paint(painter);
 			}

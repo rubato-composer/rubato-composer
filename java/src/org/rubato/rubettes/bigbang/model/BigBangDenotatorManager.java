@@ -109,8 +109,12 @@ public class BigBangDenotatorManager {
 			//replace new paths with all found ones
 			Set<DenotatorPath> newPaths = new TreeSet<DenotatorPath>();
 			for (DenotatorPath currentNewPath : finderNewPaths) {
-				int currentNewFirstIndex = newPathsList.get(currentNewPath.getFirstIndex()).getFirstIndex();
-				newPaths.add(currentNewPath.setIndex(0, currentNewFirstIndex));
+				int currentIndex = currentNewPath.getFirstIndex();
+				//in case object existed before newPathsList does not contain it but finder found it...
+				if (newPathsList.size() > currentIndex) {
+					int currentNewFirstIndex = newPathsList.get(currentIndex).getFirstIndex();
+					newPaths.add(currentNewPath.setIndex(0, currentNewFirstIndex));
+				}
 			}
 			this.currentPathResults.setNewPaths(newPaths);
 		}
