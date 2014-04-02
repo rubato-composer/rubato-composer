@@ -7,7 +7,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
-import org.rubato.rubettes.bigbang.model.edits.AbstractOperationEdit;
+import org.rubato.rubettes.bigbang.model.operations.AbstractOperation;
 import org.rubato.rubettes.util.DenotatorObjectConfiguration;
 import org.rubato.rubettes.util.DenotatorPath;
 
@@ -21,15 +21,15 @@ import org.rubato.rubettes.util.DenotatorPath;
  */
 public class BigBangObject implements Comparable<BigBangObject> {
 	
-	private AbstractOperationEdit creatingOperation;
+	private AbstractOperation creatingOperation;
 	private DenotatorObjectConfiguration objectType;
 	
 	//these attributes are recorded for each operation before which this object exists
 	//topDenotatorPaths are relative to parent's topDenotatorPath
-	private Map<AbstractOperationEdit,DenotatorPath> topDenotatorPaths;
+	private Map<AbstractOperation,DenotatorPath> topDenotatorPaths;
 	//private Map<AbstractOperationEdit,DenotatorObjectConfiguration> objectType;
-	private Map<AbstractOperationEdit,BigBangObject> parents;
-	private Map<AbstractOperationEdit,Set<BigBangObject>> children;
+	private Map<AbstractOperation,BigBangObject> parents;
+	private Map<AbstractOperation,Set<BigBangObject>> children;
 	
 	//these attributes just reflect the final state (final state also reflected under null keys in maps!)
 	private List<Double> values;
@@ -44,12 +44,12 @@ public class BigBangObject implements Comparable<BigBangObject> {
 	 * @param parent
 	 * @param topDenotatorPath
 	 */
-	public BigBangObject(AbstractOperationEdit creatingOperation, AbstractOperationEdit initialOperation, BigBangObject parent, DenotatorPath topDenotatorPath, BigBangLayer layer) {
+	public BigBangObject(AbstractOperation creatingOperation, AbstractOperation initialOperation, BigBangObject parent, DenotatorPath topDenotatorPath, BigBangLayer layer) {
 		this.creatingOperation = creatingOperation;
 		this.values = new ArrayList<Double>();
-		this.topDenotatorPaths = new HashMap<AbstractOperationEdit,DenotatorPath>();
-		this.parents = new HashMap<AbstractOperationEdit,BigBangObject>();
-		this.children = new HashMap<AbstractOperationEdit,Set<BigBangObject>>();
+		this.topDenotatorPaths = new HashMap<AbstractOperation,DenotatorPath>();
+		this.parents = new HashMap<AbstractOperation,BigBangObject>();
+		this.children = new HashMap<AbstractOperation,Set<BigBangObject>>();
 		this.children.put(initialOperation, new TreeSet<BigBangObject>());
 		this.updatePathAndParent(initialOperation, topDenotatorPath, parent);
 		this.setLayer(layer);
@@ -63,11 +63,11 @@ public class BigBangObject implements Comparable<BigBangObject> {
 		return this.parents.get(null);
 	}
 	
-	public BigBangObject getParentAt(AbstractOperationEdit operation) {
+	public BigBangObject getParentAt(AbstractOperation operation) {
 		return this.parents.get(operation);
 	}
 	
-	public void addChild(AbstractOperationEdit operation, BigBangObject newChild) {
+	public void addChild(AbstractOperation operation, BigBangObject newChild) {
 		//System.out.println(operation + " " + newChild + " " + this.children.get(operation) + " " + this.getTopDenotatorPath());
 		if (!this.children.containsKey(operation)) {
 			this.children.put(operation, new TreeSet<BigBangObject>());
@@ -79,11 +79,11 @@ public class BigBangObject implements Comparable<BigBangObject> {
 		return this.children.get(null).size() > 0;
 	}
 	
-	public boolean hasChildrenAt(AbstractOperationEdit operation) {
+	public boolean hasChildrenAt(AbstractOperation operation) {
 		return this.children.get(operation).size() > 0;
 	}
 	
-	public void removeChild(AbstractOperationEdit operation, BigBangObject newChild) {
+	public void removeChild(AbstractOperation operation, BigBangObject newChild) {
 		this.children.get(operation).remove(newChild);
 	}
 	
@@ -91,12 +91,12 @@ public class BigBangObject implements Comparable<BigBangObject> {
 	 * removes this object from all children sets it appears in
 	 */
 	public void removeFromHierarchy() {
-		for (AbstractOperationEdit currentOperation : this.parents.keySet()) {
+		for (AbstractOperation currentOperation : this.parents.keySet()) {
 			this.parents.get(currentOperation).removeChild(currentOperation, this);
 		}
 	}
 	
-	public Set<BigBangObject> getChildrenAt(AbstractOperationEdit operation) {
+	public Set<BigBangObject> getChildrenAt(AbstractOperation operation) {
 		return this.children.get(operation);
 	}
 	
@@ -124,7 +124,7 @@ public class BigBangObject implements Comparable<BigBangObject> {
 		this.structuralIndices = indices;
 	}
 	
-	public void updatePathAndParent(AbstractOperationEdit operation, DenotatorPath entirePath, BigBangObject parent) {
+	public void updatePathAndParent(AbstractOperation operation, DenotatorPath entirePath, BigBangObject parent) {
 		//remove from parent if there was one, then add new parent if not null
 		BigBangObject previousParent = this.getParentAt(operation);
 		if (previousParent != null && previousParent != parent) {
@@ -202,7 +202,7 @@ public class BigBangObject implements Comparable<BigBangObject> {
 		return this.topDenotatorPaths.get(this.topDenotatorPaths.keySet().iterator().next());
 	}
 	
-	public DenotatorPath getTopDenotatorPathAt(AbstractOperationEdit operation) {
+	public DenotatorPath getTopDenotatorPathAt(AbstractOperation operation) {
 		if (this.topDenotatorPaths.get(operation) != null) {
 			if (this.parents.get(operation) != null) {
 				return this.parents.get(operation).getTopDenotatorPathAt(operation).append(this.topDenotatorPaths.get(operation));
@@ -212,11 +212,11 @@ public class BigBangObject implements Comparable<BigBangObject> {
 		return null;
 	}
 	
-	public AbstractOperationEdit getCreatingOperation() {
+	public AbstractOperation getCreatingOperation() {
 		return this.creatingOperation;
 	}
 	
-	public void removeOperation(AbstractOperationEdit operation) {
+	public void removeOperation(AbstractOperation operation) {
 		this.topDenotatorPaths.remove(operation);
 		this.parents.remove(operation);
 		this.children.remove(operation);
@@ -275,8 +275,8 @@ public class BigBangObject implements Comparable<BigBangObject> {
 		if (thisPath != null && otherPath != null && !thisPath.equals(otherPath)) {
 			return thisPath.compareTo(otherPath);
 		}
-		List<AbstractOperationEdit> paths = new ArrayList<AbstractOperationEdit>(this.topDenotatorPaths.keySet());
-		for (AbstractOperationEdit currentOperation : paths) {
+		List<AbstractOperation> paths = new ArrayList<AbstractOperation>(this.topDenotatorPaths.keySet());
+		for (AbstractOperation currentOperation : paths) {
 			if (other.topDenotatorPaths.containsKey(currentOperation)) {
 				thisPath = this.getTopDenotatorPathAt(currentOperation);
 				otherPath = other.getTopDenotatorPathAt(currentOperation);

@@ -14,9 +14,9 @@ import org.rubato.rubettes.bigbang.controller.BigBangController;
 import org.rubato.rubettes.bigbang.model.BigBangObject;
 import org.rubato.rubettes.bigbang.model.BigBangObjects;
 import org.rubato.rubettes.bigbang.model.OperationPathResults;
-import org.rubato.rubettes.bigbang.model.edits.AbstractOperationEdit;
-import org.rubato.rubettes.bigbang.model.edits.AddObjectsEdit;
-import org.rubato.rubettes.bigbang.model.edits.DeleteObjectsEdit;
+import org.rubato.rubettes.bigbang.model.operations.AbstractOperation;
+import org.rubato.rubettes.bigbang.model.operations.AddObjectsOperation;
+import org.rubato.rubettes.bigbang.model.operations.DeleteObjectsEdit;
 import org.rubato.rubettes.util.DenotatorPath;
 
 public class BigBangObjectsTest extends TestCase {
@@ -34,7 +34,7 @@ public class BigBangObjectsTest extends TestCase {
 	
 	public void testUpdateWithAdding() {
 		//add three objects
-		AddObjectsEdit addEdit = new AddObjectsEdit(null, null, null);
+		AddObjectsOperation addEdit = new AddObjectsOperation(null, null, null);
 		Set<DenotatorPath> firstAddedPaths = this.createPathSet(3,0);
 		this.objects.updatePaths(addEdit, null, new OperationPathResults(firstAddedPaths, null));
 		TestCase.assertEquals(3, this.objects.getAllObjects().size());
@@ -56,7 +56,7 @@ public class BigBangObjectsTest extends TestCase {
 		TestCase.assertTrue(object3 == new ArrayList<BigBangObject>(this.objects.getAllObjects()).get(2));
 		
 		//add more in a later add
-		AddObjectsEdit addEdit2 = new AddObjectsEdit(null, null, null);
+		AddObjectsOperation addEdit2 = new AddObjectsOperation(null, null, null);
 		Set<DenotatorPath> fourthAddedPaths = this.createPathSet(2,4);
 		this.objects.updatePaths(addEdit, addEdit2, new OperationPathResults(thirdAddedPaths, null));
 		this.objects.updatePaths(addEdit2, null, new OperationPathResults(fourthAddedPaths, null));
@@ -71,10 +71,10 @@ public class BigBangObjectsTest extends TestCase {
 	}
 	
 	public void testUpdateWithAddingAndChanging() {
-		AddObjectsEdit edit1 = new AddObjectsEdit(null, null, null);
+		AddObjectsOperation edit1 = new AddObjectsOperation(null, null, null);
 		Set<DenotatorPath> addedPaths1 = this.createPathSet(1,0);
 		
-		AddObjectsEdit edit2 = new AddObjectsEdit(null, null, null);
+		AddObjectsOperation edit2 = new AddObjectsOperation(null, null, null);
 		Set<DenotatorPath> addedPaths2 = this.createPathSet(1,1);
 		
 		Set<DenotatorPath> addedPaths3 = this.createPathSet(1,0);
@@ -121,7 +121,7 @@ public class BigBangObjectsTest extends TestCase {
 	}
 	
 	public void testWithRemoving() {
-		AddObjectsEdit addEdit = new AddObjectsEdit(null, null, null);
+		AddObjectsOperation addEdit = new AddObjectsOperation(null, null, null);
 		Set<DenotatorPath> addedPaths = this.createPathSet(4,0);
 		DeleteObjectsEdit removeEdit = new DeleteObjectsEdit(null, new TreeSet<BigBangObject>());
 		Set<DenotatorPath> removedPaths = this.createPathSet(2,1);
@@ -145,7 +145,7 @@ public class BigBangObjectsTest extends TestCase {
 	
 	public void testUpdateWithProjection() {
 		//tests update in case of transformation that loses objects and suddenly doesn't (e.g. projection)
-		AddObjectsEdit addEdit = new AddObjectsEdit(null, null, null);
+		AddObjectsOperation addEdit = new AddObjectsOperation(null, null, null);
 		Set<DenotatorPath> addedPaths = this.createPathSet(3,0);
 		//just a dummy edit simulation a ScalingEdit
 		DeleteObjectsEdit scalingEdit = new DeleteObjectsEdit(null, new TreeSet<BigBangObject>());
@@ -193,7 +193,7 @@ public class BigBangObjectsTest extends TestCase {
 		return pathMap;
 	}
 	
-	private BigBangObject getObjectAt(AbstractOperationEdit edit, int index) {
+	private BigBangObject getObjectAt(AbstractOperation edit, int index) {
 		 return new ArrayList<BigBangObject>(this.objects.getObjectsAt(edit)).get(index);
 	}
 

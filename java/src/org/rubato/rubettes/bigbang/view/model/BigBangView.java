@@ -20,19 +20,19 @@ import org.rubato.rubettes.bigbang.controller.BigBangController;
 import org.rubato.rubettes.bigbang.model.BigBangObject;
 import org.rubato.rubettes.bigbang.model.BigBangObjects;
 import org.rubato.rubettes.bigbang.model.Model;
-import org.rubato.rubettes.bigbang.model.TransformationPaths;
-import org.rubato.rubettes.bigbang.model.TransformationProperties;
-import org.rubato.rubettes.bigbang.model.edits.AbstractLocalTransformationEdit;
-import org.rubato.rubettes.bigbang.model.edits.AbstractOperationEdit;
-import org.rubato.rubettes.bigbang.model.edits.AbstractTransformationEdit;
-import org.rubato.rubettes.bigbang.model.edits.AddObjectsEdit;
-import org.rubato.rubettes.bigbang.model.edits.AddWallpaperDimensionEdit;
-import org.rubato.rubettes.bigbang.model.edits.AlterationEdit;
-import org.rubato.rubettes.bigbang.model.edits.ReflectionEdit;
-import org.rubato.rubettes.bigbang.model.edits.RotationEdit;
-import org.rubato.rubettes.bigbang.model.edits.ScalingEdit;
-import org.rubato.rubettes.bigbang.model.edits.ShearingEdit;
-import org.rubato.rubettes.bigbang.model.edits.TranslationEdit;
+import org.rubato.rubettes.bigbang.model.denotators.TransformationPaths;
+import org.rubato.rubettes.bigbang.model.denotators.TransformationProperties;
+import org.rubato.rubettes.bigbang.model.operations.AbstractLocalTransformation;
+import org.rubato.rubettes.bigbang.model.operations.AbstractOperation;
+import org.rubato.rubettes.bigbang.model.operations.AbstractTransformation;
+import org.rubato.rubettes.bigbang.model.operations.AddObjectsOperation;
+import org.rubato.rubettes.bigbang.model.operations.AddWallpaperDimensionOperation;
+import org.rubato.rubettes.bigbang.model.operations.AlterationEdit;
+import org.rubato.rubettes.bigbang.model.operations.ReflectionEdit;
+import org.rubato.rubettes.bigbang.model.operations.RotationEdit;
+import org.rubato.rubettes.bigbang.model.operations.ScalingEdit;
+import org.rubato.rubettes.bigbang.model.operations.ShearingEdit;
+import org.rubato.rubettes.bigbang.model.operations.TranslationEdit;
 import org.rubato.rubettes.bigbang.view.View;
 import org.rubato.rubettes.bigbang.view.controller.ViewController;
 import org.rubato.rubettes.bigbang.view.controller.mode.DisplayModeAdapter;
@@ -75,7 +75,7 @@ public class BigBangView extends Model implements View {
 	private boolean satellitesConnected;
 	protected DisplayObjects displayObjects;
 	private DisplayTool displayTool;
-	private AbstractOperationEdit selectedOperation;
+	private AbstractOperation selectedOperation;
 	
 	public BigBangView(BigBangController controller) {
 		this.controller = controller;
@@ -305,7 +305,7 @@ public class BigBangView extends Model implements View {
 		} else if (propertyName.equals(BigBangController.DESELECT_COMPOSITION_STATES)) {
 			this.firePropertyChange(ViewController.DESELECT_COMPOSITION_STATES, null, null);
 		} else if (propertyName.equals(BigBangController.MODIFY_OPERATION)) {
-			this.selectOperation((AbstractOperationEdit)event.getNewValue());
+			this.selectOperation((AbstractOperation)event.getNewValue());
 		}
 	}
 	
@@ -400,11 +400,11 @@ public class BigBangView extends Model implements View {
 		this.controller.deselectCompositionStates();
 	}
 	
-	public void selectOperation(AbstractOperationEdit operation) {
+	public void selectOperation(AbstractOperation operation) {
 		if (operation != null) {
 			//select perspective first
-			if (operation instanceof AbstractTransformationEdit) {
-				AbstractTransformationEdit transformationEdit = (AbstractTransformationEdit)operation;
+			if (operation instanceof AbstractTransformation) {
+				AbstractTransformation transformationEdit = (AbstractTransformation)operation;
 				this.viewParameters.setSelectedXYViewParameters(transformationEdit.getXYViewParameters());
 				//TODO: center view?????
 			
@@ -412,14 +412,14 @@ public class BigBangView extends Model implements View {
 			}
 			
 			//then select displaymode and convert values!!
-			if (operation instanceof AddObjectsEdit) {
+			if (operation instanceof AddObjectsOperation) {
 				this.setDisplayMode(new DrawingModeAdapter(this.viewController));
 			} else if (operation instanceof TranslationEdit) {
 				double[] startingPoint = this.panel.getXYDisplayValues(((TranslationEdit)operation).getStartingPoint());
 				double[] endingPoint = this.panel.getXYDisplayValues(((TranslationEdit)operation).getEndingPoint());
 				this.setDisplayMode(new TranslationModeAdapter(this.viewController, startingPoint, endingPoint));
-			} else if (operation instanceof AbstractLocalTransformationEdit) {
-				AbstractLocalTransformationEdit localEdit = (AbstractLocalTransformationEdit)operation;
+			} else if (operation instanceof AbstractLocalTransformation) {
+				AbstractLocalTransformation localEdit = (AbstractLocalTransformation)operation;
 				double[] center = this.panel.getXYDisplayValues(localEdit.getCenter());
 				double[] endingPoint = this.panel.getXYDisplayValues(localEdit.getEndingPoint());
 				if (operation instanceof RotationEdit) {
@@ -459,19 +459,19 @@ public class BigBangView extends Model implements View {
 	}
 	
 	public void modifyCenterOfSelectedTransformation(Point2D.Double newCenter) {
-		((AbstractTransformationEdit)this.selectedOperation).modifyCenter(this.panel.getXYZDenotatorValues(new PointND(newCenter)));
+		((AbstractTransformation)this.selectedOperation).modifyCenter(this.panel.getXYZDenotatorValues(new PointND(newCenter)));
 		this.controller.operationModified();
 	}
 	
 	public void modifyEndPointOfSelectedTransformation(Point2D.Double newEndPoint) {
 		//TODO not great: only used in translation
-		((AbstractTransformationEdit)this.selectedOperation).modify(this.panel.getXYZDenotatorValues(new PointND(newEndPoint)));
+		((AbstractTransformation)this.selectedOperation).modify(this.panel.getXYZDenotatorValues(new PointND(newEndPoint)));
 		this.controller.operationModified();
 	}
 	
 	public void modifySelectedTransformation(double[] newValues) {
 		if (this.selectedOperation != null) {
-			((AbstractTransformationEdit)this.selectedOperation).modify(newValues);
+			((AbstractTransformation)this.selectedOperation).modify(newValues);
 			this.controller.operationModified();
 		}
 	}
@@ -527,7 +527,7 @@ public class BigBangView extends Model implements View {
 	}
 	
 	public void modifyWallpaperRange(Boolean rangeTo, Integer value) {
-		((AddWallpaperDimensionEdit)this.selectedOperation).setRange(rangeTo, value);
+		((AddWallpaperDimensionOperation)this.selectedOperation).setRange(rangeTo, value);
 		this.controller.operationModified();
 	}
 	
@@ -598,8 +598,8 @@ public class BigBangView extends Model implements View {
 				}
 			}
 			//TODO REALLY BAD!!!
-			if (this.selectedOperation instanceof AddObjectsEdit) {
-				((AddObjectsEdit)this.selectedOperation).addObjects(objectValues, powersetPaths, inPreviewMode);
+			if (this.selectedOperation instanceof AddObjectsOperation) {
+				((AddObjectsOperation)this.selectedOperation).addObjects(objectValues, powersetPaths, inPreviewMode);
 				this.controller.operationModified();
 			} else {
 				this.controller.addObjects(objectValues, powersetPaths, inPreviewMode);

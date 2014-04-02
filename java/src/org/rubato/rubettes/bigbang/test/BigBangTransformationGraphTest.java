@@ -18,12 +18,12 @@ import org.rubato.math.yoneda.SimpleDenotator;
 import org.rubato.rubettes.bigbang.controller.BigBangController;
 import org.rubato.rubettes.bigbang.model.BigBangModel;
 import org.rubato.rubettes.bigbang.model.BigBangObject;
-import org.rubato.rubettes.bigbang.model.TransformationPaths;
-import org.rubato.rubettes.bigbang.model.TransformationProperties;
-import org.rubato.rubettes.bigbang.model.edits.AbstractOperationEdit;
-import org.rubato.rubettes.bigbang.model.edits.AddObjectsEdit;
-import org.rubato.rubettes.bigbang.model.edits.ScalingEdit;
-import org.rubato.rubettes.bigbang.model.edits.TranslationEdit;
+import org.rubato.rubettes.bigbang.model.denotators.TransformationPaths;
+import org.rubato.rubettes.bigbang.model.denotators.TransformationProperties;
+import org.rubato.rubettes.bigbang.model.operations.AbstractOperation;
+import org.rubato.rubettes.bigbang.model.operations.AddObjectsOperation;
+import org.rubato.rubettes.bigbang.model.operations.ScalingEdit;
+import org.rubato.rubettes.bigbang.model.operations.TranslationEdit;
 import org.rubato.rubettes.util.DenotatorPath;
 
 import edu.uci.ics.jung.graph.util.Pair;
@@ -49,7 +49,7 @@ public class BigBangTransformationGraphTest extends TestCase {
 		double[][] values = new double[][]{{0,60},{2,65},{3,66},{4,67}};
 		this.model.addObjects(this.createNodePathAndValuesMapList(this.objects.SOUND_SCORE_FORM, paths, values),
 				this.createPathsList(new DenotatorPath(this.objects.SOUND_SCORE_FORM, new int[]{}), 4), false);
-		TestCase.assertTrue(this.model.getTransformationGraph().getLastAddedOperation() instanceof AddObjectsEdit);
+		TestCase.assertTrue(this.model.getTransformationGraph().getLastAddedOperation() instanceof AddObjectsOperation);
 		TestCase.assertEquals(4, ((PowerDenotator)this.model.getComposition()).getFactorCount());
 		
 		Set<BigBangObject> objects = this.getBBObjectsFromModel(0,4);
@@ -70,7 +70,7 @@ public class BigBangTransformationGraphTest extends TestCase {
 		pathList.add(0, new DenotatorPath(this.objects.SOUND_SCORE_FORM, new int[]{}));
 		this.model.addObjects(this.createNodePathAndValuesMapList(this.objects.SOUND_SCORE_FORM, paths, values),
 				pathList, false);
-		TestCase.assertTrue(this.model.getTransformationGraph().getLastAddedOperation() instanceof AddObjectsEdit);
+		TestCase.assertTrue(this.model.getTransformationGraph().getLastAddedOperation() instanceof AddObjectsOperation);
 		//only one first-level note
 		TestCase.assertEquals(1, ((PowerDenotator)this.model.getComposition()).getFactorCount());
 		
@@ -92,7 +92,7 @@ public class BigBangTransformationGraphTest extends TestCase {
 		values = new double[][]{{4,67}};
 		this.model.addObjects(this.createNodePathAndValuesMapList(this.objects.SOUND_SCORE_FORM, paths, values),
 				this.createPathsList(new DenotatorPath(this.objects.SOUND_SCORE_FORM, new int[]{0,1}), 1), false);
-		TestCase.assertTrue(this.model.getTransformationGraph().getLastAddedOperation() instanceof AddObjectsEdit);
+		TestCase.assertTrue(this.model.getTransformationGraph().getLastAddedOperation() instanceof AddObjectsOperation);
 		//only one first-level note
 		TestCase.assertEquals(1, ((PowerDenotator)this.model.getComposition()).getFactorCount());
 		
@@ -108,7 +108,7 @@ public class BigBangTransformationGraphTest extends TestCase {
 		double[][] values = new double[][]{{0,60},{2,65},{3,66},{4,67}};
 		this.model.addObjects(this.createNodePathAndValuesMapList(this.objects.SOUND_SCORE_FORM, paths, values),
 				this.createPathsList(new DenotatorPath(this.objects.SOUND_SCORE_FORM, new int[]{}), 4), false);
-		TestCase.assertTrue(this.model.getTransformationGraph().getLastAddedOperation() instanceof AddObjectsEdit);
+		TestCase.assertTrue(this.model.getTransformationGraph().getLastAddedOperation() instanceof AddObjectsOperation);
 		TestCase.assertEquals(4, ((PowerDenotator)this.model.getComposition()).getFactorCount());
 		
 		Set<BigBangObject> satelliteObjects = this.getBBObjectsFromModel(0, 3);
@@ -154,7 +154,7 @@ public class BigBangTransformationGraphTest extends TestCase {
 		double[][] values = new double[][]{{0,60},{1,60}};
 		this.model.addObjects(this.createNodePathAndValuesMapList(this.objects.SOUND_SCORE_FORM, paths, values),
 				this.createPathsList(new DenotatorPath(this.objects.SOUND_SCORE_FORM, new int[]{}), 2), false);
-		TestCase.assertTrue(this.model.getTransformationGraph().getLastAddedOperation() instanceof AddObjectsEdit);
+		TestCase.assertTrue(this.model.getTransformationGraph().getLastAddedOperation() instanceof AddObjectsOperation);
 		TestCase.assertEquals(2, ((PowerDenotator)this.model.getComposition()).getFactorCount());
 		
 		//translation so note0 ends up later than note1
@@ -186,7 +186,7 @@ public class BigBangTransformationGraphTest extends TestCase {
 		double[][] values = new double[][]{{0,60},{1,60},{2,65}};
 		this.model.addObjects(this.createNodePathAndValuesMapList(this.objects.SOUND_SCORE_FORM, paths, values),
 				this.createPathsList(new DenotatorPath(this.objects.SOUND_SCORE_FORM, new int[]{}), 3), false);
-		TestCase.assertTrue(this.model.getTransformationGraph().getLastAddedOperation() instanceof AddObjectsEdit);
+		TestCase.assertTrue(this.model.getTransformationGraph().getLastAddedOperation() instanceof AddObjectsOperation);
 		TestCase.assertEquals(3, ((PowerDenotator)this.model.getComposition()).getFactorCount());
 		
 		//get objects and build satellites
@@ -235,7 +235,7 @@ public class BigBangTransformationGraphTest extends TestCase {
 		this.model.translateObjects(properties);
 		TestCase.assertEquals(6, this.model.getTransformationGraph().getVertexCount());
 		TestCase.assertEquals(5, this.model.getTransformationGraph().getEdgeCount());
-		AbstractOperationEdit lastEdit = this.model.getTransformationGraph().getLastAddedOperation(); 
+		AbstractOperation lastEdit = this.model.getTransformationGraph().getLastAddedOperation(); 
 		TestCase.assertEquals(new Pair<Integer>(3,5), this.model.getTransformationGraph().getEndpoints(lastEdit));
 	}
 	
@@ -261,7 +261,7 @@ public class BigBangTransformationGraphTest extends TestCase {
 		this.model.translateObjects(properties);
 		TestCase.assertEquals(5, this.model.getTransformationGraph().getVertexCount());
 		TestCase.assertEquals(5, this.model.getTransformationGraph().getEdgeCount());
-		AbstractOperationEdit lastEdit = this.model.getTransformationGraph().getLastAddedOperation(); 
+		AbstractOperation lastEdit = this.model.getTransformationGraph().getLastAddedOperation(); 
 		//System.out.println(this.model.getTransformationGraph());
 		TestCase.assertEquals(new Pair<Integer>(3,4), this.model.getTransformationGraph().getEndpoints(lastEdit));
 	}
@@ -420,7 +420,7 @@ public class BigBangTransformationGraphTest extends TestCase {
 		double[][] values = new double[][]{{0,60},{2,65},{3,66},{4,67}};
 		this.model.addObjects(this.createNodePathAndValuesMapList(this.objects.SOUND_SCORE_FORM, paths, values),
 				this.createPathsList(new DenotatorPath(this.objects.SOUND_SCORE_FORM, new int[]{}), 4), false);
-		TestCase.assertTrue(this.model.getTransformationGraph().getLastAddedOperation() instanceof AddObjectsEdit);
+		TestCase.assertTrue(this.model.getTransformationGraph().getLastAddedOperation() instanceof AddObjectsOperation);
 		TestCase.assertEquals(4, ((PowerDenotator)this.model.getComposition()).getFactorCount());
 		
 		List<BigBangObject> objects = new ArrayList<BigBangObject>(this.getBBObjectsFromModel(0, 4));
@@ -435,7 +435,7 @@ public class BigBangTransformationGraphTest extends TestCase {
 		properties.setCenter(new double[]{0,0});
 		properties.setEndPoint(new double[]{4,1});
 		this.model.translateObjects(properties);
-		AbstractOperationEdit translation = this.model.getTransformationGraph().getLastAddedOperation();
+		AbstractOperation translation = this.model.getTransformationGraph().getLastAddedOperation();
 		TestCase.assertEquals(5, this.model.getTransformationGraph().getEdgeCount());
 		TestCase.assertEquals(2, ((PowerDenotator)this.model.getComposition()).getFactorCount());
 		//should still have the same parent
@@ -452,7 +452,7 @@ public class BigBangTransformationGraphTest extends TestCase {
 		double[][] values = new double[][]{{0,60},{2,65},{3,66},{4,67}};
 		this.model.addObjects(this.createNodePathAndValuesMapList(this.objects.SOUND_SCORE_FORM, paths, values),
 				this.createPathsList(new DenotatorPath(this.objects.SOUND_SCORE_FORM, new int[]{}), 4), false);
-		TestCase.assertTrue(this.model.getTransformationGraph().getLastAddedOperation() instanceof AddObjectsEdit);
+		TestCase.assertTrue(this.model.getTransformationGraph().getLastAddedOperation() instanceof AddObjectsOperation);
 		TestCase.assertEquals(4, ((PowerDenotator)this.model.getComposition()).getFactorCount());
 		
 		List<BigBangObject> objects = new ArrayList<BigBangObject>(this.getBBObjectsFromModel(0, 4));

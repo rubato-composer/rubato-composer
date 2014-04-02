@@ -9,7 +9,7 @@ import java.util.TreeMap;
 
 import org.rubato.math.matrix.RMatrix;
 import org.rubato.rubettes.bigbang.controller.Controller;
-import org.rubato.rubettes.bigbang.model.edits.AbstractOperationEdit;
+import org.rubato.rubettes.bigbang.model.operations.AbstractOperation;
 import org.rubato.rubettes.bigbang.view.View;
 import org.rubato.rubettes.bigbang.view.controller.mode.DisplayModeAdapter;
 import org.rubato.rubettes.bigbang.view.model.DisplayObject;
@@ -329,7 +329,7 @@ public class ViewController extends Controller {
 		this.callModelMethod(ViewController.REDO);
 	}
 	
-	public void selectOperation(AbstractOperationEdit operation) {
+	public void selectOperation(AbstractOperation operation) {
 		this.callModelMethod(ViewController.SELECT_OPERATION, operation);
 	}
 	

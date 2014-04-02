@@ -35,7 +35,7 @@ import org.rubato.math.yoneda.NameDenotator;
 import org.rubato.math.yoneda.PowerDenotator;
 import org.rubato.math.yoneda.SimpleDenotator;
 import org.rubato.math.yoneda.SimpleForm;
-import org.rubato.rubettes.bigbang.model.TransformationPaths;
+import org.rubato.rubettes.bigbang.model.denotators.TransformationPaths;
 
 /**
  * 

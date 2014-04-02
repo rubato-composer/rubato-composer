@@ -12,7 +12,7 @@ import java.util.TreeSet;
 import org.rubato.math.yoneda.Form;
 import org.rubato.math.yoneda.SimpleForm;
 import org.rubato.rubettes.bigbang.controller.BigBangController;
-import org.rubato.rubettes.bigbang.model.edits.AbstractOperationEdit;
+import org.rubato.rubettes.bigbang.model.operations.AbstractOperation;
 import org.rubato.rubettes.util.DenotatorObject;
 import org.rubato.rubettes.util.DenotatorObjectConfiguration;
 import org.rubato.rubettes.util.DenotatorPath;
@@ -27,9 +27,9 @@ public class BigBangObjects {
 	//number for each object type, null if no satellites possible for the type
 	private List<Integer> maxSatelliteLevels;
 	//keeps track of all objects added at any time, with the adding operation as a key
-	private HashMap<AbstractOperationEdit,Set<BigBangObject>> objects;
+	private HashMap<AbstractOperation,Set<BigBangObject>> objects;
 	//keeps track of all objects currently existing at any state, with the following operation as a key
-	private HashMap<AbstractOperationEdit,Map<DenotatorPath,BigBangObject>> objectsMaps;
+	private HashMap<AbstractOperation,Map<DenotatorPath,BigBangObject>> objectsMaps;
 	private BigBangLayers layers;
 	private List<Double> minValues, maxValues;
 	
@@ -63,8 +63,8 @@ public class BigBangObjects {
 	}
 	
 	public void clearObjects() {
-		this.objects = new HashMap<AbstractOperationEdit,Set<BigBangObject>>();
-		this.objectsMaps = new HashMap<AbstractOperationEdit,Map<DenotatorPath,BigBangObject>>();
+		this.objects = new HashMap<AbstractOperation,Set<BigBangObject>>();
+		this.objectsMaps = new HashMap<AbstractOperation,Map<DenotatorPath,BigBangObject>>();
 	}
 	
 	public Integer getMaxSatelliteLevel(int objectIndex) {
@@ -125,13 +125,13 @@ public class BigBangObjects {
 	
 	public TreeSet<BigBangObject> getAllObjects() {
 		TreeSet<BigBangObject> objectUnion = new TreeSet<BigBangObject>();
-		for (AbstractOperationEdit currentEdit : this.objects.keySet()) {
+		for (AbstractOperation currentEdit : this.objects.keySet()) {
 			objectUnion.addAll(this.objects.get(currentEdit));
 		}
 		return objectUnion;
 	}
 	
-	public Set<BigBangObject> getObjectsAt(AbstractOperationEdit operation) {
+	public Set<BigBangObject> getObjectsAt(AbstractOperation operation) {
 		if (this.objectsMaps.containsKey(operation)) {
 			return new TreeSet<BigBangObject>(this.objectsMaps.get(operation).values());
 		} else if (this.objectsMaps.containsKey(null)) {
@@ -141,7 +141,7 @@ public class BigBangObjects {
 	}
 	
 	//returns the object that has the given path at the given operation, null if there is none
-	private BigBangObject getObject(AbstractOperationEdit operation, DenotatorPath path) {
+	private BigBangObject getObject(AbstractOperation operation, DenotatorPath path) {
 		if (path != null && this.objectsMaps.containsKey(operation)) {
 			return this.objectsMaps.get(operation).get(path);
 		}
@@ -156,7 +156,7 @@ public class BigBangObjects {
 		return null;
 	}
 	
-	public void removeOperation(AbstractOperationEdit operation) {
+	public void removeOperation(AbstractOperation operation) {
 		for (BigBangObject currentObject : this.getAllObjects()) {
 			currentObject.removeOperation(operation);
 		}
@@ -167,7 +167,7 @@ public class BigBangObjects {
 	 * Updates the paths of all objects that existed at previousOperation and were changed according to the given
 	 * changedPaths. Sets the new paths at the given operation.
 	 */
-	public void updatePaths(AbstractOperationEdit previousOperation, AbstractOperationEdit operation, OperationPathResults pathResults) {
+	public void updatePaths(AbstractOperation previousOperation, AbstractOperation operation, OperationPathResults pathResults) {
 		//System.out.println("UP " + previousOperation + " " + operation + " " + pathResults.getNewPaths() + " " + pathResults.getChangedPaths() + " " + pathResults.getRemovedPaths());
 		
 		if (this.objectsMaps.containsKey(operation)) {
@@ -183,7 +183,7 @@ public class BigBangObjects {
 		//System.out.println("END " + this.objectsMaps.get(operation) + " " + this.objects);
 	}
 	
-	private void removeObjects(AbstractOperationEdit previousOperation, AbstractOperationEdit operation, OperationPathResults pathResults) {
+	private void removeObjects(AbstractOperation previousOperation, AbstractOperation operation, OperationPathResults pathResults) {
 		for (BigBangObject currentObject : this.objectsMaps.get(previousOperation).values()) {
 			DenotatorPath previousPath = currentObject.getTopDenotatorPathAt(previousOperation);
 			//REMOVE if in removedPaths
@@ -193,7 +193,7 @@ public class BigBangObjects {
 		}
 	}
 	
-	private void updateObjects(AbstractOperationEdit previousOperation, AbstractOperationEdit operation, OperationPathResults pathResults) {
+	private void updateObjects(AbstractOperation previousOperation, AbstractOperation operation, OperationPathResults pathResults) {
 		for (BigBangObject currentObject : this.objectsMaps.get(previousOperation).values()) {
 			DenotatorPath previousPath = currentObject.getTopDenotatorPathAt(previousOperation);
 			//CHANGE if in changed paths
@@ -209,7 +209,7 @@ public class BigBangObjects {
 		}
 	}
 	
-	private void addObjects(AbstractOperationEdit previousOperation, AbstractOperationEdit operation, OperationPathResults pathResults) {
+	private void addObjects(AbstractOperation previousOperation, AbstractOperation operation, OperationPathResults pathResults) {
 		Set<BigBangObject> previouslyAddedObjects = new TreeSet<BigBangObject>();
 		if (this.objects.containsKey(previousOperation)) {
 			previouslyAddedObjects.addAll(this.objects.get(previousOperation));
@@ -237,7 +237,7 @@ public class BigBangObjects {
 		}
 	}
 	
-	private void addObject(AbstractOperationEdit previousOperation, AbstractOperationEdit operation, BigBangObject parent, DenotatorPath path) {
+	private void addObject(AbstractOperation previousOperation, AbstractOperation operation, BigBangObject parent, DenotatorPath path) {
 		BigBangObject object = new BigBangObject(previousOperation, operation, parent, path, this.layers.get(0));
 		this.addObjectToMap(object, operation, path);
 		if (!this.objects.containsKey(previousOperation)) {
@@ -246,18 +246,18 @@ public class BigBangObjects {
 		this.objects.get(previousOperation).add(object);
 	}
 	
-	private void updateObject(BigBangObject object, BigBangObject parent, AbstractOperationEdit operation, DenotatorPath newPath) {
+	private void updateObject(BigBangObject object, BigBangObject parent, AbstractOperation operation, DenotatorPath newPath) {
 		//this.removeObjectFromMap(operation, object);
 		object.updatePathAndParent(operation, newPath, parent);
 		this.updateObjectAndChildrenInMap(object, operation);
 	}
 	
-	private void removeObject(AbstractOperationEdit operation, BigBangObject objectToBeRemoved) {
+	private void removeObject(AbstractOperation operation, BigBangObject objectToBeRemoved) {
 		objectToBeRemoved.updatePathAndParent(operation, null, null);
 		this.removeObjectFromMap(operation, objectToBeRemoved);
 	}
 	
-	private void addObjectToMap(BigBangObject object, AbstractOperationEdit operation, DenotatorPath newPath) {
+	private void addObjectToMap(BigBangObject object, AbstractOperation operation, DenotatorPath newPath) {
 		if (!this.objectsMaps.containsKey(operation)) {
 			this.objectsMaps.put(operation, new TreeMap<DenotatorPath,BigBangObject>());
 		}
@@ -265,7 +265,7 @@ public class BigBangObjects {
 	}
 	
 	//recursively updates all children too
-	private void updateObjectAndChildrenInMap(BigBangObject object, AbstractOperationEdit operation) {
+	private void updateObjectAndChildrenInMap(BigBangObject object, AbstractOperation operation) {
 		//TODO OLD ONE SHOULD BE REMOVED!!!!
 		DenotatorPath newPath = object.getTopDenotatorPathAt(operation);
 		//System.out.println("HEY "+ newPath + " " + object.getParent().getTopDenotatorPathAt(operation)+ " " + object);
@@ -278,7 +278,7 @@ public class BigBangObjects {
 		}
 	}
 	
-	private void removeObjectFromMap(AbstractOperationEdit operation, BigBangObject objectToBeRemoved) {
+	private void removeObjectFromMap(AbstractOperation operation, BigBangObject objectToBeRemoved) {
 		DenotatorPath previousPath = objectToBeRemoved.getTopDenotatorPathAt(operation);
 		if (previousPath != null) {
 			if (this.objectsMaps.containsKey(operation)) {

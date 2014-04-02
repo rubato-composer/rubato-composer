@@ -7,6 +7,7 @@ import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
+import javax.swing.undo.AbstractUndoableEdit;
 import javax.swing.undo.UndoManager;
 import javax.swing.undo.UndoableEditSupport;
 
@@ -14,23 +15,29 @@ import org.rubato.math.matrix.RMatrix;
 import org.rubato.math.yoneda.Denotator;
 import org.rubato.math.yoneda.Form;
 import org.rubato.rubettes.bigbang.controller.BigBangController;
-import org.rubato.rubettes.bigbang.model.edits.AbstractOperationEdit;
-import org.rubato.rubettes.bigbang.model.edits.AbstractTransformationEdit;
-import org.rubato.rubettes.bigbang.model.edits.AddObjectsEdit;
-import org.rubato.rubettes.bigbang.model.edits.AddWallpaperDimensionEdit;
-import org.rubato.rubettes.bigbang.model.edits.AffineTransformationEdit;
-import org.rubato.rubettes.bigbang.model.edits.AlterationEdit;
-import org.rubato.rubettes.bigbang.model.edits.DeleteObjectsEdit;
-import org.rubato.rubettes.bigbang.model.edits.EndWallpaperEdit;
-import org.rubato.rubettes.bigbang.model.edits.FlattenEdit;
-import org.rubato.rubettes.bigbang.model.edits.ReflectionEdit;
-import org.rubato.rubettes.bigbang.model.edits.RotationEdit;
-import org.rubato.rubettes.bigbang.model.edits.BuildSatellitesEdit;
-import org.rubato.rubettes.bigbang.model.edits.ScalingEdit;
-import org.rubato.rubettes.bigbang.model.edits.SetOrAddCompositionEdit;
-import org.rubato.rubettes.bigbang.model.edits.ShapingEdit;
-import org.rubato.rubettes.bigbang.model.edits.ShearingEdit;
-import org.rubato.rubettes.bigbang.model.edits.TranslationEdit;
+import org.rubato.rubettes.bigbang.model.denotators.BigBangDenotatorManager;
+import org.rubato.rubettes.bigbang.model.denotators.TransformationProperties;
+import org.rubato.rubettes.bigbang.model.edits.AddOrInsertOperationEdit;
+import org.rubato.rubettes.bigbang.model.edits.RemoveOperationEdit;
+import org.rubato.rubettes.bigbang.model.graph.BigBangGraphAnimator;
+import org.rubato.rubettes.bigbang.model.graph.BigBangTransformationGraph;
+import org.rubato.rubettes.bigbang.model.operations.AbstractOperation;
+import org.rubato.rubettes.bigbang.model.operations.AbstractTransformation;
+import org.rubato.rubettes.bigbang.model.operations.AddObjectsOperation;
+import org.rubato.rubettes.bigbang.model.operations.AddWallpaperDimensionOperation;
+import org.rubato.rubettes.bigbang.model.operations.AffineTransformation;
+import org.rubato.rubettes.bigbang.model.operations.AlterationEdit;
+import org.rubato.rubettes.bigbang.model.operations.BuildSatellitesEdit;
+import org.rubato.rubettes.bigbang.model.operations.DeleteObjectsEdit;
+import org.rubato.rubettes.bigbang.model.operations.EndWallpaperEdit;
+import org.rubato.rubettes.bigbang.model.operations.FlattenEdit;
+import org.rubato.rubettes.bigbang.model.operations.ReflectionEdit;
+import org.rubato.rubettes.bigbang.model.operations.RotationEdit;
+import org.rubato.rubettes.bigbang.model.operations.ScalingEdit;
+import org.rubato.rubettes.bigbang.model.operations.SetOrAddCompositionEdit;
+import org.rubato.rubettes.bigbang.model.operations.ShapingEdit;
+import org.rubato.rubettes.bigbang.model.operations.ShearingEdit;
+import org.rubato.rubettes.bigbang.model.operations.TranslationEdit;
 import org.rubato.rubettes.util.DenotatorPath;
 import org.rubato.rubettes.util.PerformanceCheck;
 
@@ -46,7 +53,6 @@ public class BigBangModel extends Model {
 	private UndoManager undoManager;
 	private UndoableEditSupport undoSupport;
 	private BigBangTransformationGraph transformationGraph;
-	private List<AbstractOperationEdit> undoneOperations;
 	private BigBangGraphAnimator animator;
 	
 	public BigBangModel(BigBangController controller) {
@@ -58,6 +64,7 @@ public class BigBangModel extends Model {
 		this.undoManager = new UndoManager();
 		this.undoSupport = new UndoableEditSupport();
 		this.undoSupport.addUndoableEditListener(new UndoAdaptor(this.undoManager));
+		
 		this.reset();
 		this.firePropertyChange(BigBangController.UNDO, null, this.undoManager);
 		this.firePropertyChange(BigBangController.GRAPH, null, this.transformationGraph);
@@ -110,7 +117,7 @@ public class BigBangModel extends Model {
 			((SetOrAddCompositionEdit)this.transformationGraph.getSelectedOperation()).setOrAddComposition(composition);
 			this.operationModified();
 		} else {
-			this.postEdit(new SetOrAddCompositionEdit(this, composition));
+			this.addOperation(new SetOrAddCompositionEdit(this, composition));
 		}
 	}
 	
@@ -124,15 +131,15 @@ public class BigBangModel extends Model {
 	
 	public void addObjects(ArrayList<Map<DenotatorPath,Double>> pathsWithValues, ArrayList<DenotatorPath> powersetPaths, Boolean inPreviewMode) {
 		if (this.denotators != null) { //needs to be checked for milmeister ghost rubette reacting to leap motion 
-			AbstractOperationEdit lastEdit = this.transformationGraph.getLastAddedOperation();
-			if (lastEdit != null && lastEdit instanceof AddObjectsEdit) {
-				AddObjectsEdit addEdit = (AddObjectsEdit) lastEdit;
+			AbstractOperation lastEdit = this.transformationGraph.getLastAddedOperation();
+			if (lastEdit != null && lastEdit instanceof AddObjectsOperation) {
+				AddObjectsOperation addEdit = (AddObjectsOperation) lastEdit;
 				if (addEdit.addObjects(pathsWithValues, powersetPaths, inPreviewMode)) {
 					this.operationModified();
 					return;
 				}
 			}
-			this.postEdit(new AddObjectsEdit(this, pathsWithValues, powersetPaths, inPreviewMode));
+			this.addOperation(new AddObjectsOperation(this, pathsWithValues, powersetPaths, inPreviewMode));
 		}
 	}
 	
@@ -141,12 +148,12 @@ public class BigBangModel extends Model {
 	}
 	
 	public void deleteObjects(TreeSet<BigBangObject> objects) {
-		this.postEdit(new DeleteObjectsEdit(this, objects));
+		this.addOperation(new DeleteObjectsEdit(this, objects));
 	}
 	
 	public void translateObjects(TransformationProperties properties) {
 		if (properties.startNewTransformation()) {
-			this.postEdit(new TranslationEdit(this, properties));
+			this.addOperation(new TranslationEdit(this, properties));
 		} else if (this.updateTransformation(properties, TranslationEdit.class)) {
 			this.updateComposition();
 		}
@@ -154,7 +161,7 @@ public class BigBangModel extends Model {
 	
 	public void rotateObjects(TransformationProperties properties, double[] startingPoint, Double angle) {
 		if (properties.startNewTransformation()) {
-			this.postEdit(new RotationEdit(this, properties, startingPoint, angle));
+			this.addOperation(new RotationEdit(this, properties, startingPoint, angle));
 		} else if (this.updateTransformation(properties, RotationEdit.class)) {
 			RotationEdit lastRotation = (RotationEdit)this.transformationGraph.getLastAddedOperation();
 			lastRotation.setParameters(startingPoint, angle);
@@ -164,7 +171,7 @@ public class BigBangModel extends Model {
 	
 	public void scaleObjects(TransformationProperties properties, double[] scaleFactors) {
 		if (properties.startNewTransformation()) {
-			this.postEdit(new ScalingEdit(this, properties, scaleFactors));
+			this.addOperation(new ScalingEdit(this, properties, scaleFactors));
 		} else if (this.updateTransformation(properties, ScalingEdit.class)) {
 			this.modifyLastTransformation(scaleFactors);
 		}
@@ -172,7 +179,7 @@ public class BigBangModel extends Model {
 	
 	public void reflectObjects(TransformationProperties properties, double[] reflectionVector) {
 		if (properties.startNewTransformation()) {
-			this.postEdit(new ReflectionEdit(this, properties, reflectionVector));
+			this.addOperation(new ReflectionEdit(this, properties, reflectionVector));
 		} else if (this.updateTransformation(properties, ReflectionEdit.class)) {
 			this.modifyLastTransformation(reflectionVector);
 		}
@@ -180,23 +187,23 @@ public class BigBangModel extends Model {
 	
 	public void shearObjects(TransformationProperties properties, double[] shearingFactors) {
 		if (properties.startNewTransformation()) {
-			this.postEdit(new ShearingEdit(this, properties, shearingFactors));
+			this.addOperation(new ShearingEdit(this, properties, shearingFactors));
 		} else if (this.updateTransformation(properties, ShearingEdit.class)) {
 			this.modifyLastTransformation(shearingFactors);
 		}
 	}
 	
 	private boolean updateTransformation(TransformationProperties properties, Class<?> transformationClass) {
-		AbstractOperationEdit lastOperation = this.transformationGraph.getLastAddedOperation();
+		AbstractOperation lastOperation = this.transformationGraph.getLastAddedOperation();
 		if (transformationClass.isInstance(lastOperation)) {
-			((AbstractTransformationEdit)lastOperation).updateProperties(properties);
+			((AbstractTransformation)lastOperation).updateProperties(properties);
 			return true;
 		}
 		return false;
 	}
 	
 	private void modifyLastTransformation(double[] newValues) {
-		AbstractTransformationEdit lastTransformation = (AbstractTransformationEdit)this.transformationGraph.getLastAddedOperation();
+		AbstractTransformation lastTransformation = (AbstractTransformation)this.transformationGraph.getLastAddedOperation();
 		lastTransformation.modify(newValues);
 		this.updateComposition();
 	}
@@ -212,32 +219,32 @@ public class BigBangModel extends Model {
 			edit.addShapingLocations(shapingLocations);
 			this.updateComposition();
 		} else {	
-			this.postEdit(new ShapingEdit(this, properties, shapingLocations));
+			this.addOperation(new ShapingEdit(this, properties, shapingLocations));
 		}
 	}
 	
 	public void affineTransformObjects(TransformationProperties properties, double[] shift, RMatrix transform) {
-		this.postEdit(new AffineTransformationEdit(this, properties, shift, transform));
+		this.addOperation(new AffineTransformation(this, properties, shift, transform));
 	}
 	
 	public void buildSatellites(TreeSet<BigBangObject> objects, BigBangObject anchorObject, Integer powersetIndex) {
-		this.postEdit(new BuildSatellitesEdit(this, objects, anchorObject, powersetIndex));
+		this.addOperation(new BuildSatellitesEdit(this, objects, anchorObject, powersetIndex));
 	}
 	
 	public void flattenObjects(TreeSet<BigBangObject> objects) {
-		this.postEdit(new FlattenEdit(this, objects));
+		this.addOperation(new FlattenEdit(this, objects));
 	}
 	
 	public void addWallpaperDimension(TreeSet<BigBangObject> objectPaths, Integer rangeFrom, Integer rangeTo) {
-		this.postEdit(new AddWallpaperDimensionEdit(this, objectPaths, rangeFrom, rangeTo));
+		this.addOperation(new AddWallpaperDimensionOperation(this, objectPaths, rangeFrom, rangeTo));
 	}
 	
 	public void endWallpaper() {
-		this.postEdit(new EndWallpaperEdit(this));
+		this.addOperation(new EndWallpaperEdit(this));
 	}
 	
 	public void addAlteration() {
-		this.postEdit(new AlterationEdit(this));
+		this.addOperation(new AlterationEdit(this));
 		this.firePropertyChange(BigBangController.MODIFY_OPERATION, null, this.transformationGraph.getLastAddedOperation());
 	}
 	
@@ -261,9 +268,14 @@ public class BigBangModel extends Model {
 		}
 	}
 	
-	private void postEdit(AbstractOperationEdit edit) {
-		//this.undoSupport.postEdit(edit);
-		this.transformationGraph.addOrInsertOperation(edit, false);
+	private void addOperation(AbstractOperation operation) {
+		AddOrInsertOperationEdit edit = new AddOrInsertOperationEdit(operation, this.transformationGraph);
+		edit.execute();
+		this.postEdit(edit);
+	}
+	
+	private void postEdit(AbstractUndoableEdit edit) {
+		this.undoSupport.postEdit(edit);
 		this.updateComposition();
 		this.firePropertyChange(BigBangController.UNDO, null, this.undoManager);
 		this.firePropertyChange(BigBangController.GRAPH, null, this.transformationGraph);
@@ -276,9 +288,9 @@ public class BigBangModel extends Model {
 	
 	public void modifyOperation(Integer operationIndex, Double ratio) {
 		if (operationIndex >= 0 && this.transformationGraph.getEdgeCount() > operationIndex) {
-			DijkstraShortestPath<Integer,AbstractOperationEdit> dijkstra = new DijkstraShortestPath<Integer,AbstractOperationEdit>(this.transformationGraph);
-		    List<AbstractOperationEdit> shortestPath = dijkstra.getPath(0, this.transformationGraph.getLastState());
-		    AbstractOperationEdit operation = shortestPath.get(operationIndex);
+			DijkstraShortestPath<Integer,AbstractOperation> dijkstra = new DijkstraShortestPath<Integer,AbstractOperation>(this.transformationGraph);
+		    List<AbstractOperation> shortestPath = dijkstra.getPath(0, this.transformationGraph.getLastState());
+		    AbstractOperation operation = shortestPath.get(operationIndex);
 		    operation.modify(ratio);
 			this.updateComposition();
 			this.firePropertyChange(BigBangController.MODIFY_OPERATION, null, operation);
@@ -293,26 +305,29 @@ public class BigBangModel extends Model {
 		this.transformationGraph.setInsertionState(state);
 	}
 	
-	public void removeOperation(AbstractOperationEdit operation) {
-		this.internalRemoveOperation(operation);
+	public void removeOperation(AbstractOperation operation) {
+		RemoveOperationEdit edit = new RemoveOperationEdit(operation, this.transformationGraph);
+		edit.execute();
+		this.postEdit(edit);
+		this.transformationGraph.removeOperation(operation);
+		this.objects.removeOperation(operation);
 		this.updateComposition();
 		this.firePropertyChange(BigBangController.GRAPH, null, this.transformationGraph);
 	}
 	
-	private void internalRemoveOperation(AbstractOperationEdit operation) {
-		this.transformationGraph.removeOperation(operation);
-		this.objects.removeOperation(operation);
-	}
-	
 	public void undo() {
-		this.undoneOperations.add(this.transformationGraph.removeLastAddedOperation());
+		AbstractOperation lastAddedOperation = this.transformationGraph.getLastAddedOperation();
+		int state = this.transformationGraph.getSource(lastAddedOperation);
+		//this.undoneOperations.add(this.transformationGraph.removeLastAddedOperation());
+		this.undoManager.undo();
 		this.updateComposition();
 		this.firePropertyChange(BigBangController.UNDO, null, this.undoManager);
 		this.firePropertyChange(BigBangController.GRAPH, null, this.transformationGraph);
 	}
 	
 	public void redo() {
-		this.transformationGraph.addOrInsertOperation(this.undoneOperations.remove(this.undoneOperations.size()-1), false);
+		//this.transformationGraph.addOrInsertOperation(this.undoneOperations.remove(this.undoneOperations.size()-1), false);
+		this.undoManager.redo();
 		this.updateComposition();
 		this.firePropertyChange(BigBangController.REDO, null, this.undoManager);
 		this.firePropertyChange(BigBangController.GRAPH, null, this.transformationGraph);
@@ -330,7 +345,7 @@ public class BigBangModel extends Model {
 		this.firePropertyChange(BigBangController.DESELECT_COMPOSITION_STATES, null, null);
 	}
 	
-	public void selectOperation(AbstractOperationEdit edge) {
+	public void selectOperation(AbstractOperation edge) {
 		this.transformationGraph.selectOperation(edge);
 		this.firePropertyChange(BigBangController.SELECT_OPERATION, null, edge);
 	}
@@ -340,7 +355,7 @@ public class BigBangModel extends Model {
 		this.firePropertyChange(BigBangController.DESELECT_OPERATIONS, null, null);
 	}
 	
-	public void setOperationDuration(AbstractOperationEdit operation, Double duration) {
+	public void setOperationDuration(AbstractOperation operation, Double duration) {
 		operation.setDuration(duration);
 		this.transformationGraph.update();
 	}
@@ -404,13 +419,13 @@ public class BigBangModel extends Model {
 	
 	public void updateComposition() {
 		if (this.transformationGraph.getEdgeCount() > 0) {
-			List<AbstractOperationEdit> operationsToBeExecuted = this.transformationGraph.getCurrentlyExecutedOperationsInOrder();
+			List<AbstractOperation> operationsToBeExecuted = this.transformationGraph.getCurrentlyExecutedOperationsInOrder();
 			this.denotators.reset();
 			
 			OperationPathResults currentPathResults = null;
 			for (int i = 0; i < operationsToBeExecuted.size(); i++) {
-				AbstractOperationEdit currentOperation = operationsToBeExecuted.get(i);
-				AbstractOperationEdit nextOperation = null;
+				AbstractOperation currentOperation = operationsToBeExecuted.get(i);
+				AbstractOperation nextOperation = null;
 				if (i < operationsToBeExecuted.size()-1) {
 					nextOperation = operationsToBeExecuted.get(i+1);
 				}

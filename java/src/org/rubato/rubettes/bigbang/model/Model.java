@@ -19,7 +19,7 @@ public abstract class Model {
 		this.support.removePropertyChangeListener(listener);
 	}
 	
-	protected void firePropertyChange(String propertyName, Object oldValue, Object newValue) {
+	public void firePropertyChange(String propertyName, Object oldValue, Object newValue) {
 		this.support.firePropertyChange(propertyName, oldValue, newValue);
 	}
 
