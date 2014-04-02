@@ -8,8 +8,8 @@ import java.util.TreeMap;
 import org.rubato.math.matrix.RMatrix;
 import org.rubato.math.yoneda.Form;
 import org.rubato.rubettes.bigbang.model.BigBangObject;
-import org.rubato.rubettes.bigbang.model.TransformationProperties;
-import org.rubato.rubettes.bigbang.model.edits.AbstractOperationEdit;
+import org.rubato.rubettes.bigbang.model.denotators.TransformationProperties;
+import org.rubato.rubettes.bigbang.model.operations.AbstractOperation;
 import org.rubato.rubettes.util.DenotatorPath;
 
 public class BigBangController extends Controller {
@@ -98,7 +98,7 @@ public class BigBangController extends Controller {
 		this.callModelMethod(BigBangController.DESELECT_COMPOSITION_STATES);
 	}
 	
-	public void selectOperation(AbstractOperationEdit edge) {
+	public void selectOperation(AbstractOperation edge) {
 		this.callModelMethod(BigBangController.SELECT_OPERATION, edge);
 	}
 	
@@ -106,7 +106,7 @@ public class BigBangController extends Controller {
 		this.callModelMethod(BigBangController.DESELECT_OPERATIONS);
 	}
 	
-	public void removeOperationFromGraph(AbstractOperationEdit operation) {
+	public void removeOperationFromGraph(AbstractOperation operation) {
 		this.callModelMethod(BigBangController.REMOVE_OPERATION, operation);
 	}
 	
@@ -114,7 +114,7 @@ public class BigBangController extends Controller {
 		this.callModelMethod(BigBangController.INSERTION_STATE, vertex);
 	}
 	
-	public void setOperationDuration(AbstractOperationEdit operation, Double duration) {
+	public void setOperationDuration(AbstractOperation operation, Double duration) {
 		this.callModelMethod(BigBangController.OPERATION_DURATION, operation, duration);
 	}
 	

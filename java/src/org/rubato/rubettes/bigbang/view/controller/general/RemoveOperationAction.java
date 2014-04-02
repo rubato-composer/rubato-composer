@@ -5,14 +5,14 @@ import java.awt.event.ActionEvent;
 import javax.swing.AbstractAction;
 
 import org.rubato.rubettes.bigbang.controller.BigBangController;
-import org.rubato.rubettes.bigbang.model.edits.AbstractOperationEdit;
+import org.rubato.rubettes.bigbang.model.operations.AbstractOperation;
 
 public class RemoveOperationAction extends AbstractAction {
 
 	BigBangController controller;
-	AbstractOperationEdit operation;
+	AbstractOperation operation;
 	
-	public RemoveOperationAction(BigBangController controller, AbstractOperationEdit operation) {
+	public RemoveOperationAction(BigBangController controller, AbstractOperation operation) {
 		this.controller = controller;
 		this.operation = operation;
 	}

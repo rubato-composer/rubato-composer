@@ -14,10 +14,10 @@ import org.rubato.base.RubatoException;
 import org.rubato.math.yoneda.Denotator;
 import org.rubato.math.yoneda.LimitDenotator;
 import org.rubato.math.yoneda.PowerDenotator;
-import org.rubato.rubettes.bigbang.model.BigBangDenotatorManager;
-import org.rubato.rubettes.bigbang.model.BigBangTransformation;
 import org.rubato.rubettes.bigbang.model.OperationPathResults;
-import org.rubato.rubettes.bigbang.model.TransformationPaths;
+import org.rubato.rubettes.bigbang.model.denotators.BigBangDenotatorManager;
+import org.rubato.rubettes.bigbang.model.denotators.BigBangTransformation;
+import org.rubato.rubettes.bigbang.model.denotators.TransformationPaths;
 import org.rubato.rubettes.util.DenotatorPath;
 
 public class BigBangDenotatorManagerTest extends TestCase {

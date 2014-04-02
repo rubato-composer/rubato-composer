@@ -14,8 +14,8 @@ import javax.swing.event.ChangeListener;
 
 import org.rubato.rubettes.bigbang.BigBangRubette;
 import org.rubato.rubettes.bigbang.controller.BigBangController;
-import org.rubato.rubettes.bigbang.model.edits.AddWallpaperDimensionEdit;
-import org.rubato.rubettes.bigbang.model.edits.AlterationEdit;
+import org.rubato.rubettes.bigbang.model.operations.AddWallpaperDimensionOperation;
+import org.rubato.rubettes.bigbang.model.operations.AlterationEdit;
 import org.rubato.rubettes.bigbang.view.View;
 import org.rubato.rubettes.bigbang.view.controller.ViewController;
 import org.rubato.rubettes.bigbang.view.controller.general.AddWindowAction;
@@ -76,8 +76,8 @@ public class JMainToolBar extends JToolBar implements View {
 		} else if (propertyName.equals(ViewController.SELECT_OPERATION)) {
 			if (event.getNewValue() == null) {
 				this.reset();
-			} else if (event.getNewValue() instanceof AddWallpaperDimensionEdit) {
-				AddWallpaperDimensionEdit edit = (AddWallpaperDimensionEdit)event.getNewValue();
+			} else if (event.getNewValue() instanceof AddWallpaperDimensionOperation) {
+				AddWallpaperDimensionOperation edit = (AddWallpaperDimensionOperation)event.getNewValue();
 				this.wallpaperDimensionSelected(edit.getRangeFrom(), edit.getRangeTo());
 			} else if (event.getNewValue() instanceof AlterationEdit) {
 				this.enterAlterationMode((AlterationEdit)event.getNewValue());

@@ -38,7 +38,7 @@ import org.rubato.composer.components.JSelectForm;
 import org.rubato.composer.components.JStatusline;
 import org.rubato.math.module.morphism.*;
 import org.rubato.math.yoneda.*;
-import org.rubato.rubettes.bigbang.model.TransformationPaths;
+import org.rubato.rubettes.bigbang.model.denotators.TransformationPaths;
 import org.rubato.rubettes.util.ArbitraryDenotatorMapper;
 import org.rubato.rubettes.util.DenotatorPath;
 import org.rubato.rubettes.util.SimpleFormFinder;
