@@ -1,6 +1,8 @@
 package org.rubato.rubettes.bigbang.view.io;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Timer;
@@ -13,18 +15,19 @@ import javax.sound.midi.MidiUnavailableException;
 import javax.sound.midi.ShortMessage;
 import javax.sound.midi.MidiDevice.Info;
 
+import org.rubato.rubettes.bigbang.model.BigBangObject;
+import org.rubato.rubettes.bigbang.view.player.JSynObject;
+import org.rubato.rubettes.bigbang.view.player.JSynScore;
+
 public class BigBangMidiTransmitter {
 	
-	private final boolean REITERATE = false;
-	
 	private List<MidiDevice> outputDevices;
-	private Map<Integer,MidiTimerTask> noteOnTasks, noteOffTasks;
+	private Map<BigBangObject,MidiNoteRepeater> repeaters;
 	private Timer timer;
 	
 	public BigBangMidiTransmitter() {
 		this.outputDevices = new ArrayList<MidiDevice>();
-		this.noteOnTasks = new TreeMap<Integer,MidiTimerTask>();
-		this.noteOffTasks = new TreeMap<Integer,MidiTimerTask>();
+		this.repeaters = new HashMap<BigBangObject,MidiNoteRepeater>();
 		this.timer = new Timer();
 		Info[] infos = MidiSystem.getMidiDeviceInfo();
 		for (Info currentInfo : infos) {
@@ -48,40 +51,55 @@ public class BigBangMidiTransmitter {
 		}
 	}
 	
-	public void scheduleNote(int channel, int pitch, int velocity, int onset, int duration, int rate) {
-		//System.out.println( pitch + " " +  velocity + " " +  onset+ " " +  duration);
-		this.sendNoteOn(channel, pitch, velocity, onset);
-		if (onset+duration > 0) {
-			this.sendNoteOff(channel, pitch, onset+duration);
+	public void clear() {
+		for (MidiNoteRepeater currentRepeater : this.repeaters.values()) {
+			currentRepeater.end();
+		}
+		this.repeaters = new TreeMap<BigBangObject,MidiNoteRepeater>();
+	}
+	
+	public synchronized void scheduleNote(JSynObject object, int onset, int duration) {
+		if (this.repeaters.containsKey(object.getBigBangObject()) && this.repeaters.get(object.getBigBangObject()).isAlive()) {
+			this.repeaters.get(object.getBigBangObject()).update(object);
+		} else {
+			this.repeaters.put(object.getBigBangObject(), new MidiNoteRepeater(this, object, onset, duration));
 		}
 	}
 	
-	private void sendNoteOn(int channel, int pitch, int velocity, long timeStamp) {
-		MidiTimerTask noteOnTask = this.createNoteTask(true, channel, pitch, velocity, timeStamp);
-		if (this.noteOnTasks.containsKey(pitch)) {
-			//if (this.noteOnTasks.get(pitch).getStartingTime() <
+	public void removeOldRepeaters(JSynScore score) {
+		for (BigBangObject currentKey : new HashSet<BigBangObject>(this.repeaters.keySet())) {
+			if (!score.contains(currentKey)) {
+				//remove and end
+				this.repeaters.remove(currentKey).end();
+			}
 		}
-		//TODO REMOVE CONFLICTING TASKS!!
-		this.noteOnTasks.put(pitch, noteOnTask);
-		this.timer.schedule(noteOnTask, timeStamp);
 	}
 	
-	public void sendNoteOff(int channel, int pitch, long timeStamp) {
-		MidiTimerTask noteOffTask = this.createNoteTask(false, channel, pitch, 0, timeStamp);
-		//TODO REMOVE CONFLICTING TASKS!!
-		this.noteOffTasks.put(pitch, noteOffTask);
-		this.timer.schedule(noteOffTask, timeStamp);
+	public void mute(JSynObject object) {
+		if (this.repeaters.containsKey(object.getBigBangObject())) {
+			this.repeaters.get(object.getBigBangObject()).mute();
+		}
 	}
 	
-	private MidiTimerTask createNoteTask(boolean noteOn, int channel, int pitch, int velocity, long timeStamp) {
+	public void scheduleNoteOn(int channel, int pitch, int velocity, long delay) {
+		MidiTimerTask noteOnTask = this.createNoteTask(true, channel, pitch, velocity);
+		this.timer.schedule(noteOnTask, delay);
+	}
+	
+	public void scheduleNoteOff(int channel, int pitch, long delay) {
+		MidiTimerTask noteOffTask = this.createNoteTask(false, channel, pitch, 0);
+		this.timer.schedule(noteOffTask, delay);
+	}
+	
+	public MidiTimerTask createNoteTask(boolean noteOn, int channel, int pitch, int velocity) {
 		int command = noteOn ? ShortMessage.NOTE_ON : ShortMessage.NOTE_OFF;
 		ShortMessage message = new ShortMessage();
 		try {
 			message.setMessage(command, channel, pitch, velocity);
+			return new MidiTimerTask(message, this.outputDevices);
 		} catch (InvalidMidiDataException e) {
-			e.printStackTrace();
+			return null;
 		}
-		return new MidiTimerTask(message, this.outputDevices, System.currentTimeMillis()+timeStamp);
 	}
 	
 	public void close() {

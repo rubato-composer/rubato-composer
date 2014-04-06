@@ -97,6 +97,7 @@ public class BigBangPlayer {
 			this.loopOnset = score.getObjects().iterator().next().getOnset();
 			this.loopDuration = this.getLastOffset()-this.loopOnset;
 		}
+		this.midiTransmitter.removeOldRepeaters(score);
 		this.updatePerformances();
 	}
 	
@@ -298,6 +299,7 @@ public class BigBangPlayer {
 		this.stopAllScoreVersions();
 		this.inLiveMidiMode = false;
 		this.synth.stop();
+		this.midiTransmitter.clear();
 		this.isPlaying = false;
 	}
 	
@@ -361,15 +363,15 @@ public class BigBangPlayer {
 		return 0;
 	}
 	
-	public void sendMidiMessages(int voice, int pitch, int velocity, int onset, int duration) {
+	public void scheduleMidiNote(JSynObject object, int onset, int duration) {
 		if (this.midiActive) {
-			this.midiTransmitter.scheduleNote(voice, pitch, velocity, onset, duration, -1);
+			this.midiTransmitter.scheduleNote(object, onset, duration);
 		}
 	}
 	
-	public void sendNoteOff(int voice, int pitch, int onset) {
+	public void muteMidi(JSynObject object) {
 		if (this.midiActive) {
-			this.midiTransmitter.sendNoteOff(voice, pitch, onset);
+			this.midiTransmitter.mute(object);
 		}
 	}
 	

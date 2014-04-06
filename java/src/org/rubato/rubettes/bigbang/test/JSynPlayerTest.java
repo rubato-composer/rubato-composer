@@ -206,7 +206,7 @@ public class JSynPlayerTest extends TestCase {
 		BigBangModel model = new BigBangModel(new BigBangController());
 		model.setOrAddComposition(denotator);
 		new DenotatorValueExtractor(model.getObjects(), model.getComposition());
-		return new JSynScore(model.getObjects().getObjectsAt(null), model.getObjects().getBaseForm());
+		return new JSynScore(model.getObjects().getObjectsAt(null), model.getObjects().getBaseForm(), false);
 	}
 	
 }

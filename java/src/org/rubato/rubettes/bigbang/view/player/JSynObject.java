@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.rubato.rubettes.bigbang.model.BigBangObject;
+import org.rubato.rubettes.bigbang.view.io.MidiNoteRepeater;
 import org.rubato.rubettes.util.CoolFormRegistrant;
 
 public class JSynObject implements Comparable<JSynObject> {
@@ -56,6 +57,13 @@ public class JSynObject implements Comparable<JSynObject> {
 	
 	public double getDuration() {
 		return this.getFirstValue(Double.MAX_VALUE, CoolFormRegistrant.DURATION_NAME);
+	}
+	
+	public long getRate() {
+		if (this.getDuration() == Double.MAX_VALUE) {
+			return MidiNoteRepeater.STANDARD_RATE;
+		}
+		return (long)(this.getFirstValue(-1.0, CoolFormRegistrant.RATE_NAME)*1000);
 	}
 	
 	public Double getOffset() {

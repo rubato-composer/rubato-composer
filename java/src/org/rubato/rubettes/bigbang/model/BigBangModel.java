@@ -26,7 +26,7 @@ import org.rubato.rubettes.bigbang.model.operations.AbstractTransformation;
 import org.rubato.rubettes.bigbang.model.operations.AddObjectsOperation;
 import org.rubato.rubettes.bigbang.model.operations.AddWallpaperDimensionOperation;
 import org.rubato.rubettes.bigbang.model.operations.AffineTransformation;
-import org.rubato.rubettes.bigbang.model.operations.AlterationEdit;
+import org.rubato.rubettes.bigbang.model.operations.AlterationOperation;
 import org.rubato.rubettes.bigbang.model.operations.BuildSatellitesEdit;
 import org.rubato.rubettes.bigbang.model.operations.DeleteObjectsEdit;
 import org.rubato.rubettes.bigbang.model.operations.EndWallpaperEdit;
@@ -244,27 +244,27 @@ public class BigBangModel extends Model {
 	}
 	
 	public void addAlteration() {
-		this.addOperation(new AlterationEdit(this));
+		this.addOperation(new AlterationOperation(this));
 		this.firePropertyChange(BigBangController.MODIFY_OPERATION, null, this.transformationGraph.getLastAddedOperation());
 	}
 	
 	public void fireAlterationComposition(Integer index) {
-		if (this.transformationGraph.getSelectedOperation() instanceof AlterationEdit) {
+		if (this.transformationGraph.getSelectedOperation() instanceof AlterationOperation) {
 			//this.alteration.resetDegrees();
-			this.fireObjectSelectionChange(((AlterationEdit)this.transformationGraph.getSelectedOperation()).getAlterationComposition(index));
+			this.fireObjectSelectionChange(((AlterationOperation)this.transformationGraph.getSelectedOperation()).getAlterationComposition(index));
 			this.firePropertyChange(BigBangController.FIRE_ALTERATION_COMPOSITION, null, index);
 		}
 	}
 	
 	public void setAlterationStartDegree(Double startDegree) {
-		if (this.transformationGraph.getSelectedOperation() instanceof AlterationEdit) {
-			((AlterationEdit)this.transformationGraph.getSelectedOperation()).setStartDegree(startDegree);
+		if (this.transformationGraph.getSelectedOperation() instanceof AlterationOperation) {
+			((AlterationOperation)this.transformationGraph.getSelectedOperation()).setStartDegree(startDegree);
 		}
 	}
 	
 	public void setAlterationEndDegree(Double endDegree) {
-		if (this.transformationGraph.getSelectedOperation() instanceof AlterationEdit) {
-			((AlterationEdit)this.transformationGraph.getSelectedOperation()).setEndDegree(endDegree);
+		if (this.transformationGraph.getSelectedOperation() instanceof AlterationOperation) {
+			((AlterationOperation)this.transformationGraph.getSelectedOperation()).setEndDegree(endDegree);
 		}
 	}
 	

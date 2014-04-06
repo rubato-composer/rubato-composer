@@ -21,6 +21,7 @@ public class CoolFormRegistrant {
 	public static final String PITCH_CLASS_NAME = "PitchClass Z_12";
 	public static final String LOUDNESS_NAME = "Loudness Z";
 	public static final String DURATION_NAME = "Duration R";
+	public static final String RATE_NAME = "Rate R";
 	public static final String VOICE_NAME = "Voice Z";
 	public static final String PAN_NAME = "Pan R";
 	public static final String OPERATION_NAME = "Operation Z";
@@ -46,6 +47,9 @@ public class CoolFormRegistrant {
 	public static SimpleForm BEAT_CLASS_FORM;
 	public static LimitForm REST_FORM;
 	public static ColimitForm NOTE_OR_REST_FORM;
+	public static SimpleForm RATE_FORM;
+	public static LimitForm REPEATED_NOTE_FORM;
+	public static PowerForm TEXTURE_FORM;
 	public static SimpleForm PAN_FORM;
 	public static SimpleForm OVERTONE_INDEX_FORM;
 	public static Form FM_SET_FORM;
@@ -92,6 +96,10 @@ public class CoolFormRegistrant {
 		REST_FORM = this.registerLimitForm("Rest", ONSET_FORM, DURATION_FORM, VOICE_FORM);
 		NOTE_OR_REST_FORM = this.registerColimitForm("NoteOrRest", NOTE_FORM, REST_FORM);
 		this.registerPowerForm("GeneralScore", NOTE_OR_REST_FORM);
+		
+		RATE_FORM = this.registerRModuleForm("Rate");
+		REPEATED_NOTE_FORM = this.registerLimitForm("RepeatedNote", PITCH_FORM, LOUDNESS_FORM, RATE_FORM, DURATION_FORM);
+		TEXTURE_FORM = this.registerPowerForm("Texture", REPEATED_NOTE_FORM);
 	}
 	
 	public void registerSoundForms() {
@@ -136,10 +144,9 @@ public class CoolFormRegistrant {
 		genericSound.resolveReferences(REPOSITORY);*/
 		
 		//SoundNote
-		SimpleForm layer = this.registerZModuleForm("Layer");
 		Form modulators = new FormReference("Modulators", Form.POWER);
 		//TODO may introduce pan...
-		SOUND_NOTE_FORM = this.registerLimitForm("SoundNote", ONSET_FORM, PITCH_FORM, LOUDNESS_FORM, DURATION_FORM, VOICE_FORM, layer, modulators);
+		SOUND_NOTE_FORM = this.registerLimitForm("SoundNote", ONSET_FORM, PITCH_FORM, LOUDNESS_FORM, DURATION_FORM, VOICE_FORM, modulators);
 		modulators = this.registerPowerForm("Modulators", SOUND_NOTE_FORM);
 		modulators.resolveReferences(REPOSITORY);
 		

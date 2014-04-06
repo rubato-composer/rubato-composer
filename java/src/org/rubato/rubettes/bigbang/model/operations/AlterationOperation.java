@@ -10,14 +10,14 @@ import org.rubato.rubettes.bigbang.model.BigBangObject;
 import org.rubato.rubettes.bigbang.model.OperationPathResults;
 import org.rubato.rubettes.util.DenotatorPath;
 
-public class AlterationEdit extends AbstractOperation {
+public class AlterationOperation extends AbstractOperation {
 	
 	private Set<BigBangObject> foregroundComposition;
 	private Set<BigBangObject> backgroundComposition;
 	private List<DenotatorPath> alterationCoordinates;
 	private double startDegree, endDegree;
 	
-	public AlterationEdit(BigBangModel model) {
+	public AlterationOperation(BigBangModel model) {
 		super(model);
 		this.model = model;
 		this.foregroundComposition = new TreeSet<BigBangObject>();

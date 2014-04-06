@@ -13,11 +13,11 @@ import org.rubato.math.yoneda.Form;
 import org.rubato.math.yoneda.SimpleForm;
 import org.rubato.rubettes.bigbang.controller.BigBangController;
 import org.rubato.rubettes.bigbang.model.operations.AbstractOperation;
+import org.rubato.rubettes.util.CoolFormRegistrant;
 import org.rubato.rubettes.util.DenotatorObject;
 import org.rubato.rubettes.util.DenotatorObjectConfiguration;
 import org.rubato.rubettes.util.DenotatorPath;
 import org.rubato.rubettes.util.FormValueFinder;
-import org.rubato.rubettes.util.PerformanceCheck;
 
 public class BigBangObjects {
 	
@@ -77,6 +77,15 @@ public class BigBangObjects {
 	
 	public int getNumberOfNonAnalyticalCoordinateSystemValues() {
 		return this.finder.getCoordinateSystemValueNames().size();
+	}
+	
+	/**
+	 * @return true in case these objects contain any time-critical denotators
+	 */
+	public boolean arePlayedBackInTime() {
+		//to be extended later...
+		return this.finder.getCoordinateSystemValueNames().contains(CoolFormRegistrant.ONSET_NAME)
+				|| this.finder.getCoordinateSystemValueNames().contains(CoolFormRegistrant.BEAT_CLASS_NAME);
 	}
 	
 	public void setMinMaxValues(List<Double> minValues, List<Double> maxValues) {
