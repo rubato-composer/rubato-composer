@@ -51,67 +51,104 @@ public class JSynModule {
 	}
 	
 	public void playOrAdjustObject(JSynObject object, boolean playInNextLoop) {
-		for (int i = 0; i < object.getFrequencies().size(); i++) {
-			double currentFrequency = object.getFrequencies().get(i);
-			if (this.carriers.size() <= i) {
-				this.addCarrier();
-			}
-			this.playOrAdjustObject(this.carriers.get(i), object, currentFrequency, playInNextLoop);
-		}
+		this.playOrAdjustObject(null, object, playInNextLoop);
 		this.currentObject = object;
 	}
 	
 	//recursive method
-	private void playOrAdjustObject(SmoothOscillator oscillator, JSynObject object, double frequency, boolean playInNextLoop) {
+	private void playOrAdjustObject(SmoothOscillator parentOscillator, JSynObject object, boolean playInNextLoop) {
 		//System.out.println(object + " " + this.player.getCurrentSynthTime() + " " +oscillator);
-		//adjust frequency and amplitude
-		oscillator.setFrequency(frequency);
-		oscillator.setAmplitude(object.getAmplitude()*this.player.getRecommendedAmplitude());
-		this.pan.pan.set(object.getPan());
-		//adjust or schedule time
-		double currentSymbolicTime = this.performance.getCurrentSymbolicTime();
 		if (object.isAudible()) {
-			if (object.getOnset() > currentSymbolicTime || (object.getOnset() < currentSymbolicTime && playInNextLoop)) {
+			this.pan.pan.set(object.getPan());
+			//adjust or schedule time
+			double currentSymbolicTime = this.performance.getCurrentSymbolicTime();
+			if (object.getOnset() > currentSymbolicTime || (object.getOnset() < currentSymbolicTime && playInNextLoop) || object.getRate() >= 0) {
+				//sound has to be started
 				double onset = this.performance.getSynthOnset(object.getOnset(), playInNextLoop);
 				double duration = this.player.convertToSynthDuration(object.getDuration());
-				oscillator.queueEnvelope(duration, onset, true);
+				this.adjustOscillators(object, parentOscillator, onset, duration);
+				//start midi
 				int onsetMillis = (int)Math.round((onset-this.player.getCurrentSynthTime())*1000);
 				int durationMillis = (int)Math.round(duration*1000);
-				this.player.sendMidiMessages(object.getVoice(), object.frequencyToMidi(frequency), object.getLoudness(), onsetMillis, durationMillis);
+				this.player.scheduleMidiNote(object, onsetMillis, durationMillis);
 			} else {
+				//sound has to be changed
 				double remainingDuration = this.player.convertToSynthDuration(object.getDuration()-(currentSymbolicTime-object.getOnset()));
 				if (remainingDuration > 0) {
-					oscillator.queueEnvelopeWithoutAttackAndDecay(remainingDuration, this.player.getCurrentSynthTime());
-					int onsetMillis = (int)Math.round(0*1000);
+					this.adjustOscillators(object, parentOscillator, null, remainingDuration);
 					int durationMillis = (int)Math.round(remainingDuration*1000);
-					this.player.sendMidiMessages(object.getVoice(), object.frequencyToMidi(frequency), object.getLoudness(), onsetMillis, durationMillis);
+					this.player.scheduleMidiNote(object, 0, durationMillis);
 				} else {
 					this.mute();
-					this.player.sendNoteOff(object.getVoice(), object.frequencyToMidi(frequency), 0);
+					this.player.muteMidi(object);
 				}
 			}
 			//recursively create or adjust modulators 
 			List<JSynObject> satelliteObjects = object.getSatellites();
 			int modulatorType = object.getSatelliteType();
+			for (SmoothOscillator currentCarrier : this.getSatellitesAt(parentOscillator)) {
+				for (int i = 0; i < satelliteObjects.size(); i++) {
+					JSynObject currentSatelliteObject = satelliteObjects.get(i);
+					SmoothOscillator currentSatellite = this.getOscillatorAt(currentCarrier, i, modulatorType);
+					this.playOrAdjustObject(currentSatellite, currentSatelliteObject, playInNextLoop);
+				}
+				//remove exceeding ones
+				while (satelliteObjects.size() < currentCarrier.getSatellites().size()) {
+					currentCarrier.removeLastSatellite();
+				}
+				//System.out.println(oscillator);
+			}
+			
+			SmoothOscillator oscillator = this.getOscillatorAt(parentOscillator, 0, modulatorType);
 			List<SmoothOscillatorModule> satellites = oscillator.getSatellites();
 			//System.out.println(modulatorObjects + " " + modulatorType);
-			for (int i = 0; i < satelliteObjects.size(); i++) {
-				JSynObject currentModulator = satelliteObjects.get(i);
-				if (satellites.size() <= i) {
-					oscillator.addSatellite(modulatorType);
-				}
-				oscillator.setSatelliteType(i, modulatorType);
-				//TODO: one modulator may have several frequencies! go through all
-				this.playOrAdjustObject(satellites.get(i).getOscillator(), currentModulator, currentModulator.getMainFrequency(), playInNextLoop);
-			}
-			//remove exceeding ones
-			while (satelliteObjects.size() < satellites.size()) {
-				oscillator.removeLastSatellite();
-			}
-			//System.out.println(oscillator);
+			
 		} else {
 			this.mute();
 		}
+	}
+	
+	/*
+	 * adjusts frequencies and amplitudes of oscillators. if onset != null, schedules new envelope. else
+	 * adjusts envelope taking duration as remaining duration.
+	 */
+	private void adjustOscillators(JSynObject object, SmoothOscillator parentOscillator, Double onset, double duration) {
+		//play each frequency with an oscillator. add new ones if necessary
+		for (int i = 0; i < object.getFrequencies().size(); i++) {
+			SmoothOscillator currentOscillator = this.getOscillatorAt(parentOscillator, i, object.getSatelliteType());
+			//adjust frequency and amplitude
+			currentOscillator.setFrequency(object.getFrequencies().get(i));
+			currentOscillator.setAmplitude(object.getAmplitude()*this.player.getRecommendedAmplitude());
+			if (onset != null) {
+				currentOscillator.queueEnvelope(duration, onset, true);
+			} else {
+				currentOscillator.queueEnvelopeWithoutAttackAndDecay(duration, this.player.getCurrentSynthTime());
+			}
+		}
+	}
+		
+	private SmoothOscillator getOscillatorAt(SmoothOscillator parentOscillator, int index, int modulatorType) {
+		if (parentOscillator == null) {
+			while (this.carriers.size() <= index) {
+				this.addCarrier();
+			}
+			return this.carriers.get(index);
+		}
+		while (parentOscillator.getSatellites().size() <= index) {
+			parentOscillator.addSatellite(modulatorType);
+		}
+		return parentOscillator.getSatellites().get(index).getOscillator();
+	}
+	
+	private List<SmoothOscillator> getSatellitesAt(SmoothOscillator parentOscillator) {
+		if (parentOscillator == null) {
+			return this.carriers;
+		}
+		List<SmoothOscillator> satellites = new ArrayList<SmoothOscillator>();
+		for (SmoothOscillatorModule currentSatellite : parentOscillator.getSatellites()) {
+			satellites.add(currentSatellite.getOscillator());
+		}
+		return satellites;
 	}
 	
 	public void mute() {

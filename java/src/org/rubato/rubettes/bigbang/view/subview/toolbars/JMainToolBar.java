@@ -15,7 +15,7 @@ import javax.swing.event.ChangeListener;
 import org.rubato.rubettes.bigbang.BigBangRubette;
 import org.rubato.rubettes.bigbang.controller.BigBangController;
 import org.rubato.rubettes.bigbang.model.operations.AddWallpaperDimensionOperation;
-import org.rubato.rubettes.bigbang.model.operations.AlterationEdit;
+import org.rubato.rubettes.bigbang.model.operations.AlterationOperation;
 import org.rubato.rubettes.bigbang.view.View;
 import org.rubato.rubettes.bigbang.view.controller.ViewController;
 import org.rubato.rubettes.bigbang.view.controller.general.AddWindowAction;
@@ -79,8 +79,8 @@ public class JMainToolBar extends JToolBar implements View {
 			} else if (event.getNewValue() instanceof AddWallpaperDimensionOperation) {
 				AddWallpaperDimensionOperation edit = (AddWallpaperDimensionOperation)event.getNewValue();
 				this.wallpaperDimensionSelected(edit.getRangeFrom(), edit.getRangeTo());
-			} else if (event.getNewValue() instanceof AlterationEdit) {
-				this.enterAlterationMode((AlterationEdit)event.getNewValue());
+			} else if (event.getNewValue() instanceof AlterationOperation) {
+				this.enterAlterationMode((AlterationOperation)event.getNewValue());
 			}
 		} /*else if (propertyName.equals(BigBangController.MULTITOUCH)) {
 			this.initModeButtons((Boolean)event.getNewValue());
@@ -115,7 +115,7 @@ public class JMainToolBar extends JToolBar implements View {
 		this.add(newSpinner);
 	}
 	
-	private void enterAlterationMode(AlterationEdit edit) {
+	private void enterAlterationMode(AlterationOperation edit) {
 		if (!Arrays.asList(this.getComponents()).contains(this.alterationPanel)) {
 			this.alterationButton.setSelected(true);
 			this.alterationPanel.updateValues(edit);

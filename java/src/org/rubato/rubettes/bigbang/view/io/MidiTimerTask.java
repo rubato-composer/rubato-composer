@@ -4,23 +4,21 @@ import java.util.List;
 import java.util.TimerTask;
 
 import javax.sound.midi.MidiDevice;
-import javax.sound.midi.MidiMessage;
 import javax.sound.midi.MidiUnavailableException;
+import javax.sound.midi.ShortMessage;
 
 public class MidiTimerTask extends TimerTask {
 	
-	private MidiMessage message;
+	private ShortMessage message;
 	private List<MidiDevice> devices;
-	private long startingTime;
 	
-	public MidiTimerTask(MidiMessage message, List<MidiDevice> devices, long startingTime) {
+	public MidiTimerTask(ShortMessage message, List<MidiDevice> devices) {
 		this.message = message;
 		this.devices = devices;
-		this.startingTime = startingTime;
 	}
 	
-	public long getStartingTime() {
-		return this.startingTime;
+	public ShortMessage getMessage() {
+		return this.message;
 	}
 
 	@Override

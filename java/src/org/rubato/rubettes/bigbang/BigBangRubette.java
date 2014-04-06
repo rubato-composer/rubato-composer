@@ -19,7 +19,7 @@ import org.w3c.dom.Element;
 public class BigBangRubette extends AbstractRubette {
 	
 	public static final boolean IS_MULTITOUCH = false;
-	public static final String STANDARD_FORM_NAME = "FMSet";
+	public static final String STANDARD_FORM_NAME = "Texture";
 	
 	//ban model from here!?
 	private BigBangModel model;

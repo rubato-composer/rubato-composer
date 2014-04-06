@@ -16,7 +16,7 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
 import org.rubato.rubettes.bigbang.controller.BigBangController;
-import org.rubato.rubettes.bigbang.model.operations.AlterationEdit;
+import org.rubato.rubettes.bigbang.model.operations.AlterationOperation;
 import org.rubato.rubettes.bigbang.view.View;
 import org.rubato.rubettes.bigbang.view.controller.ViewController;
 import org.rubato.rubettes.bigbang.view.controller.mode.temp.AlterationCompositionSelectionMode;
@@ -91,7 +91,7 @@ public class JAlterationPanel extends JPanel implements View, ActionListener, It
 		}
 	}
 	
-	public void updateValues(AlterationEdit edit) {
+	public void updateValues(AlterationOperation edit) {
 		//TODO MAKE POSSIBLE AGAIN this.updateCoordinateSelections(edit.getAlterationCoordinates());
 		this.updateSliderValue(this.startSlider, edit.getStartDegree());
 		this.updateSliderValue(this.endSlider, edit.getEndDegree());

@@ -27,7 +27,7 @@ import org.rubato.rubettes.bigbang.model.operations.AbstractOperation;
 import org.rubato.rubettes.bigbang.model.operations.AbstractTransformation;
 import org.rubato.rubettes.bigbang.model.operations.AddObjectsOperation;
 import org.rubato.rubettes.bigbang.model.operations.AddWallpaperDimensionOperation;
-import org.rubato.rubettes.bigbang.model.operations.AlterationEdit;
+import org.rubato.rubettes.bigbang.model.operations.AlterationOperation;
 import org.rubato.rubettes.bigbang.model.operations.ReflectionEdit;
 import org.rubato.rubettes.bigbang.model.operations.RotationEdit;
 import org.rubato.rubettes.bigbang.model.operations.ScalingEdit;
@@ -318,7 +318,7 @@ public class BigBangView extends Model implements View {
 				this.viewParameters.initSelections(newObjects.getCoordinateSystemValueNames().size());
 			}
 			this.displayObjects = new DisplayObjects(newObjects);
-			this.player.setScore(new JSynScore(new TreeSet<BigBangObject>(), newObjects.getBaseForm()));
+			this.player.setScore(new JSynScore(new TreeSet<BigBangObject>(), newObjects.getBaseForm(), newObjects.arePlayedBackInTime()));
 			this.firePropertyChange(ViewController.FORM, null, this.displayObjects);
 			this.firePropertyChange(ViewController.ACTIVE_COLIMIT_COORDINATE, null, this.displayObjects.getActiveColimitCoordinates());
 		}
@@ -330,7 +330,7 @@ public class BigBangView extends Model implements View {
 		//System.out.println("DO " + newObjects.size()  + " " +this.displayObjects.size());
 		Set<BigBangObject> lastObjects = newObjects.getObjectsAt(null);
 		this.displayObjects.addObjects(lastObjects);
-		this.player.setScore(new JSynScore(lastObjects, newObjects.getBaseForm()));
+		this.player.setScore(new JSynScore(lastObjects, newObjects.getBaseForm(), newObjects.arePlayedBackInTime()));
 		
 		//TODO UPDATE ALL THESE THINGS!!!
 		this.viewParameters.setDenotatorMinAndMaxValues(newObjects.getMinValues(), newObjects.getMaxValues());
@@ -537,22 +537,22 @@ public class BigBangView extends Model implements View {
 	
 	public void setAlterationComposition(Integer index) {
 		Set<BigBangObject> selectedObjects = this.displayObjects.getSelectedBigBangObjects();
-		if (this.selectedOperation instanceof AlterationEdit) {
+		if (this.selectedOperation instanceof AlterationOperation) {
 			if (index == 0) {
-				((AlterationEdit)this.selectedOperation).setForegroundComposition(selectedObjects);
+				((AlterationOperation)this.selectedOperation).setForegroundComposition(selectedObjects);
 			} else {
-				((AlterationEdit)this.selectedOperation).setBackgroundComposition(selectedObjects);
+				((AlterationOperation)this.selectedOperation).setBackgroundComposition(selectedObjects);
 			}
 		}
 	}
 	
 	public void setAlterationCoordinates(ArrayList<Integer> selectedCoordinates) {
-		if (this.selectedOperation instanceof AlterationEdit) {
+		if (this.selectedOperation instanceof AlterationOperation) {
 			List<DenotatorPath> alterationCoordinates = new ArrayList<DenotatorPath>();
 			for (int currentIndex : selectedCoordinates) {
 				alterationCoordinates.add(this.displayObjects.getActiveObjectValuePathAt(currentIndex));
 			}
-			((AlterationEdit)this.selectedOperation).setAlterationCoordinates(alterationCoordinates);
+			((AlterationOperation)this.selectedOperation).setAlterationCoordinates(alterationCoordinates);
 		}
 	}
 	

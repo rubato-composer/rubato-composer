@@ -11,11 +11,13 @@ import org.rubato.rubettes.util.CoolFormRegistrant;
 
 public class JSynScore {
 	
+	private boolean isPlayedInTime;
 	private TreeSet<JSynObject> objects;
 	private Map<BigBangObject,JSynObject> objectMap;
 	private int satelliteType;
 	
-	public JSynScore(Set<BigBangObject> objects, Form baseForm) {
+	public JSynScore(Set<BigBangObject> objects, Form baseForm, boolean isPlayedInTime) {
+		this.isPlayedInTime = isPlayedInTime;
 		this.objects = new TreeSet<JSynObject>();
 		this.objectMap = new HashMap<BigBangObject,JSynObject>();
 		if (baseForm.equals(CoolFormRegistrant.FM_SET_FORM)) {
@@ -30,6 +32,7 @@ public class JSynScore {
 	 * Creates a score with just one object with the given pitch and velocity
 	 */
 	public JSynScore(int channel, int pitch, int velocity) {
+		this.isPlayedInTime = true;
 		this.objects = new TreeSet<JSynObject>();
 		this.objects.add(new JSynMonitorObject(channel, pitch, velocity));
 	}
@@ -54,6 +57,14 @@ public class JSynScore {
 	 */
 	public TreeSet<JSynObject> getObjects() {
 		return this.objects;
+	}
+	
+	public boolean isPlayedInTime() {
+		return this.isPlayedInTime;
+	}
+	
+	public boolean contains(BigBangObject bbObject) {
+		return this.objectMap.containsKey(bbObject);
 	}
 	
 	public String toString() {
