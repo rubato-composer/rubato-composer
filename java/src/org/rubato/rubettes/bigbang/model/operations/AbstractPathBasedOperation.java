@@ -8,6 +8,7 @@ import java.util.TreeSet;
 
 import org.rubato.rubettes.bigbang.model.BigBangModel;
 import org.rubato.rubettes.bigbang.model.BigBangObject;
+import org.rubato.rubettes.util.DenotatorPath;
 
 public abstract class AbstractPathBasedOperation extends AbstractOperation {
 	
@@ -43,8 +44,17 @@ public abstract class AbstractPathBasedOperation extends AbstractOperation {
 		int modifiedNumberOfObjects = (int)Math.round(this.modificationRatio*this.objects.size());
 		Iterator<BigBangObject> objectIterator = this.objects.iterator();
 		while (this.modifiedObjects.size() < modifiedNumberOfObjects) {
-			this.modifiedObjects.add(objectIterator.next());
+			BigBangObject currentO = objectIterator.next();
+			this.modifiedObjects.add(currentO);
 		}
+	}
+	
+	protected Set<DenotatorPath> getObjectPaths(Set<BigBangObject> objects) {
+		//avoid returning all object paths if only modifiedObjects empty
+		if (this.modifiedObjects.size() == 0 && this.objects.size() > 0) {
+			return new TreeSet<DenotatorPath>();
+		}
+		return super.getObjectPaths(objects);
 	}
 	
 	public List<AbstractOperation> getSplitOperations(double ratio) {

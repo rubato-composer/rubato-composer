@@ -57,12 +57,11 @@ public class JSynModule {
 	
 	//recursive method
 	private void playOrAdjustObject(SmoothOscillator parentOscillator, JSynObject object, boolean playInNextLoop) {
-		//System.out.println(object + " " + this.player.getCurrentSynthTime() + " " +oscillator);
 		if (object.isAudible()) {
 			this.pan.pan.set(object.getPan());
 			//adjust or schedule time
 			double currentSymbolicTime = this.performance.getCurrentSymbolicTime();
-			if (object.getOnset() > currentSymbolicTime || (object.getOnset() < currentSymbolicTime && playInNextLoop) || object.getRate() >= 0) {
+			if (object.getOnset() > currentSymbolicTime || (object.getOnset() < currentSymbolicTime && playInNextLoop)) {
 				//sound has to be started
 				double onset = this.performance.getSynthOnset(object.getOnset(), playInNextLoop);
 				double duration = this.player.convertToSynthDuration(object.getDuration());

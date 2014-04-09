@@ -189,7 +189,7 @@ public class BigBangObjects {
 		}
 		
 		this.addObjects(previousOperation, operation, pathResults);
-		//System.out.println("END " + this.objectsMaps.get(operation) + " " + this.objects);
+		//System.out.println("END " + this.getObjectsAt(operation).size());
 	}
 	
 	private void removeObjects(AbstractOperation previousOperation, AbstractOperation operation, OperationPathResults pathResults) {
@@ -325,17 +325,16 @@ public class BigBangObjects {
 	
 	/**
 	 * @return the path of the closest powerset at the given coordinateSystemValueIndex, if it is closer to the given
-	 * currentClosestPowersetPath
+	 * examplePowersetPath, or the closest object as such if examplePowersetPath is null.
 	 */
 	public BigBangObject getClosestObject(int[] coordinateSystemValueIndices, double[] values, DenotatorPath examplePowersetPath) {
-		Form formOfObjectInExamplePowerset = examplePowersetPath.getTopPath().getEndForm();
 		BigBangObject closestObject = null;
 		double shortestDistance = Double.MAX_VALUE;
 			
 		if (this.objectsMaps.containsKey(null)) {
 			for (BigBangObject currentObject : this.objectsMaps.get(null).values()) {
-				if (currentObject.getTopDenotatorPath().getEndForm().equals(formOfObjectInExamplePowerset)
-						&& currentObject.getTopDenotatorPath().size() == examplePowersetPath.getTopPath().size()) {
+				if (examplePowersetPath == null || (currentObject.getTopDenotatorPath().getEndForm().equals(examplePowersetPath.getTopPath().getEndForm())
+						&& currentObject.getTopDenotatorPath().size() == examplePowersetPath.getTopPath().size())) {
 					//calculate Euclidean distance
 					double currentDistance = 0;
 					for (int i = 0; i < values.length; i++) {

@@ -30,7 +30,11 @@ public class ObjectAdditionAdapter extends MouseInputAdapter {
 		if (event.getButton() == this.mouseButton) {
 			ArrayList<PointND> pointList = new ArrayList<PointND>(); 
 			pointList.add(new PointND(event.getPoint().x, event.getPoint().y));
-			this.controller.addObjects(pointList, false);
+			if (event.isShiftDown()) {
+				this.controller.unAddObjects(pointList);
+			} else {
+				this.controller.addObjects(pointList, false);
+			}
 		}
 	}
 

@@ -144,6 +144,19 @@ public class BigBangModel extends Model {
 		}
 	}
 	
+	public void unAddObjects(TreeSet<Map<DenotatorPath,Double>> pathsWithValues) {
+		AddObjectsOperation edit = null;
+		if (this.transformationGraph.getSelectedOperation() instanceof AddObjectsOperation) {
+			edit = (AddObjectsOperation)this.transformationGraph.getSelectedOperation();
+		} else if (this.transformationGraph.getLastAddedOperation() != null && this.transformationGraph.getLastAddedOperation() instanceof AddObjectsOperation) {
+			edit = (AddObjectsOperation)this.transformationGraph.getLastAddedOperation();
+		}
+		if (edit != null) {
+			edit.unAddObjects(pathsWithValues);
+			this.operationModified();
+		}
+	}
+	
 	public BigBangObjects getObjects() {
 		return this.objects;
 	}
@@ -217,10 +230,10 @@ public class BigBangModel extends Model {
 	
 	public void shapeObjects(TransformationProperties properties, TreeMap<Double,Double> shapingLocations) {
 		ShapingEdit edit = null;
-		if (this.transformationGraph.getLastAddedOperation() instanceof ShapingEdit) {
-			edit = (ShapingEdit)this.transformationGraph.getLastAddedOperation();
-		} else if (this.transformationGraph.getSelectedOperation() instanceof ShapingEdit) {
+		if (this.transformationGraph.getSelectedOperation() instanceof ShapingEdit) {
 			edit = (ShapingEdit)this.transformationGraph.getSelectedOperation();
+		} else if (this.transformationGraph.getLastAddedOperation() instanceof ShapingEdit) {
+			edit = (ShapingEdit)this.transformationGraph.getLastAddedOperation();
 		}
 		if (edit != null && edit.getShapingPaths().equals(properties.getTransformationPaths())) {
 			edit.addShapingLocations(shapingLocations);
@@ -431,7 +444,7 @@ public class BigBangModel extends Model {
 				PerformanceCheck.startTask("update paths");
 				this.objects.updatePaths(currentOperation, nextOperation, currentPathResults);
 			}
-			//System.out.println("BO "+this.objects.getAllObjects() + "\n");
+			//System.out.println("BO "+this.objects.getObjectsAt(null).size());
 			//System.out.println(operationsToBeExecuted + " " + this.objects.getObjects());
 			
 			PerformanceCheck.startTask("extract");
