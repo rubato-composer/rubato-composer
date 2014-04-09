@@ -1,5 +1,6 @@
 package org.rubato.rubettes.bigbang.view.subview;
 
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Point;
@@ -69,6 +70,8 @@ public class JBigBangDisplay extends JPanel implements View {
 	
 	public void paintComponent(Graphics g) {
         super.paintComponent(g);
+        //this.setOpaque(true);
+        //this.setBackground(BLACK);
         this.contents.paint(new AWTPainter(g), this.getWidth(), this.getHeight());
     }
 	

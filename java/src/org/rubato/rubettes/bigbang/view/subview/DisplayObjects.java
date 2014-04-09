@@ -342,7 +342,7 @@ public class DisplayObjects {
 		}
 	}
 	
-	private void deselectAllObjects() {
+	public void deselectAllObjects() {
 		for (DisplayObject currentObject: this.selectedObjects) {
 			currentObject.setSelected(false);
 		}

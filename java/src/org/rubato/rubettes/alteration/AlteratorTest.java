@@ -45,9 +45,9 @@ public class AlteratorTest extends TestCase {
 	}
 	
 	public void testAlter() throws RubatoException {
-		Denotator note1 = this.noteGenerator.createNoteDenotator(0, 50, 120, 1, 0, 0);
-		Denotator note2 = this.noteGenerator.createNoteDenotator(2, 55, 122, 1, 0, 0);
-		Denotator note3 = this.noteGenerator.createNoteDenotator(1, 52.5, 121, 1, 0, 0);
+		Denotator note1 = this.noteGenerator.createNoteDenotator(0, 50, 120, 1, 0);
+		Denotator note2 = this.noteGenerator.createNoteDenotator(2, 55, 122, 1, 0);
+		Denotator note3 = this.noteGenerator.createNoteDenotator(1, 52.5, 121, 1, 0);
 		int[][] paths = new SimpleFormFinder(this.noteGenerator.getScoreForm()).getSimpleFormArrayPaths();
 		Denotator altered = this.alterator.alter(note1, note2, 0.5, paths);
 		

@@ -230,8 +230,11 @@ public class BigBangObjects {
 			if (this.objectsMaps.get(operation) == null || !this.objectsMaps.get(operation).containsKey(currentNewPath)) {
 				//add as many of the objects added in previous iterations as possible
 				if (previouslyAddedObjectsIterator.hasNext()) {
+					BigBangObject previouslyAddedObject = previouslyAddedObjectsIterator.next();
+					//strip them from their previous context
+					previouslyAddedObject.removeAllChildren(operation);
 					BigBangObject parent = this.getObject(operation, currentNewPath.getAnchorPath());
-					this.updateObject(previouslyAddedObjectsIterator.next(), parent, operation, currentNewPath);
+					this.updateObject(previouslyAddedObject, parent, operation, currentNewPath);
 				//if more need to be added, create new ones
 				} else {
 					DenotatorPath parentPath = currentNewPath.getAnchorPath();

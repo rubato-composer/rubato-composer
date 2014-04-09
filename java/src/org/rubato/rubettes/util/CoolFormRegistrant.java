@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.rubato.base.Repository;
 import org.rubato.logeo.FormFactory;
+import org.rubato.math.module.RProperFreeModule;
 import org.rubato.math.yoneda.ColimitForm;
 import org.rubato.math.yoneda.Form;
 import org.rubato.math.yoneda.FormReference;
@@ -71,6 +72,10 @@ public class CoolFormRegistrant {
 	}
 	
 	public void registerMusicTheoryForms() {
+		//RealScore
+		SimpleForm realNoteForm = this.registerRModuleForm("RealNote", 5);
+		this.registerPowerForm("RealScore", realNoteForm);
+		
 		//PitchClass
 		PITCH_CLASS_FORM = this.registerZnModuleForm("PitchClass", 12);
 		this.registerPowerForm("PitchClassSet", PITCH_CLASS_FORM);
@@ -97,6 +102,7 @@ public class CoolFormRegistrant {
 		NOTE_OR_REST_FORM = this.registerColimitForm("NoteOrRest", NOTE_FORM, REST_FORM);
 		this.registerPowerForm("GeneralScore", NOTE_OR_REST_FORM);
 		
+		//Texture
 		RATE_FORM = this.registerRModuleForm("Rate");
 		REPEATED_NOTE_FORM = this.registerLimitForm("RepeatedNote", PITCH_FORM, LOUDNESS_FORM, RATE_FORM, DURATION_FORM);
 		TEXTURE_FORM = this.registerPowerForm("Texture", REPEATED_NOTE_FORM);
@@ -215,6 +221,10 @@ public class CoolFormRegistrant {
 	
 	private SimpleForm registerRModuleForm(String name) {
 		return (SimpleForm)this.register(FormFactory.makeRModuleForm(name));
+	}
+	
+	private SimpleForm registerRModuleForm(String name, int dimension) {
+		return (SimpleForm)this.register(FormFactory.makeModuleForm(name, RProperFreeModule.make(dimension)));
 	}
 	
 	private SimpleForm registerZModuleForm(String name) {

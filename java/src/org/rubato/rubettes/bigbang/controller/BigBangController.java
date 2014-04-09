@@ -9,6 +9,7 @@ import org.rubato.math.matrix.RMatrix;
 import org.rubato.math.yoneda.Form;
 import org.rubato.rubettes.bigbang.model.BigBangObject;
 import org.rubato.rubettes.bigbang.model.denotators.TransformationProperties;
+import org.rubato.rubettes.bigbang.model.graph.CompositionState;
 import org.rubato.rubettes.bigbang.model.operations.AbstractOperation;
 import org.rubato.rubettes.util.DenotatorPath;
 
@@ -90,8 +91,12 @@ public class BigBangController extends Controller {
 		this.callModelMethod(BigBangController.MODIFY_OPERATION, operationIndex, ratio);
 	}
 	
-	public void selectCompositionState(Integer vertex) {
-		this.callModelMethod(BigBangController.SELECT_COMPOSITION_STATE, vertex);
+	public void selectCompositionState(CompositionState state) {
+		this.callModelMethod(BigBangController.SELECT_COMPOSITION_STATE, state);
+	}
+	
+	public void selectCompositionState(Integer stateIndex) {
+		this.callModelMethod(BigBangController.SELECT_COMPOSITION_STATE, stateIndex);
 	}
 	
 	public void deselectCompositionStates() {
@@ -110,7 +115,7 @@ public class BigBangController extends Controller {
 		this.callModelMethod(BigBangController.REMOVE_OPERATION, operation);
 	}
 	
-	public void insertOperation(Integer vertex) {
+	public void insertOperation(CompositionState vertex) {
 		this.callModelMethod(BigBangController.INSERTION_STATE, vertex);
 	}
 	

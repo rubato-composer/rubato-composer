@@ -16,6 +16,7 @@ import javax.swing.JPopupMenu;
 import javax.swing.SwingUtilities;
 
 import org.rubato.rubettes.bigbang.controller.BigBangController;
+import org.rubato.rubettes.bigbang.model.graph.CompositionState;
 import org.rubato.rubettes.bigbang.model.operations.AbstractOperation;
 import org.rubato.rubettes.bigbang.view.controller.general.InsertOperationAction;
 import org.rubato.rubettes.bigbang.view.controller.general.RemoveOperationAction;
@@ -66,13 +67,13 @@ public class PopupVertexEdgeMenuMousePlugin extends AbstractPopupGraphMousePlugi
      * @param e 
      */
 	protected void handlePopup(MouseEvent event) {
-		VisualizationViewer<Integer,AbstractOperation> viewer =
-    		(VisualizationViewer<Integer,AbstractOperation>)event.getSource();
+		VisualizationViewer<CompositionState,AbstractOperation> viewer =
+    		(VisualizationViewer<CompositionState,AbstractOperation>)event.getSource();
     	Point2D point = event.getPoint();
         
-        GraphElementAccessor<Integer,AbstractOperation> pickSupport = viewer.getPickSupport();
+        GraphElementAccessor<CompositionState,AbstractOperation> pickSupport = viewer.getPickSupport();
         if (pickSupport != null) {
-        	Integer vertex = pickSupport.getVertex(viewer.getGraphLayout(), point.getX(), point.getY());
+        	CompositionState vertex = pickSupport.getVertex(viewer.getGraphLayout(), point.getX(), point.getY());
         	if (vertex != null) {
         		this.updateVertexMenu(vertex, viewer, point);
         		this.vertexPopup.show(viewer, event.getX(), event.getY());
@@ -86,12 +87,12 @@ public class PopupVertexEdgeMenuMousePlugin extends AbstractPopupGraphMousePlugi
         }
 	}
 	
-	private void updateVertexMenu(final Integer vertex, final VisualizationViewer<Integer,AbstractOperation> viewer, final Point2D point) {
+	private void updateVertexMenu(final CompositionState vertex, final VisualizationViewer<CompositionState,AbstractOperation> viewer, final Point2D point) {
 		this.removeAllActionListeners(this.insertEdgeItem);
 		this.insertEdgeItem.addActionListener(new InsertOperationAction(this.controller, vertex));
     }
 	
-	private void updateEdgeMenu(final AbstractOperation edge, final VisualizationViewer<Integer,AbstractOperation> viewer, final Point2D point) {
+	private void updateEdgeMenu(final AbstractOperation edge, final VisualizationViewer<CompositionState,AbstractOperation> viewer, final Point2D point) {
 		this.removeAllActionListeners(this.setDurationItem);
 		this.setDurationItem.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent event) {

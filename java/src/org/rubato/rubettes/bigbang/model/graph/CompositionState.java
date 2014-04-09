@@ -1,6 +1,6 @@
 package org.rubato.rubettes.bigbang.model.graph;
 
-public class CompositionState implements Comparable<CompositionState> {
+public class CompositionState {// implements Comparable<CompositionState> {
 	
 	private int index;
 	
@@ -20,6 +20,7 @@ public class CompositionState implements Comparable<CompositionState> {
 		this.index--;
 	}
 	
+	/*@Override
 	public boolean equals(Object other) {
 		if (other instanceof CompositionState) {
 			return ((CompositionState)other).getIndex() == this.index;
@@ -33,7 +34,7 @@ public class CompositionState implements Comparable<CompositionState> {
 	
 	public int hashCode() {
 		return this.index;
-	}
+	}*/
 	
 	public String toString() {
 		return Integer.toString(this.index);

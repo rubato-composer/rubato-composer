@@ -5,13 +5,14 @@ import java.awt.event.ActionEvent;
 import javax.swing.AbstractAction;
 
 import org.rubato.rubettes.bigbang.controller.BigBangController;
+import org.rubato.rubettes.bigbang.model.graph.CompositionState;
 
 public class InsertOperationAction extends AbstractAction {
 
 	BigBangController controller;
-	Integer compositionState;
+	CompositionState compositionState;
 	
-	public InsertOperationAction(BigBangController controller, Integer compositionState) {
+	public InsertOperationAction(BigBangController controller, CompositionState compositionState) {
 		this.controller = controller;
 		this.compositionState = compositionState;
 	}

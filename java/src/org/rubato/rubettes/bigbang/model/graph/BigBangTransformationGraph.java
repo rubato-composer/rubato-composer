@@ -1,11 +1,12 @@
 package org.rubato.rubettes.bigbang.model.graph;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.TreeMap;
 import java.util.TreeSet;
 
 import org.rubato.rubettes.bigbang.model.operations.AbstractOperation;
@@ -14,10 +15,11 @@ import edu.uci.ics.jung.algorithms.shortestpath.DijkstraShortestPath;
 import edu.uci.ics.jung.graph.DirectedSparseMultigraph;
 import edu.uci.ics.jung.graph.util.EdgeType;
 
-public class BigBangTransformationGraph extends DirectedSparseMultigraph<Integer,AbstractOperation> {
+public class BigBangTransformationGraph extends DirectedSparseMultigraph<CompositionState,AbstractOperation> {
 	
-	private Integer selectedCompositionState;
-	private Integer insertionState;
+	private List<CompositionState> compositionStates;
+	private CompositionState selectedCompositionState;
+	private CompositionState insertionState;
 	private AbstractOperation selectedOperation;
 	private List<AbstractOperation> allOperationsInAddedOrder;
 	//all edits in the graph in their logical order of execution 
@@ -25,12 +27,42 @@ public class BigBangTransformationGraph extends DirectedSparseMultigraph<Integer
 	//all edits executed on way to selectedCompositionState in order of execution
 	private List<AbstractOperation> currentlyExecutedOperationsInOrder;
 	//all states reached on way to selectedCompositionState and the time when they are reached
-	private Map<Integer,Double> currentlyReachedStatesAndTimes;
+	private Map<CompositionState,Double> currentlyReachedStatesAndTimes;
 	
 	public BigBangTransformationGraph() {
+		this.compositionStates = new ArrayList<CompositionState>();
 		this.allOperationsInLogicalOrder = new ArrayList<AbstractOperation>();
 		this.allOperationsInAddedOrder = new ArrayList<AbstractOperation>();
-		this.addVertex(0);
+		this.addCompositionState();
+	}
+	
+	private CompositionState addCompositionState() {
+		CompositionState newState = new CompositionState(this.compositionStates.size());
+		this.compositionStates.add(newState);
+		return newState;
+	}
+	
+	private CompositionState insertNewCompositionStateAfter(CompositionState state) {
+		int stateIndex = this.compositionStates.indexOf(state);
+		//increment indices of later states
+		for (int i = stateIndex+1; i <  this.compositionStates.size(); i++) {
+			this.compositionStates.get(i).incrementIndex();
+		}
+		//add new state
+		CompositionState newState = new CompositionState(stateIndex+1);
+		this.compositionStates.add(stateIndex+1, newState);
+		this.addVertex(newState);
+		return newState;
+	}
+	
+	private void removeCompositionState(CompositionState state) {
+		//remove state and decrement indices of later ones
+		int stateIndex = this.compositionStates.indexOf(state);
+		this.removeVertex(state);
+		this.compositionStates.remove(stateIndex);
+		for (int i = stateIndex; i <  this.compositionStates.size(); i++) {
+			this.compositionStates.get(i).decrementIndex();
+		}
 	}
 	
 	public void update() {
@@ -40,18 +72,28 @@ public class BigBangTransformationGraph extends DirectedSparseMultigraph<Integer
 	/**
 	 * sets the composition state to be shown. can be null, which means that the final state is shown
 	 */
-	public void selectCompositionState(Integer vertex) {
-		if (vertex == null || vertex <= this.getEdgeCount()) {
-			this.selectedCompositionState = vertex;
-			this.updateCurrentlyExecutedEditsAndStatesAndTimes();
+	public void selectCompositionState(CompositionState state) {
+		this.selectedCompositionState = state;
+		this.updateCurrentlyExecutedEditsAndStatesAndTimes();
+	}
+	
+	public void selectCompositionStateAt(Integer index) {
+		this.selectedCompositionState = this.getCompositionStateAt(index);
+		this.updateCurrentlyExecutedEditsAndStatesAndTimes();
+	}
+	
+	private CompositionState getCompositionStateAt(Integer index) {
+		if (index != null && index < this.compositionStates.size()) {
+			return this.compositionStates.get(index);
 		}
+		return null;
 	}
 	
 	public void deselectCompositionStates() {
 		this.selectCompositionState(null);
 	}
 	
-	public Integer getSelectedCompositionState() {
+	public CompositionState getSelectedCompositionState() {
 		return this.selectedCompositionState;
 	}
 	
@@ -63,11 +105,11 @@ public class BigBangTransformationGraph extends DirectedSparseMultigraph<Integer
 		return this.selectedOperation;
 	}
 	
-	public void setInsertionState(Integer state) {
+	public void setInsertionState(CompositionState state) {
 		this.insertionState = state;
 	}
 	
-	public Integer getInsertionState() {
+	public CompositionState getInsertionState() {
 		return this.insertionState;
 	}
 	
@@ -75,10 +117,10 @@ public class BigBangTransformationGraph extends DirectedSparseMultigraph<Integer
 	 * If the insertionState is selected, insert the given operation. Otherwise add.
 	 * @return the state to be selected afterwards
 	 */
-	public Integer addOrInsertOperation(AbstractOperation edit, boolean inPreviewMode) {
+	public CompositionState addOrInsertOperation(AbstractOperation edit, boolean inPreviewMode) {
 		if (this.insertionState != null) {
 			this.insertOperation(edit, this.insertionState);
-			int stateToBeSelected = this.insertionState+1;
+			CompositionState stateToBeSelected = this.compositionStates.get(this.compositionStates.indexOf(this.insertionState)+1);
 			if (!inPreviewMode) {
 				this.insertionState = null;
 			}
@@ -88,15 +130,20 @@ public class BigBangTransformationGraph extends DirectedSparseMultigraph<Integer
 		return this.getLastState();
 	}
 	
-	private boolean insertOperation(AbstractOperation edit, Integer state) {
-		Integer endingVertex = this.getVertexCount();
-		this.addVertex(endingVertex);
-		//move all edges including the ones involving the given state back by 1
-		this.moveEdges(state-1, 1);
+	private boolean insertOperation(AbstractOperation edit, CompositionState state) {
+		CompositionState newState = this.insertNewCompositionStateAfter(state);
 		
-		boolean added = this.addEdge(edit, state, state+1);
+		//reconnect edges to new state
+		for (AbstractOperation currentOperation : new TreeSet<AbstractOperation>(this.getOutEdges(state))) {
+			CompositionState currentEndpoint = this.getEndpoints(currentOperation).getSecond();
+			this.removeEdge(currentOperation);
+			this.addEdge(currentOperation, newState, currentEndpoint, EdgeType.DIRECTED);
+		}
+		
+		//add new edge
+		boolean added = this.addEdge(edit, state, newState);
 		if (added) {
-			int index = this.getInsertionIndex(state+1);
+			int index = this.getInsertionIndex(newState);
 			this.allOperationsInLogicalOrder.add(index, edit);
 			this.allOperationsInAddedOrder.add(edit);
 			this.updateCurrentlyExecutedEditsAndStatesAndTimes();
@@ -105,7 +152,7 @@ public class BigBangTransformationGraph extends DirectedSparseMultigraph<Integer
 	}
 	
 	//returns the index in operationsInAddedOrder before all outgoing edges of the given state 
-	private int getInsertionIndex(Integer state) {
+	private int getInsertionIndex(CompositionState state) {
 		int minIndex = Integer.MAX_VALUE;
 		for (AbstractOperation currentEdit : this.getOutEdges(state)) {
 			minIndex = Math.min(minIndex, this.allOperationsInLogicalOrder.indexOf(currentEdit));
@@ -115,7 +162,7 @@ public class BigBangTransformationGraph extends DirectedSparseMultigraph<Integer
 	
 	private boolean addOperation(AbstractOperation edit) {
 		//startingVertex is either current selected vertex or the last vertex
-		Integer startVertex, endVertex = null;
+		CompositionState startVertex, endVertex = null;
 		if (this.selectedOperation != null) {
 			startVertex = this.getSource(this.selectedOperation);
 			endVertex = this.getDest(this.selectedOperation);
@@ -124,12 +171,11 @@ public class BigBangTransformationGraph extends DirectedSparseMultigraph<Integer
 			//delete selectedCompositionState for appropriate preview to be shown
 			this.selectedCompositionState = null;
 		} else {
-			startVertex = this.getVertexCount()-1;
+			startVertex = this.getLastState();
 		}
 		
 		if (endVertex == null) {
-			endVertex = this.getVertexCount();
-			this.addVertex(endVertex);
+			endVertex = this.addCompositionState();
 		}
 		
 		boolean added = this.addEdge(edit, startVertex, endVertex);
@@ -191,8 +237,8 @@ public class BigBangTransformationGraph extends DirectedSparseMultigraph<Integer
 	}
 	
 	/*
-	 * updates currentOperationsInExecutedOrder to include all operations that start and end between state 0 and the
-	 * selected composition states. simultaneously updates currentlyReachedStatesAndTimes
+	 * updates currentOperationsInExecutedOrder to include all operations that start and end between state 0
+	 * and the selected composition states. simultaneously updates currentlyReachedStatesAndTimes
 	 */
 	private void updateCurrentlyExecutedEditsAndStatesAndTimes() {
 		if (!this.containsVertex(this.selectedCompositionState)) {
@@ -202,20 +248,23 @@ public class BigBangTransformationGraph extends DirectedSparseMultigraph<Integer
 			this.selectedOperation = null;
 		}
 		Set<AbstractOperation> currentlyExecutedEdits = new HashSet<AbstractOperation>();
-		this.currentlyReachedStatesAndTimes = new TreeMap<Integer,Double>();
-		this.currentlyReachedStatesAndTimes.put(0, 0.0);
-		Set<Integer> currentStates = new TreeSet<Integer>();
-		currentStates.add(0);
+		this.currentlyReachedStatesAndTimes = new HashMap<CompositionState,Double>();
+		this.currentlyReachedStatesAndTimes.put(this.getFirstState(), 0.0);
+		Set<CompositionState> currentStates = new HashSet<CompositionState>();
+		currentStates.add(this.getFirstState());
 		while (currentStates.size() > 0) {
-			Set<Integer> nextStates = new TreeSet<Integer>();
-			for (Integer currentState : currentStates) {
-				for (AbstractOperation currentEdit : this.getOutEdges(currentState)) {
-					Integer editDestination = this.getDest(currentEdit);
-					if (editDestination == this.getShownState() || this.connectedByPath(editDestination, this.getShownState())) {
-						currentlyExecutedEdits.add(currentEdit);
-						nextStates.add(editDestination);
-						double timeReached = this.currentlyReachedStatesAndTimes.get(currentState) + currentEdit.getDuration();
-						this.currentlyReachedStatesAndTimes.put(editDestination, timeReached);
+			Set<CompositionState> nextStates = new HashSet<CompositionState>();
+			for (CompositionState currentState : currentStates) {
+				Collection<AbstractOperation> currentOutEdges = this.getOutEdges(currentState);
+				if (currentOutEdges != null) {
+					for (AbstractOperation currentEdit : this.getOutEdges(currentState)) {
+						CompositionState editDestination = this.getDest(currentEdit);
+						if (editDestination.equals(this.getShownState()) || this.connectedByPath(editDestination, this.getShownState())) {
+							currentlyExecutedEdits.add(currentEdit);
+							nextStates.add(editDestination);
+							double timeReached = this.currentlyReachedStatesAndTimes.get(currentState) + currentEdit.getDuration();
+							this.currentlyReachedStatesAndTimes.put(editDestination, timeReached);
+						}
 					}
 				}
 			}
@@ -224,7 +273,7 @@ public class BigBangTransformationGraph extends DirectedSparseMultigraph<Integer
 		this.currentlyExecutedOperationsInOrder = this.putOperationsInLogicalOrder(currentlyExecutedEdits);
 	}
 	
-	private Integer getShownState() {
+	private CompositionState getShownState() {
 		if (this.selectedCompositionState != null) {
 			return this.selectedCompositionState;
 		}
@@ -242,8 +291,8 @@ public class BigBangTransformationGraph extends DirectedSparseMultigraph<Integer
 		return editsInOrder;
 	}
 
-	private boolean connectedByPath(Integer state1, Integer state2) {
-		DijkstraShortestPath<Integer,AbstractOperation> dijkstra = new DijkstraShortestPath<Integer,AbstractOperation>(this);
+	private boolean connectedByPath(CompositionState state1, CompositionState state2) {
+		DijkstraShortestPath<CompositionState,AbstractOperation> dijkstra = new DijkstraShortestPath<CompositionState,AbstractOperation>(this);
 		return dijkstra.getPath(state1, state2).size() > 0;
 	}
 	
@@ -252,8 +301,8 @@ public class BigBangTransformationGraph extends DirectedSparseMultigraph<Integer
 	 */
 	public boolean removeOperation(AbstractOperation operation) {
 		if (this.containsEdge(operation)) {
-			Integer operationInitialpoint = this.getEndpoints(operation).getFirst();
-			Integer operationEndpoint = this.getEndpoints(operation).getSecond();
+			CompositionState operationInitialpoint = this.getEndpoints(operation).getFirst();
+			CompositionState operationEndpoint = this.getEndpoints(operation).getSecond();
 			super.removeEdge(operation);
 			this.allOperationsInLogicalOrder.remove(operation);
 			this.allOperationsInAddedOrder.remove(operation);
@@ -261,9 +310,7 @@ public class BigBangTransformationGraph extends DirectedSparseMultigraph<Integer
 			//consolidate nodes if no edges there anymore
 			if (!this.connectedByPath(operationInitialpoint, operationEndpoint)) {
 				//needs to be done this way :( changing vertex names leads to problems with jung
-				this.moveEdges(operationInitialpoint, -1);
-				//remove the previous last state
-				this.removeVertex(this.getLastState());
+				this.combineStates(operationInitialpoint, operationEndpoint);
 				this.updateCurrentlyExecutedEditsAndStatesAndTimes();
 				return true;
 			}
@@ -275,24 +322,16 @@ public class BigBangTransformationGraph extends DirectedSparseMultigraph<Integer
 	}
 	
 	/*
-	 * moves the edgePoints of all edges after the given state by the given amount (can be negative),
-	 * e.g. -1 moves all edges forward by 1
+	 * 
 	 */
-	private void moveEdges(Integer state, int amount) {
-		for (AbstractOperation currentEdge : new ArrayList<AbstractOperation>(this.getEdges())) {
-			int startPoint = this.getEndpoints(currentEdge).getFirst();
-			int endPoint = this.getEndpoints(currentEdge).getSecond();
-			if (startPoint > state && endPoint > state) {
-				if (startPoint > state) {
-					startPoint += amount;
-				}
-				if (endPoint > state) {
-					endPoint += amount;
-				}
-			}
-			super.removeEdge(currentEdge);
-			this.addEdge(currentEdge, startPoint, endPoint, EdgeType.DIRECTED);
+	private void combineStates(CompositionState state1, CompositionState state2) {
+		//move all state2 edges to state1
+		for (AbstractOperation currentOperation : this.getOutEdges(state2)) {
+			CompositionState endPoint = this.getEndpoints(currentOperation).getSecond();
+			this.removeEdge(currentOperation);
+			this.addEdge(currentOperation, state1, endPoint, EdgeType.DIRECTED);
 		}
+		this.removeCompositionState(state2);
 	}
 	
 	public AbstractOperation removeLastAddedOperation() {
@@ -301,8 +340,16 @@ public class BigBangTransformationGraph extends DirectedSparseMultigraph<Integer
 		return lastAddedEdit;
 	}
 	
-	public Integer getLastState() {
-		return this.getVertexCount()-1;
+	public CompositionState getFirstState() {
+		return this.compositionStates.get(0);
+	}
+	
+	public CompositionState getCompositionStateAt(int index) {
+		return this.compositionStates.get(index);
+	}
+	
+	public CompositionState getLastState() {
+		return this.compositionStates.get(this.compositionStates.size()-1);
 	}
 	
 	public void setDurations(double duration) {

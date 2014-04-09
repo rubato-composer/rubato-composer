@@ -3,13 +3,14 @@ package org.rubato.rubettes.bigbang.model.edits;
 import javax.swing.undo.AbstractUndoableEdit;
 
 import org.rubato.rubettes.bigbang.model.graph.BigBangTransformationGraph;
+import org.rubato.rubettes.bigbang.model.graph.CompositionState;
 import org.rubato.rubettes.bigbang.model.operations.AbstractOperation;
 
 public class AddOrInsertOperationEdit extends AbstractUndoableEdit {
 	
 	private BigBangTransformationGraph graph;
 	private AbstractOperation operation;
-	private Integer startingState;
+	private CompositionState startingState;
 	private boolean isInsertion;
 	
 	public AddOrInsertOperationEdit(AbstractOperation operation, BigBangTransformationGraph graph) {
@@ -25,14 +26,19 @@ public class AddOrInsertOperationEdit extends AbstractUndoableEdit {
 	}
 	
 	public void execute() {
-		Integer previouslySelectedState = this.graph.getSelectedCompositionState();
+		CompositionState previouslySelectedState = this.graph.getSelectedCompositionState();
 		if (this.isInsertion) {
 			this.graph.setInsertionState(this.startingState);
 		} else {
 			this.graph.selectCompositionState(this.startingState);
 		}
-		this.graph.addOrInsertOperation(this.operation, false);
-		this.graph.selectCompositionState(previouslySelectedState);
+		this.graph.addOrInsertOperation(this.operation, true);
+		//only show selected state if insertion. otherwise show last (new) state
+		if (this.isInsertion) {
+			this.graph.selectCompositionState(previouslySelectedState);
+		}/* else {
+			this.graph.selectCompositionState(null);
+		}*/
 	}
 	
 	@Override

@@ -32,6 +32,11 @@ public abstract class AbstractPathBasedOperation extends AbstractOperation {
 		this.updateOperation();
 	}
 	
+	protected void addObjects(Set<BigBangObject> objects) {
+		this.objects.addAll(objects);
+		this.updateOperation();
+	}
+	
 	//adjusts the number of objects to be handled according to this.modificationRatio
 	protected void updateOperation() {
 		this.modifiedObjects = new TreeSet<BigBangObject>();

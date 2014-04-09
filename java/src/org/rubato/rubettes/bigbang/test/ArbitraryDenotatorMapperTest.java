@@ -39,10 +39,8 @@ public class ArbitraryDenotatorMapperTest  extends TestCase {
 		LimitDenotator mappedNode = (LimitDenotator)mapper.getMappedDenotator(node);
 		//System.out.println("HEY " + (node == mappedNode));
 		//check if transformed properly and satellites still there and unchanged
-		LimitDenotator expectedNode = this.objects.createMultilevelNode(new double[][]{{-1,58,120,1,0,0},{1,3,-4,0,0,0},{1,-3,5,0,1,0}});
+		LimitDenotator expectedNode = this.objects.createMultilevelNode(new double[][]{{-1,58,120,1,0},{1,3,-4,0,0},{1,-3,5,0,1}});
 		this.objects.assertEqualNonPowerDenotators(mappedNode, expectedNode);
-		//check if layer unchanged
-		TestCase.assertEquals(mappedNode.getElement(new int[]{0,5,0}), new ZElement(0));
 	}
 	
 	public void testMappingOfColimitDenotators() throws RubatoException {

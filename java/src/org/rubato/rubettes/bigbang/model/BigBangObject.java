@@ -87,6 +87,12 @@ public class BigBangObject implements Comparable<BigBangObject> {
 		this.children.get(operation).remove(newChild);
 	}
 	
+	public void removeAllChildren(AbstractOperation operation) {
+		if (this.children.containsKey(operation)) {
+			this.children.get(operation).clear();
+		}
+	}
+	
 	/**
 	 * removes this object from all children sets it appears in
 	 */

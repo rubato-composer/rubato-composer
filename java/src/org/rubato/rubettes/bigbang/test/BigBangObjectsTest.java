@@ -66,6 +66,33 @@ public class BigBangObjectsTest extends TestCase {
 		TestCase.assertTrue(object3 == new ArrayList<BigBangObject>(this.objects.getAllObjects()).get(2));
 	}
 	
+	public void testUpdateWithAddingSatellites() {
+		//add an anchor
+		AddObjectsOperation addEdit = new AddObjectsOperation(null, null, null);
+		Set<DenotatorPath> addedPaths = new TreeSet<DenotatorPath>();
+		addedPaths.add(new DenotatorPath(this.SOUND_SCORE_FORM, new int[]{0}));
+		this.objects.updatePaths(addEdit, null, new OperationPathResults(addedPaths, null));
+		TestCase.assertEquals(1, this.objects.getAllObjects().size());
+		TestCase.assertEquals(1, this.objects.getObjectsAt(null).size());
+		BigBangObject anchor = new ArrayList<BigBangObject>(this.objects.getAllObjects()).get(0);
+		
+		//then decide to also add a satellite
+		addedPaths.add(new DenotatorPath(this.SOUND_SCORE_FORM, new int[]{0,1,0}));
+		this.objects.updatePaths(addEdit, null, new OperationPathResults(addedPaths, null));
+		TestCase.assertEquals(2, this.objects.getAllObjects().size());
+		TestCase.assertEquals(2, this.objects.getObjectsAt(null).size());
+		BigBangObject firstSatellite = new ArrayList<BigBangObject>(this.objects.getAllObjects()).get(1);
+		
+		//then also add a second satellite
+		addedPaths.add(new DenotatorPath(this.SOUND_SCORE_FORM, new int[]{0,1,1}));
+		this.objects.updatePaths(addEdit, null, new OperationPathResults(addedPaths, null));
+		TestCase.assertEquals(3, this.objects.getAllObjects().size());
+		TestCase.assertEquals(3, this.objects.getObjectsAt(null).size());
+		//check if anchor and first satellite still the same
+		TestCase.assertTrue(anchor == new ArrayList<BigBangObject>(this.objects.getAllObjects()).get(0));
+		TestCase.assertTrue(firstSatellite == new ArrayList<BigBangObject>(this.objects.getAllObjects()).get(1));
+	}
+	
 	public void testUpdateWithChanging() {
 		//CHANGE OBJECTS, BUT NEXT TIME CHANGE LESS
 	}

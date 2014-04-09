@@ -15,7 +15,7 @@ public class DenotatorPathTest extends TestCase {
 	protected void setUp() {
 		this.objects = new TestObjects();
 		this.satellitePath = new DenotatorPath(this.objects.SOUND_SCORE_FORM, new int[]{2,1,3,1,5,0});
-		this.modulatorPath = new DenotatorPath(this.objects.SOUND_SCORE_FORM, new int[]{2,1,6,0,6,3,6,2});
+		this.modulatorPath = new DenotatorPath(this.objects.SOUND_SCORE_FORM, new int[]{2,1,5,0,5,3,5,2});
 		this.rationalTriplePath = new DenotatorPath(this.objects.RATIONAL_TRIPLE_FORM, new int[]{2});
 		this.realTriplesPath = new DenotatorPath(this.objects.REAL_TRIPLES_FORM, new int[]{5,1});
 	}
@@ -42,10 +42,10 @@ public class DenotatorPathTest extends TestCase {
 		TestCase.assertEquals(this.objects.REAL_TRIPLE_FORM, this.realTriplesPath.getEndForm());
 		TestCase.assertEquals(RRing.ring, this.realTriplesPath.getModule());
 		
-		DenotatorPath modulatorPath2 = new DenotatorPath(this.objects.SOUND_SCORE_FORM, new int[]{4,1,3,0,6,1,6,5});
+		DenotatorPath modulatorPath2 = new DenotatorPath(this.objects.SOUND_SCORE_FORM, new int[]{4,1,3,0,5,1,5,5});
 		TestCase.assertTrue(modulatorPath2.equalsExceptForPowersetIndices(this.modulatorPath));
 		TestCase.assertTrue(this.modulatorPath.equalsExceptForPowersetIndices(modulatorPath2));
-		DenotatorPath modulatorPath3 = new DenotatorPath(this.objects.SOUND_SCORE_FORM, new int[]{2,1,0,1,6,1,6,0});
+		DenotatorPath modulatorPath3 = new DenotatorPath(this.objects.SOUND_SCORE_FORM, new int[]{2,1,0,1,5,1,5,0});
 		TestCase.assertFalse(modulatorPath3.equalsExceptForPowersetIndices(this.modulatorPath));
 		TestCase.assertFalse(this.modulatorPath.equalsExceptForPowersetIndices(modulatorPath3));
 	}
@@ -74,14 +74,14 @@ public class DenotatorPathTest extends TestCase {
 		TestCase.assertEquals(parentPaths, this.satellitePath.getAnchorPaths());
 		TestCase.assertEquals(parentPaths.get(0), this.satellitePath.getAnchorPath());
 		TestCase.assertEquals(new DenotatorPath(this.objects.SOUND_SCORE_FORM, new int[]{2,1,3,1,5,1}), this.satellitePath.getFirstPowersetPath());
-		TestCase.assertEquals(new DenotatorPath(this.objects.SOUND_SCORE_FORM, new int[]{2,1,3,1,5,0,6}), this.satellitePath.getPowersetPath(1));
+		TestCase.assertEquals(new DenotatorPath(this.objects.SOUND_SCORE_FORM, new int[]{2,1,3,1,5,0,5}), this.satellitePath.getPowersetPath(1));
 		TestCase.assertTrue(this.satellitePath.isDirectSatelliteOf(parentPaths.get(0)));
 		TestCase.assertEquals(new DenotatorPath(this.objects.SOUND_SCORE_FORM, new int[]{2,1,3,1}), this.satellitePath.getPowersetPath(0, this.objects.SOUND_NODE_FORM));
 		TestCase.assertEquals(new DenotatorPath(this.objects.SOUND_SCORE_FORM, new int[]{2,1,3,1,5,1}), this.satellitePath.getPowersetPath(1, this.objects.SOUND_NODE_FORM));
 		TestCase.assertEquals(new DenotatorPath(this.objects.SOUND_SCORE_FORM, new int[]{2,1,3,1,5,1,0,1}), this.satellitePath.getPowersetPath(2, this.objects.SOUND_NODE_FORM));
-		TestCase.assertEquals(new DenotatorPath(this.objects.SOUND_SCORE_FORM, new int[]{2,1,3,0,6}), this.satellitePath.getPowersetPath(0, this.objects.SOUND_NOTE_FORM));
-		TestCase.assertEquals(new DenotatorPath(this.objects.SOUND_SCORE_FORM, new int[]{2,1,3,1,5,0,6}), this.satellitePath.getPowersetPath(1, this.objects.SOUND_NOTE_FORM));
-		TestCase.assertEquals(new DenotatorPath(this.objects.SOUND_SCORE_FORM, new int[]{2,1,3,1,5,0,6,0,6}), this.satellitePath.getPowersetPath(2, this.objects.SOUND_NOTE_FORM));
+		TestCase.assertEquals(new DenotatorPath(this.objects.SOUND_SCORE_FORM, new int[]{2,1,3,0,5}), this.satellitePath.getPowersetPath(0, this.objects.SOUND_NOTE_FORM));
+		TestCase.assertEquals(new DenotatorPath(this.objects.SOUND_SCORE_FORM, new int[]{2,1,3,1,5,0,5}), this.satellitePath.getPowersetPath(1, this.objects.SOUND_NOTE_FORM));
+		TestCase.assertEquals(new DenotatorPath(this.objects.SOUND_SCORE_FORM, new int[]{2,1,3,1,5,0,5,0,5}), this.satellitePath.getPowersetPath(2, this.objects.SOUND_NOTE_FORM));
 		//TODO TEST WITH GENERIC SOUND FORM!!!!
 		DenotatorPath genericSoundPath = new DenotatorPath(this.objects.GENERIC_SOUND_FORM, new int[]{0});
 		TestCase.assertEquals(null, genericSoundPath.getPowersetPath(0, this.objects.GENERIC_SOUND_FORM));
@@ -92,34 +92,34 @@ public class DenotatorPathTest extends TestCase {
 	public void testModulatorPath() {
 		//TestCase.assertTrue(this.modulatorPath.isModulatorPath());
 		//TestCase.assertEquals(this.modulatorPath, this.modulatorPath.getParentPath());
-		TestCase.assertEquals(new DenotatorPath(this.objects.SOUND_SCORE_FORM, new int[]{2,1,6,0,6,3,6}), this.modulatorPath.getAnchorPowersetPath());
+		TestCase.assertEquals(new DenotatorPath(this.objects.SOUND_SCORE_FORM, new int[]{2,1,5,0,5,3,5}), this.modulatorPath.getAnchorPowersetPath());
 		TestCase.assertEquals(2, this.modulatorPath.getObjectIndex());
-		TestCase.assertEquals(new DenotatorPath(this.objects.SOUND_SCORE_FORM, new int[]{2,1,6,0,6,3}), this.modulatorPath.getAnchorPath());
+		TestCase.assertEquals(new DenotatorPath(this.objects.SOUND_SCORE_FORM, new int[]{2,1,5,0,5,3}), this.modulatorPath.getAnchorPath());
 	}
 	
 	public void testModulatorFamilyPaths() {
 		ArrayList<DenotatorPath> parentPaths = new ArrayList<DenotatorPath>();
-		parentPaths.add(new DenotatorPath(this.objects.SOUND_SCORE_FORM, new int[]{2,1,6,0,6,3}));
-		parentPaths.add(new DenotatorPath(this.objects.SOUND_SCORE_FORM, new int[]{2,1,6}));
+		parentPaths.add(new DenotatorPath(this.objects.SOUND_SCORE_FORM, new int[]{2,1,5,0,5,3}));
+		parentPaths.add(new DenotatorPath(this.objects.SOUND_SCORE_FORM, new int[]{2,1,5}));
 		parentPaths.add(new DenotatorPath(this.objects.SOUND_SCORE_FORM, new int[]{2}));
 		parentPaths.add(new DenotatorPath(this.objects.SOUND_SCORE_FORM));
 		TestCase.assertEquals(parentPaths, this.modulatorPath.getAnchorPaths());
 		TestCase.assertEquals(parentPaths.get(0), this.modulatorPath.getAnchorPath());
-		TestCase.assertEquals(new DenotatorPath(this.objects.SOUND_SCORE_FORM, new int[]{2,1,6,0,6,3,6,2,6}), this.modulatorPath.getFirstPowersetPath());
+		TestCase.assertEquals(new DenotatorPath(this.objects.SOUND_SCORE_FORM, new int[]{2,1,5,0,5,3,5,2,5}), this.modulatorPath.getFirstPowersetPath());
 		TestCase.assertTrue(this.modulatorPath.isDirectSatelliteOf(parentPaths.get(0)));
 	}
 	
 	public void testGetChild() {
 		TestCase.assertEquals(new DenotatorPath(this.objects.SOUND_SCORE_FORM, new int[]{2,1,3,1,5,1,4}), this.satellitePath.getSatellitePath(4,0));
-		TestCase.assertEquals(new DenotatorPath(this.objects.SOUND_SCORE_FORM, new int[]{2,1,3,1,5,0,6,4}), this.satellitePath.getSatellitePath(4,1));
+		TestCase.assertEquals(new DenotatorPath(this.objects.SOUND_SCORE_FORM, new int[]{2,1,3,1,5,0,5,4}), this.satellitePath.getSatellitePath(4,1));
 		//of course, within a modulator, the only powerset is the one of its modulators!!
-		TestCase.assertEquals(new DenotatorPath(this.objects.SOUND_SCORE_FORM, new int[]{2,1,6,0,6,3,6,2,6,4}), this.modulatorPath.getSatellitePath(4,0));
+		TestCase.assertEquals(new DenotatorPath(this.objects.SOUND_SCORE_FORM, new int[]{2,1,5,0,5,3,5,2,5,4}), this.modulatorPath.getSatellitePath(4,0));
 	}
 	
 	public void testGetPowersetPath() {
 		DenotatorPath node = new DenotatorPath(this.objects.SOUND_SCORE_FORM, new int[]{2});
 		TestCase.assertEquals(new DenotatorPath(this.objects.SOUND_SCORE_FORM, new int[]{2,1}), node.getPowersetPath(0));
-		TestCase.assertEquals(new DenotatorPath(this.objects.SOUND_SCORE_FORM, new int[]{2,0,6}), node.getPowersetPath(1));
+		TestCase.assertEquals(new DenotatorPath(this.objects.SOUND_SCORE_FORM, new int[]{2,0,5}), node.getPowersetPath(1));
 	}
 	
 	public void testInConflictingColimitPositions() {

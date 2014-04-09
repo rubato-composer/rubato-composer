@@ -31,10 +31,10 @@ public class FormValueFinderTest extends TestCase {
 	
 	public void testWithSoundScore() {
 		FormValueFinder finder = new FormValueFinder(this.testObjects.SOUND_SCORE_FORM, true);
-		TestCase.assertEquals(6, finder.getCoordinateSystemValueNames().size());
+		TestCase.assertEquals(5, finder.getCoordinateSystemValueNames().size());
 		TestCase.assertEquals(2, finder.getObjectCount());
-		TestCase.assertEquals(6, finder.getObjectAt(0).getColimitConfigurationValueNames(this.createColimitConfiguration()).size());
-		TestCase.assertEquals(6, finder.getObjectAt(0).getColimitConfigurationValuePaths(this.createColimitConfiguration()).size());
+		TestCase.assertEquals(5, finder.getObjectAt(0).getColimitConfigurationValueNames(this.createColimitConfiguration()).size());
+		TestCase.assertEquals(5, finder.getObjectAt(0).getColimitConfigurationValuePaths(this.createColimitConfiguration()).size());
 		TestCase.assertEquals(0, finder.getObjectAt(0).getColimits().size());
 		TestCase.assertEquals(0, finder.getObjectAt(0).getColimitPaths().size());
 		TestCase.assertEquals(true, finder.formAllowsForSatellites());

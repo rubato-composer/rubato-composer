@@ -3,6 +3,7 @@ package org.rubato.rubettes.bigbang.model.edits;
 import javax.swing.undo.AbstractUndoableEdit;
 
 import org.rubato.rubettes.bigbang.model.graph.BigBangTransformationGraph;
+import org.rubato.rubettes.bigbang.model.graph.CompositionState;
 import org.rubato.rubettes.bigbang.model.operations.AbstractOperation;
 
 public class RemoveOperationEdit extends AbstractUndoableEdit {
@@ -10,7 +11,7 @@ public class RemoveOperationEdit extends AbstractUndoableEdit {
 	private BigBangTransformationGraph graph;
 	private AbstractOperation operation;
 	private boolean hasToBeReinserted;
-	private int startingState;
+	private CompositionState startingState;
 	
 	public RemoveOperationEdit(AbstractOperation operation, BigBangTransformationGraph graph) {
 		this.graph = graph;
@@ -18,7 +19,7 @@ public class RemoveOperationEdit extends AbstractUndoableEdit {
 	}
 	
 	public void execute() {
-		this.hasToBeReinserted = this.graph.removeEdge(this.operation);
+		this.hasToBeReinserted = this.graph.removeOperation(this.operation);
 	}
 	
 	@Override

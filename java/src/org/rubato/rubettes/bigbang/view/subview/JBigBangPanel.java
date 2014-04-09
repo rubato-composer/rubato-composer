@@ -7,6 +7,8 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.GridLayout;
 import java.awt.Point;
+import java.awt.event.InputEvent;
+import java.awt.event.KeyEvent;
 
 import javax.swing.AbstractAction;
 import javax.swing.JButton;
@@ -20,6 +22,10 @@ import org.rubato.rubettes.bigbang.view.controller.KeyToMidiAction;
 import org.rubato.rubettes.bigbang.view.controller.KeyToStateAction;
 import org.rubato.rubettes.bigbang.view.controller.ToggleMainOptionsAction;
 import org.rubato.rubettes.bigbang.view.controller.ViewController;
+import org.rubato.rubettes.bigbang.view.controller.general.RedoAction;
+import org.rubato.rubettes.bigbang.view.controller.general.UndoAction;
+import org.rubato.rubettes.bigbang.view.controller.score.actions.DeleteObjectsAction;
+import org.rubato.rubettes.bigbang.view.controller.score.actions.ShowWindowPreferencesAction;
 import org.rubato.rubettes.bigbang.view.model.ViewParameters;
 import org.rubato.rubettes.bigbang.view.player.BigBangPlayer;
 import org.rubato.rubettes.bigbang.view.subview.graph.JGraphPanel;
@@ -48,6 +54,7 @@ public class JBigBangPanel extends JPanel {
 		this.setComponentPopupMenu(popup);
 		this.initMidiKeys(controller);
 		this.initStateKeys(controller);
+		this.initShortcuts(controller);
 		this.setFocusable(true);
 	}
 	
@@ -119,11 +126,22 @@ public class JBigBangPanel extends JPanel {
 	}
 	
 	private void initStateKeys(ViewController controller) {
-		for (int currentState = 0; currentState <= 9; currentState++) {
-			this.addKeyToStateAction(controller, (char)(currentState+48), currentState);
+		for (int currentStateIndex = 0; currentStateIndex <= 9; currentStateIndex++) {
+			this.addKeyToStateAction(controller, (char)(currentStateIndex+48), currentStateIndex);
 		}
 		this.addChangeOctaveActions(controller);
 		this.currentOctave = 0;
+	}
+	
+	private void initShortcuts(ViewController controller) {
+		this.getInputMap(JPanel.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke('Z', InputEvent.META_DOWN_MASK), "META_Z");
+		this.getActionMap().put("META_Z", new UndoAction(controller));
+		this.getInputMap(JPanel.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke('Y', InputEvent.META_DOWN_MASK), "META_Y");
+		this.getActionMap().put("META_Y", new RedoAction(controller));
+		this.getInputMap(JPanel.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke('P', InputEvent.META_DOWN_MASK), "META_P");
+		this.getActionMap().put("META_P", new ShowWindowPreferencesAction(controller));
+		this.getInputMap(JPanel.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke("BACK_SPACE"), "BACK_SPACE");
+		this.getActionMap().put("BACK_SPACE", new DeleteObjectsAction(controller));
 	}
 	
 	private void addKeyToMidiActions(ViewController controller, char key, int pitch) {
@@ -135,10 +153,10 @@ public class JBigBangPanel extends JPanel {
 		this.getActionMap().put(releasedString, new KeyToMidiAction(this, controller, pitch, false));
 	}
 	
-	private void addKeyToStateAction(ViewController controller, char key, int state) {
+	private void addKeyToStateAction(ViewController controller, char key, int stateIndex) {
 		String pressedString = "pressed " + key;
 		this.getInputMap(JPanel.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(pressedString), pressedString);
-		this.getActionMap().put(pressedString, new KeyToStateAction(controller, state));
+		this.getActionMap().put(pressedString, new KeyToStateAction(controller, stateIndex));
 	}
 	
 	private void addChangeOctaveActions(ViewController controller) {

@@ -25,7 +25,7 @@ public class JSynPlayerTest extends TestCase {
 	
 	public void testSmoothOscillatorOffline() {
 		//create player and line out
-		BigBangPlayer player = new BigBangPlayer(false);
+		BigBangPlayer player = new BigBangPlayer();
 		player.startSynth();
 		LineOut lineOut = new LineOut();
 		player.addToSynth(lineOut);
@@ -58,7 +58,7 @@ public class JSynPlayerTest extends TestCase {
 	
 	public void testPlayerWithSoundScore() throws InterruptedException {
 		//TODO test with both modulators and normal satellites
-		BigBangPlayer player = new BigBangPlayer(false);
+		BigBangPlayer player = new BigBangPlayer();
 		player.startSynth();
 		LineOut lineOut = new LineOut();
 		player.addToSynth(lineOut);

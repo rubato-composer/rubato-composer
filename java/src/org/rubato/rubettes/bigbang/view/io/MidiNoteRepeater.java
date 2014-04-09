@@ -32,10 +32,10 @@ public class MidiNoteRepeater extends Thread {
 			while (true) {
 				if (this.object.getRate() > 0) {
 					this.scheduleNotes();
-					try { Thread.sleep(this.object.getRate()); } catch (InterruptedException e) { e.printStackTrace();break; }
+					try { Thread.sleep(this.object.getRate()); } catch (InterruptedException e) { break; }
 				} else {
 					//if no rate then just wait until there is one again...
-					try { Thread.sleep(100); } catch (InterruptedException e) { e.printStackTrace(); break;}
+					try { Thread.sleep(100); } catch (InterruptedException e) { break;}
 				}
 			}
 		}
