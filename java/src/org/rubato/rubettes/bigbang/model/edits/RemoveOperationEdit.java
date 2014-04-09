@@ -11,7 +11,7 @@ public class RemoveOperationEdit extends AbstractUndoableEdit {
 	private BigBangTransformationGraph graph;
 	private AbstractOperation operation;
 	private boolean hasToBeReinserted;
-	private CompositionState startingState;
+	private Integer startingState;
 	
 	public RemoveOperationEdit(AbstractOperation operation, BigBangTransformationGraph graph) {
 		this.graph = graph;
@@ -19,6 +19,7 @@ public class RemoveOperationEdit extends AbstractUndoableEdit {
 	}
 	
 	public void execute() {
+		this.startingState = this.graph.getEndpoints(this.operation).getFirst().getIndex();
 		this.hasToBeReinserted = this.graph.removeOperation(this.operation);
 	}
 	

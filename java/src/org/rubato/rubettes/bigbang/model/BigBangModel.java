@@ -308,7 +308,7 @@ public class BigBangModel extends Model {
 		this.updateComposition();
 		this.firePropertyChange(BigBangController.UNDO, null, this.undoManager);
 		this.firePropertyChange(BigBangController.GRAPH, null, this.transformationGraph);
-		this.firePropertyChange(BigBangController.SELECT_COMPOSITION_STATE, null, this.transformationGraph.getSelectedCompositionState());
+		//this.firePropertyChange(BigBangController.SELECT_COMPOSITION_STATE, null, this.transformationGraph.getSelectedCompositionState());
 	}
 	
 	public void operationModified() {
@@ -331,8 +331,8 @@ public class BigBangModel extends Model {
 		this.transformationGraph.setDurations(duration);
 	}
 	
-	public void setInsertionState(CompositionState state) {
-		this.transformationGraph.setInsertionState(state);
+	public void setInsertionState(Integer stateIndex) {
+		this.transformationGraph.setInsertionState(stateIndex);
 	}
 	
 	public void undo() {
@@ -353,16 +353,16 @@ public class BigBangModel extends Model {
 		this.firePropertyChange(BigBangController.GRAPH, null, this.transformationGraph);
 	}
 	
-	public void selectCompositionState(Integer stateIndex) {
+	public void selectCompositionStateAt(Integer stateIndex) {
 		this.transformationGraph.selectCompositionStateAt(stateIndex);
 		this.updateComposition();
-		this.firePropertyChange(BigBangController.SELECT_COMPOSITION_STATE, null, this.transformationGraph.getSelectedCompositionState());
+		//this.firePropertyChange(BigBangController.SELECT_COMPOSITION_STATE, null, this.transformationGraph.getSelectedCompositionState());
 	}
 	
 	public void selectCompositionState(CompositionState vertex) {
 		this.transformationGraph.selectCompositionState(vertex);
 		this.updateComposition();
-		this.firePropertyChange(BigBangController.SELECT_COMPOSITION_STATE, null, vertex);
+		//this.firePropertyChange(BigBangController.SELECT_COMPOSITION_STATE, null, vertex);
 	}
 	
 	public void deselectCompositionStates() {

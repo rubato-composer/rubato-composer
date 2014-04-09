@@ -4,7 +4,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
-import java.util.TreeSet;
 
 import org.rubato.math.matrix.RMatrix;
 import org.rubato.math.yoneda.Form;
@@ -23,6 +22,7 @@ public class BigBangController extends Controller {
 	public static final String OPERATION_MODIFIED = "operationModified";
 	public static final String MODIFY_OPERATION = "modifyOperation";
 	public static final String SELECT_COMPOSITION_STATE = "selectCompositionState";
+	public static final String SELECT_COMPOSITION_STATE_AT = "selectCompositionStateAt";
 	public static final String DESELECT_COMPOSITION_STATES = "deselectCompositionStates";
 	public static final String SELECT_OPERATION = "selectOperation";
 	public static final String DESELECT_OPERATIONS = "deselectOperations";
@@ -98,7 +98,7 @@ public class BigBangController extends Controller {
 	}
 	
 	public void selectCompositionState(Integer stateIndex) {
-		this.callModelMethod(BigBangController.SELECT_COMPOSITION_STATE, stateIndex);
+		this.callModelMethod(BigBangController.SELECT_COMPOSITION_STATE_AT, stateIndex);
 	}
 	
 	public void deselectCompositionStates() {
@@ -117,8 +117,8 @@ public class BigBangController extends Controller {
 		this.callModelMethod(BigBangController.REMOVE_OPERATION, operation);
 	}
 	
-	public void insertOperation(CompositionState vertex) {
-		this.callModelMethod(BigBangController.INSERTION_STATE, vertex);
+	public void insertOperation(Integer stateIndex) {
+		this.callModelMethod(BigBangController.INSERTION_STATE, stateIndex);
 	}
 	
 	public void setOperationDuration(AbstractOperation operation, Double duration) {

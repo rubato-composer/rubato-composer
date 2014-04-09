@@ -285,7 +285,7 @@ public class BigBangTransformationGraphTest extends TestCase {
 		TestCase.assertEquals(4, this.model.getTransformationGraph().getEdgeCount());
 		
 		//insert a translation before the second one and check graph structure
-		this.model.setInsertionState(this.getCompStateAt(1));
+		this.model.setInsertionState(1);
 		this.model.translateObjects(properties);
 		TestCase.assertEquals(6, this.model.getTransformationGraph().getVertexCount());
 		TestCase.assertEquals(5, this.model.getTransformationGraph().getEdgeCount());

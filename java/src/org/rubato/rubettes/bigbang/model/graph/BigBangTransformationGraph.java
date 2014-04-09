@@ -44,15 +44,18 @@ public class BigBangTransformationGraph extends DirectedSparseMultigraph<Composi
 	
 	private CompositionState insertNewCompositionStateAfter(CompositionState state) {
 		int stateIndex = this.compositionStates.indexOf(state);
-		//increment indices of later states
-		for (int i = stateIndex+1; i <  this.compositionStates.size(); i++) {
-			this.compositionStates.get(i).incrementIndex();
+		if (stateIndex >= 0) {
+			//increment indices of later states
+			for (int i = stateIndex+1; i <  this.compositionStates.size(); i++) {
+				this.compositionStates.get(i).incrementIndex();
+			}
+			//add new state
+			CompositionState newState = new CompositionState(stateIndex+1);
+			this.compositionStates.add(stateIndex+1, newState);
+			this.addVertex(newState);
+			return newState;
 		}
-		//add new state
-		CompositionState newState = new CompositionState(stateIndex+1);
-		this.compositionStates.add(stateIndex+1, newState);
-		this.addVertex(newState);
-		return newState;
+		return null;
 	}
 	
 	private void removeCompositionState(CompositionState state) {
@@ -93,8 +96,11 @@ public class BigBangTransformationGraph extends DirectedSparseMultigraph<Composi
 		this.selectCompositionState(null);
 	}
 	
-	public CompositionState getSelectedCompositionState() {
-		return this.selectedCompositionState;
+	public Integer getSelectedCompositionState() {
+		if (this.selectedCompositionState != null) {
+			return this.selectedCompositionState.getIndex();
+		}
+		return null;
 	}
 	
 	public void selectOperation(AbstractOperation operation) {
@@ -105,12 +111,19 @@ public class BigBangTransformationGraph extends DirectedSparseMultigraph<Composi
 		return this.selectedOperation;
 	}
 	
-	public void setInsertionState(CompositionState state) {
-		this.insertionState = state;
+	public void setInsertionState(Integer stateIndex) {
+		if (stateIndex != null && stateIndex >= 0) {
+			this.insertionState = this.compositionStates.get(stateIndex);
+		} else {
+			this.insertionState = null;
+		}
 	}
 	
-	public CompositionState getInsertionState() {
-		return this.insertionState;
+	public Integer getInsertionState() {
+		if (this.insertionState != null) {
+			return this.insertionState.getIndex();
+		}
+		return null;
 	}
 	
 	/**

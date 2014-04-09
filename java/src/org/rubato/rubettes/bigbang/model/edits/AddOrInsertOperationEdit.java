@@ -3,15 +3,15 @@ package org.rubato.rubettes.bigbang.model.edits;
 import javax.swing.undo.AbstractUndoableEdit;
 
 import org.rubato.rubettes.bigbang.model.graph.BigBangTransformationGraph;
-import org.rubato.rubettes.bigbang.model.graph.CompositionState;
 import org.rubato.rubettes.bigbang.model.operations.AbstractOperation;
 
 public class AddOrInsertOperationEdit extends AbstractUndoableEdit {
 	
 	private BigBangTransformationGraph graph;
 	private AbstractOperation operation;
-	private CompositionState startingState;
+	private Integer startingState;
 	private boolean isInsertion;
+	private AbstractOperation parallelOperation;
 	
 	public AddOrInsertOperationEdit(AbstractOperation operation, BigBangTransformationGraph graph) {
 		this.graph = graph;
@@ -23,19 +23,22 @@ public class AddOrInsertOperationEdit extends AbstractUndoableEdit {
 			this.isInsertion = false;
 			this.startingState = this.graph.getSelectedCompositionState();
 		}
+		this.parallelOperation = this.graph.getSelectedOperation();
 	}
 	
 	public void execute() {
-		CompositionState previouslySelectedState = this.graph.getSelectedCompositionState();
+		Integer previouslySelectedState = this.graph.getSelectedCompositionState();
 		if (this.isInsertion) {
 			this.graph.setInsertionState(this.startingState);
 		} else {
-			this.graph.selectCompositionState(this.startingState);
+			this.graph.setInsertionState(null);
+			this.graph.selectCompositionStateAt(this.startingState);
 		}
+		this.graph.selectOperation(this.parallelOperation);
 		this.graph.addOrInsertOperation(this.operation, true);
 		//only show selected state if insertion. otherwise show last (new) state
 		if (this.isInsertion) {
-			this.graph.selectCompositionState(previouslySelectedState);
+			this.graph.selectCompositionStateAt(previouslySelectedState);
 		}/* else {
 			this.graph.selectCompositionState(null);
 		}*/
