@@ -3,6 +3,7 @@ package org.rubato.rubettes.bigbang.model.operations;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.rubato.math.yoneda.Form;
 import org.rubato.rubettes.bigbang.model.BigBangModel;
@@ -10,6 +11,8 @@ import org.rubato.rubettes.bigbang.model.OperationPathResults;
 import org.rubato.rubettes.util.DenotatorPath;
 
 public class AddObjectsOperation extends AbstractOperation {
+	
+	private final int MAX_DISTANCE_FOR_UNADDING = 5;
 	
 	//TODO these paths will be replaced by BigBangObjects and powerset indices
 	private List<DenotatorPath> definitePowersetPaths;
@@ -140,6 +143,38 @@ public class AddObjectsOperation extends AbstractOperation {
 		for (int i = 0; i < pathsWithValues.size(); i++) {
 			thisPowersetPaths.add(powersetPaths.get(i));
 			thisPathsWithValues.add(pathsWithValues.get(i));
+		}
+	}
+	
+	public void unAddObjects(Set<Map<DenotatorPath,Double>> pathsWithValues) {
+		for (Map<DenotatorPath,Double> currentPathsWithValues : pathsWithValues) {
+			this.removeClosestObject(currentPathsWithValues);
+		}
+		this.updateOperation();
+	}
+	
+	private void removeClosestObject(Map<DenotatorPath,Double> pathsWithValues) {
+		int closestObjectIndex = -1;
+		double shortestDistance = Double.MAX_VALUE;
+		for (int i = 0; i < this.definitePathsWithValues.size(); i++) {
+			Map<DenotatorPath,Double> currentPathsWithValues = this.definitePathsWithValues.get(i);
+			//calculate Euclidean distance
+			double currentDistance = 0;
+			for (DenotatorPath currentPath : pathsWithValues.keySet()) {
+				Double currentValue = currentPathsWithValues.get(currentPath);
+				if (currentValue != null) {
+					currentDistance += Math.pow(currentValue-pathsWithValues.get(currentPath), 2);
+				}
+			}
+			currentDistance = Math.sqrt(currentDistance);
+			if (currentDistance < shortestDistance) {
+				shortestDistance = currentDistance;
+				closestObjectIndex = i;
+			}
+		}
+		if (closestObjectIndex >= 0 && shortestDistance <= MAX_DISTANCE_FOR_UNADDING) {
+			this.definitePathsWithValues.remove(closestObjectIndex);
+			this.definitePowersetPaths.remove(closestObjectIndex);
 		}
 	}
 	

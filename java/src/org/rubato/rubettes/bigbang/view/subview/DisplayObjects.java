@@ -208,6 +208,10 @@ public class DisplayObjects {
 		return examplePowersetPath;
 	}
 	
+	public BigBangObject getClosestBBObject(int[] coordinateSystemValueIndices, double[] values) {
+		return this.bbObjects.getClosestObject(coordinateSystemValueIndices, values, null);
+	}
+	
 	public List<Form> getObjectTypes() {
 		return this.bbObjects.getObjectTypes();
 	}

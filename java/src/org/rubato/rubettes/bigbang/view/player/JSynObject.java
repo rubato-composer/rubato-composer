@@ -300,7 +300,7 @@ public class JSynObject implements Comparable<JSynObject> {
 	}
 	
 	public String toString() {
-		return "(" + this.getOnset() + " " + this.getFrequencies() + " " + this.getAmplitude() + " " + this.getDuration() + ")";
+		return "(" + this.getOnset() + " " + this.getFrequencies() + " " + this.getAmplitude() + " " + this.getDuration() + " " + this.getRate() + ")";
 	}
 	
 	public int compareTo(JSynObject other) {

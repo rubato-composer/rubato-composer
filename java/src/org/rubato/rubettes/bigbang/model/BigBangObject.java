@@ -286,7 +286,7 @@ public class BigBangObject implements Comparable<BigBangObject> {
 			if (other.topDenotatorPaths.containsKey(currentOperation)) {
 				thisPath = this.getTopDenotatorPathAt(currentOperation);
 				otherPath = other.getTopDenotatorPathAt(currentOperation);
-				if (thisPath != null && otherPath != null) {
+				if (thisPath != null && otherPath != null && !thisPath.equals(otherPath)) {
 					return thisPath.compareTo(otherPath);
 				}
 			}

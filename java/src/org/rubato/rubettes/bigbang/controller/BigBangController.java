@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
+import java.util.TreeSet;
 
 import org.rubato.math.matrix.RMatrix;
 import org.rubato.math.yoneda.Form;
@@ -48,6 +49,7 @@ public class BigBangController extends Controller {
 	public static final String COMPOSITION = "Composition";
 	public static final String OBJECT_SELECTION = "ObjectSelection";
 	public static final String ADD_OBJECTS = "addObjects";
+	public static final String UNADD_OBJECTS = "unAddObjects";
 	public static final String DELETE_OBJECTS = "deleteObjects";
 	
 	public static final String TRANSLATE_OBJECTS = "translateObjects";
@@ -181,6 +183,10 @@ public class BigBangController extends Controller {
 	
 	public void addObjects(List<Map<DenotatorPath,Double>> denotatorValues, List<DenotatorPath> powersetPaths, boolean inPreviewMode) {
 		this.callModelMethod(BigBangController.ADD_OBJECTS, denotatorValues, powersetPaths, inPreviewMode);
+	}
+	
+	public void unAddObjects(Set<Map<DenotatorPath,Double>> pathsWithValues) {
+		this.callModelMethod(BigBangController.UNADD_OBJECTS, pathsWithValues);
 	}
 	
 	public void deleteObjects(Set<BigBangObject> objects) {

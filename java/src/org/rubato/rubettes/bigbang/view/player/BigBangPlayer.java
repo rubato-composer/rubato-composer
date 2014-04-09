@@ -5,8 +5,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
-import org.rubato.rubettes.bigbang.view.io.BigBangMidiTransmitter;
-
 import com.jsyn.JSyn;
 import com.jsyn.Synthesizer;
 import com.jsyn.unitgen.SawtoothOscillator;
@@ -99,7 +97,7 @@ public class BigBangPlayer {
 		if (this.isPlaying) {
 			for (JSynPerformance performance : this.currentPerformances.values()) {
 				performance.updateStartOrChangeTimes();
-				performance.replaceScore(score);
+				performance.replaceScore(this.score);
 			}
 		}
 	}

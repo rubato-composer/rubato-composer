@@ -69,6 +69,7 @@ public class ViewController extends Controller {
 	public static final String MAX_SATELLITE_LEVEL = "setSatelliteLevels";
 	public static final String ACTIVE_SATELLITE_LEVEL = "setActiveSatelliteLevel";
 	public static final String ADD_OBJECTS = "addObjects";
+	public static final String UNADD_OBJECTS = "unAddObjects";
 	public static final String DELETE_OBJECTS = "deleteSelectedObjects";
 	
 	public static final String ADD_TO_LAYER = "addSelectedObjectsToLayer";
@@ -268,6 +269,10 @@ public class ViewController extends Controller {
 
 	public void addObjects(ArrayList<PointND> locations, boolean inPreviewMode) {
 		this.callModelMethod(ViewController.ADD_OBJECTS, locations, inPreviewMode);
+	}
+	
+	public void unAddObjects(ArrayList<PointND> locations) {
+		this.callModelMethod(ViewController.UNADD_OBJECTS, locations);
 	}
 	
 	public void deleteSelectedObjects() {

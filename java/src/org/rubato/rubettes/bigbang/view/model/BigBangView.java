@@ -613,6 +613,23 @@ public class BigBangView extends Model implements View {
 		}
 	}
 	
+	public void unAddObjects(ArrayList<PointND> locations) {
+		Set<Map<DenotatorPath,Double>> objectValues = new TreeSet<Map<DenotatorPath,Double>>();
+		if (this.displayObjects != null && this.displayMode instanceof DrawingModeAdapter) {
+			for (PointND currentLocation : locations) {
+				Map<DenotatorPath,Double> currentValues = this.displayObjects.getActiveObjectStandardValues(this.standardDenotatorValues);
+				this.editObjectValuesAndFindClosestPowerset(currentLocation, currentValues);
+				//only add object if there are some screen values to be converted
+				if (!currentValues.isEmpty()) {
+					objectValues.add(currentValues);
+				}
+			}
+		}
+		if (objectValues.size() > 0) {
+			this.controller.unAddObjects(objectValues);
+		}
+	}
+	
 	public void deleteSelectedObjects() {
 		Set<BigBangObject> objects = this.displayObjects.getSelectedBigBangObjects();
 		if (objects.size() > 0) {
