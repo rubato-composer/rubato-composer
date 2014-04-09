@@ -163,7 +163,7 @@ public abstract class NoteGenerator {
 	 * @param pitch - the pitch of the new note
 	 */
 	public void addNoteToMelody(double pitch) {
-		Denotator note = this.createNoteDenotator(this.currentOnset, pitch, 120, 1, 0, 0);
+		Denotator note = this.createNoteDenotator(this.currentOnset, pitch, 120, 1, 0);
 		this.currentMelody.add(note);
 		this.currentOnset += this.noteDistance;
 	}
@@ -183,7 +183,7 @@ public abstract class NoteGenerator {
 	 * @param values
 	 */
 	public LimitDenotator createNoteDenotator(double[] values) {
-		return this.createNoteDenotator(values[0], values[1], (int)Math.round(values[2]), values[3], (int)Math.round(values[4]), (int)Math.round(values[5]));
+		return this.createNoteDenotator(values[0], values[1], (int)Math.round(values[2]), values[3], (int)Math.round(values[4]));
 	}
 	
 	/**
@@ -194,14 +194,13 @@ public abstract class NoteGenerator {
 	 * @param loudness
 	 * @param duration
 	 */
-	public LimitDenotator createNoteDenotator(double onset, double pitch, int loudness, double duration, int voice, int layer) {
+	public LimitDenotator createNoteDenotator(double onset, double pitch, int loudness, double duration, int voice) {
 		List<ModuleElement> elements = new ArrayList<ModuleElement>();
 		elements.add(new RElement(onset));
 		elements.add(new QElement(new Rational(pitch)));
 		elements.add(new ZElement(loudness));
 		elements.add(new RElement(duration));
 		elements.add(new ZElement(voice));
-		elements.add(new ZElement(layer));
 		return this.createNoteDenotator(elements);
 	}
 	
@@ -230,7 +229,6 @@ public abstract class NoteGenerator {
 			coordinates.add(new SimpleDenotator(this.emptyName, this.loudnessForm, elements.get(2)));
 			coordinates.add(new SimpleDenotator(this.emptyName, this.durationForm, elements.get(3)));
 			coordinates.add(new SimpleDenotator(this.emptyName, this.voiceForm, elements.get(4)));
-			coordinates.add(new SimpleDenotator(this.emptyName, this.layerForm, elements.get(5)));
 			
 			//this takes a lot of time compared to the other operations
 			return this.createSpecificNoteDenotator(coordinates);
@@ -248,7 +246,6 @@ public abstract class NoteGenerator {
 			coordinates.add(new SimpleDenotator(this.emptyName, this.loudnessForm, elements.get(2)));
 			coordinates.add(new SimpleDenotator(this.emptyName, this.durationForm, elements.get(3)));
 			coordinates.add(new SimpleDenotator(this.emptyName, this.voiceForm, elements.get(4)));
-			coordinates.add(new SimpleDenotator(this.emptyName, this.layerForm, elements.get(5)));
 			coordinates.add(modulators);
 			
 			//this takes a lot of time compared to the other operations

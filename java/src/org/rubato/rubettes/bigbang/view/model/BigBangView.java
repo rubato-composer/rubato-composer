@@ -22,6 +22,7 @@ import org.rubato.rubettes.bigbang.model.BigBangObjects;
 import org.rubato.rubettes.bigbang.model.Model;
 import org.rubato.rubettes.bigbang.model.denotators.TransformationPaths;
 import org.rubato.rubettes.bigbang.model.denotators.TransformationProperties;
+import org.rubato.rubettes.bigbang.model.graph.CompositionState;
 import org.rubato.rubettes.bigbang.model.operations.AbstractLocalTransformation;
 import org.rubato.rubettes.bigbang.model.operations.AbstractOperation;
 import org.rubato.rubettes.bigbang.model.operations.AbstractTransformation;
@@ -390,9 +391,14 @@ public class BigBangView extends Model implements View {
 		this.firePropertyChange(ViewController.ACTIVE_SATELLITE_LEVEL, null, satelliteLevel);
 	}
 	
-	public void selectCompositionState(Integer vertex) {
-		this.firePropertyChange(ViewController.SELECT_COMPOSITION_STATE, null, vertex);
-		this.controller.selectCompositionState(vertex);
+	public void selectCompositionState(CompositionState state) {
+		this.firePropertyChange(ViewController.SELECT_COMPOSITION_STATE, null, state);
+		this.controller.selectCompositionState(state);
+	}
+	
+	public void selectCompositionState(Integer stateIndex) {
+		this.firePropertyChange(ViewController.SELECT_COMPOSITION_STATE, null, stateIndex);
+		this.controller.selectCompositionState(stateIndex);
 	}
 	
 	public void deselectCompositionStates() {
@@ -611,6 +617,7 @@ public class BigBangView extends Model implements View {
 		Set<BigBangObject> objects = this.displayObjects.getSelectedBigBangObjects();
 		if (objects.size() > 0) {
 			this.controller.deleteObjects(objects);
+			this.displayObjects.deselectAllObjects();
 		}
 	}
 	

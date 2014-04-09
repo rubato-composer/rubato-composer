@@ -21,6 +21,7 @@ import org.rubato.rubettes.bigbang.model.edits.AddOrInsertOperationEdit;
 import org.rubato.rubettes.bigbang.model.edits.RemoveOperationEdit;
 import org.rubato.rubettes.bigbang.model.graph.BigBangGraphAnimator;
 import org.rubato.rubettes.bigbang.model.graph.BigBangTransformationGraph;
+import org.rubato.rubettes.bigbang.model.graph.CompositionState;
 import org.rubato.rubettes.bigbang.model.operations.AbstractOperation;
 import org.rubato.rubettes.bigbang.model.operations.AbstractTransformation;
 import org.rubato.rubettes.bigbang.model.operations.AddObjectsOperation;
@@ -148,6 +149,12 @@ public class BigBangModel extends Model {
 	}
 	
 	public void deleteObjects(TreeSet<BigBangObject> objects) {
+		AbstractOperation lastEdit = this.transformationGraph.getLastAddedOperation();
+		if (lastEdit != null && lastEdit instanceof DeleteObjectsEdit) {
+			((DeleteObjectsEdit)lastEdit).addObjects(objects);
+			this.operationModified();
+			return;
+		}
 		this.addOperation(new DeleteObjectsEdit(this, objects));
 	}
 	
@@ -274,11 +281,21 @@ public class BigBangModel extends Model {
 		this.postEdit(edit);
 	}
 	
+	public void removeOperation(AbstractOperation operation) {
+		RemoveOperationEdit edit = new RemoveOperationEdit(operation, this.transformationGraph);
+		edit.execute();
+		this.postEdit(edit);
+		this.objects.removeOperation(operation);
+		this.updateComposition();
+		this.firePropertyChange(BigBangController.GRAPH, null, this.transformationGraph);
+	}
+	
 	private void postEdit(AbstractUndoableEdit edit) {
 		this.undoSupport.postEdit(edit);
 		this.updateComposition();
 		this.firePropertyChange(BigBangController.UNDO, null, this.undoManager);
 		this.firePropertyChange(BigBangController.GRAPH, null, this.transformationGraph);
+		this.firePropertyChange(BigBangController.SELECT_COMPOSITION_STATE, null, this.transformationGraph.getSelectedCompositionState());
 	}
 	
 	public void operationModified() {
@@ -288,8 +305,8 @@ public class BigBangModel extends Model {
 	
 	public void modifyOperation(Integer operationIndex, Double ratio) {
 		if (operationIndex >= 0 && this.transformationGraph.getEdgeCount() > operationIndex) {
-			DijkstraShortestPath<Integer,AbstractOperation> dijkstra = new DijkstraShortestPath<Integer,AbstractOperation>(this.transformationGraph);
-		    List<AbstractOperation> shortestPath = dijkstra.getPath(0, this.transformationGraph.getLastState());
+			DijkstraShortestPath<CompositionState,AbstractOperation> dijkstra = new DijkstraShortestPath<CompositionState,AbstractOperation>(this.transformationGraph);
+		    List<AbstractOperation> shortestPath = dijkstra.getPath(this.transformationGraph.getFirstState(), this.transformationGraph.getLastState());
 		    AbstractOperation operation = shortestPath.get(operationIndex);
 		    operation.modify(ratio);
 			this.updateComposition();
@@ -301,23 +318,13 @@ public class BigBangModel extends Model {
 		this.transformationGraph.setDurations(duration);
 	}
 	
-	public void setInsertionState(Integer state) {
+	public void setInsertionState(CompositionState state) {
 		this.transformationGraph.setInsertionState(state);
-	}
-	
-	public void removeOperation(AbstractOperation operation) {
-		RemoveOperationEdit edit = new RemoveOperationEdit(operation, this.transformationGraph);
-		edit.execute();
-		this.postEdit(edit);
-		this.transformationGraph.removeOperation(operation);
-		this.objects.removeOperation(operation);
-		this.updateComposition();
-		this.firePropertyChange(BigBangController.GRAPH, null, this.transformationGraph);
 	}
 	
 	public void undo() {
 		AbstractOperation lastAddedOperation = this.transformationGraph.getLastAddedOperation();
-		int state = this.transformationGraph.getSource(lastAddedOperation);
+		CompositionState state = this.transformationGraph.getSource(lastAddedOperation);
 		//this.undoneOperations.add(this.transformationGraph.removeLastAddedOperation());
 		this.undoManager.undo();
 		this.updateComposition();
@@ -333,7 +340,13 @@ public class BigBangModel extends Model {
 		this.firePropertyChange(BigBangController.GRAPH, null, this.transformationGraph);
 	}
 	
-	public void selectCompositionState(Integer vertex) {
+	public void selectCompositionState(Integer stateIndex) {
+		this.transformationGraph.selectCompositionStateAt(stateIndex);
+		this.updateComposition();
+		this.firePropertyChange(BigBangController.SELECT_COMPOSITION_STATE, null, this.transformationGraph.getSelectedCompositionState());
+	}
+	
+	public void selectCompositionState(CompositionState vertex) {
 		this.transformationGraph.selectCompositionState(vertex);
 		this.updateComposition();
 		this.firePropertyChange(BigBangController.SELECT_COMPOSITION_STATE, null, vertex);
@@ -401,22 +414,6 @@ public class BigBangModel extends Model {
 		return this.transformationGraph;
 	}
 	
-	private void updateComposition(boolean inPreviewMode, int stateToBeShown) {
-		//select right composition state so that new transformation is shown!!
-		Integer previouslySelectedState = this.transformationGraph.getSelectedCompositionState();
-		if (inPreviewMode && previouslySelectedState != null && previouslySelectedState < stateToBeShown) {
-			this.transformationGraph.selectCompositionState(stateToBeShown);
-		}
-		this.updateComposition();
-		//deselect state after operation in case it was selected for preview purposes
-		if (inPreviewMode && previouslySelectedState != null && previouslySelectedState < stateToBeShown) {
-			this.transformationGraph.selectCompositionState(previouslySelectedState);
-		//if state was selected before, select the one after the inserted operation 
-		} else if (previouslySelectedState != null && previouslySelectedState == stateToBeShown-1) {
-			this.transformationGraph.selectCompositionState(stateToBeShown);
-		}
-	}
-	
 	public void updateComposition() {
 		if (this.transformationGraph.getEdgeCount() > 0) {
 			List<AbstractOperation> operationsToBeExecuted = this.transformationGraph.getCurrentlyExecutedOperationsInOrder();
@@ -445,6 +442,7 @@ public class BigBangModel extends Model {
 			this.fireCompositionChange();
 		} else {
 			this.objects.clearObjects();
+			this.denotators.reset();
 			this.fireCompositionChange();
 		}
 	}

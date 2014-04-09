@@ -14,6 +14,7 @@ import javax.swing.JPanel;
 import javax.swing.JSlider;
 
 import org.rubato.rubettes.bigbang.controller.BigBangController;
+import org.rubato.rubettes.bigbang.model.graph.CompositionState;
 import org.rubato.rubettes.bigbang.model.operations.AbstractOperation;
 import org.rubato.rubettes.bigbang.view.View;
 import org.rubato.rubettes.bigbang.view.controller.AnimationPositionListener;
@@ -43,16 +44,16 @@ public class JGraphPanel extends JPanel implements View, ActionListener {
 	
 	private BigBangController bbController;
 	private ViewController controller;
-	private FRLayout2<Integer,AbstractOperation> layout;
-	private VisualizationViewer<Integer,AbstractOperation> graphViewer;
-	private EditingModalGraphMouse<Integer,AbstractOperation> graphMouse;
+	private FRLayout2<CompositionState,AbstractOperation> layout;
+	private VisualizationViewer<CompositionState,AbstractOperation> graphViewer;
+	private EditingModalGraphMouse<CompositionState,AbstractOperation> graphMouse;
 	private JPanel northPanel;
 	private JButton animateButton;
 	private JButton splitButton;
 	private JSlider animateSlider;
 	private JComboBox modeSelektor;
 	private JLabel statusBar;
-	private Integer pickedState;
+	private CompositionState pickedState;
 	private AbstractOperation pickedOperation;
 	
 	public JGraphPanel(ViewController controller, BigBangController bbController) {
@@ -90,7 +91,7 @@ public class JGraphPanel extends JPanel implements View, ActionListener {
 		}
 	}
 	
-	private void updateGraph(Graph<Integer,AbstractOperation> graph) {
+	private void updateGraph(Graph<CompositionState,AbstractOperation> graph) {
 		if (graph != null) {
 			if (this.layout == null) {
 				this.initLayoutAndViewer();
@@ -100,8 +101,8 @@ public class JGraphPanel extends JPanel implements View, ActionListener {
 			Relaxer relaxer = new VisRunner(this.layout);
 			relaxer.stop();
 			relaxer.prerelax();
-			StaticLayout<Integer,AbstractOperation> staticLayout = new StaticLayout<Integer,AbstractOperation>(graph, this.layout);
-			LayoutTransition<Integer,AbstractOperation> transition = new LayoutTransition<Integer,AbstractOperation>(this.graphViewer, this.graphViewer.getGraphLayout(), staticLayout);
+			StaticLayout<CompositionState,AbstractOperation> staticLayout = new StaticLayout<CompositionState,AbstractOperation>(graph, this.layout);
+			LayoutTransition<CompositionState,AbstractOperation> transition = new LayoutTransition<CompositionState,AbstractOperation>(this.graphViewer, this.graphViewer.getGraphLayout(), staticLayout);
 			Animator animator = new Animator(transition);
 			animator.start();
 			this.graphViewer.getRenderContext().getMultiLayerTransformer().setToIdentity();
@@ -111,7 +112,7 @@ public class JGraphPanel extends JPanel implements View, ActionListener {
 	
 	private void initLayoutAndViewer() {
 		//init layout and viewer
-		this.layout = new FRLayout2<Integer,AbstractOperation>(new DirectedSparseGraph<Integer,AbstractOperation>());
+		this.layout = new FRLayout2<CompositionState,AbstractOperation>(new DirectedSparseGraph<CompositionState,AbstractOperation>());
 		this.layout.setSize(new Dimension(300,JBigBangPanel.CENTER_PANEL_HEIGHT-this.NORTHPANEL_HEIGHT));
 		//this.layout.setForceMultiplier(.02);
 		//this.layout.setRepulsionRange(30);
@@ -120,19 +121,19 @@ public class JGraphPanel extends JPanel implements View, ActionListener {
 		relaxer.stop();
 		relaxer.prerelax();
 		//Layout<Integer,AbstractOperationEdit> staticLayout = new StaticLayout<Integer,AbstractOperationEdit>(g, this.layout);
-		this.graphViewer = new VisualizationViewer<Integer,AbstractOperation>(this.layout);
+		this.graphViewer = new VisualizationViewer<CompositionState,AbstractOperation>(this.layout);
 		this.graphViewer.setMinimumSize(new Dimension(300,JBigBangPanel.CENTER_PANEL_HEIGHT-this.NORTHPANEL_HEIGHT));
 		//this.graphViewer.getModel().getRelaxer().setSleepTime(10);
 		
 		//init labels
-		this.graphViewer.getRenderContext().setVertexLabelTransformer(new ToStringLabeller<Integer>());
+		this.graphViewer.getRenderContext().setVertexLabelTransformer(new ToStringLabeller<CompositionState>());
 		this.graphViewer.getRenderContext().setEdgeLabelTransformer(new ToStringLabeller<AbstractOperation>());
 		this.graphViewer.getRenderer().getVertexLabelRenderer().setPosition(Position.CNTR);
 		
 		//init mouse commands
 		VertexFactory vf = new VertexFactory(this.layout);
 		EdgeFactory ef = new EdgeFactory(this.layout);
-		this.graphMouse = new EditingModalGraphMouse<Integer,AbstractOperation>(this.graphViewer.getRenderContext(), vf, ef);
+		this.graphMouse = new EditingModalGraphMouse<CompositionState,AbstractOperation>(this.graphViewer.getRenderContext(), vf, ef);
 		//this.setMode(Mode.PICKING);
 		
 		PopupVertexEdgeMenuMousePlugin myPlugin = new PopupVertexEdgeMenuMousePlugin(this.bbController);
@@ -173,7 +174,7 @@ public class JGraphPanel extends JPanel implements View, ActionListener {
 	public void modelPropertyChange(PropertyChangeEvent event) {
 		String propertyName = event.getPropertyName();
 		if (propertyName.equals(BigBangController.GRAPH)) {
-			Graph<Integer,AbstractOperation> graph = ((Graph<Integer,AbstractOperation>)event.getNewValue());
+			Graph<CompositionState,AbstractOperation> graph = ((Graph<CompositionState,AbstractOperation>)event.getNewValue());
 			this.updateGraph(graph);
 			this.updateStatusBar();
 		} else if (propertyName.equals(ViewController.SELECT_OPERATION)) {
@@ -185,7 +186,7 @@ public class JGraphPanel extends JPanel implements View, ActionListener {
 		} else if (propertyName.equals(BigBangController.GRAPH_ANIMATION_POSITION)) {
 			this.animateSlider.setValue((int)Math.round((Double)event.getNewValue()*(this.animateSlider.getMaximum()-this.animateSlider.getMinimum())));
 		} else if (propertyName.equals(ViewController.SELECT_COMPOSITION_STATE)) {
-			this.selectState((Integer)event.getNewValue());
+			this.selectState((CompositionState)event.getNewValue());
 		} else if (propertyName.equals(ViewController.DESELECT_COMPOSITION_STATES)) {
 			this.selectState(null);
 		}
@@ -210,7 +211,7 @@ public class JGraphPanel extends JPanel implements View, ActionListener {
 		this.updateStatusBar();
 	}
 	
-	private void selectState(Integer state) {
+	private void selectState(CompositionState state) {
 		if (state != null) {
 			if (this.pickedState != state) {
 				if (this.pickedState != null) {

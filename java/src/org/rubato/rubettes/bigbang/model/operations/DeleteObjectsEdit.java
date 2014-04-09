@@ -10,8 +10,12 @@ import org.rubato.rubettes.util.DenotatorPath;
 
 public class DeleteObjectsEdit extends AbstractPathBasedOperation {
 	
-	public DeleteObjectsEdit(BigBangModel model, Set<BigBangObject> objectList) {
-		super(model, objectList);
+	public DeleteObjectsEdit(BigBangModel model, Set<BigBangObject> objects) {
+		super(model, objects);
+	}
+	
+	public void addObjects(Set<BigBangObject> objects) {
+		super.addObjects(objects);
 	}
 	
 	@Override

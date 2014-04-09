@@ -20,6 +20,7 @@ import org.rubato.rubettes.bigbang.model.BigBangModel;
 import org.rubato.rubettes.bigbang.model.BigBangObject;
 import org.rubato.rubettes.bigbang.model.denotators.TransformationPaths;
 import org.rubato.rubettes.bigbang.model.denotators.TransformationProperties;
+import org.rubato.rubettes.bigbang.model.graph.CompositionState;
 import org.rubato.rubettes.bigbang.model.operations.AbstractOperation;
 import org.rubato.rubettes.bigbang.model.operations.AddObjectsOperation;
 import org.rubato.rubettes.bigbang.model.operations.ScalingEdit;
@@ -231,12 +232,12 @@ public class BigBangTransformationGraphTest extends TestCase {
 		TestCase.assertEquals(4, this.model.getTransformationGraph().getEdgeCount());
 		
 		//add a translation starting at state 3 and check graph structure
-		this.model.selectCompositionState(3);
+		this.model.selectCompositionState(this.model.getTransformationGraph().getCompositionStateAt(3));
 		this.model.translateObjects(properties);
 		TestCase.assertEquals(6, this.model.getTransformationGraph().getVertexCount());
 		TestCase.assertEquals(5, this.model.getTransformationGraph().getEdgeCount());
 		AbstractOperation lastEdit = this.model.getTransformationGraph().getLastAddedOperation(); 
-		TestCase.assertEquals(new Pair<Integer>(3,5), this.model.getTransformationGraph().getEndpoints(lastEdit));
+		TestCase.assertEquals(new Pair<CompositionState>(this.getCompStateAt(3), this.getCompStateAt(5)), this.model.getTransformationGraph().getEndpoints(lastEdit));
 	}
 	
 	public void testAddParallelEdge() {
@@ -263,7 +264,7 @@ public class BigBangTransformationGraphTest extends TestCase {
 		TestCase.assertEquals(5, this.model.getTransformationGraph().getEdgeCount());
 		AbstractOperation lastEdit = this.model.getTransformationGraph().getLastAddedOperation(); 
 		//System.out.println(this.model.getTransformationGraph());
-		TestCase.assertEquals(new Pair<Integer>(3,4), this.model.getTransformationGraph().getEndpoints(lastEdit));
+		TestCase.assertEquals(new Pair<CompositionState>(this.getCompStateAt(3), this.getCompStateAt(4)), this.model.getTransformationGraph().getEndpoints(lastEdit));
 	}
 	
 	public void testInsertEdge() {
@@ -284,7 +285,7 @@ public class BigBangTransformationGraphTest extends TestCase {
 		TestCase.assertEquals(4, this.model.getTransformationGraph().getEdgeCount());
 		
 		//insert a translation before the second one and check graph structure
-		this.model.setInsertionState(1);
+		this.model.setInsertionState(this.getCompStateAt(1));
 		this.model.translateObjects(properties);
 		TestCase.assertEquals(6, this.model.getTransformationGraph().getVertexCount());
 		TestCase.assertEquals(5, this.model.getTransformationGraph().getEdgeCount());
@@ -309,33 +310,33 @@ public class BigBangTransformationGraphTest extends TestCase {
 		
 		//move to beginning of the translation, select it, and split
 		this.model.setGraphAnimationPosition(.6); //at .4 of translation (4*.1)
-		this.model.selectOperation(this.model.getTransformationGraph().getOutEdges(2).iterator().next());
+		this.model.selectOperation(this.model.getTransformationGraph().getOutEdges(this.getCompStateAt(2)).iterator().next());
 		this.model.splitOperation();
 		
 		//check number of nodes and edges and the shifts of the resulting translations
 		TestCase.assertEquals(6, this.model.getTransformationGraph().getVertexCount());
 		TestCase.assertEquals(5, this.model.getTransformationGraph().getEdgeCount());
-		TranslationEdit firstPart = (TranslationEdit)this.model.getTransformationGraph().getOutEdges(2).iterator().next();
+		TranslationEdit firstPart = (TranslationEdit)this.model.getTransformationGraph().getOutEdges(this.getCompStateAt(2)).iterator().next();
 		TestCase.assertEquals(0.0, firstPart.getStartingPoint()[1]);
 		//cope with rounding error
 		TestCase.assertEquals(0.4, ((double)Math.round(firstPart.getEndingPoint()[1]*1000))/1000);
-		TranslationEdit secondPart = (TranslationEdit)this.model.getTransformationGraph().getOutEdges(3).iterator().next();
+		TranslationEdit secondPart = (TranslationEdit)this.model.getTransformationGraph().getOutEdges(this.getCompStateAt(3)).iterator().next();
 		TestCase.assertEquals(0.4, ((double)Math.round(1000*secondPart.getStartingPoint()[1]))/1000);
 		TestCase.assertEquals(1.0, ((double)Math.round(1000*secondPart.getEndingPoint()[1]))/1000);
 		
 		//move to beginning of the scaling, select it, and split
 		this.model.setGraphAnimationPosition(.9); //at .5 of scaling (5*.1)
-		this.model.selectOperation(this.model.getTransformationGraph().getOutEdges(4).iterator().next());
+		this.model.selectOperation(this.model.getTransformationGraph().getOutEdges(this.getCompStateAt(4)).iterator().next());
 		this.model.splitOperation();
 		
 		//check number of nodes and edges and the shifts of the resulting scalings
 		TestCase.assertEquals(7, this.model.getTransformationGraph().getVertexCount());
 		TestCase.assertEquals(6, this.model.getTransformationGraph().getEdgeCount());
-		ScalingEdit firstScalingPart = (ScalingEdit)this.model.getTransformationGraph().getOutEdges(4).iterator().next();
+		ScalingEdit firstScalingPart = (ScalingEdit)this.model.getTransformationGraph().getOutEdges(this.getCompStateAt(4)).iterator().next();
 		TestCase.assertEquals(0.0, firstScalingPart.getCenter()[1]);
 		//cope with rounding error
 		TestCase.assertEquals(1.5, ((double)Math.round(firstScalingPart.getScaleFactors()[1]*1000))/1000);
-		ScalingEdit secondScalingPart = (ScalingEdit)this.model.getTransformationGraph().getOutEdges(5).iterator().next();
+		ScalingEdit secondScalingPart = (ScalingEdit)this.model.getTransformationGraph().getOutEdges(this.getCompStateAt(5)).iterator().next();
 		TestCase.assertEquals(0.0, secondScalingPart.getCenter()[1]);
 		TestCase.assertEquals(1.5, ((double)Math.round(1000*secondScalingPart.getScaleFactors()[1]))/1000);
 	}
@@ -359,7 +360,7 @@ public class BigBangTransformationGraphTest extends TestCase {
 		TestCase.assertEquals(5, this.model.getTransformationGraph().getEdgeCount());
 		
 		//remove second translation and check graph structure
-		this.model.removeOperation(this.model.getTransformationGraph().findEdge(3, 4));
+		this.model.removeOperation(this.model.getTransformationGraph().findEdge(this.getCompStateAt(3), this.getCompStateAt(4)));
 		TestCase.assertEquals(5, this.model.getTransformationGraph().getVertexCount());
 		TestCase.assertEquals(4, this.model.getTransformationGraph().getEdgeCount());
 	}
@@ -565,6 +566,10 @@ public class BigBangTransformationGraphTest extends TestCase {
 	private TreeSet<BigBangObject> getBBObjectsFromModel(int fromIndex, int toIndex) {
 		List<BigBangObject> objectList = new ArrayList<BigBangObject>(this.model.getObjects().getAllObjects());
 		return new TreeSet<BigBangObject>(objectList.subList(fromIndex, toIndex));
+	}
+	
+	private CompositionState getCompStateAt(int index) {
+		return this.model.getTransformationGraph().getCompositionStateAt(index);
 	}
 
 }

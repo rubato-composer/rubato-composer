@@ -40,7 +40,6 @@ public class BigBangPlayer {
 	private double loopOnset;
 	private double loopDuration;
 	private List<Integer> keysOfCurrentPerformancesInOrder;
-	BigBangMidiTransmitter midiTransmitter;
 	
 	private boolean inLiveMidiMode;
 	
@@ -48,10 +47,6 @@ public class BigBangPlayer {
 	private boolean isPlaying;
 	
 	public BigBangPlayer() {
-		this(true);
-	}
-	
-	public BigBangPlayer(boolean enableMidi) {
 		this.synth = JSyn.createSynthesizer();
 		this.setWaveform(BigBangPlayer.WAVEFORMS[0]);
 		this.isLooping = false;
@@ -59,9 +54,6 @@ public class BigBangPlayer {
 		this.currentPerformances = new TreeMap<Integer,JSynPerformance>();
 		this.currentMonitorPitches = new TreeMap<Integer,JSynPerformance>();
 		this.keysOfCurrentPerformancesInOrder = new ArrayList<Integer>();
-		if (enableMidi) {
-			this.midiTransmitter = new BigBangMidiTransmitter();
-		}
 		this.setTempo(this.tempo);
 		this.setWaveform(BigBangPlayer.WAVEFORMS[0]);
 		this.isPlaying = false;
@@ -97,7 +89,6 @@ public class BigBangPlayer {
 			this.loopOnset = score.getObjects().iterator().next().getOnset();
 			this.loopDuration = this.getLastOffset()-this.loopOnset;
 		}
-		this.midiTransmitter.removeOldRepeaters(score);
 		this.updatePerformances();
 	}
 	
@@ -119,6 +110,10 @@ public class BigBangPlayer {
 	
 	public void setMidiActive(boolean midiActive) {
 		this.midiActive = midiActive;
+	}
+	
+	public boolean isMidiActive() {
+		return this.midiActive;
 	}
 	
 	public void setIsLooping(boolean isLooping) {
@@ -299,7 +294,6 @@ public class BigBangPlayer {
 		this.stopAllScoreVersions();
 		this.inLiveMidiMode = false;
 		this.synth.stop();
-		this.midiTransmitter.clear();
 		this.isPlaying = false;
 	}
 	
@@ -361,18 +355,6 @@ public class BigBangPlayer {
 			return 0.15;
 		}
 		return 0;
-	}
-	
-	public void scheduleMidiNote(JSynObject object, int onset, int duration) {
-		if (this.midiActive) {
-			this.midiTransmitter.scheduleNote(object, onset, duration);
-		}
-	}
-	
-	public void muteMidi(JSynObject object) {
-		if (this.midiActive) {
-			this.midiTransmitter.mute(object);
-		}
 	}
 	
 	private int getChannelPitchKey(int channel, int pitch) {

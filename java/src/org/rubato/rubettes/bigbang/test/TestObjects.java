@@ -53,15 +53,15 @@ public class TestObjects {
 	public final PowerForm INTEGER_OR_REALS_FORM = new PowerForm(NameDenotator.make("IntegerOrReals"), INTEGER_OR_REAL_FORM);
 	
 	public final double[][] ABSOLUTE = new double[][]{
-			{0,60,120,1,0,0},{1,63,116,1,0,0},{2,60,121,1,1,0}};
+			{0,60,120,1,0},{1,63,116,1,0},{2,60,121,1,1}};
 	public final double[][] RELATIVE = new double[][]{
-			{0,60,120,1,0,0},{1,3,-4,0,0,0},{1,-3,5,0,1,0}};
+			{0,60,120,1,0},{1,3,-4,0,0},{1,-3,5,0,1}};
 	
-	public final double[] NOTE0_VALUES = new double[]{0,60,120,1,0,0};
-	public final double[] NOTE1_ABSOLUTE_VALUES = new double[]{1,63,116,1,0,0};
-	public final double[] NOTE1_RELATIVE_VALUES = new double[]{1,3,-4,0,0,0};
-	public final double[] NOTE2_ABSOLUTE_VALUES = new double[]{2,60,121,1,1,0};
-	public final double[] NOTE2_RELATIVE_VALUES = new double[]{1,-3,5,0,1,0};
+	public final double[] NOTE0_VALUES = new double[]{0,60,120,1,0};
+	public final double[] NOTE1_ABSOLUTE_VALUES = new double[]{1,63,116,1,0};
+	public final double[] NOTE1_RELATIVE_VALUES = new double[]{1,3,-4,0,0};
+	public final double[] NOTE2_ABSOLUTE_VALUES = new double[]{2,60,121,1,1};
+	public final double[] NOTE2_RELATIVE_VALUES = new double[]{1,-3,5,0,1};
 	
 	public BigBangDenotatorManager denotatorManager;
 	public SoundNoteGenerator generator;
@@ -125,9 +125,9 @@ public class TestObjects {
 		notes.add(this.generator.createNoteDenotator(this.NOTE1_ABSOLUTE_VALUES));
 		notes.add(this.generator.createNoteDenotator(this.NOTE0_VALUES));
 		parentPaths = new ArrayList<DenotatorPath>();
-		parentPaths.add(new DenotatorPath(this.generator.getSoundScoreForm(), new int[]{0,0,6,1}));
+		parentPaths.add(new DenotatorPath(this.generator.getSoundScoreForm(), new int[]{0,0,5,1}));
 		parentPaths.add(new DenotatorPath(this.generator.getSoundScoreForm(), new int[]{0,1,0,0}));
-		parentPaths.add(new DenotatorPath(this.generator.getSoundScoreForm(), new int[]{0,1,0,1,0,0,6,0}));
+		parentPaths.add(new DenotatorPath(this.generator.getSoundScoreForm(), new int[]{0,1,0,1,0,0,5,0}));
 		powersetIndices = new int[]{0, 1, 0};
 		this.denotatorManager.addObjects(notes, parentPaths, powersetIndices);
 	}

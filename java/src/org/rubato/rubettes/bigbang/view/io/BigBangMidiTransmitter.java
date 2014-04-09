@@ -82,24 +82,20 @@ public class BigBangMidiTransmitter {
 	}
 	
 	public void scheduleNoteOn(int channel, int pitch, int velocity, long delay) {
-		MidiTimerTask noteOnTask = this.createNoteTask(true, channel, pitch, velocity);
-		this.timer.schedule(noteOnTask, delay);
+		this.scheduleNoteTask(true, channel, pitch, velocity, delay);
 	}
 	
 	public void scheduleNoteOff(int channel, int pitch, long delay) {
-		MidiTimerTask noteOffTask = this.createNoteTask(false, channel, pitch, 0);
-		this.timer.schedule(noteOffTask, delay);
+		this.scheduleNoteTask(false, channel, pitch, 0, delay);
 	}
 	
-	public MidiTimerTask createNoteTask(boolean noteOn, int channel, int pitch, int velocity) {
+	private void scheduleNoteTask(boolean noteOn, int channel, int pitch, int velocity, long delay) {
 		int command = noteOn ? ShortMessage.NOTE_ON : ShortMessage.NOTE_OFF;
 		ShortMessage message = new ShortMessage();
 		try {
 			message.setMessage(command, channel, pitch, velocity);
-			return new MidiTimerTask(message, this.outputDevices);
-		} catch (InvalidMidiDataException e) {
-			return null;
-		}
+			this.timer.schedule(new MidiTimerTask(message, this.outputDevices), delay);
+		}  catch (InvalidMidiDataException e) { }
 	}
 	
 	public void close() {

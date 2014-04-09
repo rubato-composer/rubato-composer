@@ -36,6 +36,10 @@ public class JSynObject implements Comparable<JSynObject> {
 		this.satelliteType = satelliteType;
 	}
 	
+	public JSynObject getParent() {
+		return this.parent;
+	}
+	
 	public BigBangObject getBigBangObject() {
 		return this.bbObject;
 	}

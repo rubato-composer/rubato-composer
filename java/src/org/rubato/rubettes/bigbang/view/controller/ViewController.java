@@ -9,6 +9,7 @@ import java.util.TreeMap;
 
 import org.rubato.math.matrix.RMatrix;
 import org.rubato.rubettes.bigbang.controller.Controller;
+import org.rubato.rubettes.bigbang.model.graph.CompositionState;
 import org.rubato.rubettes.bigbang.model.operations.AbstractOperation;
 import org.rubato.rubettes.bigbang.view.View;
 import org.rubato.rubettes.bigbang.view.controller.mode.DisplayModeAdapter;
@@ -337,8 +338,12 @@ public class ViewController extends Controller {
 		this.callModelMethod(ViewController.DESELECT_OPERATIONS);
 	}
 	
-	public void selectCompositionState(Integer vertex) {
-		this.callModelMethod(ViewController.SELECT_COMPOSITION_STATE, vertex);
+	public void selectCompositionState(CompositionState state) {
+		this.callModelMethod(ViewController.SELECT_COMPOSITION_STATE, state);
+	}
+	
+	public void selectCompositionState(Integer stateIndex) {
+		this.callModelMethod(ViewController.SELECT_COMPOSITION_STATE, stateIndex);
 	}
 	
 	public void deselectCompositionStates() {
