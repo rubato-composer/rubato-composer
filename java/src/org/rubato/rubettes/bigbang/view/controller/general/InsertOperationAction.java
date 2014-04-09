@@ -18,7 +18,7 @@ public class InsertOperationAction extends AbstractAction {
 	}
 	
 	public void actionPerformed(ActionEvent event) {
-		this.controller.insertOperation(this.compositionState);
+		this.controller.insertOperation(this.compositionState.getIndex());
 	}
 
 }
