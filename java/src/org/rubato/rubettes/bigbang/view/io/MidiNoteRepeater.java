@@ -4,7 +4,7 @@ import org.rubato.rubettes.bigbang.view.player.JSynObject;
 
 public class MidiNoteRepeater extends Thread {
 	
-	public static final long STANDARD_RATE = 150;
+	public static final long STANDARD_RATE = 100;
 	
 	private BigBangMidiTransmitter transmitter;
 	private JSynObject object;
@@ -46,8 +46,11 @@ public class MidiNoteRepeater extends Thread {
 		for (double currentFrequency : this.object.getFrequencies()) {
 			int currentPitch = this.object.frequencyToMidi(currentFrequency);
 			this.transmitter.scheduleNoteOn(this.object.getVoice(), currentPitch, this.object.getLoudness(), onset);
-			if (this.duration > 0 && this.duration < this.object.getRate()) {
+			if (this.duration > 0 && (this.duration < this.object.getRate() || this.object.getRate() <= 0)) {
 				this.transmitter.scheduleNoteOff(this.object.getVoice(), currentPitch, onset+this.duration);
+			} else if (this.object.getRate() > 0) {
+				long duration = Math.round(this.object.getRate()*0.9);
+				this.transmitter.scheduleNoteOff(this.object.getVoice(), currentPitch, duration);
 			}
 		}
 	}
