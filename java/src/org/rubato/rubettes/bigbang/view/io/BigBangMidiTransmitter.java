@@ -33,11 +33,11 @@ public class BigBangMidiTransmitter {
 		for (Info currentInfo : infos) {
 			//TODO MAKE PREFERENCE MENU WHERE CAN BE TURNED ON OR OFF!!!
 			//System.out.println(currentInfo.getName() + " | " + currentInfo.getDescription() + " | " + currentInfo.getVendor() + " | " + currentInfo.getVersion());
-			if (currentInfo.getDescription().equals("IAC Driver Bus 1")) {
+			//if (currentInfo.getDescription().equals("IAC Driver Bus 1")) {
 				this.addOutputDevice(currentInfo);
-			} else if (currentInfo.getDescription().equals("USB MIDI 1x1 Port 1")) {
+			/*} else if (currentInfo.getDescription().equals("USB MIDI 1x1 Port 1")) {
 				this.addOutputDevice(currentInfo);
-			}
+			}*/
 		}
 	}
 	

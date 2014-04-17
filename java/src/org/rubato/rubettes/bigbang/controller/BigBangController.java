@@ -72,6 +72,7 @@ public class BigBangController extends Controller {
 	public static final String ALTERATION_COORDINATES = "setAlterationCoordinates";
 	public static final String ALTERATION_START_DEGREE = "setAlterationStartDegree";
 	public static final String ALTERATION_END_DEGREE = "setAlterationEndDegree";
+	public static final String ALTERATION_DEGREES_DIMENSION = "setAlterationDegreesDimension";
 	
 	public void newWindowAdded() {
 		this.callModelMethod(BigBangController.NEW_WINDOW);
@@ -237,8 +238,8 @@ public class BigBangController extends Controller {
 		this.callModelMethod(BigBangController.END_WALLPAPER);
 	}
 	
-	public void addAlteration() {
-		this.callModelMethod(BigBangController.ADD_ALTERATION);
+	public void addAlteration(DenotatorPath degreesDimensionPath) {
+		this.callModelMethod(BigBangController.ADD_ALTERATION, degreesDimensionPath);
 	}
 	
 	public void setAlterationComposition(int index, Set<DenotatorPath> nodePaths) {
@@ -259,6 +260,10 @@ public class BigBangController extends Controller {
 	
 	public void changeAlterationEndDegree(double value) {
 		this.callModelMethod(BigBangController.ALTERATION_END_DEGREE, value);
+	}
+	
+	public void setAlterationDegreesDimension(DenotatorPath path) {
+		this.callModelMethod(BigBangController.ALTERATION_DEGREES_DIMENSION, path);
 	}
 
 }

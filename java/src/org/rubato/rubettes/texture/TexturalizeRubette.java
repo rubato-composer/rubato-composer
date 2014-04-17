@@ -15,6 +15,10 @@ import org.rubato.math.yoneda.PowerDenotator;
 import org.rubato.rubettes.util.CoolFormRegistrant;
 import org.rubato.rubettes.util.ObjectGenerator;
 
+/**
+ * Creates a Texture based on the rate of occurrence of each pitch in a given Score
+ * @author Florian Thalmann, April 14 2014
+ */
 public class TexturalizeRubette extends SimpleAbstractRubette {
 
 	public TexturalizeRubette() {
@@ -80,5 +84,31 @@ public class TexturalizeRubette extends SimpleAbstractRubette {
 	public String getName() {
 		return "Texturalize";
 	}
+	
+	@Override
+	public String getGroup() {
+        return "Other";
+    }
+    
+	@Override
+    public String getShortDescription() {
+        return "Outputs a Texture based on a Score";
+    }
+
+	@Override
+    public String getLongDescription() {
+        return "The Texturalize Rubette generates a Texture based on the rate of occurrence"+
+               " of each pitch in a given Score";
+    }
+    
+	@Override
+    public String getInTip(int i) {
+        return "Input Score denotator";
+    }
+
+	@Override
+    public String getOutTip(int i) {
+        return "Output Texture denotator";
+    }
 
 }

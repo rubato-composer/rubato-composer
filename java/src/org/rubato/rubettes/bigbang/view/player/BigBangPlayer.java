@@ -1,6 +1,7 @@
 package org.rubato.rubettes.bigbang.view.player;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
@@ -95,7 +96,7 @@ public class BigBangPlayer {
 	 */
 	public void updatePerformances() {
 		if (this.isPlaying) {
-			for (JSynPerformance performance : this.currentPerformances.values()) {
+			for (JSynPerformance performance : new HashSet<JSynPerformance>(this.currentPerformances.values())) {
 				performance.updateStartOrChangeTimes();
 				performance.replaceScore(this.score);
 			}
@@ -240,7 +241,9 @@ public class BigBangPlayer {
 	private void stopScoreVersion(int pitch) {
 		this.keysOfCurrentPerformancesInOrder.remove((Integer)pitch);
 		JSynPerformance performance = this.currentPerformances.remove(pitch);
-		performance.stopPlaying(false);
+		if (performance != null) {
+			performance.stopPlaying(false);
+		}
 	}
 	
 	private void stopAllScoreVersions() {

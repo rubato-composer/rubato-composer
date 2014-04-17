@@ -52,7 +52,7 @@ public class JMainToolBar extends JToolBar implements View {
 			this.modeButtons = new MouseModeButtons(this.viewController);
 		}
 		this.startWallpaperButton = new JButton(new AddWallpaperDimensionAction(this.viewController));
-		this.alterationButton = new JAlterationModeButton(this.viewController, this.bbController);
+		this.alterationButton = new JAlterationModeButton(this.viewController);
 		this.resetButtons();
 	}
 	

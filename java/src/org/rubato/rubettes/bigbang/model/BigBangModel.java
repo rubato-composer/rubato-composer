@@ -263,8 +263,8 @@ public class BigBangModel extends Model {
 		this.addOperation(new EndWallpaperEdit(this));
 	}
 	
-	public void addAlteration() {
-		this.addOperation(new AlterationOperation(this));
+	public void addAlteration(DenotatorPath degreesDimensionPath) {
+		this.addOperation(new AlterationOperation(this, degreesDimensionPath));
 		this.firePropertyChange(BigBangController.MODIFY_OPERATION, null, this.transformationGraph.getLastAddedOperation());
 	}
 	
@@ -285,6 +285,12 @@ public class BigBangModel extends Model {
 	public void setAlterationEndDegree(Double endDegree) {
 		if (this.transformationGraph.getSelectedOperation() instanceof AlterationOperation) {
 			((AlterationOperation)this.transformationGraph.getSelectedOperation()).setEndDegree(endDegree);
+		}
+	}
+	
+	public void setAlterationDegreesDimension(DenotatorPath path) {
+		if (this.transformationGraph.getSelectedOperation() instanceof AlterationOperation) {
+			((AlterationOperation)this.transformationGraph.getSelectedOperation()).setDegreesDimensionPath(path);
 		}
 	}
 	

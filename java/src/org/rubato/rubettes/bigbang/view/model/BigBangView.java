@@ -538,7 +538,7 @@ public class BigBangView extends Model implements View {
 	}
 	
 	public void addAlteration() {
-		this.controller.addAlteration();
+		this.controller.addAlteration(this.displayObjects.getActiveObjectValuePathAt(this.viewParameters.getSelectedXYViewParameters()[0]));
 	}
 	
 	public void setAlterationComposition(Integer index) {
@@ -560,6 +560,11 @@ public class BigBangView extends Model implements View {
 			}
 			((AlterationOperation)this.selectedOperation).setAlterationCoordinates(alterationCoordinates);
 		}
+	}
+	
+	//also in ViewParameters. this one just updates alteration
+	public void setSelectedViewParameters(int[] newSelections) {
+		this.controller.setAlterationDegreesDimension(this.displayObjects.getActiveObjectValuePathAt(newSelections[0]));
 	}
 	
 	private TransformationProperties getLocalTransformationProperties(Point2D.Double center, Point2D.Double endPoint, boolean copyAndTransform, boolean startNewTransformation) {

@@ -16,8 +16,9 @@ public class AlterationOperation extends AbstractOperation {
 	private Set<BigBangObject> backgroundComposition;
 	private List<DenotatorPath> alterationCoordinates;
 	private double startDegree, endDegree;
+	private DenotatorPath degreesDimensionPath;
 	
-	public AlterationOperation(BigBangModel model) {
+	public AlterationOperation(BigBangModel model, DenotatorPath degreesDimensionPath) {
 		super(model);
 		this.model = model;
 		this.foregroundComposition = new TreeSet<BigBangObject>();
@@ -25,6 +26,7 @@ public class AlterationOperation extends AbstractOperation {
 		this.alterationCoordinates = new ArrayList<DenotatorPath>();
 		this.startDegree = 0;
 		this.endDegree = 0;
+		this.degreesDimensionPath = degreesDimensionPath;
 	}
 	
 	public void setForegroundComposition(Set<BigBangObject> foregroundComposition) {
@@ -66,6 +68,10 @@ public class AlterationOperation extends AbstractOperation {
 		return this.endDegree;
 	}
 	
+	public void setDegreesDimensionPath(DenotatorPath degreesDimensionPath) {
+		this.degreesDimensionPath = degreesDimensionPath;
+	}
+	
 	//modified degrees directly calculated in execute...
 	protected void updateOperation() { }
 	
@@ -80,7 +86,7 @@ public class AlterationOperation extends AbstractOperation {
 		double modifiedEndDegree = this.modificationRatio*this.endDegree;
 		Set<DenotatorPath> foregroundCompositionPaths = this.getObjectPaths(this.foregroundComposition);
 		Set<DenotatorPath> backgroundCompositionPaths = this.getObjectPaths(this.backgroundComposition);
-		return this.model.getDenotatorManager().addAlteration(foregroundCompositionPaths, backgroundCompositionPaths, this.alterationCoordinates, modifiedStartDegree, modifiedEndDegree);
+		return this.model.getDenotatorManager().addAlteration(foregroundCompositionPaths, backgroundCompositionPaths, this.alterationCoordinates, modifiedStartDegree, modifiedEndDegree, this.degreesDimensionPath);
 	}
 
 }
