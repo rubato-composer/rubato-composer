@@ -23,7 +23,6 @@ import org.rubato.rubettes.util.CoolFormRegistrant;
 import org.rubato.rubettes.util.DenotatorObject;
 import org.rubato.rubettes.util.DenotatorPath;
 import org.rubato.rubettes.util.FormValueFinder;
-import org.rubato.rubettes.util.PerformanceCheck;
 
 public class DisplayObjects {
 	
@@ -80,6 +79,7 @@ public class DisplayObjects {
 				}
 			}
 		}
+		this.updateActiveSatelliteLevel();
 	}
 	
 	public void removeObjects(Set<BigBangObject> removedObjects) {
@@ -137,6 +137,17 @@ public class DisplayObjects {
 	
 	public void setActiveSatelliteLevel(int satelliteLevel) {
 		this.activeSatelliteLevel = satelliteLevel;
+	}
+	
+	private void updateActiveSatelliteLevel() {
+		Integer maxSatelliteLevel = this.getMaxSatelliteLevelOfActiveObject();
+		if (maxSatelliteLevel != null && this.activeSatelliteLevel > maxSatelliteLevel) {
+			if (maxSatelliteLevel >= 0) {
+				this.activeSatelliteLevel = maxSatelliteLevel;
+			} else {
+				this.activeSatelliteLevel = 0;
+			}
+		}
 	}
 	
 	public List<String> getCoordinateSystemValueNames() {

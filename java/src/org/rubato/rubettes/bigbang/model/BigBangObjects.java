@@ -37,14 +37,7 @@ public class BigBangObjects {
 		this.baseForm = baseForm;
 		
 		this.finder = new FormValueFinder(this.baseForm, true);
-		this.maxSatelliteLevels = new ArrayList<Integer>();
-		for (Boolean currentObjectCanBeSatellite : this.finder.getObjectsCanBeSatellites()) {
-			if (currentObjectCanBeSatellite) {
-				this.maxSatelliteLevels.add(-1);
-			} else {
-				this.maxSatelliteLevels.add(null);
-			}
-		}
+		this.resetMaxSatelliteLevels();
 		
 		List<String> coordinateSystemValueNames = new ArrayList<String>(finder.getCoordinateSystemValueNames());
 		if (this.finder.formAllowsForSatellites()) {
@@ -65,6 +58,7 @@ public class BigBangObjects {
 	public void clearObjects() {
 		this.objects = new HashMap<AbstractOperation,Set<BigBangObject>>();
 		this.objectsMaps = new HashMap<AbstractOperation,Map<DenotatorPath,BigBangObject>>();
+		this.resetMaxSatelliteLevels();
 	}
 	
 	public Integer getMaxSatelliteLevel(int objectIndex) {
@@ -129,6 +123,17 @@ public class BigBangObjects {
 		if (currentLevel != null) {
 			int currentMax = Math.max(currentLevel, (int)object.getNthValue(DenotatorValueExtractor.SATELLITE_LEVEL, 0).doubleValue());
 			this.maxSatelliteLevels.set(objectIndex, currentMax);
+		}
+	}
+	
+	public void resetMaxSatelliteLevels() {
+		this.maxSatelliteLevels = new ArrayList<Integer>();
+		for (Boolean currentObjectCanBeSatellite : this.finder.getObjectsCanBeSatellites()) {
+			if (currentObjectCanBeSatellite) {
+				this.maxSatelliteLevels.add(-1);
+			} else {
+				this.maxSatelliteLevels.add(null);
+			}
 		}
 	}
 	

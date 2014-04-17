@@ -181,11 +181,12 @@ public class BigBangDenotatorManager {
 		this.currentWallpaper = null;
 	}
 	
-	public OperationPathResults addAlteration(Set<DenotatorPath> foregroundComposition, Set<DenotatorPath> backgroundComposition, List<DenotatorPath> alterationCoordinates, double startDegree, double endDegree) {
+	public OperationPathResults addAlteration(Set<DenotatorPath> foregroundComposition, Set<DenotatorPath> backgroundComposition, List<DenotatorPath> alterationCoordinates, double startDegree, double endDegree, DenotatorPath degreesDimensionPath) {
 		this.currentAlteration = new BigBangAlteration();
 		this.currentAlteration.setAlterationComposition(foregroundComposition, 0);
 		this.currentAlteration.setAlterationComposition(backgroundComposition, 1);
 		this.currentAlteration.setAlterationCoordinates(alterationCoordinates);
+		this.currentAlteration.setDegreesDimensionPath(degreesDimensionPath);
 		this.currentAlteration.setStartDegree(startDegree);
 		this.currentAlteration.setEndDegree(endDegree);
 		this.currentAlteration.alter(this);

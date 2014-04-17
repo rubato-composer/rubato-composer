@@ -482,7 +482,8 @@ public class BigBangDenotatorManagerTest extends TestCase {
 		alterationCoordinates.add(new DenotatorPath(this.objects.SOUND_NODE_FORM, new int[]{0,0}));
 		alterationCoordinates.add(new DenotatorPath(this.objects.SOUND_NODE_FORM, new int[]{0,1}));
 		alterationCoordinates.add(new DenotatorPath(this.objects.SOUND_NODE_FORM, new int[]{0,4}));
-		OperationPathResults pathResults = this.denotatorManager.addAlteration(comp0, comp1, alterationCoordinates, .75, .25);
+		DenotatorPath degreeDimension = new DenotatorPath(this.objects.SOUND_NODE_FORM, new int[]{0,0});
+		OperationPathResults pathResults = this.denotatorManager.addAlteration(comp0, comp1, alterationCoordinates, .75, .25, degreeDimension);
 		
 		LimitDenotator expectedNode = this.objects.generator.createNodeDenotator(new double[]{1.25,62.25,116,1,0.25,0});
 		this.objects.assertEqualNonPowerDenotators(expectedNode, this.denotatorManager.getComposition().get(new int[]{0}));
@@ -506,7 +507,8 @@ public class BigBangDenotatorManagerTest extends TestCase {
 		alterationCoordinates.add(new DenotatorPath(this.objects.SOUND_NODE_FORM, new int[]{0,1}));
 		alterationCoordinates.add(new DenotatorPath(this.objects.SOUND_NODE_FORM, new int[]{0,2}));
 		alterationCoordinates.add(new DenotatorPath(this.objects.SOUND_NODE_FORM, new int[]{0,4}));
-		OperationPathResults pathResults = this.denotatorManager.addAlteration(comp0, comp1, alterationCoordinates, 1, 1);
+		DenotatorPath degreeDimension = new DenotatorPath(this.objects.SOUND_NODE_FORM, new int[]{0,0});
+		OperationPathResults pathResults = this.denotatorManager.addAlteration(comp0, comp1, alterationCoordinates, 1, 1, degreeDimension);
 		
 		TestCase.assertEquals(1, ((PowerDenotator)this.denotatorManager.getComposition()).getFactorCount());
 		LimitDenotator expectedNode = this.objects.generator.createNodeDenotator(new double[]{2,60,121,1,1,0});

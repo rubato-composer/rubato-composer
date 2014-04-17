@@ -100,6 +100,7 @@ public class ViewController extends Controller {
 	public static final String MODIFY_WALLPAPER_RANGE = "modifyWallpaperRange";
 	
 	//score manipulation - alteration
+	public static final String ALTERATION = "addAlteration";
 	public static final String ALTERATION_COMPOSITION = "setAlterationComposition";
 	public static final String ALTERATION_COORDINATES = "setAlterationCoordinates";
 	
@@ -313,6 +314,10 @@ public class ViewController extends Controller {
 	
 	public void modifyWallpaperRange(boolean rangeTo, int value) {
 		this.callModelMethod(ViewController.MODIFY_WALLPAPER_RANGE, rangeTo, value);
+	}
+	
+	public void addAlteration() {
+		this.callModelMethod(ViewController.ALTERATION);
 	}
 	
 	public void changeAlterationComposition(int index) {

@@ -18,7 +18,6 @@ import org.rubato.math.yoneda.LimitDenotator;
 import org.rubato.math.yoneda.SimpleDenotator;
 import org.rubato.rubettes.util.DenotatorPath;
 import org.rubato.rubettes.util.FormValueFinder;
-import org.rubato.rubettes.util.PerformanceCheck;
 
 //TODO: deal with case that different occurences of same form have independent maxima!!!  
 public class DenotatorValueExtractor {
@@ -63,7 +62,7 @@ public class DenotatorValueExtractor {
 		int denotatorType = currentDenotator.getType();
 		if (denotatorType == Denotator.POWER || denotatorType == Denotator.LIST) {
 			FactorDenotator currentPower = (FactorDenotator)currentDenotator;
-			//System.out.println(currentDO + " " + satelliteLevel);
+			//System.out.println(currentDenotator + " " + satelliteLevel);
 			for (int i = 0; i < currentPower.getFactorCount(); i++) {
 				//call with currentDisplayObject and currentJSynObject null, since all children become independent objects
 				if (currentObject != null) {
