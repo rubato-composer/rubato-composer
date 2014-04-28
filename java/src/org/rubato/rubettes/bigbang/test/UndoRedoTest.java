@@ -9,7 +9,6 @@ import java.util.TreeSet;
 import junit.framework.TestCase;
 
 import org.rubato.math.yoneda.Denotator;
-import org.rubato.rubettes.bigbang.controller.BigBangController;
 import org.rubato.rubettes.bigbang.model.BigBangModel;
 import org.rubato.rubettes.bigbang.model.BigBangObject;
 import org.rubato.rubettes.bigbang.model.denotators.TransformationPaths;
@@ -25,7 +24,7 @@ public class UndoRedoTest extends TestCase {
 	
 	protected void setUp() {
 		this.objects = new TestObjects();
-		this.model = new BigBangModel(new BigBangController());
+		this.model = new BigBangModel();
 		this.nodePaths = this.objects.createStandardTransformationPaths(
 				this.objects.SOUND_NODE_FORM, new int[][]{{0,0},{0,1}});
 	}

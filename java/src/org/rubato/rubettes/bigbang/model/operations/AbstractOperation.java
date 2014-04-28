@@ -8,6 +8,9 @@ import org.rubato.rubettes.bigbang.model.BigBangModel;
 import org.rubato.rubettes.bigbang.model.BigBangObject;
 import org.rubato.rubettes.bigbang.model.OperationPathResults;
 import org.rubato.rubettes.util.DenotatorPath;
+import org.rubato.xml.XMLReader;
+import org.rubato.xml.XMLWriter;
+import org.w3c.dom.Element;
 
 public abstract class AbstractOperation {
 	
@@ -25,6 +28,11 @@ public abstract class AbstractOperation {
 		this.isAnimatable = false;
 		this.isSplittable = false;
 		this.duration = 1;
+	}
+	
+	public AbstractOperation(BigBangModel model, XMLReader reader, Element element) {
+		this.model = model;
+		this.fromXML(element);
 	}
 	
 	protected abstract void updateOperation();
@@ -90,6 +98,36 @@ public abstract class AbstractOperation {
 	
 	public double getDuration() {
 		return this.duration;
+	}
+	
+	@Override
+	public AbstractOperation clone() {
+		return this.clone(this.model);
+	}
+	
+	public AbstractOperation clone(BigBangModel model) {
+		try {
+			return this.getClass().getDeclaredConstructor(BigBangModel.class, this.getClass())
+					.newInstance(model, this);
+		} catch (Exception e) {
+			e.printStackTrace();
+			return null;
+		}
+	}
+	
+	private static final String PROPERTIES_TAG = "Properties";
+	private static final String MOD_RATIO_ATTR = "modificationRatio";
+	private static final String DURATION_ATTR = "duration";
+	
+	public void toXML(XMLWriter writer) {
+		writer.empty(PROPERTIES_TAG, MOD_RATIO_ATTR, this.modificationRatio, DURATION_ATTR, this.duration);
+	}
+	
+	private void fromXML(Element element) {
+		Element propertiesElement = XMLReader.getChild(element, PROPERTIES_TAG);
+		this.modificationRatio = XMLReader.getRealAttribute(propertiesElement, MOD_RATIO_ATTR, 1);
+		this.duration = XMLReader.getRealAttribute(propertiesElement, DURATION_ATTR, 1);
+		System.out.println("HEAY");
 	}
 	
 }

@@ -139,6 +139,7 @@ public class FormValueFinder {
 	private void findValues(DenotatorPath currentPath, boolean searchThroughPowersets, int currentSearchDepth, DenotatorObject currentObject) {
 		if (currentSearchDepth < this.MAX_SEARCH_DEPTH) {
 			Form currentForm = currentPath.getEndForm();
+			System.out.println(currentPath + " " + currentForm);
 			if (currentPath.size() == 0 && currentForm.getType() != Form.POWER && currentForm.getType() != Form.LIST) {
 				this.addObject(currentObject);
 			}

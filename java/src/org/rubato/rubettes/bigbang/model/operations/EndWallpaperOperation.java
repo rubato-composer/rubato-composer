@@ -2,14 +2,25 @@ package org.rubato.rubettes.bigbang.model.operations;
 
 import org.rubato.rubettes.bigbang.model.BigBangModel;
 import org.rubato.rubettes.bigbang.model.OperationPathResults;
+import org.rubato.xml.XMLReader;
+import org.w3c.dom.Element;
 
-public class EndWallpaperEdit extends AbstractOperation {
+public class EndWallpaperOperation extends AbstractOperation {
 	
-	public EndWallpaperEdit(BigBangModel model) {
+	//used for cloning
+	protected EndWallpaperOperation(BigBangModel model, @SuppressWarnings("unused") EndWallpaperOperation other) {
+		this(model);
+	}
+	
+	public EndWallpaperOperation(BigBangModel model) {
 		super(model);
 		this.isAnimatable = false;
 		this.isSplittable = false;
 		this.duration = 0;
+	}
+	
+	public EndWallpaperOperation(BigBangModel model, XMLReader reader, Element element) {
+		super(model, reader, element);
 	}
 	
 	//not changed by modification!!

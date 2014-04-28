@@ -4,17 +4,20 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeMap;
 
 import org.rubato.math.yoneda.Form;
 import org.rubato.rubettes.bigbang.model.BigBangModel;
 import org.rubato.rubettes.bigbang.model.OperationPathResults;
 import org.rubato.rubettes.util.DenotatorPath;
+import org.rubato.xml.XMLReader;
+import org.rubato.xml.XMLWriter;
+import org.w3c.dom.Element;
 
 public class AddObjectsOperation extends AbstractOperation {
 	
 	private final int MAX_DISTANCE_FOR_UNADDING = 5;
 	
-	//TODO these paths will be replaced by BigBangObjects and powerset indices
 	private List<DenotatorPath> definitePowersetPaths;
 	private List<Map<DenotatorPath,Double>> definitePathsWithValues;
 	private List<DenotatorPath> previewedPowersetPaths;
@@ -23,24 +26,44 @@ public class AddObjectsOperation extends AbstractOperation {
 	private List<List<Map<DenotatorPath,Double>>> modifiedPathsWithValues;
 	private Form objectForm;
 	
+	protected AddObjectsOperation(BigBangModel model, AddObjectsOperation other) {
+		this(model, new ArrayList<Map<DenotatorPath,Double>>(other.definitePathsWithValues), 
+				new ArrayList<DenotatorPath>(other.definitePowersetPaths));
+	}
+	
 	public AddObjectsOperation(BigBangModel model, List<Map<DenotatorPath,Double>> pathsWithValues, List<DenotatorPath> powersetPaths) {
 		this(model, pathsWithValues, powersetPaths, false);
 	}
 	
 	public AddObjectsOperation(BigBangModel model, List<Map<DenotatorPath,Double>> pathsWithValues, List<DenotatorPath> powersetPaths, boolean inPreviewMode) {
 		super(model);
+		this.init();
+		this.setPathsAndValues(pathsWithValues, powersetPaths, inPreviewMode);
+		this.updateOperation();
+	}
+	
+	public AddObjectsOperation(BigBangModel model, XMLReader reader, Element element) {
+		super(model, reader, element);
+		this.init();
+		this.fromXML(reader, element);
+		this.updateOperation();
+	}
+	
+	private void init() {
+		this.minModRatio = 0.0;
+		this.maxModRatio = 1.0;
+		this.isSplittable = true;
 		this.definitePowersetPaths = new ArrayList<DenotatorPath>();
 		this.previewedPowersetPaths = new ArrayList<DenotatorPath>();
 		this.definitePathsWithValues = new ArrayList<Map<DenotatorPath,Double>>();
 		this.previewedPathsWithValues = new ArrayList<Map<DenotatorPath,Double>>();
+	}
+	
+	private void setPathsAndValues(List<Map<DenotatorPath,Double>> pathsWithValues, List<DenotatorPath> powersetPaths, boolean inPreviewMode) {
 		if (powersetPaths != null && !powersetPaths.isEmpty()) {
 			this.setObjectForm(powersetPaths.get(0));
 			this.addObjects(pathsWithValues, powersetPaths, inPreviewMode);
 		}
-		this.minModRatio = 0.0;
-		this.maxModRatio = 1.0;
-		this.isSplittable = true;
-		this.updateOperation();
 	}
 	
 	private void setObjectForm(DenotatorPath powersetPath) {
@@ -190,12 +213,55 @@ public class AddObjectsOperation extends AbstractOperation {
 	protected String getSpecificPresentationName() {
 		if (this.objectForm != null) {
 			String presentationName = "Add " + this.objectForm.getNameString();
-			if (this.previewedPathsWithValues.size() > 1) {
+			if (this.definitePathsWithValues.size() > 1 || this.previewedPathsWithValues.size() > 1) {
 				presentationName += "s";
 			}
 			return presentationName;
 		}
 		return "Add";
+	}
+	
+	private static final String OBJECT_TAG = "Object";
+	private static final String VALUEPATH_TAG = "ValuePath";
+	private static final String VALUE_ATTR = "value";
+	
+	public void toXML(XMLWriter writer) {
+		super.toXML(writer);
+		for (int i = 0; i < this.definitePathsWithValues.size(); i++) {
+			Map<DenotatorPath,Double> currentPathsWithValues = this.definitePathsWithValues.get(i);
+			DenotatorPath currentPowersetPath = this.definitePowersetPaths.get(i);
+			writer.openBlock(OBJECT_TAG);
+			currentPowersetPath.toXML(writer);
+			for (DenotatorPath currentValuePath : currentPathsWithValues.keySet()) {
+				writer.openBlock(VALUEPATH_TAG, VALUE_ATTR, currentPathsWithValues.get(currentValuePath));
+				currentValuePath.toXML(writer);
+				writer.closeBlock();
+			}
+			writer.closeBlock();
+		}
+	}
+	
+	private void fromXML(XMLReader reader, Element element) {
+		List<Map<DenotatorPath,Double>> pathsWithValues = new ArrayList<Map<DenotatorPath,Double>>();
+		List<DenotatorPath> powersetPaths = new ArrayList<DenotatorPath>();
+		Element currentObjectElement = XMLReader.getChild(element, OBJECT_TAG);
+		while (currentObjectElement != null) {
+			Element currentPowersetPathElement = XMLReader.getChild(currentObjectElement, DenotatorPath.DENOTATOR_PATH_TAG);
+			DenotatorPath currentPowersetPath = new DenotatorPath(reader, currentPowersetPathElement);
+			Map<DenotatorPath,Double> currentPathsWithValues = new TreeMap<DenotatorPath,Double>();
+			Element currentValuePathElement = XMLReader.getNextSibling(currentPowersetPathElement, VALUEPATH_TAG);
+			while (currentValuePathElement != null) {
+				double currentValue = XMLReader.getRealAttribute(currentValuePathElement, VALUE_ATTR, 0);
+				Element currentPathElement = XMLReader.getChild(currentValuePathElement, DenotatorPath.DENOTATOR_PATH_TAG);
+				DenotatorPath currentPath = new DenotatorPath(reader, currentPathElement);
+				currentPathsWithValues.put(currentPath, currentValue);
+				currentValuePathElement = XMLReader.getNextSibling(currentValuePathElement, VALUEPATH_TAG);
+			}
+			pathsWithValues.add(currentPathsWithValues);
+			powersetPaths.add(currentPowersetPath);
+			currentObjectElement = XMLReader.getNextSibling(currentObjectElement, OBJECT_TAG);
+		}
+		this.setPathsAndValues(pathsWithValues, powersetPaths, false);
 	}
 
 }

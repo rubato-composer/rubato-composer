@@ -7,6 +7,9 @@ import java.util.List;
 import org.rubato.base.RubatoException;
 import org.rubato.math.yoneda.Denotator;
 import org.rubato.rubettes.util.DenotatorPath;
+import org.rubato.xml.XMLReader;
+import org.rubato.xml.XMLWriter;
+import org.w3c.dom.Element;
 
 public class TransformationPaths {
 	
@@ -18,6 +21,10 @@ public class TransformationPaths {
 	public TransformationPaths() {
 		this.domainPaths = new ArrayList<List<DenotatorPath>>();
 		this.codomainPaths = new ArrayList<List<DenotatorPath>>();
+	}
+	
+	public TransformationPaths(XMLReader reader, Element element) {
+		this.fromXML(reader, element);
 	}
 	
 	public void setXYCoordinates(int[] selectedCoordinates) {
@@ -111,6 +118,50 @@ public class TransformationPaths {
 			return Arrays.equals(this.xyCoordinates, other.xyCoordinates);
 		}
 		return false;
+	}
+	
+	public static final String TRANSFORMATION_PATHS_TAG = "TransformationPaths";
+	private static final String XY_COORDINATES_ATTR = "xyCoordinates";
+	private static final String DOMAIN_PATHS_TAG = "DomainPaths";
+	private static final String CODOMAIN_PATHS_TAG = "CodomainPaths";
+	
+	public void toXML(XMLWriter writer) {
+		writer.openBlock(TRANSFORMATION_PATHS_TAG, XY_COORDINATES_ATTR, Arrays.toString(this.xyCoordinates));
+		this.pathsToXML(writer, this.domainPaths, DOMAIN_PATHS_TAG);
+		this.pathsToXML(writer, this.codomainPaths, CODOMAIN_PATHS_TAG);
+		writer.closeBlock();
+	}
+	
+	private void fromXML(XMLReader reader, Element element) {
+		this.xyCoordinates = XMLReader.getIntArrayAttribute(element, XY_COORDINATES_ATTR);
+		this.domainPaths = this.pathsFromXML(reader, element, DOMAIN_PATHS_TAG);
+		this.codomainPaths = this.pathsFromXML(reader, element, CODOMAIN_PATHS_TAG);
+	}
+	
+	private void pathsToXML(XMLWriter writer, List<List<DenotatorPath>> paths, String tagName) {
+		for (List<DenotatorPath> currentPaths : paths) {
+			writer.openBlock(tagName);
+			for (DenotatorPath currentPath : currentPaths) {
+				currentPath.toXML(writer);
+			}
+			writer.closeBlock();
+		}
+	}
+	
+	private List<List<DenotatorPath>> pathsFromXML(XMLReader reader, Element element, String tagName) {
+		List<List<DenotatorPath>> paths = new ArrayList<List<DenotatorPath>>();
+		Element currentPathsElement = XMLReader.getChild(element, tagName);
+		while (currentPathsElement != null) {
+			List<DenotatorPath> currentPaths = new ArrayList<DenotatorPath>();
+			Element currentPathElement = XMLReader.getChild(currentPathsElement, DenotatorPath.DENOTATOR_PATH_TAG);
+			while (currentPathElement != null) {
+				currentPaths.add(new DenotatorPath(reader, currentPathElement));
+				currentPathElement = XMLReader.getNextSibling(currentPathElement, DenotatorPath.DENOTATOR_PATH_TAG);
+			}
+			paths.add(currentPaths);
+			currentPathsElement = XMLReader.getNextSibling(currentPathsElement, tagName);
+		}
+		return paths;
 	}
 
 }

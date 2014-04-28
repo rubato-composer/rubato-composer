@@ -21,7 +21,6 @@ public class BigBangRubette extends AbstractRubette {
 	public static final boolean IS_MULTITOUCH = false;
 	public static final String STANDARD_FORM_NAME = "Score";
 	
-	//ban model from here!?
 	private BigBangModel model;
 	private BigBangView view;
 	private BigBangController controller;
@@ -39,20 +38,29 @@ public class BigBangRubette extends AbstractRubette {
         } else {
         	this.view = new BigBangView(this.controller);
         }
-        this.model = new BigBangModel(this.controller);
+        this.model = new BigBangModel();
+        this.model.setController(this.controller);
+        this.model.setMultiTouch(false);
+	}
+	
+	private BigBangRubette(BigBangModel model) {
+		new CoolFormRegistrant().registerAllTheCoolStuff();
+		this.setInCount(1);
+        this.setOutCount(1);
+        this.controller = new BigBangController();
+        if (BigBangRubette.IS_MULTITOUCH) {
+        	this.view = new MTBigBangView(this.controller);
+        } else {
+        	this.view = new BigBangView(this.controller);
+        }
+        this.model = model;
+        this.model.setController(this.controller);
         this.model.setMultiTouch(false);
 	}
 
 	@Override
 	public Rubette duplicate() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public Rubette fromXML(XMLReader reader, Element element) {
-		BigBangRubette loadedRubette = new BigBangRubette();
-		return loadedRubette;
+		return new BigBangRubette(this.model.clone());
 	}
 
 	@Override
@@ -97,8 +105,14 @@ public class BigBangRubette extends AbstractRubette {
 
 	@Override
 	public void toXML(XMLWriter writer) {
-		// TODO Auto-generated method stub
-		
+		this.model.toXML(writer);
+	}
+	
+	@Override
+	public Rubette fromXML(XMLReader reader, Element element) {
+		new CoolFormRegistrant().registerAllTheCoolStuff();
+		BigBangModel loadedModel = BigBangModel.fromXML(reader, element);
+		return new BigBangRubette(loadedModel);
 	}
 
 }

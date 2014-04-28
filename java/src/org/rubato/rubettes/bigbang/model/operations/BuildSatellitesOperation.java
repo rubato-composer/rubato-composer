@@ -6,26 +6,37 @@ import org.rubato.rubettes.bigbang.model.BigBangModel;
 import org.rubato.rubettes.bigbang.model.BigBangObject;
 import org.rubato.rubettes.bigbang.model.OperationPathResults;
 import org.rubato.rubettes.util.DenotatorPath;
+import org.rubato.xml.XMLReader;
+import org.w3c.dom.Element;
 
-public class BuildSatellitesEdit extends AbstractPathBasedOperation {
+public class BuildSatellitesOperation extends AbstractObjectBasedOperation {
 	
 	private BigBangObject anchorObject;
 	private int powersetIndex;
 	
 	//used for cloning
-	protected BuildSatellitesEdit(BigBangModel model) {
-		super(model);
+	protected BuildSatellitesOperation(BigBangModel model, BuildSatellitesOperation other) {
+		super(model, other);
+		if (model == other.model) {
+			this.anchorObject = other.anchorObject;
+		}
+		this.powersetIndex = other.powersetIndex;
 	}
 	
-	public BuildSatellitesEdit(BigBangModel model, Set<BigBangObject> objects, BigBangObject anchorObject, int powersetIndex) {
+	public BuildSatellitesOperation(BigBangModel model, Set<BigBangObject> objects, BigBangObject anchorObject, int powersetIndex) {
 		super(model, objects);
 		this.anchorObject = anchorObject;
 		this.powersetIndex = powersetIndex;
 	}
 	
+	public BuildSatellitesOperation(BigBangModel model, XMLReader reader, Element element) {
+		super(model, reader, element);
+		//TODO IMPLEMENT
+	}
+	
 	@Override
 	public OperationPathResults execute() {
-		Set<DenotatorPath> objectPaths = this.getObjectPaths(this.modifiedObjects);
+		Set<DenotatorPath> objectPaths = this.getObjectPaths();
 		DenotatorPath anchorPath = this.anchorObject.getTopDenotatorPathAt(this);
 		return this.model.getDenotatorManager().buildSatelliteObjects(objectPaths, anchorPath, this.powersetIndex);
 	}
@@ -33,14 +44,6 @@ public class BuildSatellitesEdit extends AbstractPathBasedOperation {
 	@Override
 	protected String getSpecificPresentationName() {
 		return "Build Satellites";
-	}
-	
-	public BuildSatellitesEdit clone() {
-		BuildSatellitesEdit clone;
-		clone = (BuildSatellitesEdit)super.clone();
-		clone.anchorObject = this.anchorObject;
-		clone.powersetIndex = this.powersetIndex;
-		return clone;
 	}
 
 }

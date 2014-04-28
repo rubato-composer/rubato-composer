@@ -1,7 +1,6 @@
 package org.rubato.rubettes.bigbang.test;
 
 import org.rubato.math.yoneda.Denotator;
-import org.rubato.rubettes.bigbang.controller.BigBangController;
 import org.rubato.rubettes.bigbang.model.BigBangModel;
 import org.rubato.rubettes.bigbang.model.DenotatorValueExtractor;
 import org.rubato.rubettes.bigbang.view.player.BigBangPlayer;
@@ -203,7 +202,7 @@ public class JSynPlayerTest extends TestCase {
 	}*/
 	
 	private JSynScore extractJSynScore(Denotator denotator) {
-		BigBangModel model = new BigBangModel(new BigBangController());
+		BigBangModel model = new BigBangModel();
 		model.setOrAddComposition(denotator);
 		new DenotatorValueExtractor(model.getObjects(), model.getComposition());
 		return new JSynScore(model.getObjects().getObjectsAt(null), model.getObjects().getBaseForm(), false);

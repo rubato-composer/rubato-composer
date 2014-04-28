@@ -1,5 +1,7 @@
 package org.rubato.rubettes.bigbang.model;
 
+import static org.rubato.xml.XMLConstants.FORM;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -11,6 +13,7 @@ import javax.swing.undo.AbstractUndoableEdit;
 import javax.swing.undo.UndoManager;
 import javax.swing.undo.UndoableEditSupport;
 
+import org.rubato.base.Repository;
 import org.rubato.math.matrix.RMatrix;
 import org.rubato.math.yoneda.Denotator;
 import org.rubato.math.yoneda.Form;
@@ -28,19 +31,22 @@ import org.rubato.rubettes.bigbang.model.operations.AddObjectsOperation;
 import org.rubato.rubettes.bigbang.model.operations.AddWallpaperDimensionOperation;
 import org.rubato.rubettes.bigbang.model.operations.AffineTransformation;
 import org.rubato.rubettes.bigbang.model.operations.AlterationOperation;
-import org.rubato.rubettes.bigbang.model.operations.BuildSatellitesEdit;
-import org.rubato.rubettes.bigbang.model.operations.DeleteObjectsEdit;
-import org.rubato.rubettes.bigbang.model.operations.EndWallpaperEdit;
-import org.rubato.rubettes.bigbang.model.operations.FlattenEdit;
-import org.rubato.rubettes.bigbang.model.operations.ReflectionEdit;
-import org.rubato.rubettes.bigbang.model.operations.RotationEdit;
-import org.rubato.rubettes.bigbang.model.operations.ScalingEdit;
-import org.rubato.rubettes.bigbang.model.operations.SetOrAddCompositionEdit;
-import org.rubato.rubettes.bigbang.model.operations.ShapingEdit;
-import org.rubato.rubettes.bigbang.model.operations.ShearingEdit;
-import org.rubato.rubettes.bigbang.model.operations.TranslationEdit;
+import org.rubato.rubettes.bigbang.model.operations.BuildSatellitesOperation;
+import org.rubato.rubettes.bigbang.model.operations.DeleteObjectsOperation;
+import org.rubato.rubettes.bigbang.model.operations.EndWallpaperOperation;
+import org.rubato.rubettes.bigbang.model.operations.FlattenOperation;
+import org.rubato.rubettes.bigbang.model.operations.ReflectionTransformation;
+import org.rubato.rubettes.bigbang.model.operations.RotationTransformation;
+import org.rubato.rubettes.bigbang.model.operations.ScalingTransformation;
+import org.rubato.rubettes.bigbang.model.operations.InputCompositionOperation;
+import org.rubato.rubettes.bigbang.model.operations.ShapingOperation;
+import org.rubato.rubettes.bigbang.model.operations.ShearingTransformation;
+import org.rubato.rubettes.bigbang.model.operations.TranslationTransformation;
 import org.rubato.rubettes.util.DenotatorPath;
 import org.rubato.rubettes.util.PerformanceCheck;
+import org.rubato.xml.XMLReader;
+import org.rubato.xml.XMLWriter;
+import org.w3c.dom.Element;
 
 import edu.uci.ics.jung.algorithms.shortestpath.DijkstraShortestPath;
 
@@ -56,17 +62,20 @@ public class BigBangModel extends Model {
 	private BigBangTransformationGraph transformationGraph;
 	private BigBangGraphAnimator animator;
 	
-	public BigBangModel(BigBangController controller) {
-		this.controller = controller;
-		controller.addModel(this);
+	public BigBangModel() {
 		this.denotators = new BigBangDenotatorManager();
 		this.setInputActive(true);
-		this.objects = new BigBangObjects(this.denotators.getForm(), controller);
+		this.objects = new BigBangObjects(this.denotators.getForm());
 		this.undoManager = new UndoManager();
 		this.undoSupport = new UndoableEditSupport();
 		this.undoSupport.addUndoableEditListener(new UndoAdaptor(this.undoManager));
-		
 		this.reset();
+	}
+	
+	public void setController(BigBangController controller) {
+		this.controller = controller;
+		controller.addModel(this);
+		this.objects.setController(controller);
 		this.firePropertyChange(BigBangController.UNDO, null, this.undoManager);
 		this.firePropertyChange(BigBangController.GRAPH, null, this.transformationGraph);
 		this.fireCompositionChange();
@@ -76,6 +85,10 @@ public class BigBangModel extends Model {
 		this.undoManager.discardAllEdits();
 		this.transformationGraph = new BigBangTransformationGraph();
 		this.firePropertyChange(BigBangController.GRAPH, null, this.transformationGraph);
+	}
+	
+	private void setGraph(BigBangTransformationGraph graph) {
+		this.transformationGraph = graph;
 	}
 	
 	public void setInputActive(Boolean inputActive) {
@@ -93,10 +106,14 @@ public class BigBangModel extends Model {
 	}
 	
 	public void setForm(Form form) {
-		if (!form.equals(this.denotators.getForm())) {
+		//TODO strange, full comparison does not work....
+		if (!form.getName().equals(this.denotators.getForm().getName())) {
 			this.reset();
 			this.denotators.setForm(form);
-			this.objects = new BigBangObjects(this.denotators.getForm(), this.controller);
+			this.objects = new BigBangObjects(this.denotators.getForm());
+			if (this.controller != null) {
+				this.objects.setController(this.controller);
+			}
 			this.fireCompositionChange();
 		}
 	}
@@ -114,11 +131,11 @@ public class BigBangModel extends Model {
 		if (!this.denotators.isFormCompatibleWithCurrentForm(composition.getForm())) {
 			this.setForm(composition.getForm());
 		}
-		if (this.transformationGraph.getSelectedOperation() instanceof SetOrAddCompositionEdit) {
-			((SetOrAddCompositionEdit)this.transformationGraph.getSelectedOperation()).setOrAddComposition(composition);
+		if (this.transformationGraph.getSelectedOperation() instanceof InputCompositionOperation) {
+			((InputCompositionOperation)this.transformationGraph.getSelectedOperation()).setOrAddComposition(composition);
 			this.operationModified();
 		} else {
-			this.addOperation(new SetOrAddCompositionEdit(this, composition));
+			this.addOperation(new InputCompositionOperation(this, composition));
 		}
 	}
 	
@@ -163,27 +180,27 @@ public class BigBangModel extends Model {
 	
 	public void deleteObjects(TreeSet<BigBangObject> objects) {
 		AbstractOperation lastEdit = this.transformationGraph.getLastAddedOperation();
-		if (lastEdit != null && lastEdit instanceof DeleteObjectsEdit) {
-			((DeleteObjectsEdit)lastEdit).addObjects(objects);
+		if (lastEdit != null && lastEdit instanceof DeleteObjectsOperation) {
+			((DeleteObjectsOperation)lastEdit).addObjects(objects);
 			this.operationModified();
 			return;
 		}
-		this.addOperation(new DeleteObjectsEdit(this, objects));
+		this.addOperation(new DeleteObjectsOperation(this, objects));
 	}
 	
 	public void translateObjects(TransformationProperties properties) {
 		if (properties.startNewTransformation()) {
-			this.addOperation(new TranslationEdit(this, properties));
-		} else if (this.updateTransformation(properties, TranslationEdit.class)) {
+			this.addOperation(new TranslationTransformation(this, properties));
+		} else if (this.updateTransformation(properties, TranslationTransformation.class)) {
 			this.updateComposition();
 		}
 	}
 	
 	public void rotateObjects(TransformationProperties properties, double[] startingPoint, Double angle) {
 		if (properties.startNewTransformation()) {
-			this.addOperation(new RotationEdit(this, properties, startingPoint, angle));
-		} else if (this.updateTransformation(properties, RotationEdit.class)) {
-			RotationEdit lastRotation = (RotationEdit)this.transformationGraph.getLastAddedOperation();
+			this.addOperation(new RotationTransformation(this, properties, startingPoint, angle));
+		} else if (this.updateTransformation(properties, RotationTransformation.class)) {
+			RotationTransformation lastRotation = (RotationTransformation)this.transformationGraph.getLastAddedOperation();
 			lastRotation.setParameters(startingPoint, angle);
 			this.updateComposition();
 		}
@@ -191,24 +208,24 @@ public class BigBangModel extends Model {
 	
 	public void scaleObjects(TransformationProperties properties, double[] scaleFactors) {
 		if (properties.startNewTransformation()) {
-			this.addOperation(new ScalingEdit(this, properties, scaleFactors));
-		} else if (this.updateTransformation(properties, ScalingEdit.class)) {
+			this.addOperation(new ScalingTransformation(this, properties, scaleFactors));
+		} else if (this.updateTransformation(properties, ScalingTransformation.class)) {
 			this.modifyLastTransformation(scaleFactors);
 		}
 	}
 	
 	public void reflectObjects(TransformationProperties properties, double[] reflectionVector) {
 		if (properties.startNewTransformation()) {
-			this.addOperation(new ReflectionEdit(this, properties, reflectionVector));
-		} else if (this.updateTransformation(properties, ReflectionEdit.class)) {
+			this.addOperation(new ReflectionTransformation(this, properties, reflectionVector));
+		} else if (this.updateTransformation(properties, ReflectionTransformation.class)) {
 			this.modifyLastTransformation(reflectionVector);
 		}
 	}
 	
 	public void shearObjects(TransformationProperties properties, double[] shearingFactors) {
 		if (properties.startNewTransformation()) {
-			this.addOperation(new ShearingEdit(this, properties, shearingFactors));
-		} else if (this.updateTransformation(properties, ShearingEdit.class)) {
+			this.addOperation(new ShearingTransformation(this, properties, shearingFactors));
+		} else if (this.updateTransformation(properties, ShearingTransformation.class)) {
 			this.modifyLastTransformation(shearingFactors);
 		}
 	}
@@ -229,17 +246,17 @@ public class BigBangModel extends Model {
 	}
 	
 	public void shapeObjects(TransformationProperties properties, TreeMap<Double,Double> shapingLocations) {
-		ShapingEdit edit = null;
-		if (this.transformationGraph.getSelectedOperation() instanceof ShapingEdit) {
-			edit = (ShapingEdit)this.transformationGraph.getSelectedOperation();
-		} else if (this.transformationGraph.getLastAddedOperation() instanceof ShapingEdit) {
-			edit = (ShapingEdit)this.transformationGraph.getLastAddedOperation();
+		ShapingOperation edit = null;
+		if (this.transformationGraph.getSelectedOperation() instanceof ShapingOperation) {
+			edit = (ShapingOperation)this.transformationGraph.getSelectedOperation();
+		} else if (this.transformationGraph.getLastAddedOperation() instanceof ShapingOperation) {
+			edit = (ShapingOperation)this.transformationGraph.getLastAddedOperation();
 		}
 		if (edit != null && edit.getShapingPaths().equals(properties.getTransformationPaths())) {
 			edit.addShapingLocations(shapingLocations);
 			this.updateComposition();
 		} else {	
-			this.addOperation(new ShapingEdit(this, properties, shapingLocations));
+			this.addOperation(new ShapingOperation(this, properties, shapingLocations));
 		}
 	}
 	
@@ -248,11 +265,11 @@ public class BigBangModel extends Model {
 	}
 	
 	public void buildSatellites(TreeSet<BigBangObject> objects, BigBangObject anchorObject, Integer powersetIndex) {
-		this.addOperation(new BuildSatellitesEdit(this, objects, anchorObject, powersetIndex));
+		this.addOperation(new BuildSatellitesOperation(this, objects, anchorObject, powersetIndex));
 	}
 	
 	public void flattenObjects(TreeSet<BigBangObject> objects) {
-		this.addOperation(new FlattenEdit(this, objects));
+		this.addOperation(new FlattenOperation(this, objects));
 	}
 	
 	public void addWallpaperDimension(TreeSet<BigBangObject> objectPaths, Integer rangeFrom, Integer rangeTo) {
@@ -260,7 +277,7 @@ public class BigBangModel extends Model {
 	}
 	
 	public void endWallpaper() {
-		this.addOperation(new EndWallpaperEdit(this));
+		this.addOperation(new EndWallpaperOperation(this));
 	}
 	
 	public void addAlteration(DenotatorPath degreesDimensionPath) {
@@ -445,6 +462,7 @@ public class BigBangModel extends Model {
 				if (i < operationsToBeExecuted.size()-1) {
 					nextOperation = operationsToBeExecuted.get(i+1);
 				}
+				//System.out.println(currentOperation);
 				PerformanceCheck.startTask("execute");
 				currentPathResults = currentOperation.execute();
 				PerformanceCheck.startTask("update paths");
@@ -473,6 +491,33 @@ public class BigBangModel extends Model {
 	private void fireCompositionChange() {
 		//TODO REPOLACE BY JUST SENDING ADDED/CHANGED OR REMOVED OBJECTS!!!!
 		this.firePropertyChange(BigBangController.COMPOSITION, null, this.objects);
+	}
+	
+	public BigBangModel clone() {
+		BigBangModel clonedModel = new BigBangModel();
+		clonedModel.transformationGraph = this.transformationGraph.clone(clonedModel);
+		clonedModel.updateComposition();
+		return clonedModel;
+	}
+
+	public void toXML(XMLWriter writer) {
+		writer.writeFormRef(this.denotators.getForm());
+		//System.out.println("TOXML " +this.denotators.getForm());
+		this.transformationGraph.toXML(writer);
+	}
+	
+	public static BigBangModel fromXML(XMLReader reader, Element element) {
+		BigBangModel model = new BigBangModel();
+		try {
+			Form form = reader.parseAndResolveForm(XMLReader.getChild(element, FORM));
+			model.setForm(form);
+			model.setGraph(BigBangTransformationGraph.fromXML(model, reader, element));
+			//initiates bbobjects and all
+			model.updateComposition();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return model;
 	}
 
 }

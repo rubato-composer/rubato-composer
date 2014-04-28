@@ -687,6 +687,8 @@ public final class XMLReader implements RubatoDictionary {
             String s = ((FormReference)f).getNameString();
             f = getForm(s);
         }
+        //inserted by florian. otherwise coordinators might still be references...
+        f.resolveReferences(Repository.systemRepository());
         return f;
     }
     
@@ -814,6 +816,16 @@ public final class XMLReader implements RubatoDictionary {
         if (res > max) res = max;
         return res;
      }
+    
+    /**
+     * Returns the boolean value of the given attribute in the specified element.
+     * @param element the element containing the attribute
+     * @param attr the attribute whose value is to be returned
+     */
+    public static boolean getBooleanAttribute(Element element, String attr) {
+        String value = element.getAttribute(attr);
+        return Boolean.parseBoolean(value);
+    }
      
      
     /**
@@ -845,7 +857,52 @@ public final class XMLReader implements RubatoDictionary {
         }
         return res;
     }
-     
+    
+    public static int[] getIntArrayAttribute(Element element, String attr) {
+    	List<Integer> intList = getIntListAttribute(element, attr);
+    	int[] intArray = new int[intList.size()];
+    	for (int i = 0; i < intArray.length; i++) {
+    		intArray[i] = intList.get(i);
+    	}
+    	return intArray;
+    }
+   
+	public static List<Integer> getIntListAttribute(Element element, String attr) {
+	   	List<Integer> intList = new ArrayList<Integer>();
+	   	String listString = XMLReader.getStringAttribute(element, attr);
+	   	listString = listString.substring(1, listString.length()-1);
+	   	listString = listString.replaceAll(" ", "");
+		List<String> stringList = new ArrayList<String>(Arrays.asList(listString.split(",")));
+		for (String currentIntString : stringList) {
+	   		if (currentIntString.length() > 0) {
+				intList.add(Integer.parseInt(currentIntString));
+			}
+		}
+	    return intList;
+	}
+    
+    public static double[] getDoubleArrayAttribute(Element element, String attr) {
+    	List<Double> doubleList = getDoubleListAttribute(element, attr);
+    	double[] doubleArray = new double[doubleList.size()];
+    	for (int i = 0; i < doubleArray.length; i++) {
+    		doubleArray[i] = doubleList.get(i);
+    	}
+    	return doubleArray;
+    }
+   
+	public static List<Double> getDoubleListAttribute(Element element, String attr) {
+	   	List<Double> doubleList = new ArrayList<Double>();
+	   	String listString = XMLReader.getStringAttribute(element, attr);
+	   	listString = listString.substring(1, listString.length()-1);
+	   	listString = listString.replaceAll(" ", "");
+		List<String> stringList = new ArrayList<String>(Arrays.asList(listString.split(",")));
+	   	for (String currentDoubleString : stringList) {
+	   		if (currentDoubleString.length() > 0) {
+	   			doubleList.add(Double.parseDouble(currentDoubleString));
+			}
+		}
+	    return doubleList;
+	}
     
     /**
      * Displays the modules that have been parsed.
