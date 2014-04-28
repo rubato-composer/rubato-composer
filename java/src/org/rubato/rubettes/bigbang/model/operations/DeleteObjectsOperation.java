@@ -7,11 +7,23 @@ import org.rubato.rubettes.bigbang.model.BigBangModel;
 import org.rubato.rubettes.bigbang.model.BigBangObject;
 import org.rubato.rubettes.bigbang.model.OperationPathResults;
 import org.rubato.rubettes.util.DenotatorPath;
+import org.rubato.xml.XMLReader;
+import org.w3c.dom.Element;
 
-public class DeleteObjectsEdit extends AbstractPathBasedOperation {
+public class DeleteObjectsOperation extends AbstractObjectBasedOperation {
 	
-	public DeleteObjectsEdit(BigBangModel model, Set<BigBangObject> objects) {
+	//used for cloning
+	protected DeleteObjectsOperation(BigBangModel model, DeleteObjectsOperation other) {
+		super(model, other);
+	}
+	
+	public DeleteObjectsOperation(BigBangModel model, Set<BigBangObject> objects) {
 		super(model, objects);
+	}
+	
+	public DeleteObjectsOperation(BigBangModel model, XMLReader reader, Element element) {
+		super(model, reader, element);
+		//TODO IMPLEMENT
 	}
 	
 	public void addObjects(Set<BigBangObject> objects) {
@@ -20,7 +32,7 @@ public class DeleteObjectsEdit extends AbstractPathBasedOperation {
 	
 	@Override
 	public OperationPathResults execute() {
-		Set<DenotatorPath> objectPaths = this.getObjectPaths(this.modifiedObjects);
+		Set<DenotatorPath> objectPaths = this.getObjectPaths();
 		this.model.getDenotatorManager().removeObjects(new ArrayList<DenotatorPath>(objectPaths));
 		return this.model.getDenotatorManager().getPathResults();
 	}

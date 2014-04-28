@@ -4,7 +4,6 @@ import junit.framework.TestCase;
 
 import org.rubato.base.RubatoException;
 import org.rubato.math.yoneda.Denotator;
-import org.rubato.rubettes.bigbang.controller.BigBangController;
 import org.rubato.rubettes.bigbang.model.BigBangModel;
 import org.rubato.rubettes.bigbang.model.DenotatorValueExtractor;
 import org.rubato.rubettes.bigbang.view.subview.DisplayObjects;
@@ -42,7 +41,7 @@ public class DisplayObjectsTest extends TestCase {
 	}
 	
 	private DisplayObjects createDisplayObjects(Denotator denotator) {
-		BigBangModel model = new BigBangModel(new BigBangController());
+		BigBangModel model = new BigBangModel();
 		model.setOrAddComposition(denotator);
 		new DenotatorValueExtractor(model.getObjects(), model.getComposition());
 		DisplayObjects objects = new DisplayObjects(model.getObjects());

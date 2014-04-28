@@ -1,5 +1,7 @@
 package org.rubato.rubettes.util;
 
+import static org.rubato.xml.XMLConstants.FORM;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -12,6 +14,9 @@ import org.rubato.math.module.Module;
 import org.rubato.math.module.ProductRing;
 import org.rubato.math.yoneda.Form;
 import org.rubato.math.yoneda.SimpleForm;
+import org.rubato.xml.XMLReader;
+import org.rubato.xml.XMLWriter;
+import org.w3c.dom.Element;
 
 /**
  * Just interesting for comparing paths denoting coordinates of the same denotator,
@@ -20,7 +25,7 @@ import org.rubato.math.yoneda.SimpleForm;
  */
 public class DenotatorPath implements Comparable<Object> {
 	
-	private ArrayList<Integer> indices;
+	private List<Integer> indices;
 	private Form baseForm;
 	//form at which the path ends
 	private Form endForm;
@@ -44,7 +49,12 @@ public class DenotatorPath implements Comparable<Object> {
 	
 	public DenotatorPath(Form baseForm, List<Integer> path) {
 		this(baseForm);
-		this.indices = (ArrayList<Integer>)path;
+		this.indices = path;
+		this.updateFormAndModule();
+	}
+	
+	public DenotatorPath(XMLReader reader, Element element) {
+		this.fromXML(reader, element);
 		this.updateFormAndModule();
 	}
 	
@@ -526,6 +536,20 @@ public class DenotatorPath implements Comparable<Object> {
 	
 	public String toString() {
 		return this.indices.toString();
+	}
+	
+	public static final String DENOTATOR_PATH_TAG = "DenotatorPath";
+	private static final String INDICES_ATTR = "indices";
+	
+	public void toXML(XMLWriter writer) {
+		writer.openBlock(DENOTATOR_PATH_TAG, INDICES_ATTR, this.indices.toString());
+		writer.writeFormRef(this.baseForm);
+		writer.closeBlock();
+	}
+	
+	private void fromXML(XMLReader reader, Element element) {
+		this.indices = XMLReader.getIntListAttribute(element, INDICES_ATTR);
+		this.baseForm = reader.parseAndResolveForm(XMLReader.getChild(element, FORM));
 	}
 
 }

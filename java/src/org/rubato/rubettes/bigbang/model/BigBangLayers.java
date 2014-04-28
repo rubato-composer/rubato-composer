@@ -10,10 +10,13 @@ public class BigBangLayers extends Model {
 	
 	private List<BigBangLayer> layers;
 	
-	public BigBangLayers(BigBangController controller) {
-		controller.addModel(this);
+	public BigBangLayers() {
 		this.layers = new ArrayList<BigBangLayer>();
 		this.addLayer();
+	}
+	
+	public void setController(BigBangController controller) {
+		controller.addModel(this);
 	}
 	
 	public void addLayer() {

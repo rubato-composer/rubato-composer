@@ -15,7 +15,6 @@ import org.rubato.math.yoneda.Denotator;
 import org.rubato.math.yoneda.Form;
 import org.rubato.math.yoneda.PowerDenotator;
 import org.rubato.math.yoneda.SimpleDenotator;
-import org.rubato.rubettes.bigbang.controller.BigBangController;
 import org.rubato.rubettes.bigbang.model.BigBangModel;
 import org.rubato.rubettes.bigbang.model.BigBangObject;
 import org.rubato.rubettes.bigbang.model.denotators.TransformationPaths;
@@ -23,8 +22,8 @@ import org.rubato.rubettes.bigbang.model.denotators.TransformationProperties;
 import org.rubato.rubettes.bigbang.model.graph.CompositionState;
 import org.rubato.rubettes.bigbang.model.operations.AbstractOperation;
 import org.rubato.rubettes.bigbang.model.operations.AddObjectsOperation;
-import org.rubato.rubettes.bigbang.model.operations.ScalingEdit;
-import org.rubato.rubettes.bigbang.model.operations.TranslationEdit;
+import org.rubato.rubettes.bigbang.model.operations.ScalingTransformation;
+import org.rubato.rubettes.bigbang.model.operations.TranslationTransformation;
 import org.rubato.rubettes.util.DenotatorPath;
 
 import edu.uci.ics.jung.graph.util.Pair;
@@ -37,7 +36,7 @@ public class BigBangTransformationGraphTest extends TestCase {
 	
 	protected void setUp() {
 		this.objects = new TestObjects();
-		this.model = new BigBangModel(new BigBangController());
+		this.model = new BigBangModel();
 		this.nodePaths = this.objects.createStandardTransformationPaths(
 				this.objects.SOUND_NODE_FORM, new int[][]{{0,0},{0,1}});
 	}
@@ -316,11 +315,11 @@ public class BigBangTransformationGraphTest extends TestCase {
 		//check number of nodes and edges and the shifts of the resulting translations
 		TestCase.assertEquals(6, this.model.getTransformationGraph().getVertexCount());
 		TestCase.assertEquals(5, this.model.getTransformationGraph().getEdgeCount());
-		TranslationEdit firstPart = (TranslationEdit)this.model.getTransformationGraph().getOutEdges(this.getCompStateAt(2)).iterator().next();
+		TranslationTransformation firstPart = (TranslationTransformation)this.model.getTransformationGraph().getOutEdges(this.getCompStateAt(2)).iterator().next();
 		TestCase.assertEquals(0.0, firstPart.getStartingPoint()[1]);
 		//cope with rounding error
 		TestCase.assertEquals(0.4, ((double)Math.round(firstPart.getEndingPoint()[1]*1000))/1000);
-		TranslationEdit secondPart = (TranslationEdit)this.model.getTransformationGraph().getOutEdges(this.getCompStateAt(3)).iterator().next();
+		TranslationTransformation secondPart = (TranslationTransformation)this.model.getTransformationGraph().getOutEdges(this.getCompStateAt(3)).iterator().next();
 		TestCase.assertEquals(0.4, ((double)Math.round(1000*secondPart.getStartingPoint()[1]))/1000);
 		TestCase.assertEquals(1.0, ((double)Math.round(1000*secondPart.getEndingPoint()[1]))/1000);
 		
@@ -332,11 +331,11 @@ public class BigBangTransformationGraphTest extends TestCase {
 		//check number of nodes and edges and the shifts of the resulting scalings
 		TestCase.assertEquals(7, this.model.getTransformationGraph().getVertexCount());
 		TestCase.assertEquals(6, this.model.getTransformationGraph().getEdgeCount());
-		ScalingEdit firstScalingPart = (ScalingEdit)this.model.getTransformationGraph().getOutEdges(this.getCompStateAt(4)).iterator().next();
+		ScalingTransformation firstScalingPart = (ScalingTransformation)this.model.getTransformationGraph().getOutEdges(this.getCompStateAt(4)).iterator().next();
 		TestCase.assertEquals(0.0, firstScalingPart.getCenter()[1]);
 		//cope with rounding error
 		TestCase.assertEquals(1.5, ((double)Math.round(firstScalingPart.getScaleFactors()[1]*1000))/1000);
-		ScalingEdit secondScalingPart = (ScalingEdit)this.model.getTransformationGraph().getOutEdges(this.getCompStateAt(5)).iterator().next();
+		ScalingTransformation secondScalingPart = (ScalingTransformation)this.model.getTransformationGraph().getOutEdges(this.getCompStateAt(5)).iterator().next();
 		TestCase.assertEquals(0.0, secondScalingPart.getCenter()[1]);
 		TestCase.assertEquals(1.5, ((double)Math.round(1000*secondScalingPart.getScaleFactors()[1]))/1000);
 	}

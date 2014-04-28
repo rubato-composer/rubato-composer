@@ -9,6 +9,8 @@ import org.rubato.rubettes.bigbang.model.BigBangModel;
 import org.rubato.rubettes.bigbang.model.BigBangObject;
 import org.rubato.rubettes.bigbang.model.OperationPathResults;
 import org.rubato.rubettes.util.DenotatorPath;
+import org.rubato.xml.XMLReader;
+import org.w3c.dom.Element;
 
 public class AlterationOperation extends AbstractOperation {
 	
@@ -17,6 +19,21 @@ public class AlterationOperation extends AbstractOperation {
 	private List<DenotatorPath> alterationCoordinates;
 	private double startDegree, endDegree;
 	private DenotatorPath degreesDimensionPath;
+	
+	//used for cloning
+	protected AlterationOperation(BigBangModel model, AlterationOperation other) {
+		this(model, other.degreesDimensionPath);
+		if (model == this.model) {
+			this.foregroundComposition = other.foregroundComposition;
+			this.backgroundComposition = other.backgroundComposition;
+		} else {
+			this.foregroundComposition = new TreeSet<BigBangObject>();
+			this.backgroundComposition = new TreeSet<BigBangObject>();
+		}
+		this.alterationCoordinates = other.alterationCoordinates;
+		this.startDegree = other.startDegree;
+		this.endDegree = other.endDegree;
+	}
 	
 	public AlterationOperation(BigBangModel model, DenotatorPath degreesDimensionPath) {
 		super(model);
@@ -27,6 +44,11 @@ public class AlterationOperation extends AbstractOperation {
 		this.startDegree = 0;
 		this.endDegree = 0;
 		this.degreesDimensionPath = degreesDimensionPath;
+	}
+	
+	public AlterationOperation(BigBangModel model, XMLReader reader, Element element) {
+		super(model, reader, element);
+		//TODO IMPLEMENT
 	}
 	
 	public void setForegroundComposition(Set<BigBangObject> foregroundComposition) {

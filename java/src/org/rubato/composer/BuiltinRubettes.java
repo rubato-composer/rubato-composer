@@ -67,7 +67,8 @@ public final class BuiltinRubettes {
         "org.rubato.rubettes.morphing.MorphingRubette",
         "org.rubato.rubettes.bigbang.BigBangRubette",
         "org.rubato.rubettes.image.ImageFileInRubette",
-        "org.rubato.rubettes.image.ImageFileOutRubette"
+        "org.rubato.rubettes.image.ImageFileOutRubette",
+        "org.rubato.rubettes.sound.OscillatorRubette"
         //"org.rubato.rubettes.image.ImageDisplayRubette"
     };
 

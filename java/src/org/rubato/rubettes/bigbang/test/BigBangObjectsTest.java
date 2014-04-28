@@ -10,13 +10,12 @@ import java.util.TreeSet;
 import junit.framework.TestCase;
 
 import org.rubato.math.yoneda.Form;
-import org.rubato.rubettes.bigbang.controller.BigBangController;
 import org.rubato.rubettes.bigbang.model.BigBangObject;
 import org.rubato.rubettes.bigbang.model.BigBangObjects;
 import org.rubato.rubettes.bigbang.model.OperationPathResults;
 import org.rubato.rubettes.bigbang.model.operations.AbstractOperation;
 import org.rubato.rubettes.bigbang.model.operations.AddObjectsOperation;
-import org.rubato.rubettes.bigbang.model.operations.DeleteObjectsEdit;
+import org.rubato.rubettes.bigbang.model.operations.DeleteObjectsOperation;
 import org.rubato.rubettes.util.DenotatorPath;
 
 public class BigBangObjectsTest extends TestCase {
@@ -25,7 +24,7 @@ public class BigBangObjectsTest extends TestCase {
 	private BigBangObjects objects;
 	
 	protected void setUp() {
-		this.objects = new BigBangObjects(this.SOUND_SCORE_FORM, new BigBangController());
+		this.objects = new BigBangObjects(this.SOUND_SCORE_FORM);
 	}
 	
 	public void testGeneralMethods() {
@@ -34,7 +33,7 @@ public class BigBangObjectsTest extends TestCase {
 	
 	public void testUpdateWithAdding() {
 		//add three objects
-		AddObjectsOperation addEdit = new AddObjectsOperation(null, null, null);
+		AddObjectsOperation addEdit = new AddObjectsOperation(null, null, null, false);
 		Set<DenotatorPath> firstAddedPaths = this.createPathSet(3,0);
 		this.objects.updatePaths(addEdit, null, new OperationPathResults(firstAddedPaths, null));
 		TestCase.assertEquals(3, this.objects.getAllObjects().size());
@@ -56,7 +55,7 @@ public class BigBangObjectsTest extends TestCase {
 		TestCase.assertTrue(object3 == new ArrayList<BigBangObject>(this.objects.getAllObjects()).get(2));
 		
 		//add more in a later add
-		AddObjectsOperation addEdit2 = new AddObjectsOperation(null, null, null);
+		AddObjectsOperation addEdit2 = new AddObjectsOperation(null, null, null, false);
 		Set<DenotatorPath> fourthAddedPaths = this.createPathSet(2,4);
 		this.objects.updatePaths(addEdit, addEdit2, new OperationPathResults(thirdAddedPaths, null));
 		this.objects.updatePaths(addEdit2, null, new OperationPathResults(fourthAddedPaths, null));
@@ -68,7 +67,7 @@ public class BigBangObjectsTest extends TestCase {
 	
 	public void testUpdateWithAddingSatellites() {
 		//add an anchor
-		AddObjectsOperation addEdit = new AddObjectsOperation(null, null, null);
+		AddObjectsOperation addEdit = new AddObjectsOperation(null, null, null, false);
 		Set<DenotatorPath> addedPaths = new TreeSet<DenotatorPath>();
 		addedPaths.add(new DenotatorPath(this.SOUND_SCORE_FORM, new int[]{0}));
 		this.objects.updatePaths(addEdit, null, new OperationPathResults(addedPaths, null));
@@ -98,10 +97,10 @@ public class BigBangObjectsTest extends TestCase {
 	}
 	
 	public void testUpdateWithAddingAndChanging() {
-		AddObjectsOperation edit1 = new AddObjectsOperation(null, null, null);
+		AddObjectsOperation edit1 = new AddObjectsOperation(null, null, null, false);
 		Set<DenotatorPath> addedPaths1 = this.createPathSet(1,0);
 		
-		AddObjectsOperation edit2 = new AddObjectsOperation(null, null, null);
+		AddObjectsOperation edit2 = new AddObjectsOperation(null, null, null, false);
 		Set<DenotatorPath> addedPaths2 = this.createPathSet(1,1);
 		
 		Set<DenotatorPath> addedPaths3 = this.createPathSet(1,0);
@@ -148,9 +147,9 @@ public class BigBangObjectsTest extends TestCase {
 	}
 	
 	public void testWithRemoving() {
-		AddObjectsOperation addEdit = new AddObjectsOperation(null, null, null);
+		AddObjectsOperation addEdit = new AddObjectsOperation(null, null, null, false);
 		Set<DenotatorPath> addedPaths = this.createPathSet(4,0);
-		DeleteObjectsEdit removeEdit = new DeleteObjectsEdit(null, new TreeSet<BigBangObject>());
+		DeleteObjectsOperation removeEdit = new DeleteObjectsOperation(null, new TreeSet<BigBangObject>());
 		Set<DenotatorPath> removedPaths = this.createPathSet(2,1);
 		Map<DenotatorPath,DenotatorPath> changedPaths = this.createPathMap(new int[][]{{3},{1}});
 		
@@ -172,10 +171,10 @@ public class BigBangObjectsTest extends TestCase {
 	
 	public void testUpdateWithProjection() {
 		//tests update in case of transformation that loses objects and suddenly doesn't (e.g. projection)
-		AddObjectsOperation addEdit = new AddObjectsOperation(null, null, null);
+		AddObjectsOperation addEdit = new AddObjectsOperation(null, null, null, false);
 		Set<DenotatorPath> addedPaths = this.createPathSet(3,0);
 		//just a dummy edit simulation a ScalingEdit
-		DeleteObjectsEdit scalingEdit = new DeleteObjectsEdit(null, new TreeSet<BigBangObject>());
+		DeleteObjectsOperation scalingEdit = new DeleteObjectsOperation(null, new TreeSet<BigBangObject>());
 		Set<DenotatorPath> removedPaths = this.createPathSet(2,0);
 		Map<DenotatorPath,DenotatorPath> changedPaths = this.createPathMap(new int[][]{{2},{0}});
 		

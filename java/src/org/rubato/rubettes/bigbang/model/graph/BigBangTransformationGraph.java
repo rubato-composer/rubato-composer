@@ -9,11 +9,16 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
+import org.rubato.rubettes.bigbang.model.BigBangModel;
 import org.rubato.rubettes.bigbang.model.operations.AbstractOperation;
+import org.rubato.xml.XMLReader;
+import org.rubato.xml.XMLWriter;
+import org.w3c.dom.Element;
 
 import edu.uci.ics.jung.algorithms.shortestpath.DijkstraShortestPath;
 import edu.uci.ics.jung.graph.DirectedSparseMultigraph;
 import edu.uci.ics.jung.graph.util.EdgeType;
+import edu.uci.ics.jung.graph.util.Pair;
 
 public class BigBangTransformationGraph extends DirectedSparseMultigraph<CompositionState,AbstractOperation> {
 	
@@ -39,6 +44,7 @@ public class BigBangTransformationGraph extends DirectedSparseMultigraph<Composi
 	private CompositionState addCompositionState() {
 		CompositionState newState = new CompositionState(this.compositionStates.size());
 		this.compositionStates.add(newState);
+		this.addVertex(newState);
 		return newState;
 	}
 	
@@ -388,6 +394,93 @@ public class BigBangTransformationGraph extends DirectedSparseMultigraph<Composi
 	
 	public double getOperationStartingTime(AbstractOperation edit) {
 		return this.currentlyReachedStatesAndTimes.get(this.getSource(edit));
+	}
+	
+	public BigBangTransformationGraph clone(BigBangModel model) {
+		BigBangTransformationGraph clone = new BigBangTransformationGraph();
+		while (clone.compositionStates.size() < this.compositionStates.size()) {
+			clone.addCompositionState();
+		}
+		clone.cloneOperations(this, model);
+		return clone;
+	}
+	
+	//adds all operations of the given graph to this graph and connects them to the given model
+	private void cloneOperations(BigBangTransformationGraph otherGraph, BigBangModel model) {
+		this.allOperationsInAddedOrder = new ArrayList<AbstractOperation>();
+		for (AbstractOperation currentOperation : otherGraph.allOperationsInAddedOrder) {
+			//clone operation and add
+			AbstractOperation clonedOperation = currentOperation.clone(model);
+			this.allOperationsInAddedOrder.add(clonedOperation);
+			//add edge to graph
+			Pair<CompositionState> currentEndpoints = otherGraph.getEndpoints(currentOperation);
+			CompositionState currentFirstState = this.compositionStates.get(currentEndpoints.getFirst().getIndex());
+			CompositionState currentSecondState = this.compositionStates.get(currentEndpoints.getSecond().getIndex());
+			this.addEdge(clonedOperation, currentFirstState, currentSecondState);
+		}
+		//update logical order and executed operations TODO: BUILD IN AS BELOW!!!!!
+		for (AbstractOperation currentOperation : otherGraph.allOperationsInLogicalOrder) {
+			int addedIndex = otherGraph.allOperationsInAddedOrder.indexOf(currentOperation);
+			this.allOperationsInLogicalOrder.add(this.allOperationsInAddedOrder.get(addedIndex));
+		}
+		this.updateCurrentlyExecutedEditsAndStatesAndTimes();
+	}
+
+	private static final String GRAPH_TAG = "TransformationGraph";
+	private static final String NUMBER_OF_STATES_ATTR = "numberOfStates";
+	private static final String OPERATION_TAG = "Operation";
+	private static final String CLASSNAME_ATTR = "className";
+	private static final String HEAD_ATTR = "head";
+	private static final String TAIL_ATTR = "tail";
+	private static final String LOGICAL_POSITION_ATTR = "logicalPosition";
+	
+	public void toXML(XMLWriter writer) {
+		writer.openBlock(GRAPH_TAG, NUMBER_OF_STATES_ATTR, this.compositionStates.size());
+		for (AbstractOperation currentOperation : this.allOperationsInAddedOrder) {
+			Pair<CompositionState> currentEndpoints = this.getEndpoints(currentOperation);
+			int currentHead = currentEndpoints.getFirst().getIndex();
+			int currentTail = currentEndpoints.getSecond().getIndex();
+			writer.openBlock(OPERATION_TAG, CLASSNAME_ATTR, currentOperation.getClass().getName(),
+					HEAD_ATTR, currentHead, TAIL_ATTR, currentTail,
+					LOGICAL_POSITION_ATTR, this.allOperationsInLogicalOrder.indexOf(currentOperation));
+			currentOperation.toXML(writer);
+			writer.closeBlock();
+		}
+		writer.closeBlock();
+	}
+	
+	public static BigBangTransformationGraph fromXML(BigBangModel model, XMLReader reader, Element element) {
+		BigBangTransformationGraph graph = new BigBangTransformationGraph();
+		Element graphElement = XMLReader.getChild(element, GRAPH_TAG);
+		int numberOfStates = XMLReader.getIntAttribute(graphElement, NUMBER_OF_STATES_ATTR, 0);
+		while (graph.getVertexCount() < numberOfStates) {
+			graph.addCompositionState();
+		}
+		Element currentOperationElement = XMLReader.getChild(graphElement, OPERATION_TAG);
+		while (currentOperationElement != null) {
+			String currentName = XMLReader.getStringAttribute(currentOperationElement, CLASSNAME_ATTR);
+			int currentHead = XMLReader.getIntAttribute(currentOperationElement, HEAD_ATTR, 0);
+			int currentTail = XMLReader.getIntAttribute(currentOperationElement, TAIL_ATTR, 0);
+			int currentLogicalPosition = XMLReader.getIntAttribute(currentOperationElement, LOGICAL_POSITION_ATTR, 0);
+			//System.out.println(currentName + " " +model + " " + reader + " " + currentOperationElement);
+			try {
+				Class<? extends AbstractOperation> operationClass = (Class<? extends AbstractOperation>)Class.forName(currentName);
+				/*AbstractOperation currentOperation = (AbstractOperation)operationClass
+						.getDeclaredMethod("fromXML", BigBangModel.class, XMLReader.class, Element.class)
+						.invoke(model, reader, currentOperationElement);*/
+				AbstractOperation currentOperation = operationClass
+						.getDeclaredConstructor(BigBangModel.class, XMLReader.class, Element.class)
+						.newInstance(model, reader, currentOperationElement);
+				graph.allOperationsInAddedOrder.add(currentOperation);
+				graph.addEdge(currentOperation, graph.compositionStates.get(currentHead), graph.compositionStates.get(currentTail));
+				graph.allOperationsInLogicalOrder.add(currentLogicalPosition, currentOperation);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+			currentOperationElement = XMLReader.getNextSibling(currentOperationElement, OPERATION_TAG);
+		}
+		graph.updateCurrentlyExecutedEditsAndStatesAndTimes();
+		return graph;
 	}
 
 }

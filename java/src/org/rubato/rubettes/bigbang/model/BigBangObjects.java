@@ -33,7 +33,7 @@ public class BigBangObjects {
 	private BigBangLayers layers;
 	private List<Double> minValues, maxValues;
 	
-	public BigBangObjects(Form baseForm, BigBangController controller) {
+	public BigBangObjects(Form baseForm) {
 		this.baseForm = baseForm;
 		
 		this.finder = new FormValueFinder(this.baseForm, true);
@@ -48,11 +48,15 @@ public class BigBangObjects {
 			coordinateSystemValueNames.add(DenotatorValueExtractor.COLIMIT_INDEX);
 		}
 		this.coordinateSystemValueNames = coordinateSystemValueNames;
-		this.layers = new BigBangLayers(controller);
+		this.layers = new BigBangLayers();
 		
 		this.clearObjects();
 		this.minValues = new ArrayList<Double>();
 		this.maxValues = new ArrayList<Double>();
+	}
+	
+	public void setController(BigBangController controller) {
+		this.layers.setController(controller);
 	}
 	
 	public void clearObjects() {

@@ -1,7 +1,6 @@
 package org.rubato.rubettes.bigbang.model.operations;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
@@ -9,23 +8,41 @@ import java.util.TreeSet;
 import org.rubato.rubettes.bigbang.model.BigBangModel;
 import org.rubato.rubettes.bigbang.model.BigBangObject;
 import org.rubato.rubettes.util.DenotatorPath;
+import org.rubato.xml.XMLReader;
+import org.w3c.dom.Element;
 
-public abstract class AbstractPathBasedOperation extends AbstractOperation {
+public abstract class AbstractObjectBasedOperation extends AbstractOperation {
 	
 	private Set<BigBangObject> objects;
-	protected Set<BigBangObject> modifiedObjects;
 	
-	public AbstractPathBasedOperation(BigBangModel model) {
+	protected AbstractObjectBasedOperation(BigBangModel model, AbstractObjectBasedOperation other) {
+		this(model);
+		if (model == other.model) {
+			this.setObjects(new TreeSet<BigBangObject>(other.objects));
+		}
+	}
+	
+	public AbstractObjectBasedOperation(BigBangModel model, Set<BigBangObject> objects) {
+		this(model);
+		this.setObjects(objects);
+	}
+	
+	private AbstractObjectBasedOperation(BigBangModel model) {
 		super(model);
+		this.init();
+	}
+	
+	public AbstractObjectBasedOperation(BigBangModel model, XMLReader reader, Element element) {
+		super(model, reader, element);
+		this.init();
+	}
+	
+	private void init() {
 		this.isAnimatable = true;
 		this.isSplittable = false;
 		this.minModRatio = 0.0;
 		this.maxModRatio = 1.0;
-	}
-	
-	public AbstractPathBasedOperation(BigBangModel model, Set<BigBangObject> objects) {
-		this(model);
-		this.setObjects(objects);
+		this.setObjects(new TreeSet<BigBangObject>());
 	}
 	
 	protected void setObjects(Set<BigBangObject> objects) {
@@ -38,30 +55,21 @@ public abstract class AbstractPathBasedOperation extends AbstractOperation {
 		this.updateOperation();
 	}
 	
-	//adjusts the number of objects to be handled according to this.modificationRatio
 	protected void updateOperation() {
-		this.modifiedObjects = new TreeSet<BigBangObject>();
-		int modifiedNumberOfObjects = (int)Math.round(this.modificationRatio*this.objects.size());
-		Iterator<BigBangObject> objectIterator = this.objects.iterator();
-		while (this.modifiedObjects.size() < modifiedNumberOfObjects) {
-			BigBangObject currentO = objectIterator.next();
-			this.modifiedObjects.add(currentO);
-		}
+		//do nothing. modificationRatio is considered in getObjectPaths 
 	}
 	
-	protected Set<DenotatorPath> getObjectPaths(Set<BigBangObject> objects) {
-		//avoid returning all object paths if only modifiedObjects empty
-		if (this.modifiedObjects.size() == 0 && this.objects.size() > 0) {
-			return new TreeSet<DenotatorPath>();
-		}
-		return super.getObjectPaths(objects);
+	protected Set<DenotatorPath> getObjectPaths() {
+		List<DenotatorPath> objectPaths = new ArrayList<DenotatorPath>(super.getObjectPaths(this.objects));
+		int modifiedNumberOfObjects = (int)Math.round(this.modificationRatio*objectPaths.size());
+		return new TreeSet<DenotatorPath>(objectPaths.subList(0, modifiedNumberOfObjects));
 	}
 	
 	public List<AbstractOperation> getSplitOperations(double ratio) {
 		try {
 			List<AbstractOperation> splitOperations = new ArrayList<AbstractOperation>();
-			AbstractPathBasedOperation firstOperation = this.clone();
-			AbstractPathBasedOperation secondOperation = this.clone();
+			AbstractObjectBasedOperation firstOperation = (AbstractObjectBasedOperation)this.clone();
+			AbstractObjectBasedOperation secondOperation = (AbstractObjectBasedOperation)this.clone();
 			int amountInFirstSet = (int)Math.round(ratio*this.objects.size());
 			List<Set<BigBangObject>> splitObjects = this.getSplitObjects(amountInFirstSet);
 			firstOperation.setObjects(splitObjects.get(0));
@@ -87,18 +95,6 @@ public abstract class AbstractPathBasedOperation extends AbstractOperation {
 			}
 		}
 		return splitSets;
-	}
-	
-	public AbstractPathBasedOperation clone() {
-		AbstractPathBasedOperation clone;
-		try {
-			clone = this.getClass().getDeclaredConstructor(BigBangModel.class).newInstance(this.model);
-			clone.setObjects(this.objects);
-			return clone;
-		} catch (Exception e) {
-			e.printStackTrace();
-			return null;
-		}
 	}
 
 }

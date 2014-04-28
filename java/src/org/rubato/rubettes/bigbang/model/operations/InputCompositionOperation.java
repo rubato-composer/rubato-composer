@@ -6,20 +6,37 @@ import org.rubato.math.yoneda.ListDenotator;
 import org.rubato.math.yoneda.PowerDenotator;
 import org.rubato.rubettes.bigbang.model.BigBangModel;
 import org.rubato.rubettes.bigbang.model.OperationPathResults;
+import org.rubato.xml.XMLConstants;
+import org.rubato.xml.XMLReader;
+import org.rubato.xml.XMLWriter;
+import org.w3c.dom.Element;
 
-public class SetOrAddCompositionEdit extends AbstractOperation {
+public class InputCompositionOperation extends AbstractOperation {
 	
 	private Denotator composition;
 	private Denotator modifiedComposition;
 	
-	public SetOrAddCompositionEdit(BigBangModel model, Denotator composition) {
+	protected InputCompositionOperation(BigBangModel model, InputCompositionOperation other) {
 		super(model);
-		this.composition = composition;
+		this.init(other.composition);
+	}
+	
+	public InputCompositionOperation(BigBangModel model, Denotator composition) {
+		super(model);
+		this.init(composition);
+	}
+	
+	public InputCompositionOperation(BigBangModel model, XMLReader reader, Element element) {
+		super(model, reader, element);
+		this.fromXML(reader, element);
+	}
+	
+	private void init(Denotator composition) {
 		this.isAnimatable = true;
 		this.isSplittable = false;
 		this.minModRatio = 0.0;
 		this.maxModRatio = 1.0;
-		this.updateOperation();
+		this.setOrAddComposition(composition);
 	}
 	
 	public void setOrAddComposition(Denotator composition) {
@@ -61,6 +78,15 @@ public class SetOrAddCompositionEdit extends AbstractOperation {
 			return "Input " + this.composition.getForm().getNameString();
 		}
 		return "Input";
+	}
+	
+	public void toXML(XMLWriter writer) {
+		super.toXML(writer);
+		this.composition.toXML(writer);
+	}
+	
+	private void fromXML(XMLReader reader, Element element) {
+		this.setOrAddComposition(reader.parseDenotator(XMLReader.getChild(element, XMLConstants.DENOTATOR)));
 	}
 
 }

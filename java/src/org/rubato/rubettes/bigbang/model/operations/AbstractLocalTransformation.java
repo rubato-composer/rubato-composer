@@ -6,18 +6,25 @@ import java.util.List;
 import org.rubato.math.matrix.RMatrix;
 import org.rubato.rubettes.bigbang.model.BigBangModel;
 import org.rubato.rubettes.bigbang.model.denotators.TransformationProperties;
+import org.rubato.xml.XMLReader;
+import org.rubato.xml.XMLWriter;
+import org.w3c.dom.Element;
 
 public abstract class AbstractLocalTransformation extends AbstractTransformation {
 	
 	private double[] shift1, shift2;
 	
 	//used for cloning
-	protected AbstractLocalTransformation(BigBangModel model) {
-		super(model);
+	protected AbstractLocalTransformation(BigBangModel model, AbstractLocalTransformation other) {
+		super(model, other);
 	}
 	
 	public AbstractLocalTransformation(BigBangModel model, TransformationProperties properties) {
 		super(model, properties);
+	}
+	
+	public AbstractLocalTransformation(BigBangModel model, XMLReader reader, Element element) {
+		super(model, reader, element);
 	}
 	
 	public void updateOperation() {
@@ -63,6 +70,10 @@ public abstract class AbstractLocalTransformation extends AbstractTransformation
 	
 	protected double[] getShift() {
 		return new double[2];
+	}
+	
+	public void toXML(XMLWriter writer) {
+		super.toXML(writer);
 	}
 	
 }

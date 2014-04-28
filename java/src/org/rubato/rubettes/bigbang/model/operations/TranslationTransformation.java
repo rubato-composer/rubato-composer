@@ -6,18 +6,26 @@ import java.util.List;
 import org.rubato.math.matrix.RMatrix;
 import org.rubato.rubettes.bigbang.model.BigBangModel;
 import org.rubato.rubettes.bigbang.model.denotators.TransformationProperties;
+import org.rubato.xml.XMLReader;
+import org.w3c.dom.Element;
 
-public class TranslationEdit extends AbstractTransformation {
+public class TranslationTransformation extends AbstractTransformation {
 	
 	private double[] modifiedShift;
 	
 	//used for cloning
-	protected TranslationEdit(BigBangModel model) {
-		super(model);
+	protected TranslationTransformation(BigBangModel model, TranslationTransformation other) {
+		super(model, other);
+		this.updateOperation();
 	}
 	
-	public TranslationEdit(BigBangModel model, TransformationProperties properties) {
+	public TranslationTransformation(BigBangModel model, TransformationProperties properties) {
 		super(model, properties);
+		this.updateOperation();
+	}
+	
+	public TranslationTransformation(BigBangModel model, XMLReader reader, Element element) {
+		super(model, reader, element);
 		this.updateOperation();
 	}
 	
@@ -38,9 +46,9 @@ public class TranslationEdit extends AbstractTransformation {
 		List<AbstractOperation> translations = new ArrayList<AbstractOperation>();
 		double[] partialShift = new double[]{this.modifiedShift[0]*ratio, this.modifiedShift[1]*ratio};
 		double[] pointInBetween = new double[]{this.getStartingPoint()[0]+partialShift[0], this.getStartingPoint()[1]+partialShift[1]};
-		TranslationEdit firstTranslation = (TranslationEdit)this.clone();
+		TranslationTransformation firstTranslation = (TranslationTransformation)this.clone();
 		firstTranslation.modify(pointInBetween);
-		TranslationEdit secondTranslation = (TranslationEdit)this.clone();
+		TranslationTransformation secondTranslation = (TranslationTransformation)this.clone();
 		secondTranslation.modifyCenter(pointInBetween);
 		secondTranslation.modify(this.endingPoint);
 		translations.add(firstTranslation);

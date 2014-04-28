@@ -29,11 +29,11 @@ import org.rubato.rubettes.bigbang.model.operations.AbstractTransformation;
 import org.rubato.rubettes.bigbang.model.operations.AddObjectsOperation;
 import org.rubato.rubettes.bigbang.model.operations.AddWallpaperDimensionOperation;
 import org.rubato.rubettes.bigbang.model.operations.AlterationOperation;
-import org.rubato.rubettes.bigbang.model.operations.ReflectionEdit;
-import org.rubato.rubettes.bigbang.model.operations.RotationEdit;
-import org.rubato.rubettes.bigbang.model.operations.ScalingEdit;
-import org.rubato.rubettes.bigbang.model.operations.ShearingEdit;
-import org.rubato.rubettes.bigbang.model.operations.TranslationEdit;
+import org.rubato.rubettes.bigbang.model.operations.ReflectionTransformation;
+import org.rubato.rubettes.bigbang.model.operations.RotationTransformation;
+import org.rubato.rubettes.bigbang.model.operations.ScalingTransformation;
+import org.rubato.rubettes.bigbang.model.operations.ShearingTransformation;
+import org.rubato.rubettes.bigbang.model.operations.TranslationTransformation;
 import org.rubato.rubettes.bigbang.view.View;
 import org.rubato.rubettes.bigbang.view.controller.ViewController;
 import org.rubato.rubettes.bigbang.view.controller.mode.DisplayModeAdapter;
@@ -420,26 +420,26 @@ public class BigBangView extends Model implements View {
 			//then select displaymode and convert values!!
 			if (operation instanceof AddObjectsOperation) {
 				this.setDisplayMode(new DrawingModeAdapter(this.viewController));
-			} else if (operation instanceof TranslationEdit) {
-				double[] startingPoint = this.panel.getXYDisplayValues(((TranslationEdit)operation).getStartingPoint());
-				double[] endingPoint = this.panel.getXYDisplayValues(((TranslationEdit)operation).getEndingPoint());
+			} else if (operation instanceof TranslationTransformation) {
+				double[] startingPoint = this.panel.getXYDisplayValues(((TranslationTransformation)operation).getStartingPoint());
+				double[] endingPoint = this.panel.getXYDisplayValues(((TranslationTransformation)operation).getEndingPoint());
 				this.setDisplayMode(new TranslationModeAdapter(this.viewController, startingPoint, endingPoint));
 			} else if (operation instanceof AbstractLocalTransformation) {
 				AbstractLocalTransformation localEdit = (AbstractLocalTransformation)operation;
 				double[] center = this.panel.getXYDisplayValues(localEdit.getCenter());
 				double[] endingPoint = this.panel.getXYDisplayValues(localEdit.getEndingPoint());
-				if (operation instanceof RotationEdit) {
-					double[] startingPoint = ((RotationEdit)operation).getStartingPoint();
-					double angle = ((RotationEdit)operation).getAngle();
+				if (operation instanceof RotationTransformation) {
+					double[] startingPoint = ((RotationTransformation)operation).getStartingPoint();
+					double angle = ((RotationTransformation)operation).getAngle();
 					this.setDisplayMode(new RotationModeAdapter(this.viewController, center, startingPoint, endingPoint, angle));
-				} else if (operation instanceof ScalingEdit) {
-					double[] scaleFactors = ((ScalingEdit)operation).getScaleFactors();
+				} else if (operation instanceof ScalingTransformation) {
+					double[] scaleFactors = ((ScalingTransformation)operation).getScaleFactors();
 					this.setDisplayMode(new ScalingModeAdapter(this.viewController, center, endingPoint, scaleFactors));
-				} else if (operation instanceof ShearingEdit) {
-					double[] shearingFactors = ((ShearingEdit)operation).getShearingFactors();
+				} else if (operation instanceof ShearingTransformation) {
+					double[] shearingFactors = ((ShearingTransformation)operation).getShearingFactors();
 					this.setDisplayMode(new ShearingModeAdapter(this.viewController, center, endingPoint, shearingFactors));
-				} else if (operation instanceof ReflectionEdit) {
-					double[] reflectionVector = ((ReflectionEdit)operation).getReflectionVector();
+				} else if (operation instanceof ReflectionTransformation) {
+					double[] reflectionVector = ((ReflectionTransformation)operation).getReflectionVector();
 					this.setDisplayMode(new ReflectionModeAdapter(this.viewController, center, reflectionVector));
 				}
 			}
@@ -483,7 +483,7 @@ public class BigBangView extends Model implements View {
 	}
 	
 	public void modifyRotationAngle(Double angle) {
-		((RotationEdit)this.selectedOperation).modifyAngle(angle);
+		((RotationTransformation)this.selectedOperation).modifyAngle(angle);
 		this.controller.operationModified();
 	}
 	
