@@ -1,6 +1,5 @@
 package org.rubato.rubettes.bigbang.view.subview;
 
-import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Point;
@@ -120,10 +119,6 @@ public class JBigBangDisplay extends JPanel implements View {
 			this.contents.setSatellitesConnected((Boolean)event.getNewValue());
 			this.repaint();
 		} else if (propertyName.equals(ViewController.LAYERS)) {
-			this.repaint();
-		} else if (propertyName.equals(ViewController.TOGGLE_MOD_FILTER)) {
-			this.repaint();
-		} else if (propertyName.equals(ViewController.MOD_FILTER_VALUES)) {
 			this.repaint();
 		}
 	}

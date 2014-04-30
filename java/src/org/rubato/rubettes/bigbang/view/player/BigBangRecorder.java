@@ -54,7 +54,13 @@ public class BigBangRecorder extends Thread {
 		this.startingTime = startingTime;
 	}
 	
-	public synchronized void pressMidiKey(int channel, int pitch, int velocity) {
+	/**
+	 * 
+	 * @param channel
+	 * @param pitch
+	 * @param velocity can be null! is then replaced with standard value
+	 */
+	public synchronized void pressMidiKey(int channel, int pitch, Integer velocity) {
 		if (this.isRecording) {
 			int key = this.getChannelPitchKey(channel, pitch);
 			this.currentKeyOnsets.put(key, this.player.getCurrentSymbolicTime());
@@ -69,10 +75,11 @@ public class BigBangRecorder extends Thread {
 			Map<DenotatorPath,Double> denotatorValues = new TreeMap<DenotatorPath,Double>();
 			this.putDenotatorValueIfFormPresent(CoolFormRegistrant.ONSET_FORM, this.currentKeyOnsets.get(key), denotatorValues);
 			this.putDenotatorValueIfFormPresent(CoolFormRegistrant.PITCH_FORM, new Double(pitch), denotatorValues);
-			this.putDenotatorValueIfFormPresent(CoolFormRegistrant.LOUDNESS_FORM, this.currentKeyVelocities.get(key).doubleValue(), denotatorValues);
+			Double loudness = new Double(this.currentKeyVelocities.get(key));
+			this.putDenotatorValueIfFormPresent(CoolFormRegistrant.LOUDNESS_FORM, loudness, denotatorValues);
 			double duration = this.player.getCurrentSymbolicTime()-this.currentKeyOnsets.get(key);
 			this.putDenotatorValueIfFormPresent(CoolFormRegistrant.DURATION_FORM, duration, denotatorValues);
-			this.putDenotatorValueIfFormPresent(CoolFormRegistrant.VOICE_FORM, channel, denotatorValues);
+			this.putDenotatorValueIfFormPresent(CoolFormRegistrant.VOICE_FORM, new Double(channel), denotatorValues);
 			List<Map<DenotatorPath,Double>> denotatorValuesList = new ArrayList<Map<DenotatorPath,Double>>();
 			denotatorValuesList.add(denotatorValues);
 			List<DenotatorPath> powersetPaths = new ArrayList<DenotatorPath>();
@@ -84,9 +91,9 @@ public class BigBangRecorder extends Thread {
 		}
 	}
 	
-	private void putDenotatorValueIfFormPresent(SimpleForm form, double value, Map<DenotatorPath,Double> denotatorValues) {
+	private void putDenotatorValueIfFormPresent(SimpleForm form, Double value, Map<DenotatorPath,Double> denotatorValues) {
 		Integer valueIndex = this.view.getDisplayObjects().getActiveObjectFirstValueIndex(form);
-		if (valueIndex >= 0) {
+		if (valueIndex >= 0 && value != null) {
 			DenotatorPath valuePath = this.view.getDisplayObjects().getActiveObjectValuePathAt(valueIndex);
 			denotatorValues.put(valuePath, value);
 		}

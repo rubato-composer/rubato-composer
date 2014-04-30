@@ -7,6 +7,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import javax.sound.midi.MidiDevice;
+
 import org.rubato.rubettes.bigbang.model.BigBangObject;
 import org.rubato.rubettes.bigbang.view.io.BigBangMidiTransmitter;
 
@@ -23,10 +25,10 @@ public class JSynPerformance extends Thread {
 	BigBangMidiTransmitter midiTransmitter;
 	
 	public JSynPerformance(BigBangPlayer player, JSynScore score) {
-		this(player, score, null, null);
+		this(player, null, score, null, null);
 	}
 	
-	public JSynPerformance(BigBangPlayer player, JSynScore score, Integer pitch, Integer velocity) {
+	public JSynPerformance(BigBangPlayer player, MidiDevice outputDevice, JSynScore score, Integer pitch, Integer velocity) {
 		this.player = player;
 		this.score = score;
 		this.threads = new JSynThreadGroup(false);
@@ -35,8 +37,9 @@ public class JSynPerformance extends Thread {
 		this.isPlaying = false;
 		this.pitch = pitch;
 		this.velocity = velocity;
-		if (this.player.isMidiActive()) {
-			this.midiTransmitter = new BigBangMidiTransmitter();
+		System.out.println(outputDevice);
+		if (outputDevice != null) {
+			this.midiTransmitter = new BigBangMidiTransmitter(outputDevice);
 		}
 	}
 	
@@ -303,13 +306,13 @@ public class JSynPerformance extends Thread {
 	}
 	
 	public void scheduleMidiNote(JSynObject object, int onset, int duration) {
-		if (this.player.isMidiActive()) {
+		if (this.midiTransmitter != null) {
 			this.midiTransmitter.scheduleNote(object, onset, duration);
 		}
 	}
 	
 	public void muteMidi(JSynObject object) {
-		if (this.player.isMidiActive()) {
+		if (this.midiTransmitter != null) {
 			this.midiTransmitter.mute(object);
 		}
 	}

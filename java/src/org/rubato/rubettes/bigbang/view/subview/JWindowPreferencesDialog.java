@@ -1,12 +1,14 @@
 package org.rubato.rubettes.bigbang.view.subview;
 
 import java.awt.BorderLayout;
+import java.awt.Component;
 import java.awt.GridLayout;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.beans.PropertyChangeEvent;
 
 import javax.swing.BorderFactory;
+import javax.swing.BoxLayout;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JDialog;
@@ -18,15 +20,15 @@ import javax.swing.border.EtchedBorder;
 import org.rubato.rubettes.bigbang.controller.BigBangController;
 import org.rubato.rubettes.bigbang.view.View;
 import org.rubato.rubettes.bigbang.view.controller.ViewController;
+import org.rubato.rubettes.bigbang.view.io.BigBangMidiReceiver;
 import org.rubato.rubettes.bigbang.view.model.ViewParameters;
 import org.rubato.rubettes.bigbang.view.player.BigBangPlayer;
-import org.rubato.rubettes.util.SoundNoteGenerator;
 
 public class JWindowPreferencesDialog extends JDialog implements View, ItemListener {
 	
 	private ViewController controller;
 	private JPanel viewParametersPanel;
-	private JComboBox fmModel, waveform;
+	private JComboBox waveform, midiIn, midiOut;
 	private JCheckBox multiTouch;
 	
 	public JWindowPreferencesDialog(ViewController controller) {
@@ -51,16 +53,27 @@ public class JWindowPreferencesDialog extends JDialog implements View, ItemListe
 	private void initSoundPanel() {
 		JPanel soundPanel = new JPanel();
 		Border loweredEtched = BorderFactory.createEtchedBorder(EtchedBorder.LOWERED);
-		soundPanel.setBorder(BorderFactory.createTitledBorder(loweredEtched, "Sound"));
-		soundPanel.add(new JLabel("FM model"));
-		this.fmModel = new JComboBox(SoundNoteGenerator.FM_MODELS);
-		this.fmModel.addItemListener(this);
-		soundPanel.add(this.fmModel);
-		soundPanel.add(new JLabel("Waveform"));
-		this.waveform = new JComboBox(BigBangPlayer.WAVEFORMS);
-		this.waveform.addItemListener(this);
-		soundPanel.add(this.waveform);
+		soundPanel.setBorder(BorderFactory.createTitledBorder(loweredEtched, "Sound/Midi"));
+		soundPanel.setLayout(new BoxLayout(soundPanel, BoxLayout.Y_AXIS));
+		soundPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
+		this.midiIn = this.addLabeledJComboBoxPanel(soundPanel, "Midi input", BigBangMidiReceiver.getMidiInDeviceNames());
+		this.midiOut = this.addLabeledJComboBoxPanel(soundPanel, "Midi output", BigBangPlayer.getMidiOutDeviceNames());
+		this.waveform = this.addLabeledJComboBoxPanel(soundPanel, "Waveform", BigBangPlayer.WAVEFORMS);
 		this.add(BorderLayout.CENTER, soundPanel);
+	}
+	
+	private JComboBox addLabeledJComboBoxPanel(JPanel parentPanel, String labelString, Object[] options) {
+		JPanel comboBoxPanel = new JPanel();
+		comboBoxPanel.add(new JLabel(labelString));
+		JComboBox comboBox = new JComboBox();
+		if (options != null) {
+			comboBox = new JComboBox(options);
+		}
+		comboBox.addItemListener(this);
+		comboBoxPanel.add(comboBox);
+		parentPanel.add(comboBoxPanel);
+		comboBoxPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
+		return comboBox;
 	}
 	
 	private void initControlsPanel() {
@@ -80,8 +93,10 @@ public class JWindowPreferencesDialog extends JDialog implements View, ItemListe
 			this.setVisible(true);
 		} else if (propertyName.equals(ViewController.VIEW_PARAMETERS)) {
 			this.updateViewParametersPanel((ViewParameters)event.getNewValue());
-		} else if (propertyName.equals(ViewController.FM_MODEL)) {
-			this.fmModel.setSelectedItem(event.getNewValue());
+		} else if (propertyName.equals(ViewController.MIDI_IN)) {
+			this.midiIn.setSelectedItem(event.getNewValue());
+		} else if (propertyName.equals(ViewController.MIDI_OUT)) {
+			this.midiOut.setSelectedItem(event.getNewValue());
 		} else if (propertyName.equals(ViewController.WAVEFORM)) {
 			this.waveform.setSelectedItem(event.getNewValue());
 		} else if (propertyName.equals(BigBangController.MULTITOUCH)) {
@@ -110,8 +125,10 @@ public class JWindowPreferencesDialog extends JDialog implements View, ItemListe
 	
 	public void itemStateChanged(ItemEvent event) {
 		Object source = event.getSource();
-		if (source == this.fmModel) {
-			this.controller.changeFMModel(this.fmModel.getSelectedItem());
+		if (source == this.midiIn) {
+			this.controller.setMidiIn((String)this.midiIn.getSelectedItem());
+		} else if (source == this.midiOut) {
+			this.controller.setMidiOut((String)this.midiOut.getSelectedItem());
 		} else if (source == this.waveform) {
 			this.controller.changeWaveform(this.waveform.getSelectedItem());
 		}/* else if (source == this.multiTouch) {

@@ -1,19 +1,15 @@
 package org.rubato.rubettes.bigbang.view.io;
 
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Timer;
 import java.util.TreeMap;
 
 import javax.sound.midi.InvalidMidiDataException;
 import javax.sound.midi.MidiDevice;
-import javax.sound.midi.MidiSystem;
-import javax.sound.midi.MidiUnavailableException;
 import javax.sound.midi.ShortMessage;
-import javax.sound.midi.MidiDevice.Info;
 
 import org.rubato.rubettes.bigbang.model.BigBangObject;
 import org.rubato.rubettes.bigbang.view.player.JSynObject;
@@ -21,37 +17,14 @@ import org.rubato.rubettes.bigbang.view.player.JSynScore;
 
 public class BigBangMidiTransmitter {
 	
-	private List<MidiDevice> outputDevices;
+	private MidiDevice outputDevice;
 	private Map<BigBangObject,MidiNoteRepeater> repeaters;
 	private Timer timer;
 	
-	public BigBangMidiTransmitter() {
-		this.outputDevices = new ArrayList<MidiDevice>();
+	public BigBangMidiTransmitter(MidiDevice outputDevice) {
+		this.outputDevice = outputDevice;
 		this.repeaters = new HashMap<BigBangObject,MidiNoteRepeater>();
 		this.timer = new Timer();
-		Info[] infos = MidiSystem.getMidiDeviceInfo();
-		for (Info currentInfo : infos) {
-			//TODO MAKE PREFERENCE MENU WHERE CAN BE TURNED ON OR OFF!!!
-			//System.out.println(currentInfo.getName() + " | " + currentInfo.getDescription() + " | " + currentInfo.getVendor() + " | " + currentInfo.getVersion());
-			//if (currentInfo.getDescription().equals("IAC Driver Bus 1")) {
-				this.addOutputDevice(currentInfo);
-			/*} else if (currentInfo.getDescription().equals("USB MIDI 1x1 Port 1")) {
-				this.addOutputDevice(currentInfo);
-			}*/
-		}
-	}
-	
-	private void addOutputDevice(Info deviceInfo) {
-		try {
-			MidiDevice device = MidiSystem.getMidiDevice(deviceInfo);
-			//System.out.println(device + " " + device.getMaxReceivers() + " " + device.getMaxTransmitters() + " " + device.getReceivers());
-			if (device.getMaxReceivers() != 0) {
-				this.outputDevices.add(device);
-				device.open();
-			}
-		} catch (MidiUnavailableException e) {
-			e.printStackTrace();
-		}
 	}
 	
 	public void clear() {
@@ -97,13 +70,9 @@ public class BigBangMidiTransmitter {
 		ShortMessage message = new ShortMessage();
 		try {
 			message.setMessage(command, channel, pitch, velocity);
-			this.timer.schedule(new MidiTimerTask(message, this.outputDevices), delay);
-		}  catch (InvalidMidiDataException e) { }
-	}
-	
-	public void close() {
-		for (MidiDevice currentDevice : this.outputDevices) {
-			currentDevice.close();
+			this.timer.schedule(new MidiTimerTask(message, Arrays.asList(this.outputDevice)), delay);
+		}  catch (InvalidMidiDataException e) {
+			e.printStackTrace();
 		}
 	}
 

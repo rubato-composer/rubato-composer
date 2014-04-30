@@ -127,7 +127,6 @@ public abstract class AbstractOperation {
 		Element propertiesElement = XMLReader.getChild(element, PROPERTIES_TAG);
 		this.modificationRatio = XMLReader.getRealAttribute(propertiesElement, MOD_RATIO_ATTR, 1);
 		this.duration = XMLReader.getRealAttribute(propertiesElement, DURATION_ATTR, 1);
-		System.out.println("HEAY");
 	}
 	
 }
