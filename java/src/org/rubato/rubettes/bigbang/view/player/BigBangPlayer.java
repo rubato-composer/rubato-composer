@@ -6,6 +6,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
+import javax.sound.midi.MidiDevice;
+import javax.sound.midi.MidiSystem;
+import javax.sound.midi.MidiUnavailableException;
+import javax.sound.midi.MidiDevice.Info;
+
+import org.rubato.rubettes.bigbang.view.io.BigBangMidiReceiver;
+
 import com.jsyn.JSyn;
 import com.jsyn.Synthesizer;
 import com.jsyn.unitgen.SawtoothOscillator;
@@ -27,6 +34,7 @@ public class BigBangPlayer {
 	public final int MAX_NUMBER_OF_THREADS = 200;
 	
 	public static final String[] WAVEFORMS = {"Sine", "Square", "Sawtooth", "Triangle"};
+	private static Map<String,MidiDevice> midiOutDevices;
 	
 	private Synthesizer synth;
 	private JSynScore score;
@@ -34,7 +42,7 @@ public class BigBangPlayer {
 	private String waveform;
 	private int tempo; //in bpm
 	private boolean synthActive;
-	private boolean midiActive;
+	private String selectedMidiOutDeviceName;
 	private boolean isLooping;
 	private double loopOnset;
 	private double loopDuration;
@@ -56,6 +64,27 @@ public class BigBangPlayer {
 		this.setTempo(this.tempo);
 		this.setWaveform(BigBangPlayer.WAVEFORMS[0]);
 		this.isPlaying = false;
+		if (midiOutDevices.size() > 0) {
+			this.setMidiOutDevice(midiOutDevices.keySet().iterator().next());
+		}
+	}
+	
+	public void setMidiOutDevice(String outDeviceName) {
+		if (this.selectedMidiOutDeviceName != null) {
+			MidiDevice outDevice = midiOutDevices.get(this.selectedMidiOutDeviceName);
+			if (outDevice != null) {
+				midiOutDevices.get(this.selectedMidiOutDeviceName).close();
+			}
+		}
+		this.selectedMidiOutDeviceName = outDeviceName;
+		try {
+			MidiDevice outDevice = midiOutDevices.get(this.selectedMidiOutDeviceName);
+			if (outDevice != null) {
+				outDevice.open();
+			}
+		} catch (MidiUnavailableException e) {
+			e.printStackTrace();
+		}
 	}
 	
 	public void startSynth() {
@@ -105,14 +134,6 @@ public class BigBangPlayer {
 	
 	public void setSynthActive(boolean synthActive) {
 		this.synthActive = synthActive;
-	}
-	
-	public void setMidiActive(boolean midiActive) {
-		this.midiActive = midiActive;
-	}
-	
-	public boolean isMidiActive() {
-		return this.midiActive;
 	}
 	
 	public void setIsLooping(boolean isLooping) {
@@ -210,7 +231,8 @@ public class BigBangPlayer {
 	}
 	
 	private void playScoreVersion(int pitch, int velocity) {
-		JSynPerformance performance = new JSynPerformance(this, this.score, pitch, velocity);
+		MidiDevice outputDevice = midiOutDevices.get(this.selectedMidiOutDeviceName);
+		JSynPerformance performance = new JSynPerformance(this, outputDevice, this.score, pitch, velocity);
 		//System.out.println("PSV " + this.isLooping);
 		if (this.isLooping) {
 			performance.setSymbolicStartOrChangeTime(this.loopOnset);
@@ -360,6 +382,34 @@ public class BigBangPlayer {
 	
 	private int getChannelPitchKey(int channel, int pitch) {
 		return (channel+1)*pitch;
+	}
+	
+	public String getSelectedMidiOutDeviceName() {
+		return this.selectedMidiOutDeviceName;
+	}
+	
+	
+	//static device management...
+	
+	static {
+		midiOutDevices = new TreeMap<String,MidiDevice>();
+		//add empty selection
+		midiOutDevices.put(" ", null);
+		Info[] infos = MidiSystem.getMidiDeviceInfo();
+		for (Info currentInfo : infos) {
+			try {
+				MidiDevice device = MidiSystem.getMidiDevice(currentInfo);
+				if (device.getMaxReceivers() != 0) {
+					midiOutDevices.put(BigBangMidiReceiver.getDeviceString(currentInfo), device);
+				}
+			} catch (MidiUnavailableException e) {
+				e.printStackTrace();
+			}
+		}
+	}
+	
+	public static String[] getMidiOutDeviceNames() {
+		return midiOutDevices.keySet().toArray(new String[midiOutDevices.size()]);
 	}
 
 }

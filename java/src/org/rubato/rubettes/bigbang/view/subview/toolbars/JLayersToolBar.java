@@ -10,18 +10,14 @@ import java.util.List;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JSlider;
-import javax.swing.JSpinner;
 import javax.swing.JToolBar;
-import javax.swing.SpinnerNumberModel;
 
 import org.rubato.rubettes.bigbang.controller.BigBangController;
 import org.rubato.rubettes.bigbang.model.BigBangLayers;
 import org.rubato.rubettes.bigbang.view.View;
 import org.rubato.rubettes.bigbang.view.controller.ViewController;
-import org.rubato.rubettes.bigbang.view.controller.general.ModFilterButtonAction;
 import org.rubato.rubettes.bigbang.view.controller.general.PlayButtonAction;
 import org.rubato.rubettes.bigbang.view.controller.general.RecordButtonAction;
-import org.rubato.rubettes.bigbang.view.controller.score.ModFilterSpinnersListener;
 import org.rubato.rubettes.bigbang.view.controller.score.TempoListener;
 import org.rubato.rubettes.bigbang.view.player.BigBangPlayer;
 
@@ -30,10 +26,8 @@ public class JLayersToolBar extends JToolBar implements ActionListener, View {
 	private BigBangController bbController;
 	private ViewController controller;
 	private JButton playButton, recordButton;
-	private JCheckBox synthCheckBox, midiCheckBox, isLoopingCheckBox;
+	private JCheckBox synthCheckBox, isLoopingCheckBox;
 	private JSlider tempoSlider;
-	private JButton modFilterButton;
-	private List<JSpinner> modFilterSpinners;
 	private List<JLayerButton> layerButtons;
 	
 	public JLayersToolBar(BigBangController bbController, ViewController controller) {
@@ -48,14 +42,10 @@ public class JLayersToolBar extends JToolBar implements ActionListener, View {
 		this.synthCheckBox = new JCheckBox("Synth");
 		this.synthCheckBox.addActionListener(this);
 		this.add(this.synthCheckBox);
-		this.midiCheckBox = new JCheckBox("Midi");
-		this.midiCheckBox.addActionListener(this);
-		this.add(this.midiCheckBox);
 		this.isLoopingCheckBox = new JCheckBox("Loop");
 		this.isLoopingCheckBox.addActionListener(this);
 		this.add(this.isLoopingCheckBox);
 		this.addTempoSlider();
-		this.addModFilterButtonAndSpinners();
 		this.layerButtons = new ArrayList<JLayerButton>();
 		this.setAlignmentX(LEFT_ALIGNMENT);
 	}
@@ -67,25 +57,6 @@ public class JLayersToolBar extends JToolBar implements ActionListener, View {
 		this.tempoSlider.setPaintLabels(true);
 		this.tempoSlider.setMaximumSize(new Dimension(270, 100));
 		this.add(this.tempoSlider);
-	}
-	
-	private void addModFilterButtonAndSpinners() {
-		this.modFilterButton = new JButton(new ModFilterButtonAction(this.controller));
-		this.add(this.modFilterButton);
-		this.modFilterSpinners = new ArrayList<JSpinner>();
-		this.addNewModFilterSpinner();
-		this.addNewModFilterSpinner();
-		ModFilterSpinnersListener listener = new ModFilterSpinnersListener(this.controller, this.modFilterSpinners);
-		this.modFilterSpinners.get(0).addChangeListener(listener);
-		this.modFilterSpinners.get(1).addChangeListener(listener);
-	}
-	
-	private void addNewModFilterSpinner() {
-		JSpinner newSpinner = new JSpinner(new SpinnerNumberModel(0, -1, 10, 1));
-		int sizeUnit = 25;
-		newSpinner.setMaximumSize(new Dimension((int)(1.6*sizeUnit), sizeUnit-3));
-		this.modFilterSpinners.add(newSpinner);
-		this.add(newSpinner);
 	}
 
 	public void modelPropertyChange(PropertyChangeEvent event) {
@@ -103,19 +74,7 @@ public class JLayersToolBar extends JToolBar implements ActionListener, View {
 			this.isLoopingCheckBox.setSelected((Boolean)event.getNewValue());
 		} else if (propertyName.equals(ViewController.TEMPO)) {
 			this.tempoSlider.setValue(this.convertToSliderValue((Integer)event.getNewValue()));
-		} else if (propertyName.equals(ViewController.TOGGLE_MOD_FILTER)) {
-			this.modFilterButton.setSelected((Boolean)event.getNewValue());
-		} else if (propertyName.equals(ViewController.MOD_FILTER_VALUES)) {
-			this.updateModFilterSpinners(event);
 		}
-	}
-	
-	private void updateModFilterSpinners(PropertyChangeEvent event) {
-		int[] values = (int[])event.getNewValue();
-		for (int i = 0; i < this.modFilterSpinners.size(); i++) {
-			this.modFilterSpinners.get(i).setValue(values[i]);
-		}
-		this.repaint();
 	}
 	
 	private void updateLayerButtons(PropertyChangeEvent event) {
@@ -145,8 +104,6 @@ public class JLayersToolBar extends JToolBar implements ActionListener, View {
 	public void actionPerformed(ActionEvent event) {
 		if (event.getSource().equals(this.synthCheckBox)) {
 			this.controller.setSynthActive(this.synthCheckBox.isSelected());
-		} else if (event.getSource().equals(this.midiCheckBox)) {
-			this.controller.setMidiActive(this.midiCheckBox.isSelected());
 		} else if (event.getSource().equals(this.isLoopingCheckBox)) {
 			this.controller.setIsLooping(this.isLoopingCheckBox.isSelected());
 		}

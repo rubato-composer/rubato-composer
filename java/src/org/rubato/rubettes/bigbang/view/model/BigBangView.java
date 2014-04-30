@@ -13,6 +13,7 @@ import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
+import javax.sound.midi.MidiDevice;
 import javax.swing.JOptionPane;
 
 import org.rubato.math.matrix.RMatrix;
@@ -67,8 +68,6 @@ public class BigBangView extends Model implements View {
 	protected BigBangMidiTransmitter midiTransmitter;
 	protected JBigBangPanel panel;
 	private DisplayModeAdapter displayMode;
-	private boolean modFilterOn;
-	private int modLevel, modNumber;
 	private boolean mainOptionsVisible;
 	private boolean viewParametersVisible;
 	protected ViewParameters viewParameters;
@@ -90,11 +89,7 @@ public class BigBangView extends Model implements View {
 		//TODO:make this automatic when displaynotes loaded!!! depending on max/min and window size
 		this.setDisplayPosition(new Point(20, 660));
 		this.setZoomFactors(5.0, 5.0);
-		this.midiReceiver = new BigBangMidiReceiver(this.viewController);
-		this.recorder = new BigBangRecorder(this, this.player, this.controller);
-		this.setTempo(BigBangPlayer.INITIAL_BPM);
-		this.modFilterOn = false;
-		this.modNumber = -1;
+		this.initMidiAndSound();
 	}
 	
 	public void addNewWindow() {
@@ -138,6 +133,14 @@ public class BigBangView extends Model implements View {
 		this.standardDenotatorValues.put(CoolFormRegistrant.LOUDNESS_NAME, 120.0);
 		this.standardDenotatorValues.put(CoolFormRegistrant.DURATION_NAME, 1.0);
 		this.standardDenotatorValues.put(CoolFormRegistrant.PAN_NAME, 64.0);
+	}
+	
+	private void initMidiAndSound() {
+		this.midiReceiver = new BigBangMidiReceiver(this.viewController);
+		this.recorder = new BigBangRecorder(this, this.player, this.controller);
+		this.setTempo(BigBangPlayer.INITIAL_BPM);
+		this.firePropertyChange(ViewController.MIDI_IN, null, this.midiReceiver.getSelectedInDeviceName());
+		this.firePropertyChange(ViewController.MIDI_OUT, null, this.player.getSelectedMidiOutDeviceName());
 	}
 	
 	public void setDisplayPosition(Point position) {
@@ -200,28 +203,6 @@ public class BigBangView extends Model implements View {
 	
 	public void centerView() {
 		this.firePropertyChange(ViewController.CENTER_VIEW, null, null);
-	}
-	
-	public void toggleModFilter() {
-		this.modFilterOn = !this.modFilterOn;
-		this.firePropertyChange(ViewController.TOGGLE_MOD_FILTER, null, this.modFilterOn);
-		if (this.modFilterOn) {
-			this.firePropertyChange(ViewController.MOD_FILTER_VALUES, null, new int[]{this.modLevel, this.modNumber});
-		}
-	}
-	
-	public void changeModFilter(Integer modLevel, Integer modNumber) {
-		boolean changed = false;
-		if (this.modLevel != modLevel) {
-			this.modLevel = modLevel;
-			changed = true;
-		} else if (this.modNumber != modNumber) {
-			this.modNumber = modNumber;
-			changed = true;
-		}
-		if (changed && this.modFilterOn) {
-			this.firePropertyChange(ViewController.MOD_FILTER_VALUES, null, new int[]{modLevel, modNumber});
-		}
 	}
 	
 	public void togglePlayMode() {
@@ -764,11 +745,6 @@ public class BigBangView extends Model implements View {
 		this.firePropertyChange(ViewController.SYNTH_ACTIVE, null, synthActive);
 	}
 	
-	public void setMidiActive(Boolean midiActive) {
-		this.player.setMidiActive(midiActive);
-		this.firePropertyChange(ViewController.MIDI_ACTIVE, null, midiActive);
-	}
-	
 	public void setIsLooping(Boolean isLooping) {
 		this.player.setIsLooping(isLooping);
 		this.firePropertyChange(ViewController.IS_LOOPING, null, isLooping);
@@ -787,14 +763,17 @@ public class BigBangView extends Model implements View {
 		}
 	}
 	
-	public void setFMModel(String fmModel) {
-		//TODO: THINK ABOUT THIS!!! this.score.noteGenerator.setFMModel(fmModel);
-		this.firePropertyChange(ViewController.FM_MODEL, null, fmModel);
-	}
-	
 	public void setWaveform(String waveform) {
 		this.player.setWaveform(waveform);
 		this.firePropertyChange(ViewController.WAVEFORM, null, waveform);
+	}
+	
+	public void setMidiIn(String inDeviceName) {
+		this.midiReceiver.setSelectedInDevice(inDeviceName);
+	}
+	
+	public void setMidiOut(String outDeviceName) {
+		this.player.setMidiOutDevice(outDeviceName);
 	}
 	
 	public void pressMidiKey(Integer channel, Integer pitch, Integer velocity) {

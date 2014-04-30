@@ -1,7 +1,7 @@
 package org.rubato.rubettes.bigbang.view.io;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
 
 import javax.sound.midi.MidiDevice;
 import javax.sound.midi.MidiMessage;
@@ -15,29 +15,32 @@ import org.rubato.rubettes.bigbang.view.controller.ViewController;
 
 public class BigBangMidiReceiver implements Receiver {
 	
+	private static Map<String,MidiDevice> midiInDevices;
+	
 	private final int EWI_BREATH_SENSOR_INDEX = 2;
 	private ViewController controller;
-	private List<MidiDevice> inputDevices;
+	private String selectedInDeviceName;
 	
 	public BigBangMidiReceiver(ViewController controller) {
 		this.controller = controller;
-		this.inputDevices = new ArrayList<MidiDevice>();
-		Info[] infos = MidiSystem.getMidiDeviceInfo();
-		for (Info currentInfo : infos) {
-			//System.out.println(currentInfo.getName() + " " + currentInfo.getDescription() + " " + currentInfo.getVendor() + " " + currentInfo.getVersion());
-			if (currentInfo.getVendor().equals("E-MU Systems, Inc.") || currentInfo.getVendor().equals("M-Audio")) {
-				this.addInputDevice(currentInfo);
-			}
+		if (midiInDevices.size() > 0) {
+			this.setSelectedInDevice(midiInDevices.keySet().iterator().next());
 		}
 	}
 	
-	private void addInputDevice(Info deviceInfo) {
+	public void setSelectedInDevice(String inDeviceName) {
+		if (this.selectedInDeviceName != null) {
+			MidiDevice inDevice = midiInDevices.get(this.selectedInDeviceName);
+			if (inDevice != null) {
+				inDevice.close();
+			}
+		}
+		this.selectedInDeviceName = inDeviceName;
 		try {
-			MidiDevice device = MidiSystem.getMidiDevice(deviceInfo);
-			if (device.getMaxTransmitters() != 0) {
-				this.inputDevices.add(device);
-				device.open();
-				device.getTransmitter().setReceiver(this);
+			MidiDevice inDevice = midiInDevices.get(this.selectedInDeviceName);
+			if (inDevice != null) {
+				inDevice.open();
+				inDevice.getTransmitter().setReceiver(this);
 			}
 		} catch (MidiUnavailableException e) {
 			e.printStackTrace();
@@ -96,10 +99,43 @@ public class BigBangMidiReceiver implements Receiver {
 		}
 	}
 	
+	public String getSelectedInDeviceName() {
+		return this.selectedInDeviceName;
+	}
+
+	@Override
 	public void close() {
-		for (MidiDevice currentDevice : this.inputDevices) {
-			currentDevice.close();
+		midiInDevices.get(this.selectedInDeviceName).close();
+	}
+	
+	
+	//static device management...
+	
+	static {
+		midiInDevices = new TreeMap<String,MidiDevice>();
+		//add empty selection
+		midiInDevices.put(" ", null);
+		
+		for (Info currentInfo : MidiSystem.getMidiDeviceInfo()) {
+			//System.out.println(currentInfo.getName() + " " + currentInfo.getDescription() + " " + currentInfo.getVendor() + " " + currentInfo.getVersion());
+			//if (currentInfo.getVendor().equals("E-MU Systems, Inc.") || currentInfo.getVendor().equals("M-Audio")) {
+			try {
+				MidiDevice device = MidiSystem.getMidiDevice(currentInfo);
+				if (device.getMaxTransmitters() != 0) {
+					midiInDevices.put(getDeviceString(currentInfo), device);
+				}
+			} catch (MidiUnavailableException e) {
+				e.printStackTrace();
+			}
 		}
+	}
+	
+	public static String getDeviceString(Info deviceInfo) {
+		return deviceInfo.getName() + " (" + deviceInfo.getDescription() + ")";
+	}
+	
+	public static String[] getMidiInDeviceNames() {
+		return midiInDevices.keySet().toArray(new String[midiInDevices.size()]);
 	}
 
 }

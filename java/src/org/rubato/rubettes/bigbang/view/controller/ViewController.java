@@ -41,8 +41,6 @@ public class ViewController extends Controller {
 	public static final String CENTER_VIEW = "centerView";
 	public static final String SATELLITES_CONNECTED = "SatellitesConnected";
 	public static final String LAYERS = "changeLayerState";
-	public static final String TOGGLE_MOD_FILTER = "toggleModFilter";
-	public static final String MOD_FILTER_VALUES = "changeModFilter";
 	
 	//general functionality
 	public static final String INPUT_ACTIVE = "InputActive";
@@ -109,10 +107,12 @@ public class ViewController extends Controller {
 	public static final String RECORD_MODE = "toggleRecordMode";
 	public static final String SYNTH_ACTIVE = "setSynthActive";
 	public static final String MIDI_ACTIVE = "setMidiActive";
+	public static final String MIDI_IN = "setMidiIn";
+	public static final String MIDI_OUT = "setMidiOut";
+	
 	public static final String IS_LOOPING = "setIsLooping";
 	public static final String TEMPO = "setTempo";
 	public static final String PLAYBACK_POSITION = "setPlaybackPosition";
-	public static final String FM_MODEL = "FMModel";
 	public static final String WAVEFORM = "Waveform";
 	public static final String PRESS_MIDI_KEY = "pressMidiKey";
 	public static final String RELEASE_MIDI_KEY = "releaseMidiKey";
@@ -134,14 +134,6 @@ public class ViewController extends Controller {
 	
 	public void changeLayerState(int layerIndex) {
 		this.callModelMethod(ViewController.LAYERS, layerIndex);
-	}
-	
-	public void toggleModFilter() {
-		this.callModelMethod(ViewController.TOGGLE_MOD_FILTER);
-	}
-	
-	public void changeModFilter(int modLevel, int modNumber) {
-		this.callModelMethod(ViewController.MOD_FILTER_VALUES, modLevel, modNumber);
 	}
 	
 	public void toggleViewParametersVisible() {
@@ -376,10 +368,6 @@ public class ViewController extends Controller {
 		this.callModelMethod(ViewController.SYNTH_ACTIVE, synthActive);
 	}
 	
-	public void setMidiActive(boolean midiActive) {
-		this.callModelMethod(ViewController.MIDI_ACTIVE, midiActive);
-	}
-	
 	public void setIsLooping(boolean isLooping) {
 		this.callModelMethod(ViewController.IS_LOOPING, isLooping);
 	}
@@ -392,19 +380,23 @@ public class ViewController extends Controller {
 		this.callModelMethod(ViewController.PLAYBACK_POSITION, clickPosition);
 	}
 	
-	public void changeFMModel(Object fmModel) {
-		this.setModelProperty(ViewController.FM_MODEL, fmModel);
-	}
-	
 	public void changeWaveform(Object waveform) {
 		this.setModelProperty(ViewController.WAVEFORM, waveform);
 	}
 	
-	public void pressMidiKey(Integer channel, int pitch, int velocity) {
+	public void setMidiIn(String inDevice) {
+		this.callModelMethod(ViewController.MIDI_IN, inDevice);
+	}
+	
+	public void setMidiOut(String outDevice) {
+		this.callModelMethod(ViewController.MIDI_OUT, outDevice);
+	}
+	
+	public void pressMidiKey(Integer channel, Integer pitch, Integer velocity) {
 		this.callModelMethod(ViewController.PRESS_MIDI_KEY, channel, pitch, velocity);
 	}
 	
-	public void releaseMidiKey(Integer channel, int pitch) {
+	public void releaseMidiKey(Integer channel, Integer pitch) {
 		this.callModelMethod(ViewController.RELEASE_MIDI_KEY, channel, pitch);
 	}
 	

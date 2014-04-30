@@ -108,10 +108,6 @@ public class MTBigBangApp extends MTApplication implements View {
 			this.repaint();
 		} else if (propertyName.equals(ViewController.LAYERS)) {
 			this.repaint();
-		} else if (propertyName.equals(ViewController.TOGGLE_MOD_FILTER)) {
-			this.repaint();
-		} else if (propertyName.equals(ViewController.MOD_FILTER_VALUES)) {
-			this.repaint();
 		}
 	}
 	
