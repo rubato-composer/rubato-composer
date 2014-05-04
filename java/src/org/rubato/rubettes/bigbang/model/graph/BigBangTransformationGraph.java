@@ -102,7 +102,11 @@ public class BigBangTransformationGraph extends DirectedSparseMultigraph<Composi
 		this.selectCompositionState(null);
 	}
 	
-	public Integer getSelectedCompositionState() {
+	public CompositionState getSelectedCompositionState() {
+		return this.selectedCompositionState;
+	}
+	
+	public Integer getSelectedCompositionStateIndex() {
 		if (this.selectedCompositionState != null) {
 			return this.selectedCompositionState.getIndex();
 		}

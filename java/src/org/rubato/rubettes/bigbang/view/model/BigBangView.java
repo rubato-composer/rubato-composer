@@ -13,7 +13,6 @@ import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
-import javax.sound.midi.MidiDevice;
 import javax.swing.JOptionPane;
 
 import org.rubato.math.matrix.RMatrix;
@@ -284,8 +283,6 @@ public class BigBangView extends Model implements View {
 			this.firePropertyChange(ViewController.REDO, null, event.getNewValue());
 		} else if (propertyName.equals(BigBangController.INPUT_ACTIVE)) {
 			this.firePropertyChange(ViewController.INPUT_ACTIVE, null, event.getNewValue());
-		} else if (propertyName.equals(BigBangController.DESELECT_COMPOSITION_STATES)) {
-			this.firePropertyChange(ViewController.DESELECT_COMPOSITION_STATES, null, null);
 		} else if (propertyName.equals(BigBangController.MODIFY_OPERATION)) {
 			this.selectOperation((AbstractOperation)event.getNewValue());
 		}
@@ -373,17 +370,14 @@ public class BigBangView extends Model implements View {
 	}
 	
 	public void selectCompositionState(CompositionState state) {
-		this.firePropertyChange(ViewController.SELECT_COMPOSITION_STATE, null, state);
 		this.controller.selectCompositionState(state);
 	}
 	
 	public void selectCompositionState(Integer stateIndex) {
-		this.firePropertyChange(ViewController.SELECT_COMPOSITION_STATE, null, stateIndex);
 		this.controller.selectCompositionState(stateIndex);
 	}
 	
 	public void deselectCompositionStates() {
-		this.firePropertyChange(ViewController.DESELECT_COMPOSITION_STATES, null, null);
 		this.controller.deselectCompositionStates();
 	}
 	
@@ -780,6 +774,9 @@ public class BigBangView extends Model implements View {
 		if (channel < 0) {
 			channel = this.getChannel();
 		}
+		if (velocity < 0) {
+			velocity = this.getVelocity();
+		}
 		if (this.recorder.isRecording()) {
 			this.recorder.pressMidiKey(channel, pitch, velocity);
 			this.player.pressMidiKey(channel, pitch, velocity, true);
@@ -798,6 +795,10 @@ public class BigBangView extends Model implements View {
 		} else {
 			this.player.releaseMidiKey(channel, pitch, false);
 		}
+	}
+	
+	private int getVelocity() {
+		return this.standardDenotatorValues.get(CoolFormRegistrant.LOUDNESS_NAME).intValue();
 	}
 	
 	private int getChannel() {

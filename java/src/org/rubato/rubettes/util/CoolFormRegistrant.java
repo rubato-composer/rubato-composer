@@ -59,6 +59,8 @@ public class CoolFormRegistrant {
 	public static SimpleForm OPERATION_FORM;
 	public static LimitForm GENERIC_SOUND_FORM;
 	public static PowerForm SOUND_SCORE_FORM;
+	public static LimitForm ENVELOPE_NODE_FORM;
+	public static ListForm ENVELOPE_FORM;
 	
 	public CoolFormRegistrant() {
 	}
@@ -163,6 +165,10 @@ public class CoolFormRegistrant {
 		soundScore.resolveReferences(REPOSITORY);
 		SOUND_SCORE_FORM = (PowerForm)soundScore;
 		
+		//Envelope
+		SimpleForm amplitude = this.registerRModuleForm("Amplitude");
+		ENVELOPE_NODE_FORM = this.registerLimitForm("EnvelopeNode", ONSET_FORM, amplitude);
+		ENVELOPE_FORM = this.registerListForm("Envelope", ENVELOPE_NODE_FORM);
 		
 		//just for testing:
 		this.registerColimitForm("NoteOrPartial", NOTE_FORM, partial);

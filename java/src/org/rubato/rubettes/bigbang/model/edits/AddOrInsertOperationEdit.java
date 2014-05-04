@@ -21,13 +21,13 @@ public class AddOrInsertOperationEdit extends AbstractUndoableEdit {
 			this.isInsertion = true;
 		} else {
 			this.isInsertion = false;
-			this.startingState = this.graph.getSelectedCompositionState();
+			this.startingState = this.graph.getSelectedCompositionStateIndex();
 		}
 		this.parallelOperation = this.graph.getSelectedOperation();
 	}
 	
 	public void execute() {
-		Integer previouslySelectedState = this.graph.getSelectedCompositionState();
+		Integer previouslySelectedState = this.graph.getSelectedCompositionStateIndex();
 		if (this.isInsertion) {
 			this.graph.setInsertionState(this.startingState);
 		} else {
