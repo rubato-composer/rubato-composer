@@ -23,7 +23,7 @@ public class KeyToMidiAction extends AbstractAction {
 	public void actionPerformed(ActionEvent event) {
 		int correctedPitch = this.pitch+(12*this.panel.getCurrentOctave());
 		if (this.pressedNotReleased) {
-			this.controller.pressMidiKey(-1, correctedPitch, null);
+			this.controller.pressMidiKey(-1, correctedPitch, -1);
 		} else {
 			this.controller.releaseMidiKey(-1, correctedPitch);
 		}

@@ -13,7 +13,6 @@ import javax.swing.undo.AbstractUndoableEdit;
 import javax.swing.undo.UndoManager;
 import javax.swing.undo.UndoableEditSupport;
 
-import org.rubato.base.Repository;
 import org.rubato.math.matrix.RMatrix;
 import org.rubato.math.yoneda.Denotator;
 import org.rubato.math.yoneda.Form;
@@ -379,13 +378,13 @@ public class BigBangModel extends Model {
 	public void selectCompositionStateAt(Integer stateIndex) {
 		this.transformationGraph.selectCompositionStateAt(stateIndex);
 		this.updateComposition();
-		//this.firePropertyChange(BigBangController.SELECT_COMPOSITION_STATE, null, this.transformationGraph.getSelectedCompositionState());
+		this.firePropertyChange(BigBangController.SELECT_COMPOSITION_STATE, null, this.transformationGraph.getSelectedCompositionState());
 	}
 	
 	public void selectCompositionState(CompositionState vertex) {
 		this.transformationGraph.selectCompositionState(vertex);
 		this.updateComposition();
-		//this.firePropertyChange(BigBangController.SELECT_COMPOSITION_STATE, null, vertex);
+		this.firePropertyChange(BigBangController.SELECT_COMPOSITION_STATE, null, vertex);
 	}
 	
 	public void deselectCompositionStates() {

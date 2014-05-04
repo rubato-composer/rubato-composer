@@ -37,7 +37,6 @@ public class JSynPerformance extends Thread {
 		this.isPlaying = false;
 		this.pitch = pitch;
 		this.velocity = velocity;
-		System.out.println(outputDevice);
 		if (outputDevice != null) {
 			this.midiTransmitter = new BigBangMidiTransmitter(outputDevice);
 		}
@@ -306,7 +305,7 @@ public class JSynPerformance extends Thread {
 	}
 	
 	public void scheduleMidiNote(JSynObject object, int onset, int duration) {
-		if (this.midiTransmitter != null) {
+		if (this.midiTransmitter != null && this.isPlaying) {
 			this.midiTransmitter.scheduleNote(object, onset, duration);
 		}
 	}

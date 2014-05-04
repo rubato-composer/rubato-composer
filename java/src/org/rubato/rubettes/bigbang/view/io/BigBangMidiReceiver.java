@@ -15,9 +15,14 @@ import org.rubato.rubettes.bigbang.view.controller.ViewController;
 
 public class BigBangMidiReceiver implements Receiver {
 	
+	private static final String EMU_NAME = "";
+	private static final String LAUNCHKEYMINI_NAME = "LK Mini MIDI (Launchkey Mini LK Mini MIDI)";
+	private static final String NANOKONTROL2_NAME = "SLIDER/KNOB (nanoKONTROL2 SLIDER/KNOB)";
+	private static final String EWI_NAME = "";
+	private static final int EWI_BREATH_SENSOR_INDEX = 2;
+	
 	private static Map<String,MidiDevice> midiInDevices;
 	
-	private final int EWI_BREATH_SENSOR_INDEX = 2;
 	private ViewController controller;
 	private String selectedInDeviceName;
 	
@@ -66,13 +71,23 @@ public class BigBangMidiReceiver implements Receiver {
 			} else if (shortMessage.getCommand() == ShortMessage.CONTROL_CHANGE) {
 				int controlChangeNumber = shortMessage.getData1();
 				int controlChangeValue = shortMessage.getData2();
-				int emuKnobIndex = this.getEmuKnobIndex(controlChangeNumber);
-				if (emuKnobIndex >= 0) {
-					this.controller.modifyOperation(emuKnobIndex, controlChangeValue);
-				} else if (controlChangeNumber == this.EWI_BREATH_SENSOR_INDEX) {
-					this.controller.changeVelocity(controlChangeValue);
+				if (this.selectedInDeviceName.equals(EMU_NAME)) {
+					this.controller.modifyOperation(this.getEmuKnobIndex(controlChangeNumber), controlChangeValue);
+				} else if (this.selectedInDeviceName.equals(LAUNCHKEYMINI_NAME)) {
+					if (21 <= controlChangeNumber && controlChangeNumber <= 28) {
+						this.controller.modifyOperation(controlChangeNumber-21, controlChangeValue);
+					} /*else if (controlChangeNumber == 106) {
+						this.controller.selectCompositionState(stateIndex);
+					}*/
+				} else if (this.selectedInDeviceName.equals(NANOKONTROL2_NAME)) {
+					this.controller.modifyOperation(this.getNanoKontrol2Index(controlChangeNumber), controlChangeValue);
+				} else if (this.selectedInDeviceName.equals(EWI_NAME)) {
+					if (controlChangeNumber == EWI_BREATH_SENSOR_INDEX) {
+						this.controller.changeVelocity(controlChangeValue);
+					}
+				} else {
+					this.controller.modifyOperation(controlChangeNumber, controlChangeValue);
 				}
-				//System.out.println(shortMessage.getCommand() + " " + shortMessage.getData1() + " " + shortMessage.getData2());
 			}
 		}
 	}
@@ -96,6 +111,42 @@ public class BigBangMidiReceiver implements Receiver {
 			case 82: return 14;
 			case 83: return 15;
 			default: return -1;
+		}
+	}
+	
+	private int getLaunchkeyMiniIndex(int controlChangeNumber) {
+		switch (controlChangeNumber) {
+			case 21: return 0;
+			case 22: return 1;
+			case 23: return 2;
+			case 24: return 3;
+			case 25: return 4;
+			case 26: return 5;
+			case 27: return 6;
+			case 28: return 7;
+			default: return controlChangeNumber;
+		}
+	}
+	
+	private int getNanoKontrol2Index(int controlChangeNumber) {
+		switch (controlChangeNumber) {
+			case 0: return 0;
+			case 1: return 1;
+			case 2: return 2;
+			case 3: return 3;
+			case 4: return 4;
+			case 5: return 5;
+			case 6: return 6;
+			case 7: return 7;
+			case 16: return 8;
+			case 17: return 9;
+			case 18: return 10;
+			case 19: return 11;
+			case 20: return 12;
+			case 21: return 13;
+			case 22: return 14;
+			case 23: return 15;
+			default: return controlChangeNumber;
 		}
 	}
 	

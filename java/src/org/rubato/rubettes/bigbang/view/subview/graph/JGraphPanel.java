@@ -185,9 +185,9 @@ public class JGraphPanel extends JPanel implements View, ActionListener {
 			this.animateButton.setSelected((Boolean)event.getNewValue());
 		} else if (propertyName.equals(BigBangController.GRAPH_ANIMATION_POSITION)) {
 			this.animateSlider.setValue((int)Math.round((Double)event.getNewValue()*(this.animateSlider.getMaximum()-this.animateSlider.getMinimum())));
-		} else if (propertyName.equals(ViewController.SELECT_COMPOSITION_STATE)) {
+		} else if (propertyName.equals(BigBangController.SELECT_COMPOSITION_STATE)) {
 			this.selectState((CompositionState)event.getNewValue());
-		} else if (propertyName.equals(ViewController.DESELECT_COMPOSITION_STATES)) {
+		} else if (propertyName.equals(BigBangController.DESELECT_COMPOSITION_STATES)) {
 			this.selectState(null);
 		}
 	}
