@@ -2,18 +2,18 @@ package org.rubato.rubettes.bigbang.model.edits;
 
 import javax.swing.undo.AbstractUndoableEdit;
 
-import org.rubato.rubettes.bigbang.model.graph.BigBangTransformationGraph;
+import org.rubato.rubettes.bigbang.model.graph.BigBangOperationGraph;
 import org.rubato.rubettes.bigbang.model.operations.AbstractOperation;
 
 public class AddOrInsertOperationEdit extends AbstractUndoableEdit {
 	
-	private BigBangTransformationGraph graph;
+	private BigBangOperationGraph graph;
 	private AbstractOperation operation;
 	private Integer startingState;
 	private boolean isInsertion;
 	private AbstractOperation parallelOperation;
 	
-	public AddOrInsertOperationEdit(AbstractOperation operation, BigBangTransformationGraph graph) {
+	public AddOrInsertOperationEdit(AbstractOperation operation, BigBangOperationGraph graph) {
 		this.graph = graph;
 		this.operation = operation;
 		this.startingState = this.graph.getInsertionState();

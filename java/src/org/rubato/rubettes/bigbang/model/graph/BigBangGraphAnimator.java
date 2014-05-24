@@ -10,19 +10,19 @@ public class BigBangGraphAnimator extends Thread {
 	
 	private final int SLEEP_LENGTH = 10;
 	
-	private BigBangTransformationGraph graph;
+	private BigBangOperationGraph graph;
 	private List<AbstractOperation> animatedEdits;
 	private double totalAnimationTime;
 	private BigBangModel model;
 	private boolean running;
 	private double currentPosition;
 	
-	public BigBangGraphAnimator(BigBangTransformationGraph graph, BigBangModel model) {
+	public BigBangGraphAnimator(BigBangOperationGraph graph, BigBangModel model) {
 		this.setGraph(graph);
 		this.model = model;
 	}
 	
-	public void setGraph(BigBangTransformationGraph graph) {
+	public void setGraph(BigBangOperationGraph graph) {
 		this.graph = graph;
 		this.animatedEdits = this.graph.getCurrentlyExecutedOperationsInOrder();
 		this.totalAnimationTime = this.graph.getCurrentTotalAnimationTime();

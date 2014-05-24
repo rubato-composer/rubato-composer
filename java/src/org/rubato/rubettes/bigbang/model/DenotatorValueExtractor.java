@@ -41,7 +41,7 @@ public class DenotatorValueExtractor {
 		Form baseForm = composition.getForm();
 		this.minValues = new TreeMap<String,Double>();
 		this.maxValues = new TreeMap<String,Double>();
-		this.objects.clearValues();
+		//this.objects.clearValues();
 		/*if (this.objects != null && baseForm.equals(this.objects.getBaseForm())) {
 			this.objects.clearObjects();
 		} else {
@@ -54,6 +54,7 @@ public class DenotatorValueExtractor {
 			}
 			this.extractObjects(composition, null, null, 0, 0, 0, new DenotatorPath(baseForm));
 		} catch (RubatoException e) { e.printStackTrace(); }
+		this.objects.updateValues();
 		this.objects.setMinMaxValues(this.getMinValues(), this.getMaxValues());
 	}
 	

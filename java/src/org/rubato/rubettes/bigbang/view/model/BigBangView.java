@@ -135,7 +135,7 @@ public class BigBangView extends Model implements View {
 	}
 	
 	private void initMidiAndSound() {
-		this.midiReceiver = new BigBangMidiReceiver(this.viewController);
+		this.midiReceiver = new BigBangMidiReceiver(this.viewController, this.controller);
 		this.recorder = new BigBangRecorder(this, this.player, this.controller);
 		this.setTempo(BigBangPlayer.INITIAL_BPM);
 		this.firePropertyChange(ViewController.MIDI_IN, null, this.midiReceiver.getSelectedInDeviceName());
@@ -367,6 +367,14 @@ public class BigBangView extends Model implements View {
 	public void setActiveSatelliteLevel(Integer satelliteLevel) {
 		this.displayObjects.setActiveSatelliteLevel(satelliteLevel);
 		this.firePropertyChange(ViewController.ACTIVE_SATELLITE_LEVEL, null, satelliteLevel);
+	}
+	
+	public void selectPreviousCompositionState() {
+		this.controller.selectPreviousCompositionState();
+	}
+	
+	public void selectNextCompositionState() {
+		this.controller.selectNextCompositionState();
 	}
 	
 	public void selectCompositionState(CompositionState state) {

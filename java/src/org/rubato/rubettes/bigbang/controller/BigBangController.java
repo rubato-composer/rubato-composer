@@ -11,6 +11,7 @@ import org.rubato.rubettes.bigbang.model.BigBangObject;
 import org.rubato.rubettes.bigbang.model.denotators.TransformationProperties;
 import org.rubato.rubettes.bigbang.model.graph.CompositionState;
 import org.rubato.rubettes.bigbang.model.operations.AbstractOperation;
+import org.rubato.rubettes.bigbang.view.controller.ViewController;
 import org.rubato.rubettes.util.DenotatorPath;
 
 public class BigBangController extends Controller {
@@ -23,6 +24,8 @@ public class BigBangController extends Controller {
 	public static final String MODIFY_OPERATION = "modifyOperation";
 	public static final String SELECT_COMPOSITION_STATE = "selectCompositionState";
 	public static final String SELECT_COMPOSITION_STATE_AT = "selectCompositionStateAt";
+	public static final String SELECT_PREVIOUS_COMPOSITION_STATE = "selectPreviousCompositionState";
+	public static final String SELECT_NEXT_COMPOSITION_STATE = "selectNextCompositionState";
 	public static final String DESELECT_COMPOSITION_STATES = "deselectCompositionStates";
 	public static final String SELECT_OPERATION = "selectOperation";
 	public static final String DESELECT_OPERATIONS = "deselectOperations";
@@ -92,6 +95,14 @@ public class BigBangController extends Controller {
 	
 	public void modifyOperation(int operationIndex, double ratio) {
 		this.callModelMethod(BigBangController.MODIFY_OPERATION, operationIndex, ratio);
+	}
+	
+	public void selectPreviousCompositionState() {
+		this.callModelMethod(BigBangController.SELECT_PREVIOUS_COMPOSITION_STATE);
+	}
+	
+	public void selectNextCompositionState() {
+		this.callModelMethod(BigBangController.SELECT_NEXT_COMPOSITION_STATE);
 	}
 	
 	public void selectCompositionState(CompositionState state) {

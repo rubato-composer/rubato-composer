@@ -99,9 +99,9 @@ public class BigBangObjects {
 		return this.maxValues;
 	}
 	
-	public void clearValues() {
+	public void updateValues() {
 		for (BigBangObject currentObject : this.getAllObjects()) {
-			currentObject.clearValues();
+			currentObject.updateValues();
 		}
 	}
 	

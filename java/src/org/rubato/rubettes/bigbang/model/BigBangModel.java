@@ -22,7 +22,7 @@ import org.rubato.rubettes.bigbang.model.denotators.TransformationProperties;
 import org.rubato.rubettes.bigbang.model.edits.AddOrInsertOperationEdit;
 import org.rubato.rubettes.bigbang.model.edits.RemoveOperationEdit;
 import org.rubato.rubettes.bigbang.model.graph.BigBangGraphAnimator;
-import org.rubato.rubettes.bigbang.model.graph.BigBangTransformationGraph;
+import org.rubato.rubettes.bigbang.model.graph.BigBangOperationGraph;
 import org.rubato.rubettes.bigbang.model.graph.CompositionState;
 import org.rubato.rubettes.bigbang.model.operations.AbstractOperation;
 import org.rubato.rubettes.bigbang.model.operations.AbstractTransformation;
@@ -58,7 +58,7 @@ public class BigBangModel extends Model {
 	private BigBangObjects objects; //object-oriented representation of the denotator composition
 	private UndoManager undoManager;
 	private UndoableEditSupport undoSupport;
-	private BigBangTransformationGraph transformationGraph;
+	private BigBangOperationGraph transformationGraph;
 	private BigBangGraphAnimator animator;
 	
 	public BigBangModel() {
@@ -82,11 +82,11 @@ public class BigBangModel extends Model {
 	
 	public void reset() {
 		this.undoManager.discardAllEdits();
-		this.transformationGraph = new BigBangTransformationGraph();
+		this.transformationGraph = new BigBangOperationGraph();
 		this.firePropertyChange(BigBangController.GRAPH, null, this.transformationGraph);
 	}
 	
-	private void setGraph(BigBangTransformationGraph graph) {
+	private void setGraph(BigBangOperationGraph graph) {
 		this.transformationGraph = graph;
 	}
 	
@@ -375,6 +375,28 @@ public class BigBangModel extends Model {
 		this.firePropertyChange(BigBangController.GRAPH, null, this.transformationGraph);
 	}
 	
+	public void selectPreviousCompositionState() {
+		if (this.transformationGraph.getSelectedCompositionState() != null) {
+			if (this.transformationGraph.getSelectedCompositionState().getIndex() > 0) {
+				this.selectCompositionStateAt(this.transformationGraph.getSelectedCompositionState().getIndex()-1);
+			}
+		} else if (this.transformationGraph.getVertexCount() > 1) {
+			this.selectCompositionStateAt(this.transformationGraph.getVertexCount()-1);
+		} else {
+			this.selectCompositionStateAt(0);
+		}
+	}
+	
+	public void selectNextCompositionState() {
+		if (this.transformationGraph.getSelectedCompositionState() != null) {
+			if (this.transformationGraph.getSelectedCompositionState().getIndex() < this.transformationGraph.getVertexCount()-1) {
+				this.selectCompositionStateAt(this.transformationGraph.getSelectedCompositionState().getIndex()+1);
+			}
+		} else {
+			this.selectCompositionStateAt(0);
+		}
+	}
+	
 	public void selectCompositionStateAt(Integer stateIndex) {
 		this.transformationGraph.selectCompositionStateAt(stateIndex);
 		this.updateComposition();
@@ -445,7 +467,7 @@ public class BigBangModel extends Model {
 		this.firePropertyChange(BigBangController.GRAPH, null, this.transformationGraph);
 	}
 	
-	public BigBangTransformationGraph getTransformationGraph() {
+	public BigBangOperationGraph getTransformationGraph() {
 		return this.transformationGraph;
 	}
 	
@@ -510,7 +532,7 @@ public class BigBangModel extends Model {
 		try {
 			Form form = reader.parseAndResolveForm(XMLReader.getChild(element, FORM));
 			model.setForm(form);
-			model.setGraph(BigBangTransformationGraph.fromXML(model, reader, element));
+			model.setGraph(BigBangOperationGraph.fromXML(model, reader, element));
 			//initiates bbobjects and all
 			model.updateComposition();
 		} catch (Exception e) {

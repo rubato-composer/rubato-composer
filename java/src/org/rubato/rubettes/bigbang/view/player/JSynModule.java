@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.jsyn.unitgen.LineOut;
+import com.jsyn.unitgen.LinearRamp;
 import com.jsyn.unitgen.Pan;
 
 public class JSynModule {
@@ -13,6 +14,7 @@ public class JSynModule {
 	private JSynObject currentObject;
 	private List<SmoothOscillator> carriers;
 	private LineOut lineOut;
+	private LinearRamp panSweeper;
 	private Pan pan;
 	
 	
@@ -20,6 +22,9 @@ public class JSynModule {
 		this.performance = performance;
 		this.player = performance.getPlayer();
 		this.player.addToSynth(this.pan = new Pan());
+		this.player.addToSynth(this.panSweeper = new LinearRamp());
+	 	this.panSweeper.output.connect(this.pan.pan);
+	 	this.panSweeper.time.set(SmoothOscillator.RAMP_DURATION);
 	 	//TODO: why one line out PER module????
 	 	this.player.addToSynth(this.lineOut = new LineOut());
 	 	this.pan.output.connect(0, this.lineOut.input, 0);
@@ -46,8 +51,12 @@ public class JSynModule {
 		return this.carriers.get(0).getAmplitude();
 	}
 	
+	public void setPan(double pan) {
+		this.panSweeper.input.set(pan);
+	}
+	
 	public double getPan() {
-		return this.pan.pan.get();
+		return this.panSweeper.input.get();//this.oscillator.frequency.getValue();
 	}
 	
 	public void playOrAdjustObject(JSynObject object, boolean playInNextLoop) {
@@ -58,7 +67,7 @@ public class JSynModule {
 	//recursive method
 	private void playOrAdjustObject(SmoothOscillator parentOscillator, JSynObject object, boolean playInNextLoop) {
 		if (object.isAudible()) {
-			this.pan.pan.set(object.getPan());
+			this.setPan(object.getPan());
 			//adjust or schedule time
 			double currentSymbolicTime = this.performance.getCurrentSymbolicTime();
 			if (object.getOnset() > currentSymbolicTime || (object.getOnset() < currentSymbolicTime && playInNextLoop)) {

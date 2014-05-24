@@ -49,6 +49,8 @@ public class ViewController extends Controller {
 	public static final String SELECT_OPERATION = "selectOperation";
 	public static final String DESELECT_OPERATIONS = "deselectOperations";
 	public static final String SELECT_COMPOSITION_STATE = "selectCompositionState";
+	public static final String SELECT_PREVIOUS_COMPOSITION_STATE = "selectPreviousCompositionState";
+	public static final String SELECT_NEXT_COMPOSITION_STATE = "selectNextCompositionState";
 	public static final String DESELECT_COMPOSITION_STATES = "deselectCompositionStates";
 	
 	//score manipulation - display
@@ -338,6 +340,14 @@ public class ViewController extends Controller {
 	
 	public void deselectOperations() {
 		this.callModelMethod(ViewController.DESELECT_OPERATIONS);
+	}
+	
+	public void selectPreviousCompositionState() {
+		this.callModelMethod(ViewController.SELECT_PREVIOUS_COMPOSITION_STATE);
+	}
+	
+	public void selectNextCompositionState() {
+		this.callModelMethod(ViewController.SELECT_NEXT_COMPOSITION_STATE);
 	}
 	
 	public void selectCompositionState(CompositionState state) {

@@ -250,6 +250,8 @@ public class BigBangPlayer {
 	}
 	
 	public void releaseMidiKey(int channel, int pitch, boolean recording) {
+		//System.out.println("PERF " +pitch+ " " + this.currentPerformances);
+		//System.out.println(pitch);
 		if (this.isPlaying) {
 			if (recording) {
 				JSynPerformance performance = this.currentMonitorPitches.remove(this.getChannelPitchKey(channel, pitch));
