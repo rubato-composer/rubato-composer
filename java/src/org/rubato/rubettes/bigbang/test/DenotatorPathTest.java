@@ -4,7 +4,24 @@ import java.util.ArrayList;
 
 import junit.framework.TestCase;
 
+import org.rubato.base.RubatoException;
+import org.rubato.logeo.DenoFactory;
+import org.rubato.logeo.FormFactory;
+import org.rubato.math.arith.Rational;
+import org.rubato.math.module.Module;
+import org.rubato.math.module.ModuleElement;
+import org.rubato.math.module.QElement;
 import org.rubato.math.module.RRing;
+import org.rubato.math.module.ZElement;
+import org.rubato.math.module.ZProperFreeElement;
+import org.rubato.math.module.ZProperFreeModule;
+import org.rubato.math.module.ZStringProperFreeModule;
+import org.rubato.math.yoneda.ColimitForm;
+import org.rubato.math.yoneda.Denotator;
+import org.rubato.math.yoneda.LimitForm;
+import org.rubato.math.yoneda.PowerForm;
+import org.rubato.math.yoneda.SimpleDenotator;
+import org.rubato.math.yoneda.SimpleForm;
 import org.rubato.rubettes.util.DenotatorPath;
 
 public class DenotatorPathTest extends TestCase {
@@ -140,6 +157,48 @@ public class DenotatorPathTest extends TestCase {
 		TestCase.assertFalse(intOrRealPath1.inConflictingColimitPositions(intOrRealPath3));
 		TestCase.assertFalse(intOrRealPath3.inConflictingColimitPositions(intOrRealPath0));
 		TestCase.assertFalse(intOrRealPath3.inConflictingColimitPositions(intOrRealPath1));
+	}
+	
+	public void testOtherStuffForThesisTest() throws RubatoException {
+		SimpleForm onset = FormFactory.makeQModuleForm("Onset");
+		Module eulerPitchSpace = ZProperFreeModule.make(3);
+		SimpleForm eulerPitch = FormFactory.makeModuleForm("EulerPitch", eulerPitchSpace);
+		Module loudnessSpace = ZStringProperFreeModule.make(1);
+		SimpleForm loudness = FormFactory.makeModuleForm("Loudness", loudnessSpace);
+		SimpleForm duration = FormFactory.makeQModuleForm("Duration");
+		LimitForm eulerNote = FormFactory.makeLimitForm("EulerNote", onset, eulerPitch, loudness, duration);
+		LimitForm rest = FormFactory.makeLimitForm("Rest", onset, duration);
+		ColimitForm eulerNoteOrRest = FormFactory.makeColimitForm("EulerNoteOrRest", eulerNote, rest);
+		PowerForm eulerScore = FormFactory.makePowerForm("EulerScore", eulerNoteOrRest);
+		
+		SimpleDenotator onset1 = DenoFactory.makeDenotator(onset, new Rational(0));
+		ModuleElement pitch1Element = ZProperFreeElement.make(new int[]{1, 0, -1});
+		SimpleDenotator pitch1 = DenoFactory.makeDenotator(eulerPitch, pitch1Element);
+		SimpleDenotator loudness1 = DenoFactory.makeDenotator(loudness, "sfz");
+		SimpleDenotator duration1 = DenoFactory.makeDenotator(duration, new Rational(1, 4));
+		Denotator note1 = DenoFactory.makeDenotator(eulerNote, onset1, pitch1, loudness1, duration1);
+		Denotator noteOne = DenoFactory.makeDenotator(eulerNoteOrRest, 0, note1);
+		
+		SimpleDenotator onsetAtBeat2 = DenoFactory.makeDenotator(onset, new Rational(1, 4));
+		Denotator rest1 = DenoFactory.makeDenotator(rest, onsetAtBeat2, duration1);
+		Denotator shortRest = DenoFactory.makeDenotator(eulerNoteOrRest, 1, rest1);
+		
+		SimpleDenotator onset2 = DenoFactory.makeDenotator(onset, new Rational(1, 2));
+		ModuleElement pitch2Element = ZProperFreeElement.make(new int[]{-1, 1, 1});
+		SimpleDenotator pitch2 = DenoFactory.makeDenotator(eulerPitch, pitch2Element);
+		SimpleDenotator loudness2 = DenoFactory.makeDenotator(loudness, "ppp");
+		SimpleDenotator duration2 = DenoFactory.makeDenotator(duration, new Rational(3, 2));
+		Denotator note2 = DenoFactory.makeDenotator(eulerNote, onset2, pitch2, loudness2, duration2);
+		Denotator noteTwo = DenoFactory.makeDenotator(eulerNoteOrRest, 0, note2);
+		
+		Denotator twoNoteScore = DenoFactory.makeDenotator(eulerScore, noteOne, shortRest, noteTwo);
+		
+		Denotator pitchOfNoteTwo = twoNoteScore.get(new int[]{1,0,1});
+		pitchOfNoteTwo.display();
+		int thirdValue = ((ZElement)twoNoteScore.getElement(new int[]{1,0,1,0})).getValue();
+		System.out.println(thirdValue);
+		
+		//twoNoteScore.display();
 	}
 
 }

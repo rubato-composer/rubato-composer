@@ -28,7 +28,15 @@ public class MidiTimerTask extends TimerTask {
 				//System.out.println(currentDevice.getMicrosecondPosition());
 				//timeStamp += currentDevice.getMicrosecondPosition();
 				//TIMESTAMPS DON'T WORK, WITH MAC IAS BUS AT LEAST :(
-				currentDevice.getReceiver().send(message, -1);
+				//System.out.println(" RU "+this.message.getData1() + " " + this.message.getData2());
+				currentDevice.getReceiver().send(this.message, -1);
+				if (this.message.getCommand() == ShortMessage.NOTE_ON) {
+					BigBangMidiTransmitter.getCurrentPitches(currentDevice, this.message.getChannel())
+						.add(message.getData1());
+				} else if (this.message.getCommand() == ShortMessage.NOTE_OFF) {
+					BigBangMidiTransmitter.getCurrentPitches(currentDevice, this.message.getChannel())
+						.remove(message.getData1());
+				}
 			} catch (MidiUnavailableException e) {
 				e.printStackTrace();
 			}

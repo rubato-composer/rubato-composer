@@ -11,6 +11,7 @@ import javax.sound.midi.Receiver;
 import javax.sound.midi.ShortMessage;
 import javax.sound.midi.MidiDevice.Info;
 
+import org.rubato.rubettes.bigbang.controller.BigBangController;
 import org.rubato.rubettes.bigbang.view.controller.ViewController;
 
 public class BigBangMidiReceiver implements Receiver {
@@ -19,15 +20,20 @@ public class BigBangMidiReceiver implements Receiver {
 	private static final String LAUNCHKEYMINI_NAME = "LK Mini MIDI (Launchkey Mini LK Mini MIDI)";
 	private static final String NANOKONTROL2_NAME = "SLIDER/KNOB (nanoKONTROL2 SLIDER/KNOB)";
 	private static final String EWI_NAME = "";
+	private static final String PUSH_NAME = "Live Port (Ableton Push Live Port)";
+	private static final boolean AFTERTOUCH_ON = false;
+	private static final boolean VELOCITY_ON = true;
 	private static final int EWI_BREATH_SENSOR_INDEX = 2;
 	
 	private static Map<String,MidiDevice> midiInDevices;
 	
+	private BigBangController bbController;
 	private ViewController controller;
 	private String selectedInDeviceName;
 	
-	public BigBangMidiReceiver(ViewController controller) {
+	public BigBangMidiReceiver(ViewController controller, BigBangController bbController) {
 		this.controller = controller;
+		this.bbController = bbController;
 		if (midiInDevices.size() > 0) {
 			this.setSelectedInDevice(midiInDevices.keySet().iterator().next());
 		}
@@ -55,6 +61,7 @@ public class BigBangMidiReceiver implements Receiver {
 	public void send(MidiMessage message, long timeStamp) {
 		if (message instanceof ShortMessage) {
 			ShortMessage shortMessage = (ShortMessage)message;
+			System.out.println(shortMessage.getChannel() + " " + shortMessage.getCommand() + " " +shortMessage.getData1() + " " + shortMessage.getData2());
 			if (shortMessage.getCommand() == ShortMessage.NOTE_ON) {
 				int channel = shortMessage.getChannel();
 				int pitch = shortMessage.getData1();
@@ -62,7 +69,14 @@ public class BigBangMidiReceiver implements Receiver {
 				if (velocity == 0) {
 					this.controller.releaseMidiKey(channel, pitch);
 				} else {
-					this.controller.pressMidiKey(channel, pitch, velocity);
+					//push knobs and strip send note on!?
+					if (!this.selectedInDeviceName.equals(PUSH_NAME) || pitch > 12) {
+						if (!VELOCITY_ON) {
+							this.controller.pressMidiKey(channel, pitch, 1);
+						} else {
+							this.controller.pressMidiKey(channel, pitch, velocity);
+						}
+					}
 				}
 			} else if (shortMessage.getCommand() == ShortMessage.NOTE_OFF) {
 				int channel = shortMessage.getChannel();
@@ -76,9 +90,11 @@ public class BigBangMidiReceiver implements Receiver {
 				} else if (this.selectedInDeviceName.equals(LAUNCHKEYMINI_NAME)) {
 					if (21 <= controlChangeNumber && controlChangeNumber <= 28) {
 						this.controller.modifyOperation(controlChangeNumber-21, controlChangeValue);
-					} /*else if (controlChangeNumber == 106) {
-						this.controller.selectCompositionState(stateIndex);
-					}*/
+					} else if (controlChangeNumber == 106 && controlChangeValue == 127) {
+						this.controller.selectPreviousCompositionState();
+					} else if (controlChangeNumber == 107 && controlChangeValue == 127) {
+						this.controller.selectNextCompositionState();
+					}
 				} else if (this.selectedInDeviceName.equals(NANOKONTROL2_NAME)) {
 					this.controller.modifyOperation(this.getNanoKontrol2Index(controlChangeNumber), controlChangeValue);
 				} else if (this.selectedInDeviceName.equals(EWI_NAME)) {
@@ -87,6 +103,15 @@ public class BigBangMidiReceiver implements Receiver {
 					}
 				} else {
 					this.controller.modifyOperation(controlChangeNumber, controlChangeValue);
+				}
+			} else if (shortMessage.getCommand() == ShortMessage.CHANNEL_PRESSURE && AFTERTOUCH_ON) {
+				this.controller.changeVelocity(shortMessage.getData1());
+			} else if (shortMessage.getCommand() == ShortMessage.PITCH_BEND) {
+				double bendValue = ((double)shortMessage.getData2())/128;
+				bendValue += ((double)shortMessage.getData1())/(128*128);
+				//ignore jumping back to neutral
+				if (bendValue != 0.5) {
+					this.bbController.setAnimationPosition(bendValue);
 				}
 			}
 		}

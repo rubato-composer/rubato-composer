@@ -33,6 +33,7 @@ public class BigBangObject implements Comparable<BigBangObject> {
 	
 	//these attributes just reflect the final state (final state also reflected under null keys in maps!)
 	private List<Double> values;
+	private List<Double> preliminaryValues; //next values while being added, then just replace this.values
 	private List<Integer> structuralIndices; //sibling number, satellite level, colimit index, etc
 	private List<BigBangLayer> layers;
 	
@@ -47,6 +48,7 @@ public class BigBangObject implements Comparable<BigBangObject> {
 	public BigBangObject(AbstractOperation creatingOperation, AbstractOperation initialOperation, BigBangObject parent, DenotatorPath topDenotatorPath, BigBangLayer layer) {
 		this.creatingOperation = creatingOperation;
 		this.values = new ArrayList<Double>();
+		this.preliminaryValues = new ArrayList<Double>();
 		this.topDenotatorPaths = new HashMap<AbstractOperation,DenotatorPath>();
 		this.parents = new HashMap<AbstractOperation,BigBangObject>();
 		this.children = new HashMap<AbstractOperation,Set<BigBangObject>>();
@@ -118,12 +120,13 @@ public class BigBangObject implements Comparable<BigBangObject> {
 		this.structuralIndices.set(this.structuralIndices.size()-1, index);
 	}
 	
-	public void clearValues() {
-		this.values = new ArrayList<Double>();
+	public void updateValues() {
+		this.values = this.preliminaryValues;
+		this.preliminaryValues = new ArrayList<Double>();
 	}
 	
 	public void addValues(List<Double> values) {
-		this.values.addAll(values);
+		this.preliminaryValues.addAll(values);
 	}
 	
 	public void setStructuralIndices(List<Integer> indices) {

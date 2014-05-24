@@ -52,7 +52,10 @@ public abstract class AbstractOperation {
 		Set<DenotatorPath> objectPaths = new TreeSet<DenotatorPath>();
 		if (objects.size() == 0) {
 			//return all objects if none here!! operation will be applied to all!!
-			objects = this.model.getObjects().getObjectsAt(this);
+			Set<BigBangObject> allObjects = this.model.getObjects().getObjectsAt(this);
+			if (allObjects != null) {
+				objects = allObjects;
+			}
 		}
 		for (BigBangObject currentObject : objects) {
 			DenotatorPath currentPath = currentObject.getTopDenotatorPathAt(this);

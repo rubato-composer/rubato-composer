@@ -20,7 +20,7 @@ import edu.uci.ics.jung.graph.DirectedSparseMultigraph;
 import edu.uci.ics.jung.graph.util.EdgeType;
 import edu.uci.ics.jung.graph.util.Pair;
 
-public class BigBangTransformationGraph extends DirectedSparseMultigraph<CompositionState,AbstractOperation> {
+public class BigBangOperationGraph extends DirectedSparseMultigraph<CompositionState,AbstractOperation> {
 	
 	private List<CompositionState> compositionStates;
 	private CompositionState selectedCompositionState;
@@ -34,11 +34,12 @@ public class BigBangTransformationGraph extends DirectedSparseMultigraph<Composi
 	//all states reached on way to selectedCompositionState and the time when they are reached
 	private Map<CompositionState,Double> currentlyReachedStatesAndTimes;
 	
-	public BigBangTransformationGraph() {
+	public BigBangOperationGraph() {
 		this.compositionStates = new ArrayList<CompositionState>();
 		this.allOperationsInLogicalOrder = new ArrayList<AbstractOperation>();
 		this.allOperationsInAddedOrder = new ArrayList<AbstractOperation>();
 		this.addCompositionState();
+		this.updateCurrentlyExecutedEditsAndStatesAndTimes();
 	}
 	
 	private CompositionState addCompositionState() {
@@ -400,8 +401,8 @@ public class BigBangTransformationGraph extends DirectedSparseMultigraph<Composi
 		return this.currentlyReachedStatesAndTimes.get(this.getSource(edit));
 	}
 	
-	public BigBangTransformationGraph clone(BigBangModel model) {
-		BigBangTransformationGraph clone = new BigBangTransformationGraph();
+	public BigBangOperationGraph clone(BigBangModel model) {
+		BigBangOperationGraph clone = new BigBangOperationGraph();
 		while (clone.compositionStates.size() < this.compositionStates.size()) {
 			clone.addCompositionState();
 		}
@@ -410,7 +411,7 @@ public class BigBangTransformationGraph extends DirectedSparseMultigraph<Composi
 	}
 	
 	//adds all operations of the given graph to this graph and connects them to the given model
-	private void cloneOperations(BigBangTransformationGraph otherGraph, BigBangModel model) {
+	private void cloneOperations(BigBangOperationGraph otherGraph, BigBangModel model) {
 		this.allOperationsInAddedOrder = new ArrayList<AbstractOperation>();
 		for (AbstractOperation currentOperation : otherGraph.allOperationsInAddedOrder) {
 			//clone operation and add
@@ -453,8 +454,8 @@ public class BigBangTransformationGraph extends DirectedSparseMultigraph<Composi
 		writer.closeBlock();
 	}
 	
-	public static BigBangTransformationGraph fromXML(BigBangModel model, XMLReader reader, Element element) {
-		BigBangTransformationGraph graph = new BigBangTransformationGraph();
+	public static BigBangOperationGraph fromXML(BigBangModel model, XMLReader reader, Element element) {
+		BigBangOperationGraph graph = new BigBangOperationGraph();
 		Element graphElement = XMLReader.getChild(element, GRAPH_TAG);
 		int numberOfStates = XMLReader.getIntAttribute(graphElement, NUMBER_OF_STATES_ATTR, 0);
 		while (graph.getVertexCount() < numberOfStates) {

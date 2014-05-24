@@ -42,7 +42,7 @@ public class QuantizeRubette extends SimpleAbstractRubette {
 	private static final ImageIcon icon = Icons.loadIcon(QuantizeRubette.class, "quantizeicon.png");
 	
 	/**
-	 * Creates a basic RhythmizeRubette.
+	 * Creates a basic QuantizeRubette.
 	 */
     public QuantizeRubette() {
         this.setInCount(1);
