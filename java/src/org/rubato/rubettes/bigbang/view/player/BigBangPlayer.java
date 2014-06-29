@@ -305,6 +305,14 @@ public class BigBangPlayer {
 		}
 	}
 	
+	public void changeRate(double rateModifier) {
+		if (this.isPlaying) {
+			for (JSynPerformance performance : this.currentPerformances.values()) {
+				performance.setRateModifier(rateModifier);
+			}
+		}
+	}
+	
 	public boolean isPlaying() {
 		return this.currentPerformances.size() > 0 || this.inLiveMidiMode;
 	}

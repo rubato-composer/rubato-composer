@@ -14,7 +14,7 @@ import com.softsynth.shared.time.TimeStamp;
 public class SmoothOscillator {
 	
 	public static final double RAMP_DURATION = .007;
-	private final double ATTACK = 0.002;
+	private final double ATTACK = 0.02;
 	private final double DECAY = 0.03;
 	private final double RELEASE = 0.1;
 	

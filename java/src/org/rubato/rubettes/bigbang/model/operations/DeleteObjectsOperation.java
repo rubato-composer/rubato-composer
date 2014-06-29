@@ -33,8 +33,7 @@ public class DeleteObjectsOperation extends AbstractObjectBasedOperation {
 	@Override
 	public OperationPathResults execute() {
 		Set<DenotatorPath> objectPaths = this.getObjectPaths();
-		this.model.getDenotatorManager().removeObjects(new ArrayList<DenotatorPath>(objectPaths));
-		return this.model.getDenotatorManager().getPathResults();
+		return this.model.getDenotatorManager().removeObjects(new ArrayList<DenotatorPath>(objectPaths));
 	}
 	
 	@Override

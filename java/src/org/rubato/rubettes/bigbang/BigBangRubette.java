@@ -19,7 +19,7 @@ import org.w3c.dom.Element;
 public class BigBangRubette extends AbstractRubette {
 	
 	public static final boolean IS_MULTITOUCH = false;
-	public static final String STANDARD_FORM_NAME = "FMSet";
+	public static final String STANDARD_FORM_NAME = "Score";
 	
 	private BigBangModel model;
 	private BigBangView view;
@@ -29,18 +29,7 @@ public class BigBangRubette extends AbstractRubette {
 	 * Creates a basic BigBangRubette.
 	 */
 	public BigBangRubette() {
-		new CoolFormRegistrant().registerAllTheCoolStuff();
-		this.setInCount(1);
-        this.setOutCount(1);
-        this.controller = new BigBangController();
-        if (BigBangRubette.IS_MULTITOUCH) {
-        	this.view = new MTBigBangView(this.controller);
-        } else {
-        	this.view = new BigBangView(this.controller);
-        }
-        this.model = new BigBangModel();
-        this.model.setController(this.controller);
-        this.model.setMultiTouch(false);
+		this(null);
 	}
 	
 	private BigBangRubette(BigBangModel model) {
@@ -53,7 +42,11 @@ public class BigBangRubette extends AbstractRubette {
         } else {
         	this.view = new BigBangView(this.controller);
         }
-        this.model = model;
+        if (model != null) {
+        	this.model = model;
+        } else {
+        	this.model = new BigBangModel();
+        }
         this.model.setController(this.controller);
         this.model.setMultiTouch(false);
 	}
@@ -113,6 +106,7 @@ public class BigBangRubette extends AbstractRubette {
 		new CoolFormRegistrant().registerAllTheCoolStuff();
 		BigBangModel loadedModel = BigBangModel.fromXML(reader, element);
 		return new BigBangRubette(loadedModel);
+		//return new BigBangRubette(new BigBangModel());
 	}
 
 }

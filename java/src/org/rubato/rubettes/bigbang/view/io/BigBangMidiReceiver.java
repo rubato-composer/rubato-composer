@@ -21,7 +21,8 @@ public class BigBangMidiReceiver implements Receiver {
 	private static final String NANOKONTROL2_NAME = "SLIDER/KNOB (nanoKONTROL2 SLIDER/KNOB)";
 	private static final String EWI_NAME = "";
 	private static final String PUSH_NAME = "Live Port (Ableton Push Live Port)";
-	private static final boolean AFTERTOUCH_ON = false;
+	private static final boolean AFTERTOUCH_VELOCITY = true;
+	private static final boolean AFTERTOUCH_RATE = false;
 	private static final boolean VELOCITY_ON = true;
 	private static final int EWI_BREATH_SENSOR_INDEX = 2;
 	
@@ -61,7 +62,7 @@ public class BigBangMidiReceiver implements Receiver {
 	public void send(MidiMessage message, long timeStamp) {
 		if (message instanceof ShortMessage) {
 			ShortMessage shortMessage = (ShortMessage)message;
-			System.out.println(shortMessage.getChannel() + " " + shortMessage.getCommand() + " " +shortMessage.getData1() + " " + shortMessage.getData2());
+			//System.out.println(shortMessage.getChannel() + " " + shortMessage.getCommand() + " " +shortMessage.getData1() + " " + shortMessage.getData2());
 			if (shortMessage.getCommand() == ShortMessage.NOTE_ON) {
 				int channel = shortMessage.getChannel();
 				int pitch = shortMessage.getData1();
@@ -104,8 +105,13 @@ public class BigBangMidiReceiver implements Receiver {
 				} else {
 					this.controller.modifyOperation(controlChangeNumber, controlChangeValue);
 				}
-			} else if (shortMessage.getCommand() == ShortMessage.CHANNEL_PRESSURE && AFTERTOUCH_ON) {
-				this.controller.changeVelocity(shortMessage.getData1());
+			} else if (shortMessage.getCommand() == ShortMessage.CHANNEL_PRESSURE) {
+				if (AFTERTOUCH_VELOCITY) {
+					this.controller.changeVelocity(shortMessage.getData1());
+				}
+				if (AFTERTOUCH_RATE) {
+					this.controller.changeRateModifier(shortMessage.getData1());
+				}
 			} else if (shortMessage.getCommand() == ShortMessage.PITCH_BEND) {
 				double bendValue = ((double)shortMessage.getData2())/128;
 				bendValue += ((double)shortMessage.getData1())/(128*128);

@@ -165,6 +165,10 @@ public class CoolFormRegistrant {
 		soundScore.resolveReferences(REPOSITORY);
 		SOUND_SCORE_FORM = (PowerForm)soundScore;
 		
+		//PanScore
+		LimitForm panNote = this.registerLimitForm("PanNote", ONSET_FORM, PITCH_FORM, LOUDNESS_FORM, DURATION_FORM, PAN_FORM);
+		this.registerPowerForm("PanScore", panNote);
+		
 		//Envelope
 		SimpleForm amplitude = this.registerRModuleForm("Amplitude");
 		ENVELOPE_NODE_FORM = this.registerLimitForm("EnvelopeNode", ONSET_FORM, amplitude);

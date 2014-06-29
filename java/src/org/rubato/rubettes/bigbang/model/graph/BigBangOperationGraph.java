@@ -7,6 +7,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeMap;
 import java.util.TreeSet;
 
 import org.rubato.rubettes.bigbang.model.BigBangModel;
@@ -462,6 +463,7 @@ public class BigBangOperationGraph extends DirectedSparseMultigraph<CompositionS
 			graph.addCompositionState();
 		}
 		Element currentOperationElement = XMLReader.getChild(graphElement, OPERATION_TAG);
+		Map<Integer,AbstractOperation> logicalPositions = new TreeMap<Integer,AbstractOperation>();
 		while (currentOperationElement != null) {
 			String currentName = XMLReader.getStringAttribute(currentOperationElement, CLASSNAME_ATTR);
 			int currentHead = XMLReader.getIntAttribute(currentOperationElement, HEAD_ATTR, 0);
@@ -478,12 +480,16 @@ public class BigBangOperationGraph extends DirectedSparseMultigraph<CompositionS
 						.newInstance(model, reader, currentOperationElement);
 				graph.allOperationsInAddedOrder.add(currentOperation);
 				graph.addEdge(currentOperation, graph.compositionStates.get(currentHead), graph.compositionStates.get(currentTail));
-				graph.allOperationsInLogicalOrder.add(currentLogicalPosition, currentOperation);
+				logicalPositions.put(currentLogicalPosition, currentOperation);
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
 			currentOperationElement = XMLReader.getNextSibling(currentOperationElement, OPERATION_TAG);
 		}
+		for (Integer currentPosition : logicalPositions.keySet()) {
+			graph.allOperationsInLogicalOrder.add(logicalPositions.get(currentPosition));
+		}
+		
 		graph.updateCurrentlyExecutedEditsAndStatesAndTimes();
 		return graph;
 	}

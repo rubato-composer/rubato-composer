@@ -104,7 +104,7 @@ public class BigBangDenotatorManagerTest extends TestCase {
 		List<DenotatorPath> paths = new ArrayList<DenotatorPath>();
 		paths.add(new DenotatorPath(this.objects.SOUND_SCORE_FORM, new int[]{1}));
 		//remove and check composition and values
-		Denotator removedNote = this.denotatorManager.removeObjects(paths).get(0);
+		Denotator removedNote = this.denotatorManager.removeObjects2(paths).get(0);
 		OperationPathResults pathResults = this.denotatorManager.getPathResults();
 		TestCase.assertTrue(((PowerDenotator)this.denotatorManager.getComposition()).getFactorCount() == 2);
 		this.assertEqualNodes(removedNote, this.objects.node1Absolute);
@@ -123,7 +123,7 @@ public class BigBangDenotatorManagerTest extends TestCase {
 		List<DenotatorPath> paths = new ArrayList<DenotatorPath>();
 		paths.add(new DenotatorPath(this.objects.SOUND_SCORE_FORM, new int[]{0,1,0,1,0}));
 		//remove and check composition and values
-		Denotator removedNode = this.denotatorManager.removeObjects(paths).get(0);
+		Denotator removedNode = this.denotatorManager.removeObjects2(paths).get(0);
 		OperationPathResults pathResults = this.denotatorManager.getPathResults();
 		TestCase.assertTrue(((PowerDenotator)this.denotatorManager.getComposition().get(new int[]{0,1,0,1})).getFactorCount() == 0);
 		this.assertEqualNodes(this.objects.node2Absolute, removedNode);

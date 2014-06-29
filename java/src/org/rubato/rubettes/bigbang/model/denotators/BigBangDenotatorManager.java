@@ -124,7 +124,7 @@ public class BigBangDenotatorManager {
 	}
 	
 	//replace the present composition with the given one
-	public void setComposition(Denotator composition) {
+	private void setComposition(Denotator composition) {
 		Set<DenotatorPath> previousPaths = new TreeSet<DenotatorPath>();
 		if (this.composition != null && !composition.getForm().equals(this.objectGenerator.getBaseForm())) {
 			this.setForm(composition.getForm());
@@ -216,7 +216,7 @@ public class BigBangDenotatorManager {
 		//List<DenotatorPath> oldParentPaths = DenotatorPath.getAnchorPaths(notePathsList);
 		List<DenotatorPath> oldGrandParentPaths = DenotatorPath.getGrandAnchorPowersetPaths(objectPathList);
 		int[] powersetIndices = DenotatorPath.getPowersetIndices(objectPathList);
-		List<Denotator> movedObjects = this.removeObjects(objectPathList);
+		List<Denotator> movedObjects = this.removeObjects2(objectPathList);
 		movedObjects = this.addObjects(movedObjects, oldGrandParentPaths, powersetIndices);
 		List<DenotatorPath> newPaths = this.findPaths(movedObjects, oldGrandParentPaths);
 		//remove the newPaths and removedPaths added by the used methods
@@ -240,7 +240,7 @@ public class BigBangDenotatorManager {
 		List<Denotator> parentObjects = this.extractObjects(parentPath);
 		if (parentObjects != null && !parentObjects.contains(null)) {
 			//remove objects and add at new spot
-			List<Denotator> movedObjects = this.removeObjects(objectPathList);
+			List<Denotator> movedObjects = this.removeObjects2(objectPathList);
 			DenotatorPath newPowersetPath = this.findPath(parentObjects).getPowersetPath(powersetIndex);
 			movedObjects = this.addObjectsToParent(movedObjects, newPowersetPath);
 			//remove the newPaths and removedPaths added by the used methods and replace them by changedPaths
@@ -278,7 +278,7 @@ public class BigBangDenotatorManager {
 	/**
 	 * Adds the given objects to the powerset at the given powersetPath while making them relative.
 	 */
-	public List<Denotator> addObjectsToParent(List<Denotator> newObjects, DenotatorPath powersetPath) {
+	List<Denotator> addObjectsToParent(List<Denotator> newObjects, DenotatorPath powersetPath) {
 		if (powersetPath != null) {
 			List<Denotator> oldObjects = this.getPowersetOrList(powersetPath).getFactors();
 			List<DenotatorPath> oldObjectPaths = this.findPaths(oldObjects, powersetPath);
@@ -303,7 +303,7 @@ public class BigBangDenotatorManager {
 		return null;
 	}
 	
-	public void replaceObjects(List<Denotator> newObjects, List<DenotatorPath> replacedObjectsPaths) {
+	void replaceObjects(List<Denotator> newObjects, List<DenotatorPath> replacedObjectsPaths) {
 		int currentStartIndex = 0;
 		DenotatorPath currentPowersetPath = replacedObjectsPaths.get(0).getParentPath();
 		for (int i = 1; i < newObjects.size(); i++) {
@@ -315,7 +315,7 @@ public class BigBangDenotatorManager {
 		this.replaceSiblingObjects(newObjects.subList(currentStartIndex, newObjects.size()), replacedObjectsPaths.subList(currentStartIndex, newObjects.size()));
 	}
 	
-	public void replaceSiblingObjects(List<Denotator> newObjects, List<DenotatorPath> replacedObjectsPaths) {
+	void replaceSiblingObjects(List<Denotator> newObjects, List<DenotatorPath> replacedObjectsPaths) {
 		DenotatorPath powersetPath = replacedObjectsPaths.get(0).getParentPath();
 		if (powersetPath != null) {
 			//find all objects that won't be replaced
@@ -348,7 +348,13 @@ public class BigBangDenotatorManager {
 		}
 	}
 	
-	public List<Denotator> removeObjects(List<DenotatorPath> removedObjectsPaths) {
+	public OperationPathResults removeObjects(List<DenotatorPath> removedObjectsPaths) {
+		this.removeObjects2(removedObjectsPaths);
+		return this.getPathResults();
+	}
+	
+	//TODO MAKE PRIVATE...
+	public List<Denotator> removeObjects2(List<DenotatorPath> removedObjectsPaths) {
 		List<Denotator> removedObjects = new ArrayList<Denotator>(); 
 		Collections.sort(removedObjectsPaths);
 		Collections.reverse(removedObjectsPaths);
@@ -401,7 +407,7 @@ public class BigBangDenotatorManager {
 		return null;
 	}
 	
-	public List<Denotator> getAbsoluteObjects(List<DenotatorPath> objectPaths) {
+	List<Denotator> getAbsoluteObjects(List<DenotatorPath> objectPaths) {
 		return this.internalGetAbsoluteObjects(objectPaths, false);
 	}
 	

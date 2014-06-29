@@ -7,12 +7,12 @@ import java.util.List;
  * @author flo
  *
  */
-public class BigBangScoreManipulator {
+public class BigBangManipulator {
 	
 	protected BigBangDenotatorManager denotatorManager;
 	protected List<TransformationPaths> transformationPaths;
 	
-	public BigBangScoreManipulator(BigBangDenotatorManager denotatorManager, List<TransformationPaths> transformationPaths) {
+	public BigBangManipulator(BigBangDenotatorManager denotatorManager, List<TransformationPaths> transformationPaths) {
 		this.denotatorManager = denotatorManager;
 		this.transformationPaths = transformationPaths;
 	}
