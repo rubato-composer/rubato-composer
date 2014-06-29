@@ -12,7 +12,7 @@ import org.rubato.math.yoneda.Denotator;
 import org.rubato.rubettes.bigbang.model.OperationPathResults;
 import org.rubato.rubettes.util.DenotatorPath;
 
-public class BigBangShaper extends BigBangScoreManipulator {
+public class BigBangShaper extends BigBangManipulator {
 	
 	private final double SHAPING_RANGE = 0.5;
 	

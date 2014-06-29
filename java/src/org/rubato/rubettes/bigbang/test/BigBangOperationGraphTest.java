@@ -28,7 +28,7 @@ import org.rubato.rubettes.util.DenotatorPath;
 
 import edu.uci.ics.jung.graph.util.Pair;
 
-public class BigBangTransformationGraphTest extends TestCase {
+public class BigBangOperationGraphTest extends TestCase {
 	
 	private BigBangModel model;
 	private TestObjects objects;

@@ -18,23 +18,38 @@ public class ObjectReflectionAdapter extends ObjectTransformationAdapter {
 	}
 	
 	@Override
+	protected void updateEndingPoint(MouseEvent event) {
+		double[] reflectionVector = this.calculateReflectionVector(event);
+		Point2D.Double endingPoint = new Point2D.Double(this.startingPoint.x+reflectionVector[0],
+				this.startingPoint.y-reflectionVector[1]);
+		((ReflectionTool)this.displayTool).setEndingPoint(endingPoint);
+		//super.updateEndingPoint(event);
+		this.updateDisplayTool();
+	}
+	
+	@Override
 	protected void transformSelectedObjects(MouseEvent event, boolean startNewTransformation) {
-		Point currentPoint = event.getPoint();
-		double[] reflectionVector = this.calculateReflectionVector(currentPoint);
-		Point2D.Double currentEndPoint = new Point2D.Double(currentPoint.x, currentPoint.y);
+		double[] reflectionVector = this.calculateReflectionVector(event);
+		Point2D.Double currentEndPoint = new Point2D.Double(event.getPoint().x, event.getPoint().y);
 		this.controller.reflectSelectedObjects(this.startingPoint, currentEndPoint, reflectionVector, event.isAltDown(), startNewTransformation);
 	}
 	
 	@Override
 	protected void modifySelectedTransformation(MouseEvent event) {
-		Point currentPoint = event.getPoint();
-		double[] reflectionVector = this.calculateReflectionVector(currentPoint);
+		double[] reflectionVector = this.calculateReflectionVector(event);
 		this.controller.modifySelectedTransformation(reflectionVector);
 	}
 	
-	private double[] calculateReflectionVector(Point endPoint) {
+	private double[] calculateReflectionVector(MouseEvent event) {
+		Point endPoint = event.getPoint();
 		double x = endPoint.x-this.startingPoint.x;
 		double y = -1*(endPoint.y-this.startingPoint.y);
+		if (event.isShiftDown()) {
+			if (Math.abs(x) > Math.abs(y)) {
+				return new double[]{x, 0};
+			}
+			return new double[]{0, y};
+		}
 		return new double[]{x, y};
 	}
 

@@ -15,7 +15,7 @@ import org.rubato.rubettes.bigbang.model.OperationPathResults;
 import org.rubato.rubettes.util.ArbitraryDenotatorMapper;
 import org.rubato.rubettes.util.DenotatorPath;
 
-public class BigBangMapper extends BigBangScoreManipulator {
+public class BigBangMapper extends BigBangManipulator {
 	
 	private ModuleMorphism morphism;
 	private boolean copyAndMap;

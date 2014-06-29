@@ -10,17 +10,24 @@ public class MidiNoteRepeater extends Thread {
 	private JSynObject object;
 	private long onset;
 	private long duration;
+	private double rateModifier;
 	
 	public MidiNoteRepeater(BigBangMidiTransmitter transmitter, JSynObject object, int onset, int duration) {
 		this.transmitter = transmitter;
 		this.object = object;
 		this.onset = onset;
 		this.duration = duration;
+		this.rateModifier = 1;
 		this.start();
 	}
 	
-	public void update(JSynObject object) {
+	public void setRateModifier(double rateModifier) {
+		this.rateModifier = rateModifier;
+	}
+	
+	public void update(JSynObject object, int duration) {
 		this.object = object;
+		this.duration = duration;
 	}
 	
 	public void run() {
@@ -30,7 +37,7 @@ public class MidiNoteRepeater extends Thread {
 		//repeated:
 		} else {
 			while (true) {
-				long rate = this.object.getRate();
+				long rate = Math.round(this.object.getRate()/this.rateModifier);
 				if (rate > 0) {
 					this.scheduleNotes();
 					try { Thread.sleep(rate); } catch (InterruptedException e) { break; }
@@ -47,6 +54,7 @@ public class MidiNoteRepeater extends Thread {
 		for (double currentFrequency : this.object.getFrequencies()) {
 			int currentPitch = this.object.frequencyToMidi(currentFrequency);
 			this.transmitter.scheduleNoteOn(this.object.getVoice(), currentPitch, this.object.getLoudness(), onset);
+			System.out.println(currentPitch + " " + this.duration + " " + this.object.getRate());
 			if (this.duration > 0 && (this.duration < this.object.getRate() || this.object.getRate() <= 0)) {
 				this.transmitter.scheduleNoteOff(this.object.getVoice(), currentPitch, onset+this.duration);
 			} else if (this.object.getRate() > 0) {

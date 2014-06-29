@@ -120,6 +120,7 @@ public class ViewController extends Controller {
 	public static final String RELEASE_MIDI_KEY = "releaseMidiKey";
 	public static final String CHANGE_OCTAVE = "changeOctave";
 	public static final String CHANGE_VELOCITY = "changeVelocity";
+	public static final String CHANGE_RATE_MODIFIER = "changeRateModifier";
 	
 	
 	public void changeDisplayMode(DisplayModeAdapter newMode) {
@@ -416,6 +417,10 @@ public class ViewController extends Controller {
 	
 	public void changeVelocity(int velocity) {
 		this.callModelMethod(ViewController.CHANGE_VELOCITY, velocity);
+	}
+	
+	public void changeRateModifier(int rateModifier) {
+		this.callModelMethod(ViewController.CHANGE_RATE_MODIFIER, rateModifier);
 	}
 
 }

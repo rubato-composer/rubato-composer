@@ -825,5 +825,9 @@ public class BigBangView extends Model implements View {
 	public void changeVelocity(Integer velocity) {
 		this.player.changeVelocity(velocity);
 	}
+	
+	public void changeRateModifier(Double rateModifier) {
+		this.player.changeRate(rateModifier);
+	}
 
 }

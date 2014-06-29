@@ -60,6 +60,10 @@ public class JSynPerformance extends Thread {
 		this.replaceThreads();
 	}
 	
+	public void setRateModifier(double rateModifier) {
+		this.midiTransmitter.setRateModifier(rateModifier);
+	}
+	
 	public void replaceScore(JSynScore score) {
 		this.score = score;
 		this.replaceThreads();

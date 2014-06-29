@@ -40,6 +40,12 @@ public class BigBangMidiTransmitter {
 		this.timer = new Timer();
 	}
 	
+	public void setRateModifier(double rateModifier) {
+		for (MidiNoteRepeater currentRepeater : this.repeaters.values()) {
+			currentRepeater.setRateModifier(rateModifier);
+		}
+	}
+	
 	public void clear() {
 		for (MidiNoteRepeater currentRepeater : this.repeaters.values()) {
 			currentRepeater.end();
@@ -48,8 +54,9 @@ public class BigBangMidiTransmitter {
 	}
 	
 	public synchronized void scheduleNote(JSynObject object, int onset, int duration) {
+		System.out.println(duration + " " + object);
 		if (this.repeaters.containsKey(object.getBigBangObject()) && this.repeaters.get(object.getBigBangObject()).isAlive()) {
-			this.repeaters.get(object.getBigBangObject()).update(object);
+			this.repeaters.get(object.getBigBangObject()).update(object, duration);
 		} else {
 			this.repeaters.put(object.getBigBangObject(), new MidiNoteRepeater(this, object, onset, duration));
 		}

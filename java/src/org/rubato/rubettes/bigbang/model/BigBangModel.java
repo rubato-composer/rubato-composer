@@ -58,7 +58,7 @@ public class BigBangModel extends Model {
 	private BigBangObjects objects; //object-oriented representation of the denotator composition
 	private UndoManager undoManager;
 	private UndoableEditSupport undoSupport;
-	private BigBangOperationGraph transformationGraph;
+	private BigBangOperationGraph operationGraph;
 	private BigBangGraphAnimator animator;
 	
 	public BigBangModel() {
@@ -76,18 +76,18 @@ public class BigBangModel extends Model {
 		controller.addModel(this);
 		this.objects.setController(controller);
 		this.firePropertyChange(BigBangController.UNDO, null, this.undoManager);
-		this.firePropertyChange(BigBangController.GRAPH, null, this.transformationGraph);
+		this.firePropertyChange(BigBangController.GRAPH, null, this.operationGraph);
 		this.fireCompositionChange();
 	}
 	
 	public void reset() {
 		this.undoManager.discardAllEdits();
-		this.transformationGraph = new BigBangOperationGraph();
-		this.firePropertyChange(BigBangController.GRAPH, null, this.transformationGraph);
+		this.operationGraph = new BigBangOperationGraph();
+		this.firePropertyChange(BigBangController.GRAPH, null, this.operationGraph);
 	}
 	
 	private void setGraph(BigBangOperationGraph graph) {
-		this.transformationGraph = graph;
+		this.operationGraph = graph;
 	}
 	
 	public void setInputActive(Boolean inputActive) {
@@ -118,7 +118,7 @@ public class BigBangModel extends Model {
 	}
 	
 	public void newWindowAdded() {
-		this.firePropertyChange(BigBangController.GRAPH, null, this.transformationGraph);
+		this.firePropertyChange(BigBangController.GRAPH, null, this.operationGraph);
 		//TODO ALSO FIRE COMPOSITION CHANGE
 	}
 	
@@ -130,8 +130,8 @@ public class BigBangModel extends Model {
 		if (!this.denotators.isFormCompatibleWithCurrentForm(composition.getForm())) {
 			this.setForm(composition.getForm());
 		}
-		if (this.transformationGraph.getSelectedOperation() instanceof InputCompositionOperation) {
-			((InputCompositionOperation)this.transformationGraph.getSelectedOperation()).setOrAddComposition(composition);
+		if (this.operationGraph.getSelectedOperation() instanceof InputCompositionOperation) {
+			((InputCompositionOperation)this.operationGraph.getSelectedOperation()).setOrAddComposition(composition);
 			this.operationModified();
 		} else {
 			this.addOperation(new InputCompositionOperation(this, composition));
@@ -148,7 +148,7 @@ public class BigBangModel extends Model {
 	
 	public void addObjects(ArrayList<Map<DenotatorPath,Double>> pathsWithValues, ArrayList<DenotatorPath> powersetPaths, Boolean inPreviewMode) {
 		if (this.denotators != null) { //needs to be checked for milmeister ghost rubette reacting to leap motion 
-			AbstractOperation lastEdit = this.transformationGraph.getLastAddedOperation();
+			AbstractOperation lastEdit = this.operationGraph.getLastAddedOperation();
 			if (lastEdit != null && lastEdit instanceof AddObjectsOperation) {
 				AddObjectsOperation addEdit = (AddObjectsOperation) lastEdit;
 				if (addEdit.addObjects(pathsWithValues, powersetPaths, inPreviewMode)) {
@@ -162,10 +162,10 @@ public class BigBangModel extends Model {
 	
 	public void unAddObjects(TreeSet<Map<DenotatorPath,Double>> pathsWithValues) {
 		AddObjectsOperation edit = null;
-		if (this.transformationGraph.getSelectedOperation() instanceof AddObjectsOperation) {
-			edit = (AddObjectsOperation)this.transformationGraph.getSelectedOperation();
-		} else if (this.transformationGraph.getLastAddedOperation() != null && this.transformationGraph.getLastAddedOperation() instanceof AddObjectsOperation) {
-			edit = (AddObjectsOperation)this.transformationGraph.getLastAddedOperation();
+		if (this.operationGraph.getSelectedOperation() instanceof AddObjectsOperation) {
+			edit = (AddObjectsOperation)this.operationGraph.getSelectedOperation();
+		} else if (this.operationGraph.getLastAddedOperation() != null && this.operationGraph.getLastAddedOperation() instanceof AddObjectsOperation) {
+			edit = (AddObjectsOperation)this.operationGraph.getLastAddedOperation();
 		}
 		if (edit != null) {
 			edit.unAddObjects(pathsWithValues);
@@ -178,7 +178,7 @@ public class BigBangModel extends Model {
 	}
 	
 	public void deleteObjects(TreeSet<BigBangObject> objects) {
-		AbstractOperation lastEdit = this.transformationGraph.getLastAddedOperation();
+		AbstractOperation lastEdit = this.operationGraph.getLastAddedOperation();
 		if (lastEdit != null && lastEdit instanceof DeleteObjectsOperation) {
 			((DeleteObjectsOperation)lastEdit).addObjects(objects);
 			this.operationModified();
@@ -199,7 +199,7 @@ public class BigBangModel extends Model {
 		if (properties.startNewTransformation()) {
 			this.addOperation(new RotationTransformation(this, properties, startingPoint, angle));
 		} else if (this.updateTransformation(properties, RotationTransformation.class)) {
-			RotationTransformation lastRotation = (RotationTransformation)this.transformationGraph.getLastAddedOperation();
+			RotationTransformation lastRotation = (RotationTransformation)this.operationGraph.getLastAddedOperation();
 			lastRotation.setParameters(startingPoint, angle);
 			this.updateComposition();
 		}
@@ -230,7 +230,7 @@ public class BigBangModel extends Model {
 	}
 	
 	private boolean updateTransformation(TransformationProperties properties, Class<?> transformationClass) {
-		AbstractOperation lastOperation = this.transformationGraph.getLastAddedOperation();
+		AbstractOperation lastOperation = this.operationGraph.getLastAddedOperation();
 		if (transformationClass.isInstance(lastOperation)) {
 			((AbstractTransformation)lastOperation).updateProperties(properties);
 			return true;
@@ -239,17 +239,17 @@ public class BigBangModel extends Model {
 	}
 	
 	private void modifyLastTransformation(double[] newValues) {
-		AbstractTransformation lastTransformation = (AbstractTransformation)this.transformationGraph.getLastAddedOperation();
+		AbstractTransformation lastTransformation = (AbstractTransformation)this.operationGraph.getLastAddedOperation();
 		lastTransformation.modify(newValues);
 		this.updateComposition();
 	}
 	
 	public void shapeObjects(TransformationProperties properties, TreeMap<Double,Double> shapingLocations) {
 		ShapingOperation edit = null;
-		if (this.transformationGraph.getSelectedOperation() instanceof ShapingOperation) {
-			edit = (ShapingOperation)this.transformationGraph.getSelectedOperation();
-		} else if (this.transformationGraph.getLastAddedOperation() instanceof ShapingOperation) {
-			edit = (ShapingOperation)this.transformationGraph.getLastAddedOperation();
+		if (this.operationGraph.getSelectedOperation() instanceof ShapingOperation) {
+			edit = (ShapingOperation)this.operationGraph.getSelectedOperation();
+		} else if (this.operationGraph.getLastAddedOperation() instanceof ShapingOperation) {
+			edit = (ShapingOperation)this.operationGraph.getLastAddedOperation();
 		}
 		if (edit != null && edit.getShapingPaths().equals(properties.getTransformationPaths())) {
 			edit.addShapingLocations(shapingLocations);
@@ -281,67 +281,67 @@ public class BigBangModel extends Model {
 	
 	public void addAlteration(DenotatorPath degreesDimensionPath) {
 		this.addOperation(new AlterationOperation(this, degreesDimensionPath));
-		this.firePropertyChange(BigBangController.MODIFY_OPERATION, null, this.transformationGraph.getLastAddedOperation());
+		this.firePropertyChange(BigBangController.MODIFY_OPERATION, null, this.operationGraph.getLastAddedOperation());
 	}
 	
 	public void fireAlterationComposition(Integer index) {
-		if (this.transformationGraph.getSelectedOperation() instanceof AlterationOperation) {
+		if (this.operationGraph.getSelectedOperation() instanceof AlterationOperation) {
 			//this.alteration.resetDegrees();
-			this.fireObjectSelectionChange(((AlterationOperation)this.transformationGraph.getSelectedOperation()).getAlterationComposition(index));
+			this.fireObjectSelectionChange(((AlterationOperation)this.operationGraph.getSelectedOperation()).getAlterationComposition(index));
 			this.firePropertyChange(BigBangController.FIRE_ALTERATION_COMPOSITION, null, index);
 		}
 	}
 	
 	public void setAlterationStartDegree(Double startDegree) {
-		if (this.transformationGraph.getSelectedOperation() instanceof AlterationOperation) {
-			((AlterationOperation)this.transformationGraph.getSelectedOperation()).setStartDegree(startDegree);
+		if (this.operationGraph.getSelectedOperation() instanceof AlterationOperation) {
+			((AlterationOperation)this.operationGraph.getSelectedOperation()).setStartDegree(startDegree);
 		}
 	}
 	
 	public void setAlterationEndDegree(Double endDegree) {
-		if (this.transformationGraph.getSelectedOperation() instanceof AlterationOperation) {
-			((AlterationOperation)this.transformationGraph.getSelectedOperation()).setEndDegree(endDegree);
+		if (this.operationGraph.getSelectedOperation() instanceof AlterationOperation) {
+			((AlterationOperation)this.operationGraph.getSelectedOperation()).setEndDegree(endDegree);
 		}
 	}
 	
 	public void setAlterationDegreesDimension(DenotatorPath path) {
-		if (this.transformationGraph.getSelectedOperation() instanceof AlterationOperation) {
-			((AlterationOperation)this.transformationGraph.getSelectedOperation()).setDegreesDimensionPath(path);
+		if (this.operationGraph.getSelectedOperation() instanceof AlterationOperation) {
+			((AlterationOperation)this.operationGraph.getSelectedOperation()).setDegreesDimensionPath(path);
 		}
 	}
 	
 	private void addOperation(AbstractOperation operation) {
-		AddOrInsertOperationEdit edit = new AddOrInsertOperationEdit(operation, this.transformationGraph);
+		AddOrInsertOperationEdit edit = new AddOrInsertOperationEdit(operation, this.operationGraph);
 		edit.execute();
 		this.postEdit(edit);
 	}
 	
 	public void removeOperation(AbstractOperation operation) {
-		RemoveOperationEdit edit = new RemoveOperationEdit(operation, this.transformationGraph);
+		RemoveOperationEdit edit = new RemoveOperationEdit(operation, this.operationGraph);
 		edit.execute();
 		this.postEdit(edit);
 		this.objects.removeOperation(operation);
 		this.updateComposition();
-		this.firePropertyChange(BigBangController.GRAPH, null, this.transformationGraph);
+		this.firePropertyChange(BigBangController.GRAPH, null, this.operationGraph);
 	}
 	
 	private void postEdit(AbstractUndoableEdit edit) {
 		this.undoSupport.postEdit(edit);
 		this.updateComposition();
 		this.firePropertyChange(BigBangController.UNDO, null, this.undoManager);
-		this.firePropertyChange(BigBangController.GRAPH, null, this.transformationGraph);
+		this.firePropertyChange(BigBangController.GRAPH, null, this.operationGraph);
 		//this.firePropertyChange(BigBangController.SELECT_COMPOSITION_STATE, null, this.transformationGraph.getSelectedCompositionState());
 	}
 	
 	public void operationModified() {
 		this.updateComposition();
-		this.firePropertyChange(BigBangController.GRAPH, null, this.transformationGraph);
+		this.firePropertyChange(BigBangController.GRAPH, null, this.operationGraph);
 	}
 	
 	public void modifyOperation(Integer operationIndex, Double ratio) {
-		if (operationIndex >= 0 && this.transformationGraph.getEdgeCount() > operationIndex) {
-			DijkstraShortestPath<CompositionState,AbstractOperation> dijkstra = new DijkstraShortestPath<CompositionState,AbstractOperation>(this.transformationGraph);
-		    List<AbstractOperation> shortestPath = dijkstra.getPath(this.transformationGraph.getFirstState(), this.transformationGraph.getLastState());
+		if (operationIndex >= 0 && this.operationGraph.getEdgeCount() > operationIndex) {
+			DijkstraShortestPath<CompositionState,AbstractOperation> dijkstra = new DijkstraShortestPath<CompositionState,AbstractOperation>(this.operationGraph);
+		    List<AbstractOperation> shortestPath = dijkstra.getPath(this.operationGraph.getFirstState(), this.operationGraph.getLastState());
 		    AbstractOperation operation = shortestPath.get(operationIndex);
 		    operation.modify(ratio);
 			this.updateComposition();
@@ -350,21 +350,21 @@ public class BigBangModel extends Model {
 	}
 	
 	public void setOperationDurations(double duration) {
-		this.transformationGraph.setDurations(duration);
+		this.operationGraph.setDurations(duration);
 	}
 	
 	public void setInsertionState(Integer stateIndex) {
-		this.transformationGraph.setInsertionState(stateIndex);
+		this.operationGraph.setInsertionState(stateIndex);
 	}
 	
 	public void undo() {
-		AbstractOperation lastAddedOperation = this.transformationGraph.getLastAddedOperation();
-		CompositionState state = this.transformationGraph.getSource(lastAddedOperation);
+		AbstractOperation lastAddedOperation = this.operationGraph.getLastAddedOperation();
+		CompositionState state = this.operationGraph.getSource(lastAddedOperation);
 		//this.undoneOperations.add(this.transformationGraph.removeLastAddedOperation());
 		this.undoManager.undo();
 		this.updateComposition();
 		this.firePropertyChange(BigBangController.UNDO, null, this.undoManager);
-		this.firePropertyChange(BigBangController.GRAPH, null, this.transformationGraph);
+		this.firePropertyChange(BigBangController.GRAPH, null, this.operationGraph);
 	}
 	
 	public void redo() {
@@ -372,25 +372,25 @@ public class BigBangModel extends Model {
 		this.undoManager.redo();
 		this.updateComposition();
 		this.firePropertyChange(BigBangController.REDO, null, this.undoManager);
-		this.firePropertyChange(BigBangController.GRAPH, null, this.transformationGraph);
+		this.firePropertyChange(BigBangController.GRAPH, null, this.operationGraph);
 	}
 	
 	public void selectPreviousCompositionState() {
-		if (this.transformationGraph.getSelectedCompositionState() != null) {
-			if (this.transformationGraph.getSelectedCompositionState().getIndex() > 0) {
-				this.selectCompositionStateAt(this.transformationGraph.getSelectedCompositionState().getIndex()-1);
+		if (this.operationGraph.getSelectedCompositionState() != null) {
+			if (this.operationGraph.getSelectedCompositionState().getIndex() > 0) {
+				this.selectCompositionStateAt(this.operationGraph.getSelectedCompositionState().getIndex()-1);
 			}
-		} else if (this.transformationGraph.getVertexCount() > 1) {
-			this.selectCompositionStateAt(this.transformationGraph.getVertexCount()-1);
+		} else if (this.operationGraph.getVertexCount() > 1) {
+			this.selectCompositionStateAt(this.operationGraph.getVertexCount()-1);
 		} else {
 			this.selectCompositionStateAt(0);
 		}
 	}
 	
 	public void selectNextCompositionState() {
-		if (this.transformationGraph.getSelectedCompositionState() != null) {
-			if (this.transformationGraph.getSelectedCompositionState().getIndex() < this.transformationGraph.getVertexCount()-1) {
-				this.selectCompositionStateAt(this.transformationGraph.getSelectedCompositionState().getIndex()+1);
+		if (this.operationGraph.getSelectedCompositionState() != null) {
+			if (this.operationGraph.getSelectedCompositionState().getIndex() < this.operationGraph.getVertexCount()-1) {
+				this.selectCompositionStateAt(this.operationGraph.getSelectedCompositionState().getIndex()+1);
 			}
 		} else {
 			this.selectCompositionStateAt(0);
@@ -398,36 +398,36 @@ public class BigBangModel extends Model {
 	}
 	
 	public void selectCompositionStateAt(Integer stateIndex) {
-		this.transformationGraph.selectCompositionStateAt(stateIndex);
+		this.operationGraph.selectCompositionStateAt(stateIndex);
 		this.updateComposition();
-		this.firePropertyChange(BigBangController.SELECT_COMPOSITION_STATE, null, this.transformationGraph.getSelectedCompositionState());
+		this.firePropertyChange(BigBangController.SELECT_COMPOSITION_STATE, null, this.operationGraph.getSelectedCompositionState());
 	}
 	
 	public void selectCompositionState(CompositionState vertex) {
-		this.transformationGraph.selectCompositionState(vertex);
+		this.operationGraph.selectCompositionState(vertex);
 		this.updateComposition();
 		this.firePropertyChange(BigBangController.SELECT_COMPOSITION_STATE, null, vertex);
 	}
 	
 	public void deselectCompositionStates() {
-		this.transformationGraph.deselectCompositionStates();
+		this.operationGraph.deselectCompositionStates();
 		this.updateComposition();
 		this.firePropertyChange(BigBangController.DESELECT_COMPOSITION_STATES, null, null);
 	}
 	
 	public void selectOperation(AbstractOperation edge) {
-		this.transformationGraph.selectOperation(edge);
+		this.operationGraph.selectOperation(edge);
 		this.firePropertyChange(BigBangController.SELECT_OPERATION, null, edge);
 	}
 	
 	public void deselectOperations() {
-		this.transformationGraph.selectOperation(null);
+		this.operationGraph.selectOperation(null);
 		this.firePropertyChange(BigBangController.DESELECT_OPERATIONS, null, null);
 	}
 	
 	public void setOperationDuration(AbstractOperation operation, Double duration) {
 		operation.setDuration(duration);
-		this.transformationGraph.update();
+		this.operationGraph.update();
 	}
 	
 	public void toggleGraphAnimation() {
@@ -435,10 +435,10 @@ public class BigBangModel extends Model {
 			this.animator.end();
 		} else {
 			if (this.animator == null) {
-				this.animator = new BigBangGraphAnimator(this.transformationGraph, this);
+				this.animator = new BigBangGraphAnimator(this.operationGraph, this);
 			} else {
 				double previousPosition = this.animator.getPositionInPercent();
-				this.animator = new BigBangGraphAnimator(this.transformationGraph, this);
+				this.animator = new BigBangGraphAnimator(this.operationGraph, this);
 				if (previousPosition < 1) {
 					this.animator.setPosition(previousPosition);
 				}
@@ -452,7 +452,7 @@ public class BigBangModel extends Model {
 	 */
 	public void setGraphAnimationPosition(Double position) {
 		if (this.animator == null || !this.animator.isAlive()) {
-			this.animator = new BigBangGraphAnimator(this.transformationGraph, this);
+			this.animator = new BigBangGraphAnimator(this.operationGraph, this);
 		}
 		this.animator.setPosition(position);
 	}
@@ -461,19 +461,19 @@ public class BigBangModel extends Model {
 	 * Splits the currently selected operation at the current position of the animator if it is splittable
 	 */
 	public void splitOperation() {
-		this.transformationGraph.splitSelectedAndParallelOperations(this.animator.getPositionInSeconds());
-		this.animator.setGraph(this.transformationGraph);
+		this.operationGraph.splitSelectedAndParallelOperations(this.animator.getPositionInSeconds());
+		this.animator.setGraph(this.operationGraph);
 		this.updateComposition();
-		this.firePropertyChange(BigBangController.GRAPH, null, this.transformationGraph);
+		this.firePropertyChange(BigBangController.GRAPH, null, this.operationGraph);
 	}
 	
 	public BigBangOperationGraph getTransformationGraph() {
-		return this.transformationGraph;
+		return this.operationGraph;
 	}
 	
 	public void updateComposition() {
-		if (this.transformationGraph.getEdgeCount() > 0) {
-			List<AbstractOperation> operationsToBeExecuted = this.transformationGraph.getCurrentlyExecutedOperationsInOrder();
+		if (this.operationGraph.getEdgeCount() > 0) {
+			List<AbstractOperation> operationsToBeExecuted = this.operationGraph.getCurrentlyExecutedOperationsInOrder();
 			this.denotators.reset();
 			
 			OperationPathResults currentPathResults = null;
@@ -516,7 +516,8 @@ public class BigBangModel extends Model {
 	
 	public BigBangModel clone() {
 		BigBangModel clonedModel = new BigBangModel();
-		clonedModel.transformationGraph = this.transformationGraph.clone(clonedModel);
+		clonedModel.setForm(this.denotators.getForm());
+		clonedModel.operationGraph = this.operationGraph.clone(clonedModel);
 		clonedModel.updateComposition();
 		return clonedModel;
 	}
@@ -524,21 +525,21 @@ public class BigBangModel extends Model {
 	public void toXML(XMLWriter writer) {
 		writer.writeFormRef(this.denotators.getForm());
 		//System.out.println("TOXML " +this.denotators.getForm());
-		this.transformationGraph.toXML(writer);
+		this.operationGraph.toXML(writer);
 	}
 	
 	public static BigBangModel fromXML(XMLReader reader, Element element) {
-		BigBangModel model = new BigBangModel();
+		BigBangModel loadedModel = new BigBangModel();
 		try {
 			Form form = reader.parseAndResolveForm(XMLReader.getChild(element, FORM));
-			model.setForm(form);
-			model.setGraph(BigBangOperationGraph.fromXML(model, reader, element));
+			loadedModel.setForm(form);
+			loadedModel.setGraph(BigBangOperationGraph.fromXML(loadedModel, reader, element));
 			//initiates bbobjects and all
-			model.updateComposition();
+			loadedModel.updateComposition();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		return model;
+		return loadedModel;
 	}
 
 }
