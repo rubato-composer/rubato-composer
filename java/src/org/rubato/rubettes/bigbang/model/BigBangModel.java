@@ -229,6 +229,16 @@ public class BigBangModel extends Model {
 		}
 	}
 	
+	public void affineTransformObjects(TransformationProperties properties, double[] shift, RMatrix transform) {
+		if (properties.startNewTransformation()) {
+			this.addOperation(new AffineTransformation(this, properties, shift, transform));
+		} else if (this.updateTransformation(properties, ShearingTransformation.class)) {
+			AffineTransformation lastTransformation = (AffineTransformation)this.operationGraph.getLastAddedOperation();
+			lastTransformation.setParameters(shift, transform);
+			this.updateComposition();
+		}
+	}
+	
 	private boolean updateTransformation(TransformationProperties properties, Class<?> transformationClass) {
 		AbstractOperation lastOperation = this.operationGraph.getLastAddedOperation();
 		if (transformationClass.isInstance(lastOperation)) {
@@ -257,10 +267,6 @@ public class BigBangModel extends Model {
 		} else {	
 			this.addOperation(new ShapingOperation(this, properties, shapingLocations));
 		}
-	}
-	
-	public void affineTransformObjects(TransformationProperties properties, double[] shift, RMatrix transform) {
-		this.addOperation(new AffineTransformation(this, properties, shift, transform));
 	}
 	
 	public void buildSatellites(TreeSet<BigBangObject> objects, BigBangObject anchorObject, Integer powersetIndex) {
@@ -471,7 +477,7 @@ public class BigBangModel extends Model {
 		return this.operationGraph;
 	}
 	
-	public void updateComposition() {
+	public synchronized void updateComposition() {
 		if (this.operationGraph.getEdgeCount() > 0) {
 			List<AbstractOperation> operationsToBeExecuted = this.operationGraph.getCurrentlyExecutedOperationsInOrder();
 			this.denotators.reset();

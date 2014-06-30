@@ -107,6 +107,7 @@ public class JMainOptionsPanel extends JPanel implements ActionListener, View {
 		this.drawingOptionsPanel.removeAll();
 		int numberOfBoxes = 0;
 		
+		//System.out.println(objectBox + " " + satelliteLevelBox + " " + colimitBoxes.size());
 		if (this.objectBox != null) {
 			this.drawingOptionsPanel.add(new JLabel("Object"));
 			this.drawingOptionsPanel.add(this.objectBox);

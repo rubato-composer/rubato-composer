@@ -88,7 +88,7 @@ public class LeapObjectRotationAdapter extends Listener {
 				setCurrentArc(GeometryTools.calculateArcAngle(this.center, this.startingAngle, this.currentPoint));
 			}
 		}
-		updateView(true);
+		updateView(!this.isActive);
 		this.isActive = true;
 		
 		
@@ -128,8 +128,8 @@ public class LeapObjectRotationAdapter extends Listener {
 		return new Point2D.Double(p.getCoord(0), p.getCoord(1));
 	}
 
-	private void updateView(Boolean inPreviewMode) {
-		this.controller.rotateSelectedObjects(this.center, this.startingPoint, this.currentPoint, this.currentArc, false, inPreviewMode);
+	private void updateView(Boolean startNewTransformation) {
+		this.controller.rotateSelectedObjects(this.center, this.startingPoint, this.currentPoint, this.currentArc, false, startNewTransformation);
 		this.controller.changeDisplayTool(this.rotationTool);
 	}
 }

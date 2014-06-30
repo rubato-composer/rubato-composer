@@ -73,7 +73,7 @@ public class BigBangGraphAnimator extends Thread {
 				} else {
 					double modValue = (this.currentPosition-startingTime)/currentEdit.getDuration();
 					currentEdit.modify(modValue);
-					this.model.firePropertyChange(BigBangController.MODIFY_OPERATION, null, currentEdit);
+					//this.model.firePropertyChange(BigBangController.MODIFY_OPERATION, null, currentEdit);
 				}
 			//all edits before to 0
 			} else {
@@ -102,7 +102,7 @@ public class BigBangGraphAnimator extends Thread {
 			Thread.sleep(this.SLEEP_LENGTH);
 		}
 		
-		this.model.firePropertyChange(BigBangController.MODIFY_OPERATION, null, null);
+		//this.model.firePropertyChange(BigBangController.MODIFY_OPERATION, null, null);
 		this.model.firePropertyChange(BigBangController.TOGGLE_GRAPH_ANIMATION, null, false);
 	}
 

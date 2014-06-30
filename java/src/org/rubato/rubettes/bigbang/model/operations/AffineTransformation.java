@@ -28,7 +28,7 @@ public class AffineTransformation extends AbstractLocalTransformation {
 		//TODO IMPLEMENT
 	}
 	
-	private void setParameters(double[] shift, RMatrix transform2x2) {
+	public void setParameters(double[] shift, RMatrix transform2x2) {
 		this.shift = shift;
 		this.transform = transform2x2;
 		this.updateOperation();

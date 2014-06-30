@@ -85,12 +85,10 @@ public class JSynModule {
 				if (remainingDuration > 0) {
 					this.adjustOscillators(object, parentOscillator, null, remainingDuration);
 					int durationMillis = (int)Math.round(remainingDuration*1000);
-					System.out.println("HEY");
 					this.performance.scheduleMidiNote(object, 0, durationMillis);
 				} else if (object.getRate() > 0) {
 					//this.adjustOscillators(object, parentOscillator, null, remainingDuration);
 					int durationMillis = (int)Math.round(object.getDuration()*1000);
-					System.out.println("HEY");
 					this.performance.scheduleMidiNote(object, 0, durationMillis);
 				} else {
 					this.mute();
