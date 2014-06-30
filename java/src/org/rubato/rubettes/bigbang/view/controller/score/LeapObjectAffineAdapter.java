@@ -107,7 +107,7 @@ public class LeapObjectAffineAdapter extends Listener {
 //			System.out.println("Number of matches: " + matches.size());
 			this.transform = newTransform.product(this.transform);
 			affineTool.setTransform(transform);
-			this.updateView(true);
+			this.updateView(false);
 			this.prevPoints = fHash;
 			return;
 			
@@ -158,7 +158,7 @@ public class LeapObjectAffineAdapter extends Listener {
 		return new Point2D.Double(p.getCoord(0), p.getCoord(1));
 	}
 	
-	private void updateView(boolean inPreviewMode) {
+	private void updateView(boolean startNewTransformation) {
 		RMatrix t = reflectAcrossX(this.transform);
 		double[] shift = {t.get(0, 2), t.get(1, 2)};
 		double[][] t2x2 = {{t.get(0, 0), t.get(0, 1)}, {t.get(1,0), t.get(1, 1)}};
@@ -168,7 +168,7 @@ public class LeapObjectAffineAdapter extends Listener {
 //		System.out.println("" + shift[0]+ "," + shift[1]);
 //		System.out.println(transform);
 		
-		this.controller.affineTransformSelectedObjects(startingPoint, startingPoint, shift, transform2x2, copyAndTransform, inPreviewMode);
+		this.controller.affineTransformSelectedObjects(startingPoint, startingPoint, shift, transform2x2, copyAndTransform, startNewTransformation);
 		this.controller.changeDisplayTool(this.affineTool);
 	}
 	

@@ -174,7 +174,7 @@ public class BigBangObjects {
 		return null;
 	}
 	
-	public void removeOperation(AbstractOperation operation) {
+	public synchronized void removeOperation(AbstractOperation operation) {
 		for (BigBangObject currentObject : this.getAllObjects()) {
 			currentObject.removeOperation(operation);
 		}
@@ -185,7 +185,7 @@ public class BigBangObjects {
 	 * Updates the paths of all objects that existed at previousOperation and were changed according to the given
 	 * changedPaths. Sets the new paths at the given operation.
 	 */
-	public void updatePaths(AbstractOperation previousOperation, AbstractOperation operation, OperationPathResults pathResults) {
+	public synchronized void updatePaths(AbstractOperation previousOperation, AbstractOperation operation, OperationPathResults pathResults) {
 		//System.out.println("UP " + previousOperation + " " + operation + " " + pathResults.getNewPaths() + " " + pathResults.getChangedPaths() + " " + pathResults.getRemovedPaths());
 		
 		if (this.objectsMaps.containsKey(operation)) {
@@ -227,7 +227,7 @@ public class BigBangObjects {
 		}
 	}
 	
-	private void addObjects(AbstractOperation previousOperation, AbstractOperation operation, OperationPathResults pathResults) {
+	private synchronized void addObjects(AbstractOperation previousOperation, AbstractOperation operation, OperationPathResults pathResults) {
 		Set<BigBangObject> previouslyAddedObjects = new TreeSet<BigBangObject>();
 		if (this.objects.containsKey(previousOperation)) {
 			previouslyAddedObjects.addAll(this.objects.get(previousOperation));
@@ -278,7 +278,7 @@ public class BigBangObjects {
 		this.removeObjectFromMap(operation, objectToBeRemoved);
 	}
 	
-	private void addObjectToMap(BigBangObject object, AbstractOperation operation, DenotatorPath newPath) {
+	private synchronized void addObjectToMap(BigBangObject object, AbstractOperation operation, DenotatorPath newPath) {
 		if (!this.objectsMaps.containsKey(operation)) {
 			this.objectsMaps.put(operation, new TreeMap<DenotatorPath,BigBangObject>());
 		}
@@ -299,7 +299,7 @@ public class BigBangObjects {
 		}
 	}
 	
-	private void removeObjectFromMap(AbstractOperation operation, BigBangObject objectToBeRemoved) {
+	private synchronized void removeObjectFromMap(AbstractOperation operation, BigBangObject objectToBeRemoved) {
 		DenotatorPath previousPath = objectToBeRemoved.getTopDenotatorPathAt(operation);
 		if (previousPath != null) {
 			if (this.objectsMaps.containsKey(operation)) {
@@ -336,7 +336,7 @@ public class BigBangObjects {
 	 * @return the path of the closest powerset at the given coordinateSystemValueIndex, if it is closer to the given
 	 * examplePowersetPath, or the closest object as such if examplePowersetPath is null.
 	 */
-	public BigBangObject getClosestObject(int[] coordinateSystemValueIndices, double[] values, DenotatorPath examplePowersetPath) {
+	public synchronized BigBangObject getClosestObject(int[] coordinateSystemValueIndices, double[] values, DenotatorPath examplePowersetPath) {
 		BigBangObject closestObject = null;
 		double shortestDistance = Double.MAX_VALUE;
 			

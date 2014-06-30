@@ -327,7 +327,9 @@ public class BigBangDenotatorManager {
 			Collections.sort(replacedObjectsIndices);
 			Collections.reverse(replacedObjectsIndices);
 			for (int currentIndex : replacedObjectsIndices) {
-				nonReplacedObjects.remove(currentIndex);
+				if (nonReplacedObjects.size() > currentIndex) {
+					nonReplacedObjects.remove(currentIndex);
+				}
 			}
 			//see where the ones that are not replaced are before replacing the other ones
 			List<DenotatorPath> nonReplacedObjectsPaths = this.findPaths(nonReplacedObjects, powersetPath);

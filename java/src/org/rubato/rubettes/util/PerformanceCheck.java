@@ -65,7 +65,7 @@ public class PerformanceCheck {
 			taskDurations.put(currentTaskName, new Double(0));
 		}
 		double currentTaskStartTime = System.currentTimeMillis();
-		if (previousTaskName != null) {
+		if (previousTaskName != null && taskDurations.containsKey(previousTaskName) && taskDurations.get(previousTaskName) != null) {
 			double previousTaskDuration = currentTaskStartTime - previousTaskStartTime;
 			double previousTaskSum = taskDurations.get(previousTaskName).doubleValue();
 			previousTaskSum += previousTaskDuration;
