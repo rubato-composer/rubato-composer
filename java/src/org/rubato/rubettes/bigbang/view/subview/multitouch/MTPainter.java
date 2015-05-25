@@ -1,8 +1,5 @@
 package org.rubato.rubettes.bigbang.view.subview.multitouch;
 
-import java.awt.Color;
-import java.awt.geom.Path2D;
-import java.awt.geom.PathIterator;
 import java.util.ArrayList;
 
 import org.mt4j.MTApplication;
@@ -19,6 +16,8 @@ import org.mt4j.util.MTColor;
 import org.mt4j.util.math.Vector3D;
 import org.mt4j.util.math.Vertex;
 import org.rubato.rubettes.bigbang.view.subview.AbstractPainter;
+import org.rubato.rubettes.util.Point2D;
+import org.rubato.rubettes.util.Polygon2D;
 
 public class MTPainter extends AbstractPainter {
 	
@@ -32,7 +31,7 @@ public class MTPainter extends AbstractPainter {
 		this.mtApplication = mtApplication;
 		this.parentComponent = parentComponent;
 		//this.lassoProcessor = lassoProcessor;
-		this.setColor(Color.black);
+		this.setColor(new float[]{0,0,0,1}); //black
 		this.updateFont();
 	}
 	
@@ -41,8 +40,8 @@ public class MTPainter extends AbstractPainter {
 	}
 	
 	@Override
-	public void setColor(Color color) {
-		this.color = new MTColor(color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha());
+	public void setColor(float[] rgba) {
+		this.color = new MTColor(rgba[0], rgba[1], rgba[2], rgba[3]);
 	}
 
 	@Override
@@ -62,7 +61,7 @@ public class MTPainter extends AbstractPainter {
 	}
 
 	@Override
-	public void drawPolygon(Path2D.Double path) {
+	public void drawPolygon(Polygon2D path) {
 		MTPolygon mtP = new MTPolygon(this.extractVertices(path), this.mtApplication);
 		mtP.setStrokeColor(this.color);
 		mtP.setNoFill(true);
@@ -106,7 +105,7 @@ public class MTPainter extends AbstractPainter {
 	}
 
 	@Override
-	public void fillPolygon(Path2D.Double path) {
+	public void fillPolygon(Polygon2D path) {
 		MTPolygon mtP = new MTPolygon(this.extractVertices(path), this.mtApplication);
 		mtP.setFillColor(this.color);
 		//mtP.addGestureListener(DragProcessor.class, new InertiaDragAction());
@@ -124,7 +123,7 @@ public class MTPainter extends AbstractPainter {
 	}*/
 	
 	@Override
-	public void fillNote(double x, double y, double width, double height) {
+	public void fillObject(double x, double y, double width, double height) {
 		this.fillRect(new MTRectangle(0, 0, (float)width, (float)height, this.mtApplication), x, -y);
 	}
 	
@@ -162,14 +161,10 @@ public class MTPainter extends AbstractPainter {
 		return p;
 	}*/
 	
-	private Vertex[] extractVertices(Path2D.Double path) {
-		PathIterator iterator = path.getPathIterator(null);
+	private Vertex[] extractVertices(Polygon2D polygon) {
 		ArrayList<Vertex> vertices = new ArrayList<Vertex>();
-		double[] currentCoordinates = new double[2];
-		while (!iterator.isDone()) {
-			iterator.currentSegment(currentCoordinates);
-			vertices.add(new Vertex((float)currentCoordinates[0], (float)currentCoordinates[1]));
-			iterator.next();
+		for (Point2D currentPoint : polygon.getVertices()) {
+			vertices.add(new Vertex((float)currentPoint.getX(), (float)currentPoint.getY()));
 		}
 		return vertices.toArray(new Vertex[vertices.size()]);
 	}

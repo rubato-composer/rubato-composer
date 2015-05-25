@@ -2,11 +2,11 @@ package org.rubato.rubettes.bigbang.view.controller.score;
 
 import java.awt.Point;
 import java.awt.event.MouseEvent;
-import java.awt.geom.Point2D;
 
 import javax.swing.event.MouseInputAdapter;
 
 import org.rubato.rubettes.bigbang.view.controller.ViewController;
+import org.rubato.rubettes.util.Point2D;
 
 public class PlaybackPositionAdapter extends MouseInputAdapter {
 	
@@ -19,7 +19,7 @@ public class PlaybackPositionAdapter extends MouseInputAdapter {
 	public void mouseClicked(MouseEvent event) {
 		if (event.getButton() == MouseEvent.BUTTON1 && !event.isPopupTrigger()) {
 			Point location = event.getPoint();
-			this.controller.setPlaybackPosition(new Point2D.Double(location.x, location.y));
+			this.controller.setPlaybackPosition(new Point2D(location.x, location.y));
 		}
 	}
 

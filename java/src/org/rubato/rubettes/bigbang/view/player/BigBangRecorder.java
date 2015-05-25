@@ -7,6 +7,7 @@ import java.util.TreeMap;
 
 import org.rubato.math.yoneda.SimpleForm;
 import org.rubato.rubettes.bigbang.controller.BigBangController;
+import org.rubato.rubettes.bigbang.view.model.BigBangSwingView;
 import org.rubato.rubettes.bigbang.view.model.BigBangView;
 import org.rubato.rubettes.util.CoolFormRegistrant;
 import org.rubato.rubettes.util.DenotatorPath;

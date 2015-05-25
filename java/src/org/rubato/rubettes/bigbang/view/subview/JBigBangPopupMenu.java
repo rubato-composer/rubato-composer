@@ -11,7 +11,7 @@ import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
 import javax.swing.JSeparator;
 import javax.swing.KeyStroke;
-import javax.swing.undo.UndoManager;
+import org.rubato.rubettes.bigbang.model.undo.UndoManager;
 
 import org.rubato.math.yoneda.Form;
 import org.rubato.rubettes.bigbang.controller.BigBangController;

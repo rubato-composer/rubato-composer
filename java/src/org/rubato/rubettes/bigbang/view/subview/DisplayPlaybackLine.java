@@ -1,7 +1,5 @@
 package org.rubato.rubettes.bigbang.view.subview;
 
-import java.awt.Color;
-
 import org.rubato.rubettes.bigbang.view.player.BigBangPlayer;
 
 public class DisplayPlaybackLine {
@@ -16,7 +14,7 @@ public class DisplayPlaybackLine {
 	
 	public void paint(AbstractPainter painter) {
 		if (this.player.isPlaying()) {
-			painter.setColor(Color.GRAY);
+			painter.setColor(new float[]{0.78125f,0.78125f,0.78125f,0.78125f});
 			int timeAxisIndex = this.display.getTimeAxisIndex();
 			if (timeAxisIndex == 0) {
 				double x = this.display.translateXDenotatorValue(this.player.getCurrentSymbolicTime());

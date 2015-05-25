@@ -112,6 +112,7 @@ public class BigBangPlayer {
 	
 	public void setScore(JSynScore score) {
 		this.score = score;
+		System.out.println(score);
 		//standard loop is entire score
 		if (score.getObjects().size() > 0) {
 			this.loopOnset = score.getObjects().iterator().next().getOnset();
@@ -198,7 +199,7 @@ public class BigBangPlayer {
 	}
 	
 	public synchronized void togglePlayMode() {
-		//System.out.println("\n\nTOG "+this.isPlaying);
+		System.out.println("\n\nTOG "+this.isPlaying);
 		if (!this.isPlaying) {
 			this.startPlaying();
 		} else {
@@ -213,7 +214,7 @@ public class BigBangPlayer {
 			}
 			this.isPlaying = true;
 		}
-		//System.out.println("PLAY " + this.currentPerformances + " " + this.inLiveMidiMode + " " + this.isLooping + " " + this.score);
+		System.out.println("PLAY " + this.currentPerformances + " " + this.inLiveMidiMode + " " + this.isLooping + " " + this.score);
 	}
 	
 	public void pressMidiKey(int channel, int pitch, int velocity, boolean recording) {

@@ -1,6 +1,6 @@
-package org.rubato.rubettes.bigbang.model.edits;
+package org.rubato.rubettes.bigbang.model.undo;
 
-import javax.swing.undo.AbstractUndoableEdit;
+import org.rubato.rubettes.bigbang.model.undo.AbstractUndoableEdit;
 
 import org.rubato.rubettes.bigbang.model.graph.BigBangOperationGraph;
 import org.rubato.rubettes.bigbang.model.graph.CompositionState;

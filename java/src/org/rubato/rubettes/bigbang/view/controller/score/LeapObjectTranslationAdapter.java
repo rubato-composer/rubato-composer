@@ -1,11 +1,11 @@
 package org.rubato.rubettes.bigbang.view.controller.score;
 
-import java.awt.geom.Point2D;
 import java.util.List;
 
 import org.rubato.rubettes.bigbang.view.controller.ViewController;
 import org.rubato.rubettes.util.LeapUtil;
 import org.rubato.rubettes.util.LeapUtil.Operation;
+import org.rubato.rubettes.util.Point2D;
 import org.rubato.rubettes.util.PointND;
 import org.rubato.rubettes.util.LeapUtil.Axis;
 
@@ -15,8 +15,8 @@ import com.leapmotion.leap.Listener;
 
 public class LeapObjectTranslationAdapter extends Listener {
 	
-	private Point2D.Double startPoint;
-	private Point2D.Double endPoint;
+	private Point2D startPoint;
+	private Point2D endPoint;
 	private Boolean isActive = false;
 	private ViewController viewController;
 
@@ -36,11 +36,11 @@ public class LeapObjectTranslationAdapter extends Listener {
 		Finger front = fingers.get(0);
 		PointND p = LeapUtil.fingerToScreenPoint(front);
 		if (isActive) {
-			endPoint = new Point2D.Double(p.getCoord(0), p.getCoord(1));
+			endPoint = new Point2D(p.getCoord(0), p.getCoord(1));
 			this.viewController.translateSelectedObjects(this.startPoint, this.endPoint, false, false);
 		}
 		else {
-			startPoint = new Point2D.Double(p.getCoord(0), p.getCoord(1));
+			startPoint = new Point2D(p.getCoord(0), p.getCoord(1));
 			this.viewController.translateSelectedObjects(this.startPoint, this.startPoint, false, true);
 			isActive = true;
 		}

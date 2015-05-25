@@ -81,7 +81,7 @@ public class UndoRedoTest extends TestCase {
 		this.model.undo();
 		this.checkGraphAndResult(3, 2, new double[][]{{-1,62,120,1,0},{0,65,116,1,0},{2,60,121,1,1}});
 		
-		//undo translate
+		//redo translate
 		this.model.redo();
 		this.checkGraphAndResult(4, 3, new double[][]{{-2,64,120,1,0},{-1,67,116,1,0},{2,60,121,1,1}});
 		

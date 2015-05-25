@@ -1,8 +1,6 @@
 package org.rubato.rubettes.bigbang.view.controller;
 
-import java.awt.Dimension;
 import java.awt.Point;
-import java.awt.geom.Point2D;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.TreeMap;
@@ -17,6 +15,8 @@ import org.rubato.rubettes.bigbang.view.model.DisplayObject;
 import org.rubato.rubettes.bigbang.view.model.ZoomChange;
 import org.rubato.rubettes.bigbang.view.model.tools.DisplayTool;
 import org.rubato.rubettes.bigbang.view.model.tools.SelectionTool;
+import org.rubato.rubettes.util.Dimension;
+import org.rubato.rubettes.util.Point2D;
 import org.rubato.rubettes.util.PointND;
 
 public class ViewController extends Controller {
@@ -55,6 +55,7 @@ public class ViewController extends Controller {
 	
 	//score manipulation - display
 	public static final String FORM = "Form";
+	public static final String FACTS_VIEW_CONTENTS = "FactsViewContents";
 	public static final String DISPLAY_OBJECTS = "DisplayObjects";
 	public static final String OBJECT_SELECTION = "toggleObjectSelection";
 	public static final String ANCHOR_OBJECT_SELECTION = "toggleAnchorObjectSelection";
@@ -219,11 +220,11 @@ public class ViewController extends Controller {
 		this.callModelMethod(ViewController.MODIFY_OPERATION, operationNumber, midiValue);
 	}
 	
-	public void modifyCenterOfSelectedTransformation(Point2D.Double newCenter) {
+	public void modifyCenterOfSelectedTransformation(Point2D newCenter) {
 		this.callModelMethod(ViewController.MODIFY_CENTER_OF_SELECTED_TRANSFORMATION, newCenter);
 	}
 	
-	public void modifyEndPointOfSelectedTransformation(Point2D.Double newEndPoint) {
+	public void modifyEndPointOfSelectedTransformation(Point2D newEndPoint) {
 		this.callModelMethod(ViewController.MODIFY_ENDPOINT_OF_SELECTED_TRANSFORMATION, newEndPoint);
 	}
 	
@@ -235,27 +236,27 @@ public class ViewController extends Controller {
 		this.callModelMethod(ViewController.MODIFY_ROTATION, angle);
 	}
 	
-	public void translateSelectedObjects(Point2D.Double center, Point2D.Double endPoint, boolean copyAndTranslate, boolean startNewTransformation) {
+	public void translateSelectedObjects(Point2D center, Point2D endPoint, boolean copyAndTranslate, boolean startNewTransformation) {
 		this.callModelMethod(ViewController.TRANSLATE_OBJECTS, center, endPoint, copyAndTranslate, startNewTransformation);
 	}
 	
-	public void rotateSelectedObjects(Point2D.Double center, Point2D.Double startPoint, Point2D.Double endPoint, double angle, boolean copyAndTranslate, boolean startNewTransformation) {
+	public void rotateSelectedObjects(Point2D center, Point2D startPoint, Point2D endPoint, double angle, boolean copyAndTranslate, boolean startNewTransformation) {
 		this.callModelMethod(ViewController.ROTATE_OBJECTS, center, startPoint, endPoint, angle, copyAndTranslate, startNewTransformation);
 	}
 	
-	public void scaleSelectedObjects(Point2D.Double center, Point2D.Double endPoint, double[] scaleFactors, boolean copyAndTranslate, boolean startNewTransformation) {
+	public void scaleSelectedObjects(Point2D center, Point2D endPoint, double[] scaleFactors, boolean copyAndTranslate, boolean startNewTransformation) {
 		this.callModelMethod(ViewController.SCALE_OBJECTS, center, endPoint, scaleFactors, copyAndTranslate, startNewTransformation);
 	}
 	
-	public void reflectSelectedObjects(Point2D.Double center, Point2D.Double endPoint, double[] reflectionVector, boolean copyAndTranslate, boolean startNewTransformation) {
+	public void reflectSelectedObjects(Point2D center, Point2D endPoint, double[] reflectionVector, boolean copyAndTranslate, boolean startNewTransformation) {
 		this.callModelMethod(ViewController.REFLECT_OBJECTS, center, endPoint, reflectionVector, copyAndTranslate, startNewTransformation);
 	}
 	
-	public void shearSelectedObjects(Point2D.Double center, Point2D.Double endPoint, double[] shearingFactors, boolean copyAndTranslate, boolean startNewTransformation) {
+	public void shearSelectedObjects(Point2D center, Point2D endPoint, double[] shearingFactors, boolean copyAndTranslate, boolean startNewTransformation) {
 		this.callModelMethod(ViewController.SHEAR_OBJECTS, center, endPoint, shearingFactors, copyAndTranslate, startNewTransformation);
 	}
 	
-	public void affineTransformSelectedObjects(Point2D.Double center, Point2D.Double endPoint, double[] shift, RMatrix transform, boolean copyAndTransform, boolean startNewTransformation) {
+	public void affineTransformSelectedObjects(Point2D center, Point2D endPoint, double[] shift, RMatrix transform, boolean copyAndTransform, boolean startNewTransformation) {
 		this.callModelMethod(ViewController.AFFINE_TRANSFORM_OBJECTS, center, endPoint, shift, transform, copyAndTransform, startNewTransformation);
 	}
 	
@@ -387,7 +388,7 @@ public class ViewController extends Controller {
 		this.callModelMethod(ViewController.TEMPO, tempo);
 	}
 	
-	public void setPlaybackPosition(Point2D.Double clickPosition) {
+	public void setPlaybackPosition(Point2D clickPosition) {
 		this.callModelMethod(ViewController.PLAYBACK_POSITION, clickPosition);
 	}
 	

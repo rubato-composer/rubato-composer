@@ -1,6 +1,5 @@
 package org.rubato.rubettes.bigbang.view.controller.score;
 
-import java.awt.geom.Point2D;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -11,6 +10,7 @@ import org.rubato.rubettes.bigbang.view.controller.ViewController;
 import org.rubato.rubettes.bigbang.view.model.tools.AffineTool;
 import org.rubato.rubettes.util.GeometryTools;
 import org.rubato.rubettes.util.LeapUtil;
+import org.rubato.rubettes.util.Point2D;
 import org.rubato.rubettes.util.PointND;
 import org.rubato.rubettes.util.LeapUtil.Axis;
 import org.rubato.rubettes.util.LeapUtil.Operation;
@@ -22,7 +22,7 @@ import com.leapmotion.leap.Listener;
 public class LeapObjectAffineAdapter extends Listener {
 	
 	private class MatchPoint {
-		public Point2D.Double p;
+		public Point2D p;
 		public int id;
 	}
 	
@@ -30,14 +30,14 @@ public class LeapObjectAffineAdapter extends Listener {
 	private ViewController controller;
 	
 //	private ArrayList<MatchPoint> prevPoints;
-	private HashMap<Integer, Point2D.Double> prevPoints;
+	private HashMap<Integer, Point2D> prevPoints;
 	
-	private Point2D.Double startingPoint;
-	private Point2D.Double p1;
+	private Point2D startingPoint;
+	private Point2D p1;
 	private int p1id;
-	private Point2D.Double p2;
+	private Point2D p2;
 	private int p2id;
-	private Point2D.Double p3;
+	private Point2D p3;
 	private int p3id;
 	
 	private RMatrix transform;
@@ -53,7 +53,7 @@ public class LeapObjectAffineAdapter extends Listener {
 				{0,0,1}
 			};
 		this.transform = new RMatrix(id);
-		this.prevPoints = new HashMap<Integer, Point2D.Double>();
+		this.prevPoints = new HashMap<Integer, Point2D>();
 	}
 	
 	@Override
@@ -72,7 +72,7 @@ public class LeapObjectAffineAdapter extends Listener {
 		
 		if (!isActive) {
 			findStartingPoint(fingers);
-			HashMap<Integer, Point2D.Double> fHash = fingersToHash(fingers);
+			HashMap<Integer, Point2D> fHash = fingersToHash(fingers);
 			affineTool.setStartingPoint(startingPoint);
 			double[][] t = {{1,0,0},{0,1,0},{0,0,1}};
 			RMatrix identity = new RMatrix(t);
@@ -82,11 +82,11 @@ public class LeapObjectAffineAdapter extends Listener {
 			prevPoints = fHash;
 		}
 		else {
-			HashMap<Integer, Point2D.Double> fHash = fingersToHash(fingers);
+			HashMap<Integer, Point2D> fHash = fingersToHash(fingers);
 			ArrayList<Integer> matches = findMatches(prevPoints, fHash);
 			RMatrix newTransform = getIdentity();
-			ArrayList<Point2D.Double> p1 = new ArrayList<Point2D.Double>();
-			ArrayList<Point2D.Double> p2 = new ArrayList<Point2D.Double>();
+			ArrayList<Point2D> p1 = new ArrayList<Point2D>();
+			ArrayList<Point2D> p2 = new ArrayList<Point2D>();
 			for (Integer i : matches) {
 				p1.add(this.prevPoints.get(i));
 				p2.add(fHash.get(i));
@@ -114,7 +114,7 @@ public class LeapObjectAffineAdapter extends Listener {
 			
 			
 //			int fingersFound = 0;
-//			Point2D.Double t1 = null,t2 = null,t3 = null;
+//			Point2D t1 = null,t2 = null,t3 = null;
 //			for (Finger f : fingers) {
 //				if (f.id() == p1id) {
 //					t1 = startToOrigin(ndToDouble(LeapUtil.fingerToScreenPoint(f)));
@@ -135,13 +135,13 @@ public class LeapObjectAffineAdapter extends Listener {
 //				return;
 //			}
 //			double[][] m1 = {
-//					{p1.x, 	p2.x, 	p3.x},
-//					{p1.y, 	p2.y, 	p3.y},
+//					{p1.getX(), 	p2.getX(), 	p3.getX()},
+//					{p1.getY(), 	p2.getY(), 	p3.getY()},
 //					{1,		1,		1}
 //					};
 //			double[][] m2 = {
-//					{t1.x, 	t2.x, 	t3.x},
-//					{t1.y, 	t2.y, 	t3.y},
+//					{t1.getX(), 	t2.getX(), 	t3.getX()},
+//					{t1.getY(), 	t2.getY(), 	t3.getY()},
 //					{1,		1,		1}
 //					};
 //			RMatrix start = new RMatrix(m1);
@@ -154,8 +154,8 @@ public class LeapObjectAffineAdapter extends Listener {
 		
 	}
 	
-	private Point2D.Double ndToDouble(PointND p) {
-		return new Point2D.Double(p.getCoord(0), p.getCoord(1));
+	private Point2D ndToDouble(PointND p) {
+		return new Point2D(p.getCoord(0), p.getCoord(1));
 	}
 	
 	private void updateView(boolean startNewTransformation) {
@@ -177,19 +177,19 @@ public class LeapObjectAffineAdapter extends Listener {
 		return new RMatrix(t);
 	}
 	
-	private RMatrix findT1Match(ArrayList<Point2D.Double> start, ArrayList<Point2D.Double> end) {
+	private RMatrix findT1Match(ArrayList<Point2D> start, ArrayList<Point2D> end) {
 		RMatrix t = getIdentity();
-		t.set(0, 2, end.get(0).x - start.get(0).x);
-		t.set(1, 2, end.get(0).y - start.get(0).y);
+		t.set(0, 2, end.get(0).getX() - start.get(0).getX());
+		t.set(1, 2, end.get(0).getY() - start.get(0).getY());
 		return t;
 	}
 	
-	private RMatrix findT2Match(ArrayList<Point2D.Double> start, ArrayList<Point2D.Double> end) {
+	private RMatrix findT2Match(ArrayList<Point2D> start, ArrayList<Point2D> end) {
 		
-		Point2D.Double sCenter = new Point2D.Double((start.get(0).x+start.get(1).x)/2, (start.get(0).y+start.get(1).y)/2);
-		Point2D.Double eCenter = new Point2D.Double((end.get(0).x+end.get(1).x)/2, (end.get(0).y+end.get(1).y)/2);
-		double xTrans = eCenter.x - sCenter.x;
-		double yTrans = eCenter.y - sCenter.y;
+		Point2D sCenter = new Point2D((start.get(0).getX()+start.get(1).getX())/2, (start.get(0).getY()+start.get(1).getY())/2);
+		Point2D eCenter = new Point2D((end.get(0).getX()+end.get(1).getX())/2, (end.get(0).getY()+end.get(1).getY())/2);
+		double xTrans = eCenter.getX() - sCenter.getX();
+		double yTrans = eCenter.getY() - sCenter.getY();
 		
 		double sDist = start.get(0).distance(start.get(1));
 		double eDist = end.get(0).distance(end.get(1));
@@ -200,8 +200,8 @@ public class LeapObjectAffineAdapter extends Listener {
 		double angle = eAngle - sAngle;
 		
 		RMatrix t1 = getIdentity();
-		t1.set(0, 2, sCenter.x * -1);
-		t1.set(1, 2, sCenter.y * -1);
+		t1.set(0, 2, sCenter.getX() * -1);
+		t1.set(1, 2, sCenter.getY() * -1);
 		
 		RMatrix r = getIdentity();
 		r.set(0, 0, Math.cos(angle));
@@ -212,27 +212,27 @@ public class LeapObjectAffineAdapter extends Listener {
 		s.set(0, 0, scale);
 		s.set(1, 1, scale);
 		RMatrix t2 = getIdentity();
-		t2.set(0, 2, xTrans + sCenter.x);
-		t2.set(1, 2, yTrans + sCenter.y);
+		t2.set(0, 2, xTrans + sCenter.getX());
+		t2.set(1, 2, yTrans + sCenter.getY());
 		
 		return t2.product(s.product(r.product(t1)));
 	}
 	
-	private RMatrix first3Matcher(ArrayList<Point2D.Double> start, ArrayList<Point2D.Double> end) {
+	private RMatrix first3Matcher(ArrayList<Point2D> start, ArrayList<Point2D> end) {
 		RMatrix sPoints = getIdentity();
 		RMatrix ePoints = getIdentity();
 		for (int i = 0; i < 3; i++) {
-			sPoints.set(0, i, start.get(i).x);
-			sPoints.set(1, i, start.get(i).y);
+			sPoints.set(0, i, start.get(i).getX());
+			sPoints.set(1, i, start.get(i).getY());
 			sPoints.set(2, i, 1);
-			ePoints.set(0, i, end.get(i).x);
-			ePoints.set(1, i, end.get(i).y);
+			ePoints.set(0, i, end.get(i).getX());
+			ePoints.set(1, i, end.get(i).getY());
 			ePoints.set(2, i, 1);
 		}
 		return ePoints.product(sPoints.inverse());
 	}
 	
-	private ArrayList<Integer> findMatches(HashMap<Integer, Point2D.Double> s1, HashMap<Integer, Point2D.Double> s2) {
+	private ArrayList<Integer> findMatches(HashMap<Integer, Point2D> s1, HashMap<Integer, Point2D> s2) {
 		Set<Integer> keySet = s2.keySet();
 		ArrayList<Integer> matches = new ArrayList<Integer>();
 		for (Integer i : keySet) {
@@ -248,32 +248,28 @@ public class LeapObjectAffineAdapter extends Listener {
 		double yAccum = 0;
 		int count = 0;
 		for (Finger f : fingers) {
-			Point2D.Double p = ndToDouble(LeapUtil.fingerToScreenPoint(f));
-			xAccum += p.x;
-			yAccum += p.y;
+			Point2D p = ndToDouble(LeapUtil.fingerToScreenPoint(f));
+			xAccum += p.getX();
+			yAccum += p.getY();
 			count++;
 		}
-		this.startingPoint = new Point2D.Double(xAccum/count, yAccum/count);
+		this.startingPoint = new Point2D(xAccum/count, yAccum/count);
 	}
 	
-	private HashMap<Integer, Point2D.Double> fingersToHash(List<Finger> fingers) {
-		HashMap<Integer, Point2D.Double> hash = new HashMap<Integer, Point2D.Double>();
+	private HashMap<Integer, Point2D> fingersToHash(List<Finger> fingers) {
+		HashMap<Integer, Point2D> hash = new HashMap<Integer, Point2D>();
 		for ( Finger f : fingers) {
 			hash.put(f.id(), startToOrigin(ndToDouble(LeapUtil.fingerToScreenPoint(f))));
 		}
 		return hash;
 	}
 	
-	private Point2D.Double startToOrigin(Point2D.Double p) {
-		p.x -= startingPoint.x;
-		p.y -= startingPoint.y;
-		return p;
+	private Point2D startToOrigin(Point2D p) {
+		return p.minus(startingPoint);
 	}
 	
-	private Point2D.Double originToStart(Point2D.Double p) {
-		p.x += startingPoint.x;
-		p.y += startingPoint.y;
-		return p;
+	private Point2D originToStart(Point2D p) {
+		return p.plus(startingPoint);
 	}
 	
 	private RMatrix reflectAcrossX(RMatrix t) {		

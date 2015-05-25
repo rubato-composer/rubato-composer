@@ -1,18 +1,17 @@
 package org.rubato.rubettes.bigbang.view.model;
 
-import java.awt.Point;
-import java.awt.geom.Point2D;
-import java.awt.geom.Rectangle2D;
-
 import javax.swing.JOptionPane;
 
 import org.rubato.math.matrix.RMatrix;
 import org.rubato.rubettes.bigbang.controller.BigBangController;	
 import org.rubato.rubettes.bigbang.view.model.tools.SelectionTool;
 import org.rubato.rubettes.bigbang.view.subview.multitouch.MTBigBangApp;
+import org.rubato.rubettes.util.Point;
+import org.rubato.rubettes.util.Point2D;
 import org.rubato.rubettes.util.PointND;
+import org.rubato.rubettes.util.Rectangle2D;
 
-public class MTBigBangView extends BigBangView {
+public class MTBigBangView extends BigBangSwingView {
 	
 	private MTBigBangApp app;
 	
@@ -35,15 +34,15 @@ public class MTBigBangView extends BigBangView {
 	}
 	
 	@Override
-	protected void initViewParameters() {
-		this.viewParameters = new ViewParameters(viewController, false);
+	protected void initFactsViewState() {
+		this.factsViewState = new FactsViewState(this.viewController, false);
 	}
 	
 	@Override
 	public void setDisplayPosition(Point center) {
-		int minX = ((int) (center.x-Math.round((this.app.width/2)/this.app.getContents().getXZoomFactor())));
-		int minY = ((int) ((-1*center.y)-Math.round((this.app.height/2)/this.app.getContents().getYZoomFactor())));
-		//System.out.println("dy "+ center.y + " " + this.translateY(center.y) + " " + Math.round((this.app.height/2)/this.yZoomFactor));
+		int minX = ((int) (center.getX()-Math.round((this.app.width/2)/this.app.getContents().getXZoomFactor())));
+		int minY = ((int) ((-1*center.getY())-Math.round((this.app.height/2)/this.app.getContents().getYZoomFactor())));
+		//System.out.println("dy "+ center.getY() + " " + this.translateY(center.getY()) + " " + Math.round((this.app.height/2)/this.getY()ZoomFactor));
 		super.setDisplayPosition(new Point(minX, minY));
 		//System.out.println("dp "+ center.toString() + " " + new Point(minX, maxY));
 	}
@@ -57,11 +56,11 @@ public class MTBigBangView extends BigBangView {
 	}
 	
 	public double[] getXYZDenotatorValues(PointND location) {
-		return this.app.getContents().getXYZDenotatorValues(location);
+		return this.factsViewState.getXYZDenotatorValues(location);
 	}
 	
 	public double getDenotatorValue(double displayValue, int parameterIndex) {
-		return this.app.getContents().getDenotatorValue(displayValue, parameterIndex);
+		return this.factsViewState.getDenotatorValue(displayValue, parameterIndex);
 	}
 	
 	public void selectNotes(SelectionTool tool, Boolean stillSelecting) {
@@ -70,28 +69,28 @@ public class MTBigBangView extends BigBangView {
 	}
 	
 	@Override
-	public void affineTransformSelectedObjects(Point2D.Double center, Point2D.Double endPoint, double[] shift, RMatrix transform, Boolean copyAndTransform, Boolean previewMode) {
+	public void affineTransformSelectedObjects(Point2D center, Point2D endPoint, double[] shift, RMatrix transform, Boolean copyAndTransform, Boolean previewMode) {
 		//center = this.translateToOpenGLPosition(center);
-		center = new Point2D.Double(center.x, this.translateY(center.y));
+		center = new Point2D(center.getX(), this.translateY(center.getY()));
 		//System.out.println(center);
 		shift[0] = shift[0]/this.app.getContents().getXZoomFactor();
 		shift[1] = shift[1]/this.app.getContents().getYZoomFactor();
-		//System.out.println(shift[0] + " " + shift[1] + " " + angle.doubleValue() + " " + scaleFactors[0] + " " + scaleFactors[1]);
+		//System.out.println(shift[0] + " " + shift[1] + " " + angleValue() + " " + scaleFactors[0] + " " + scaleFactors[1]);
 		super.affineTransformSelectedObjects(center, endPoint, shift, transform, copyAndTransform, previewMode);
 	}
 	
-	private Rectangle2D.Double translateToOpenGLNoteSpaceRectangle(Rectangle2D.Double r) {
-		Point2D.Double location = this.translateToOpenGLNoteSpacePosition(new Point2D.Double(r.getX(), r.getY()));
-		double width = r.width/this.app.getContents().getXZoomFactor();
-		double height = r.height/this.app.getContents().getYZoomFactor();
-		return new Rectangle2D.Double(location.x, location.y-height, width, height);
+	private Rectangle2D translateToOpenGLNoteSpaceRectangle(Rectangle2D r) {
+		Point2D location = this.translateToOpenGLNoteSpacePosition(new Point2D(r.getX(), r.getY()));
+		double width = r.getWidth()/this.app.getContents().getXZoomFactor();
+		double height = r.getHeight()/this.app.getContents().getYZoomFactor();
+		return new Rectangle2D(location.getX(), location.getY()-height, width, height);
 	}
 	
-	private Point2D.Double translateToOpenGLNoteSpacePosition(Point2D.Double p) {
+	private Point2D translateToOpenGLNoteSpacePosition(Point2D p) {
 		Point displayPosition = this.app.getContents().getPosition();
-		double x = (p.x/this.app.getContents().getXZoomFactor())+displayPosition.x;
-		double y = (displayPosition.y+((this.app.height-p.y)/this.app.getContents().getYZoomFactor()));
-		return new Point2D.Double(x, y);
+		double x = (p.getX()/this.app.getContents().getXZoomFactor())+displayPosition.getX();
+		double y = (displayPosition.getY()+((this.app.height-p.getY())/this.app.getContents().getYZoomFactor()));
+		return new Point2D(x, y);
 	}
 	
 	//translates the openGL y in a Swing y

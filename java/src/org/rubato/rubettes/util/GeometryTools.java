@@ -1,7 +1,5 @@
 package org.rubato.rubettes.util;
 
-import java.awt.geom.Point2D;
-import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -9,15 +7,15 @@ import org.apache.commons.math3.analysis.polynomials.PolynomialFunctionLagrangeF
 
 public class GeometryTools {
 	
-	public static Point2D.Double subtractPoint(Point2D.Double p1, Point2D.Double p2) {
-		return new Point2D.Double(p1.x - p2.x, p1.y - p2.y);
+	public static Point2D subtractPoint(Point2D p1, Point2D p2) {
+		return new Point2D(p1.getX() - p2.getX(), p1.getY() - p2.getY());
 	}
 	
-	public static Point2D.Double addPoint(Point2D.Double p1, Point2D.Double p2) {
-		return new Point2D.Double(p1.x + p2.x, p1.y + p2.y);
+	public static Point2D addPoint(Point2D p1, Point2D p2) {
+		return new Point2D(p1.getX() + p2.getX(), p1.getY() + p2.getY());
 	}
 	
-	public static double calculateArcAngle(Point2D.Double center, double startAngle, Point2D.Double endPoint) {
+	public static double calculateArcAngle(Point2D center, double startAngle, Point2D endPoint) {
 		double endAngle = calculateAngle(center, endPoint);
 		double angle = endAngle - startAngle;
 		if (angle > Math.PI) {
@@ -26,37 +24,37 @@ public class GeometryTools {
 		return angle;
 	}
 	
-	public static double calculateAngle(Point2D.Double center, Point2D.Double p) {
-		Point2D.Double zeroAngle = new Point2D.Double(center.x+1, center.y);
+	public static double calculateAngle(Point2D center, Point2D p) {
+		Point2D zeroAngle = new Point2D(center.getX()+1, center.getY());
 		double angle = calculateAngle(center, zeroAngle, p);
-		if (p.y > center.y) {
+		if (p.getY() > center.getY()) {
 			angle = Math.PI + (Math.PI - angle);
 		}
 		return angle;
 	}
 	
-	private static double calculateAngle(Point2D.Double p1, Point2D.Double p2, Point2D.Double p3) {
-		double x2 = p2.x-p1.x;
-		double y2 = p2.y-p1.y;
-		double x3 = p3.x-p1.x;
-		double y3 = p3.y-p1.y;
+	private static double calculateAngle(Point2D p1, Point2D p2, Point2D p3) {
+		double x2 = p2.getX()-p1.getX();
+		double y2 = p2.getY()-p1.getY();
+		double x3 = p3.getX()-p1.getX();
+		double y3 = p3.getY()-p1.getY();
 		double d2 = p2.distance(p1);
 		double d3 = p3.distance(p1);
 		return Math.acos(((x2*x3)+(y2*y3))/(Math.abs(d2)*Math.abs(d3)));
 	}
 	
-	public static Point2D.Double calculatePoint(Point2D.Double center, Point2D.Double p, double angle) {
+	public static Point2D calculatePoint(Point2D center, Point2D p, double angle) {
 		angle += calculateAngle(center, p)+(Math.PI/2);
-		double r = Math.sqrt(Math.pow(p.x-center.x, 2)+Math.pow(p.y-center.y, 2));
-		return new Point2D.Double(center.x + (r*Math.sin(angle)), center.y + (r*Math.cos(angle)));
+		double r = Math.sqrt(Math.pow(p.getX()-center.getX(), 2)+Math.pow(p.getY()-center.getY(), 2));
+		return new Point2D(center.getX() + (r*Math.sin(angle)), center.getY() + (r*Math.cos(angle)));
 	}
 	
-	public static Rectangle2D.Double getRectangle(Point2D.Double p1, Point2D.Double p2) {
-		double x = Math.min(p1.x, p2.x);
-		double y = Math.min(p1.y, p2.y);
-		double width = Math.abs(p2.x - p1.x);
-		double height = Math.abs(p2.y - p1.y);
-		return new Rectangle2D.Double(x, y, width, height);
+	public static Rectangle2D getRectangle(Point2D p1, Point2D p2) {
+		double x = Math.min(p1.getX(), p2.getX());
+		double y = Math.min(p1.getY(), p2.getY());
+		double width = Math.abs(p2.getX() - p1.getX());
+		double height = Math.abs(p2.getY() - p1.getY());
+		return new Rectangle2D(x, y, width, height);
 	}
 	
 	public static List<Double> lagrangePredictValues(List<Double> values, int numberOfValues) {

@@ -1,8 +1,7 @@
 package org.rubato.rubettes.bigbang.view.model.tools;
 
-import java.awt.geom.Point2D;
-
 import org.rubato.rubettes.bigbang.view.subview.AbstractPainter;
+import org.rubato.rubettes.util.Point2D;
 
 public class ReflectionTool extends DisplayTool {
 
@@ -11,15 +10,15 @@ public class ReflectionTool extends DisplayTool {
 		if (this.endingPoint != null) {
 			painter.setColor(this.DARK);
 			/*Rectangle bounds = g.getClipBounds();*/
-			double xDifference = this.endingPoint.x - this.startingPoint.x;
-			double yDifference = this.endingPoint.y - this.startingPoint.y;
+			double xDifference = this.endingPoint.getX() - this.startingPoint.getX();
+			double yDifference = this.endingPoint.getY() - this.startingPoint.getY();
 			this.drawLine(painter, this.startingPoint, xDifference, yDifference);
 			this.drawLine(painter, this.startingPoint, -1*xDifference, -1*yDifference);
 		}
 	}
 	
-	private void drawLine(AbstractPainter painter, Point2D.Double p, double deltaX, double deltaY) {
-		painter.drawLine(p.x, p.y, p.x+deltaX, p.y+deltaY);
+	private void drawLine(AbstractPainter painter, Point2D p, double deltaX, double deltaY) {
+		painter.drawLine(p.getX(), p.getY(), p.getX()+deltaX, p.getY()+deltaY);
 	}
 
 }

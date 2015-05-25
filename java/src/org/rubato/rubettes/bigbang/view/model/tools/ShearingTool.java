@@ -1,22 +1,22 @@
 package org.rubato.rubettes.bigbang.view.model.tools;
 
 import java.awt.Dimension;
-import java.awt.geom.Path2D;
-import java.awt.geom.Point2D;
-import java.awt.geom.Rectangle2D;
 
 import org.rubato.rubettes.bigbang.view.subview.AbstractPainter;
+import org.rubato.rubettes.util.Point2D;
+import org.rubato.rubettes.util.Polygon2D;
+import org.rubato.rubettes.util.Rectangle2D;
 
 public class ShearingTool extends DisplayTool {
 	
 	public final Dimension REFERENCE = new Dimension(100, 100);
-	private Rectangle2D.Double reference;
+	private Rectangle2D reference;
 	double[] shearingFactors;
 	
 	@Override
-	public void setStartingPoint(Point2D.Double startingPoint) {
+	public void setStartingPoint(Point2D startingPoint) {
 		super.setStartingPoint(startingPoint);
-		this.reference = new Rectangle2D.Double(this.startingPoint.x-this.REFERENCE.width/2, this.startingPoint.y-this.REFERENCE.height/2, this.REFERENCE.width, this.REFERENCE.height);
+		this.reference = new Rectangle2D(this.startingPoint.getX()-this.REFERENCE.getWidth()/2, this.startingPoint.getY()-this.REFERENCE.getHeight()/2, this.REFERENCE.getWidth(), this.REFERENCE.getHeight());
 	}
 	
 	public void setShearingFactors(double[] shearingFactors) {
@@ -26,23 +26,22 @@ public class ShearingTool extends DisplayTool {
 	@Override
 	public void paint(AbstractPainter painter) {
 		painter.setColor(this.BRIGHT);
-		painter.fillRect(this.reference.x, this.reference.y, this.reference.width, this.reference.height);
+		painter.fillRect(this.reference.getX(), this.reference.getY(), this.reference.getWidth(), this.reference.getHeight());
 		if (this.shearingFactors != null) {
 			painter.setColor(this.DARK);
 			painter.drawPolygon(this.calculateShearedPolygon());
 		}
 	}
 	
-	private Path2D.Double calculateShearedPolygon() {
-		Rectangle2D.Double r = this.reference;
-		Path2D.Double polygon = new Path2D.Double();
-		double sx = this.shearingFactors[0]*r.width;
-		double sy = this.shearingFactors[1]*r.height;
-		polygon.moveTo(r.x, r.y+r.height);
-		polygon.lineTo(r.x+r.width, r.y+r.height-sy);
-		polygon.lineTo(r.x+r.width+sx, r.y-sy);
-		polygon.lineTo(r.x+sx, r.y);
-		polygon.closePath();
+	private Polygon2D calculateShearedPolygon() {
+		Rectangle2D r = this.reference;
+		Polygon2D polygon = new Polygon2D();
+		double sx = this.shearingFactors[0]*r.getWidth();
+		double sy = this.shearingFactors[1]*r.getHeight();
+		polygon.addVertex(new Point2D(r.getX(), r.getY()+r.getHeight()));
+		polygon.addVertex(new Point2D(r.getX()+r.getWidth(), r.getY()+r.getHeight()-sy));
+		polygon.addVertex(new Point2D(r.getX()+r.getWidth()+sx, r.getY()-sy));
+		polygon.addVertex(new Point2D(r.getX()+sx, r.getY()));
 		return polygon;
 	}
 

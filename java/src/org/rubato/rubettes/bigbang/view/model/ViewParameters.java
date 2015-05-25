@@ -44,15 +44,15 @@ public class ViewParameters extends Model {
 		//ViewParameter opacity = new ViewParameter("opacity", false, 1, 0, 1, false);
 		//opacity.setMinAndMaxGoalValues(false, 0, 127, false);
 		if (this.rgbMode) {
-			this.parameters.add(new ViewParameter(RGB_VIEW_PARAMETER_NAMES[2], false, 200, 64, 255, false)); //alpha
+			this.parameters.add(new ViewParameter(RGB_VIEW_PARAMETER_NAMES[2], false, .78125, .25, 1, false)); //alpha
 		} else {
 			this.parameters.add(new ViewParameter(HUE_VIEW_PARAMETER_NAMES[2], false, 1, 0.35, 1, false)); //saturation
 		}
 		this.parameters.add(new ViewParameter(HUE_VIEW_PARAMETER_NAMES[3], false, 1, false)); //width
 		if (this.rgbMode) {
-			this.parameters.add(new ViewParameter(RGB_VIEW_PARAMETER_NAMES[4], false, 127, 0, 255, false)); //red
-			this.parameters.add(new ViewParameter(RGB_VIEW_PARAMETER_NAMES[5], false, 127, 0, 255, false)); //green
-			this.parameters.add(new ViewParameter(RGB_VIEW_PARAMETER_NAMES[6], false, 127, 0, 255, false)); //blue
+			this.parameters.add(new ViewParameter(RGB_VIEW_PARAMETER_NAMES[4], false, .5, 0, 1, false)); //red
+			this.parameters.add(new ViewParameter(RGB_VIEW_PARAMETER_NAMES[5], false, .5, 0, 1, false)); //green
+			this.parameters.add(new ViewParameter(RGB_VIEW_PARAMETER_NAMES[6], false, .5, 0, 1, false)); //blue
 		} else {
 			this.parameters.add(new ViewParameter(HUE_VIEW_PARAMETER_NAMES[4], false, 0.0833, 0.0833, 1.0833, true)); //hue
 		}

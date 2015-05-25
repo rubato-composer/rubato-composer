@@ -5,7 +5,6 @@ import java.util.List;
 
 import org.rubato.base.RubatoException;
 import org.rubato.math.matrix.RMatrix;
-import org.rubato.math.module.ZElement;
 import org.rubato.math.module.morphism.ModuleMorphism;
 import org.rubato.math.module.morphism.RFreeAffineMorphism;
 import org.rubato.math.yoneda.Denotator;

@@ -1,8 +1,5 @@
 package org.rubato.rubettes.bigbang.view.subview;
 
-import java.awt.Point;
-import java.awt.geom.Point2D;
-import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
 import java.util.ConcurrentModificationException;
 import java.util.HashMap;
@@ -23,6 +20,8 @@ import org.rubato.rubettes.util.CoolFormRegistrant;
 import org.rubato.rubettes.util.DenotatorObject;
 import org.rubato.rubettes.util.DenotatorPath;
 import org.rubato.rubettes.util.FormValueFinder;
+import org.rubato.rubettes.util.Point2D;
+import org.rubato.rubettes.util.Rectangle2D;
 
 public class DisplayObjects {
 	
@@ -260,7 +259,7 @@ public class DisplayObjects {
 		}
 	}
 	
-	public void tempSelectObjects(Rectangle2D.Double area) {
+	public void tempSelectObjects(Rectangle2D area) {
 		for (DisplayObject currentObject: this.objects) {
 			if (!this.selectedObjects.contains(currentObject)) {
 				currentObject.setSelected(currentObject.intersects(area));
@@ -268,7 +267,7 @@ public class DisplayObjects {
 		}
 	}
 	
-	public int selectObjects(Rectangle2D.Double area) {
+	public int selectObjects(Rectangle2D area) {
 		for (DisplayObject currentObject: this.objects) {
 			if (currentObject.intersects(area)) {
 				this.selectObject(currentObject);
@@ -337,7 +336,7 @@ public class DisplayObjects {
 		}
 	}
 	
-	public int selectTopOrDeselectAllObjects(Point location) {
+	public int selectTopOrDeselectAllObjects(Point2D location) {
 		//notes are saved from bottom to top... just takes one note
 		for (DisplayObject currentObject: this.objects) {
 			if (currentObject.getRectangle().contains(location)) {
@@ -364,16 +363,16 @@ public class DisplayObjects {
 		this.selectedObjects = new TreeSet<DisplayObject>();
 	}
 	
-	public DisplayObject getObjectAt(Point location) {
+	public DisplayObject getObjectAt(Point2D location) {
 		return this.getObjectAt(location, this.objects);
 	}
 	
-	public boolean hasSelectedObjectAt(Point location) {
+	public boolean hasSelectedObjectAt(Point2D location) {
 		//TODO rethink, selectedObjects might contain one that objects doesn't
 		return this.getObjectAt(location, this.selectedObjects) != null;
 	}
 	
-	private DisplayObject getObjectAt(Point location, Set<DisplayObject> objects) {
+	private DisplayObject getObjectAt(Point2D location, Set<DisplayObject> objects) {
 		for (DisplayObject currentObject : objects) {
 			if (currentObject.getRectangle().contains(location)) {
 				return currentObject;
@@ -382,7 +381,7 @@ public class DisplayObjects {
 		return null;
 	}
 	
-	public void selectOrDeselectAnchorObject(Point location) {
+	public void selectOrDeselectAnchorObject(Point2D location) {
 		DisplayObject noteInLocation = this.getObjectAt(location);
 		if (noteInLocation != null) {
 			if (noteInLocation.equals(this.selectedAnchor)) {
@@ -400,7 +399,7 @@ public class DisplayObjects {
 		this.selectedObjects.remove(object);
 	}
 	
-	public Point2D.Double getSelectedAnchorCenter() {
+	public Point2D getSelectedAnchorCenter() {
 		if (this.selectedAnchor != null && this.objects.contains(this.selectedAnchor)) {
 			return this.selectedAnchor.getLocation();
 		}
@@ -514,7 +513,7 @@ public class DisplayObjects {
 			if (currentObject.isVisible()) {
 				DisplayObject currentParent = this.getParent(currentObject);
 				if (currentParent != null && currentParent.isVisible()) {
-					currentObject.paintConnectors(painter, currentParent.getCenter().x, currentParent.getCenter().y);
+					currentObject.paintConnectors(painter, currentParent.getCenter().getX(), currentParent.getCenter().getY());
 				}
 			}
 		}

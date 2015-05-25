@@ -1,11 +1,10 @@
 package org.rubato.rubettes.bigbang.view.subview;
 
-import java.awt.Color;
-import java.awt.geom.Path2D;
+import org.rubato.rubettes.util.Polygon2D;
 
 public abstract class AbstractPainter {
 	
-	public abstract void setColor(Color color);
+	public abstract void setColor(float[] rgbaColor);
 
 	public abstract void drawLine(double x1, double y1, double x2, double y2);
 	
@@ -13,11 +12,11 @@ public abstract class AbstractPainter {
 	
 	public abstract void fillRect(double x, double y, double width, double height);
 	
-	public abstract void fillNote(double x, double y, double width, double height);
+	public abstract void fillObject(double x, double y, double width, double height);
 	
-	public abstract void drawPolygon(Path2D.Double p);
+	public abstract void drawPolygon(Polygon2D p);
 	
-	public abstract void fillPolygon(Path2D.Double p);
+	public abstract void fillPolygon(Polygon2D p);
 	
 	public abstract void drawOval(double x, double y, double width, double height);
 	

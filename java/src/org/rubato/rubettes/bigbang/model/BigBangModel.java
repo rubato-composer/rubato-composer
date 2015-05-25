@@ -9,9 +9,10 @@ import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
-import javax.swing.undo.AbstractUndoableEdit;
-import javax.swing.undo.UndoManager;
-import javax.swing.undo.UndoableEditSupport;
+import org.rubato.rubettes.bigbang.model.undo.AddOrInsertOperationEdit;
+import org.rubato.rubettes.bigbang.model.undo.RemoveOperationEdit;
+import org.rubato.rubettes.bigbang.model.undo.UndoManager;
+import org.rubato.rubettes.bigbang.model.undo.AbstractUndoableEdit;
 
 import org.rubato.math.matrix.RMatrix;
 import org.rubato.math.yoneda.Denotator;
@@ -19,8 +20,6 @@ import org.rubato.math.yoneda.Form;
 import org.rubato.rubettes.bigbang.controller.BigBangController;
 import org.rubato.rubettes.bigbang.model.denotators.BigBangDenotatorManager;
 import org.rubato.rubettes.bigbang.model.denotators.TransformationProperties;
-import org.rubato.rubettes.bigbang.model.edits.AddOrInsertOperationEdit;
-import org.rubato.rubettes.bigbang.model.edits.RemoveOperationEdit;
 import org.rubato.rubettes.bigbang.model.graph.BigBangGraphAnimator;
 import org.rubato.rubettes.bigbang.model.graph.BigBangOperationGraph;
 import org.rubato.rubettes.bigbang.model.graph.CompositionState;
@@ -57,7 +56,6 @@ public class BigBangModel extends Model {
 	private BigBangDenotatorManager denotators;
 	private BigBangObjects objects; //object-oriented representation of the denotator composition
 	private UndoManager undoManager;
-	private UndoableEditSupport undoSupport;
 	private BigBangOperationGraph operationGraph;
 	private BigBangGraphAnimator animator;
 	
@@ -66,8 +64,6 @@ public class BigBangModel extends Model {
 		this.setInputActive(true);
 		this.objects = new BigBangObjects(this.denotators.getForm());
 		this.undoManager = new UndoManager();
-		this.undoSupport = new UndoableEditSupport();
-		this.undoSupport.addUndoableEditListener(new UndoAdaptor(this.undoManager));
 		this.reset();
 	}
 	
@@ -332,7 +328,7 @@ public class BigBangModel extends Model {
 	}
 	
 	private void postEdit(AbstractUndoableEdit edit) {
-		this.undoSupport.postEdit(edit);
+		this.undoManager.postEdit(edit);
 		this.updateComposition();
 		this.firePropertyChange(BigBangController.UNDO, null, this.undoManager);
 		this.firePropertyChange(BigBangController.GRAPH, null, this.operationGraph);

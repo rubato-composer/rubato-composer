@@ -1,6 +1,5 @@
 package org.rubato.rubettes.bigbang.view.controller.score;
 
-import java.awt.geom.Point2D;
 import java.util.List;
 
 import org.rubato.rubettes.bigbang.view.controller.ViewController;
@@ -9,6 +8,7 @@ import org.rubato.rubettes.util.GeometryTools;
 import org.rubato.rubettes.util.LeapUtil;
 import org.rubato.rubettes.util.LeapUtil.Axis;
 import org.rubato.rubettes.util.LeapUtil.Operation;
+import org.rubato.rubettes.util.Point2D;
 import org.rubato.rubettes.util.PointND;
 
 import com.leapmotion.leap.Controller;
@@ -21,11 +21,11 @@ public class LeapObjectRotationAdapter extends Listener {
 	private RotationTool rotationTool;
 	
 	private Boolean isActive = false;
-	private Point2D.Double center;
-	private Point2D.Double currentCenter;
-	private Point2D.Double startingPoint;
+	private Point2D center;
+	private Point2D currentCenter;
+	private Point2D startingPoint;
 	private double startingAngle;
-	private Point2D.Double currentPoint;
+	private Point2D currentPoint;
 	private double currentArc;
 
 	public LeapObjectRotationAdapter(ViewController viewController) {
@@ -46,8 +46,8 @@ public class LeapObjectRotationAdapter extends Listener {
 			}
 			return;
 		} 
-		Point2D.Double p1; 
-		Point2D.Double p2;
+		Point2D p1; 
+		Point2D p2;
 		if (fingers.size() < 2 && !isActive) {
 			PointND t1 = LeapUtil.fingerToScreenPoint(fingers.get(0));
 			p1 = ndToDouble(t1);
@@ -105,27 +105,27 @@ public class LeapObjectRotationAdapter extends Listener {
 		this.rotationTool.setStartingAngle(Math.toDegrees(a));
 	}
 	
-	private void setStartingPoint(Point2D.Double p) {
+	private void setStartingPoint(Point2D p) {
 		this.startingPoint = p;
 		this.rotationTool.setStartingPoint(p);
 	}
 	
-	private void setCurrentPoint(Point2D.Double p) {
+	private void setCurrentPoint(Point2D p) {
 		this.currentPoint = p;
 		this.rotationTool.setEndingPoint(p);
 	}
 	
-	private void setCenter(Point2D.Double p) {
+	private void setCenter(Point2D p) {
 		this.center = p;
 		this.rotationTool.setCenter(this.center);
 	}
 	
-	private Point2D.Double calcCenter(Point2D.Double p1, Point2D.Double p2) {
-		return new Point2D.Double((p1.x + p2.x)/2, (p1.y + p2.y)/2);
+	private Point2D calcCenter(Point2D p1, Point2D p2) {
+		return new Point2D((p1.getX() + p2.getX())/2, (p1.getY() + p2.getY())/2);
 	}
 	
-	private Point2D.Double ndToDouble(PointND p) {
-		return new Point2D.Double(p.getCoord(0), p.getCoord(1));
+	private Point2D ndToDouble(PointND p) {
+		return new Point2D(p.getCoord(0), p.getCoord(1));
 	}
 
 	private void updateView(Boolean startNewTransformation) {

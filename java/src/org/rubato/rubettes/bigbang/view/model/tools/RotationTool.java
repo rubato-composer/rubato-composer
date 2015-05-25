@@ -1,20 +1,19 @@
 package org.rubato.rubettes.bigbang.view.model.tools;
 
-import java.awt.geom.Point2D;
-
 import org.rubato.rubettes.bigbang.view.subview.AbstractPainter;
+import org.rubato.rubettes.util.Point2D;
 
 public class RotationTool extends DisplayTool {
 	
-	private Point2D.Double center;
+	private Point2D center;
 	private double startingAngle;
 	private Double arcAngle;
 	
-	public void setCenter(Point2D.Double center) {
+	public void setCenter(Point2D center) {
 		if (this.center != null && this.endingPoint != null) {
-			double xDistance = center.x - this.center.x;
-			double yDistance = center.y - this.center.y;
-			this.endingPoint.setLocation(this.endingPoint.x+xDistance, this.endingPoint.y+yDistance);
+			double xDistance = center.getX() - this.center.getX();
+			double yDistance = center.getY() - this.center.getY();
+			this.endingPoint.translate(xDistance, yDistance);
 		}
 		this.center = center;
 	}
@@ -31,14 +30,14 @@ public class RotationTool extends DisplayTool {
 	public void paint(AbstractPainter painter) {
 		if (this.center != null) {
 			painter.setColor(this.DARK);
-			painter.fillOval(this.center.x-2, this.center.y-2, 4, 4);
+			painter.fillOval(this.center.getX()-2, this.center.getY()-2, 4, 4);
 			if (this.arcAngle != null) {
 				double radius = this.endingPoint.distance(this.center);
-				double x = this.center.x-radius;
-				double y = this.center.y-radius;
+				double x = this.center.getX()-radius;
+				double y = this.center.getY()-radius;
 				double doubleR = radius*2;
 				painter.drawOval(x, y, doubleR, doubleR);
-				painter.drawLine(this.center.x, this.center.y, this.endingPoint.x, this.endingPoint.y);
+				painter.drawLine(this.center.getX(), this.center.getY(), this.endingPoint.getX(), this.endingPoint.getY());
 				painter.setColor(this.BRIGHT);
 				if (this.arcAngle < 180) {
 					painter.fillArc(x, y, doubleR, doubleR, this.startingAngle, this.arcAngle);

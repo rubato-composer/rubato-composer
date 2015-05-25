@@ -2,17 +2,17 @@ package org.rubato.rubettes.bigbang.view.controller.score;
 
 import java.awt.Point;
 import java.awt.event.MouseEvent;
-import java.awt.geom.Point2D;
 
 import javax.swing.event.MouseInputAdapter;
 
 import org.rubato.rubettes.bigbang.view.controller.ViewController;
 import org.rubato.rubettes.bigbang.view.model.tools.DisplayTool;
+import org.rubato.rubettes.util.Point2D;
 
 public abstract class ObjectTransformationAdapter extends MouseInputAdapter {
 	
 	protected ViewController controller;
-	protected Point2D.Double startingPoint;
+	protected Point2D startingPoint;
 	protected DisplayTool displayTool;
 	protected boolean inModificationMode;
 	protected boolean startNewTransformation;
@@ -25,7 +25,7 @@ public abstract class ObjectTransformationAdapter extends MouseInputAdapter {
 	public ObjectTransformationAdapter(ViewController controller, double[] startingPoint, double[] endingPoint) {
 		this.init(controller);
 		this.updateStartingPoint(startingPoint[0], startingPoint[1]);
-		Point2D.Double endingPoint2D = new Point2D.Double(endingPoint[0], endingPoint[1]);
+		Point2D endingPoint2D = new Point2D(endingPoint[0], endingPoint[1]);
 		this.updateEndingPoint(endingPoint2D);
 		this.inModificationMode = true;
 	}
@@ -65,7 +65,7 @@ public abstract class ObjectTransformationAdapter extends MouseInputAdapter {
 	}
 	
 	protected void updateStartingPoint(double x, double y) {
-		this.startingPoint = new Point2D.Double(x, y);
+		this.startingPoint = new Point2D(x, y);
 		this.displayTool.setStartingPoint(this.startingPoint);
 		this.updateDisplayTool();
 		if (this.inModificationMode) {
@@ -74,11 +74,11 @@ public abstract class ObjectTransformationAdapter extends MouseInputAdapter {
 	}
 	
 	protected void updateEndingPoint(MouseEvent event) {
-		Point2D.Double endingPoint = new Point2D.Double(event.getPoint().x, event.getPoint().y);
+		Point2D endingPoint = new Point2D(event.getPoint().x, event.getPoint().y);
 		this.updateEndingPoint(endingPoint);
 	}
 	
-	protected void updateEndingPoint(Point2D.Double endingPoint) {
+	protected void updateEndingPoint(Point2D endingPoint) {
 		this.displayTool.setEndingPoint(endingPoint);
 		this.updateDisplayTool();
 	}

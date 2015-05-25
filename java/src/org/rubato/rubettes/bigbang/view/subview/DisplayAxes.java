@@ -1,6 +1,5 @@
 package org.rubato.rubettes.bigbang.view.subview;
 
-import java.awt.Color;
 import java.util.List;
 
 public class DisplayAxes {
@@ -16,7 +15,7 @@ public class DisplayAxes {
 	public void paint(AbstractPainter painter) {
 		int currentWidth = this.display.getCurrentWidth();
 		int currentHeight = this.display.getCurrentHeight();
-		painter.setColor(Color.BLACK);
+		painter.setColor(new float[]{0,0,0,1});
         //x-axis
 		painter.drawLine(0, currentHeight-1, currentWidth-1, currentHeight-1);
         String xName = this.getAxisName(0);

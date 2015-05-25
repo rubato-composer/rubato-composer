@@ -1,25 +1,23 @@
 package org.rubato.rubettes.bigbang.view.model.tools;
 
-import java.awt.Color;
-import java.awt.geom.Point2D;
-
 import org.rubato.rubettes.bigbang.view.subview.AbstractPainter;
 import org.rubato.rubettes.bigbang.view.subview.DisplayContents;
+import org.rubato.rubettes.util.Point2D;
 
 public abstract class DisplayTool {
 	
-	protected final Color DARK = Color.black;
-	protected final Color BRIGHT = new Color(0, 0, 0, 0.2f);
+	protected final float[] DARK = new float[]{0, 0, 0, 1}; //black
+	protected final float[] BRIGHT = new float[]{0, 0, 0, 0.2f};
 	
 	protected DisplayContents display;
 	
-	protected Point2D.Double startingPoint, endingPoint;
+	protected Point2D startingPoint, endingPoint;
 	
-	public void setStartingPoint(Point2D.Double startingPoint) {
+	public void setStartingPoint(Point2D startingPoint) {
 		this.startingPoint = startingPoint;
 	}
 	
-	public void setEndingPoint(Point2D.Double endingPoint) {
+	public void setEndingPoint(Point2D endingPoint) {
 		this.endingPoint = endingPoint;
 	}
 	
