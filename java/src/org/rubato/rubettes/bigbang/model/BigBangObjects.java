@@ -279,10 +279,12 @@ public class BigBangObjects {
 	}
 	
 	private synchronized void addObjectToMap(BigBangObject object, AbstractOperation operation, DenotatorPath newPath) {
-		if (!this.objectsMaps.containsKey(operation)) {
-			this.objectsMaps.put(operation, new TreeMap<DenotatorPath,BigBangObject>());
+		if (newPath != null) {
+			if (!this.objectsMaps.containsKey(operation)) {
+				this.objectsMaps.put(operation, new TreeMap<DenotatorPath,BigBangObject>());
+			}
+			this.objectsMaps.get(operation).put(newPath, object);
 		}
-		this.objectsMaps.get(operation).put(newPath, object);
 	}
 	
 	//recursively updates all children too

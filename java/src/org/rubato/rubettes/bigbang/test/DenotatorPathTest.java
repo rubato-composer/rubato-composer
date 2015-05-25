@@ -194,9 +194,11 @@ public class DenotatorPathTest extends TestCase {
 		Denotator twoNoteScore = DenoFactory.makeDenotator(eulerScore, noteOne, shortRest, noteTwo);
 		
 		Denotator pitchOfNoteTwo = twoNoteScore.get(new int[]{1,0,1});
-		pitchOfNoteTwo.display();
-		int thirdValue = ((ZElement)twoNoteScore.getElement(new int[]{1,0,1,0})).getValue();
-		System.out.println(thirdValue);
+		//TODO DID THIS WORK AT SOME POINT???
+		//pitchOfNoteTwo.display();
+		//System.out.println(pitchOfNoteTwo.getElement(new int[]{0}));
+		//int thirdValue = ((ZElement)twoNoteScore.getElement(new int[]{1,0,1,0})).getValue();
+		//System.out.println(thirdValue);
 		
 		//twoNoteScore.display();
 	}

@@ -5,8 +5,9 @@ import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Polygon;
-import java.awt.geom.Path2D;
-import java.awt.geom.PathIterator;
+
+import org.rubato.rubettes.util.Point2D;
+import org.rubato.rubettes.util.Polygon2D;
 
 public class AWTPainter extends AbstractPainter {
 	
@@ -18,8 +19,8 @@ public class AWTPainter extends AbstractPainter {
 	}
 	
 	@Override
-	public void setColor(Color color) {
-		this.g.setColor(color);
+	public void setColor(float[] rgba) {
+		this.g.setColor(new Color(rgba[0], rgba[1], rgba[2], rgba[3]));
 	}
 	
 	@Override
@@ -38,13 +39,13 @@ public class AWTPainter extends AbstractPainter {
 	}
 	
 	@Override
-	public void drawPolygon(Path2D.Double p) {
-		this.g.drawPolygon(this.pathToPolygon(p));
+	public void drawPolygon(Polygon2D p) {
+		this.g.drawPolygon(this.toAWTPolygon(p));
 	}
 
 	@Override
-	public void fillPolygon(Path2D.Double p) {
-		this.g.fillPolygon(this.pathToPolygon(p));
+	public void fillPolygon(Polygon2D p) {
+		this.g.fillPolygon(this.toAWTPolygon(p));
 	}
 	
 	@Override
@@ -63,7 +64,7 @@ public class AWTPainter extends AbstractPainter {
 	}
 	
 	@Override
-	public void fillNote(double x, double y, double width, double height) {
+	public void fillObject(double x, double y, double width, double height) {
 		this.fillRect(this.round(x), this.round(y), this.round(width), this.round(height));
 	}
 	
@@ -88,14 +89,10 @@ public class AWTPainter extends AbstractPainter {
 		return (int)Math.round(d);
 	}
 	
-	private Polygon pathToPolygon(Path2D.Double path) {
+	private Polygon toAWTPolygon(Polygon2D polygon) {
 		Polygon p = new Polygon();
-		PathIterator iterator = path.getPathIterator(null);
-		double[] currentCoordinates = new double[2];
-		while (!iterator.isDone()) {
-			iterator.currentSegment(currentCoordinates);
-			p.addPoint(this.round(currentCoordinates[0]), this.round(currentCoordinates[1]));
-			iterator.next();
+		for (Point2D currentPoint : polygon.getVertices()) {
+			p.addPoint(this.round(currentPoint.getX()), this.round(currentPoint.getY()));
 		}
 		return p;
 	}

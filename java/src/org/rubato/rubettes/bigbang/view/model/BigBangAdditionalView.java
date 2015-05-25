@@ -12,7 +12,7 @@ public class BigBangAdditionalView extends JDialog {
 	public BigBangAdditionalView(BigBangController controller, Frame parentFrame) {
 		//network name, rubette name, view count!!!
 		super(parentFrame);
-		BigBangView newView = new BigBangView(controller);
+		BigBangSwingView newView = new BigBangSwingView(controller);
 		this.setTitle("Big Bang - View "+controller.getViewCount(newView.getClass()));
 		JPanel viewPanel = newView.getPanel();
 		//this.setSize(viewPanel.getPreferredSize());

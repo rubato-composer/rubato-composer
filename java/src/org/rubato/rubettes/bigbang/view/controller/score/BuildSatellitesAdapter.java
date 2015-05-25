@@ -1,6 +1,5 @@
 package org.rubato.rubettes.bigbang.view.controller.score;
 
-import java.awt.Point;
 import java.awt.event.MouseEvent;
 
 import javax.swing.event.MouseInputAdapter;
@@ -10,6 +9,7 @@ import org.rubato.rubettes.bigbang.view.controller.mode.temp.TemporaryDisplayMod
 import org.rubato.rubettes.bigbang.view.model.DisplayObject;
 import org.rubato.rubettes.bigbang.view.model.tools.ConnectorsTool;
 import org.rubato.rubettes.bigbang.view.subview.JBigBangDisplay;
+import org.rubato.rubettes.util.Point2D;
 
 public class BuildSatellitesAdapter extends MouseInputAdapter {
 	
@@ -26,7 +26,7 @@ public class BuildSatellitesAdapter extends MouseInputAdapter {
 	}
 	
 	public void mouseClicked(MouseEvent event) {
-		Point location = event.getPoint();
+		Point2D location = new Point2D(event.getPoint().getX(), event.getPoint().getY());
 		DisplayObject noteInLocation = ((JBigBangDisplay)event.getSource()).getContents().getDisplayObjects().getObjectAt(location);
 		if (noteInLocation != null) {
 			this.controller.addSelectedObjectsAsSatellitesTo(noteInLocation, this.powerset);

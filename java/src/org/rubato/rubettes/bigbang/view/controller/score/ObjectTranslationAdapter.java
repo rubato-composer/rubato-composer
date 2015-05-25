@@ -1,10 +1,10 @@
 package org.rubato.rubettes.bigbang.view.controller.score;
 
 import java.awt.event.MouseEvent;
-import java.awt.geom.Point2D;
 
 import org.rubato.rubettes.bigbang.view.controller.ViewController;
 import org.rubato.rubettes.bigbang.view.model.tools.TranslationTool;
+import org.rubato.rubettes.util.Point2D;
 
 public class ObjectTranslationAdapter extends ObjectTransformationAdapter {
 	
@@ -18,7 +18,7 @@ public class ObjectTranslationAdapter extends ObjectTransformationAdapter {
 	
 	@Override
 	protected void modifySelectedTransformation(MouseEvent event) {
-		Point2D.Double currentEndPoint = new Point2D.Double(event.getPoint().x, event.getPoint().y);
+		Point2D currentEndPoint = new Point2D(event.getPoint().x, event.getPoint().y);
 		this.controller.modifyEndPointOfSelectedTransformation(currentEndPoint);
 	}
 	
@@ -26,7 +26,7 @@ public class ObjectTranslationAdapter extends ObjectTransformationAdapter {
 	protected void transformSelectedObjects(MouseEvent event, boolean startNewTransformation) {
 		//if (this.isTouchingObjects) {
 			boolean copyAndTranslate = event.isAltDown();
-			Point2D.Double currentEndPoint = new Point2D.Double(event.getPoint().x, event.getPoint().y);
+			Point2D currentEndPoint = new Point2D(event.getPoint().x, event.getPoint().y);
 			this.controller.translateSelectedObjects(this.startingPoint, currentEndPoint, copyAndTranslate, startNewTransformation);
 		//}
 	}

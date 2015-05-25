@@ -6,7 +6,6 @@ import java.awt.FlowLayout;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.GridLayout;
-import java.awt.Point;
 import java.awt.event.InputEvent;
 
 import javax.swing.AbstractAction;
@@ -26,11 +25,9 @@ import org.rubato.rubettes.bigbang.view.controller.general.UndoAction;
 import org.rubato.rubettes.bigbang.view.controller.score.actions.DeleteObjectsAction;
 import org.rubato.rubettes.bigbang.view.controller.score.actions.ShowWindowPreferencesAction;
 import org.rubato.rubettes.bigbang.view.model.ViewParameters;
-import org.rubato.rubettes.bigbang.view.player.BigBangPlayer;
 import org.rubato.rubettes.bigbang.view.subview.graph.JGraphPanel;
 import org.rubato.rubettes.bigbang.view.subview.toolbars.JLayersToolBar;
 import org.rubato.rubettes.bigbang.view.subview.toolbars.JMainToolBar;
-import org.rubato.rubettes.util.PointND;
 
 public class JBigBangPanel extends JPanel {
 	
@@ -40,10 +37,10 @@ public class JBigBangPanel extends JPanel {
 	private JBigBangDisplay display;
 	private int currentOctave;
 	
-	public JBigBangPanel(ViewController controller, BigBangController bbController, ViewParameters viewParameters, BigBangPlayer player) {
+	public JBigBangPanel(ViewController controller, BigBangController bbController, ViewParameters viewParameters) {
 		this.setLayout(new BorderLayout());
 		this.add(this.createToolBarsPanel(controller, bbController), BorderLayout.NORTH);
-		this.display = new JBigBangDisplay(bbController, controller, player);
+		this.display = new JBigBangDisplay(bbController, controller);
 		this.initMenuComponents(this.display, controller, bbController, viewParameters);
 		this.add(this.display, BorderLayout.CENTER);
 		this.add(this.makeButtonPanel(controller), BorderLayout.EAST);
@@ -91,22 +88,6 @@ public class JBigBangPanel extends JPanel {
 		constraints.anchor = GridBagConstraints.NORTHEAST;
 		layout.setConstraints(menuButton, constraints);
 		return menuButton;
-	}
-	
-	public Point getDisplayPosition() {
-		return this.display.getContents().getPosition();
-	}
-	
-	public double[] getXYDisplayValues(double[] denotatorValues) {
-		return this.display.getContents().getXYDisplayValues(denotatorValues);
-	}
-	
-	public double[] getXYZDenotatorValues(PointND location) {
-		return this.display.getContents().getXYZDenotatorValues(location);
-	}
-	
-	public double getDenotatorValue(double displayValue, int parameterIndex) {
-		return this.display.getContents().getDenotatorValue(displayValue, parameterIndex);
 	}
 	
 	public void toggleTimedRepaint() {
@@ -177,6 +158,10 @@ public class JBigBangPanel extends JPanel {
 	
 	public int getCurrentOctave() {
 		return this.currentOctave;
+	}
+	
+	public double[] getXYDisplayValues(double[] denotatorValues) {
+		return this.display.getContents().getXYDisplayValues(denotatorValues);
 	}
 
 }

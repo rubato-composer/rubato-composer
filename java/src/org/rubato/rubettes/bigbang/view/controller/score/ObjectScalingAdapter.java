@@ -2,10 +2,10 @@ package org.rubato.rubettes.bigbang.view.controller.score;
 
 import java.awt.Point;
 import java.awt.event.MouseEvent;
-import java.awt.geom.Point2D;
 
 import org.rubato.rubettes.bigbang.view.controller.ViewController;
 import org.rubato.rubettes.bigbang.view.model.tools.ScalingTool;
+import org.rubato.rubettes.util.Point2D;
 
 public class ObjectScalingAdapter extends ObjectTransformationAdapter {
 	
@@ -27,7 +27,7 @@ public class ObjectScalingAdapter extends ObjectTransformationAdapter {
 	@Override
 	protected void transformSelectedObjects(MouseEvent event, boolean startNewTransformation) {
 		double[] scaleFactors = this.calculateScaleFactors(event);
-		Point2D.Double currentEndPoint = new Point2D.Double(event.getPoint().x, event.getPoint().y);
+		Point2D currentEndPoint = new Point2D(event.getPoint().getX(), event.getPoint().getY());
 		this.controller.scaleSelectedObjects(this.startingPoint, currentEndPoint, scaleFactors, event.isAltDown(), startNewTransformation);
 	}
 	
@@ -40,12 +40,12 @@ public class ObjectScalingAdapter extends ObjectTransformationAdapter {
 	private double[] calculateScaleFactors(MouseEvent event) {
 		Point endPoint = event.getPoint();
 		double referenceWidth = ((ScalingTool)this.displayTool).REFERENCE.getWidth();
-		double xFactor = Math.abs(endPoint.x-this.startingPoint.x+(referenceWidth/2))*2/referenceWidth;
+		double xFactor = Math.abs(endPoint.getX()-this.startingPoint.getX()+(referenceWidth/2))*2/referenceWidth;
 		if (event.isShiftDown()) {
 			return new double[]{xFactor, xFactor};
 		}
 		double referenceHeight = ((ScalingTool)this.displayTool).REFERENCE.getHeight();
-		double yFactor = Math.abs((referenceHeight/2)-(endPoint.y-this.startingPoint.y))*2/referenceHeight;
+		double yFactor = Math.abs((referenceHeight/2)-(endPoint.getY()-this.startingPoint.getY()))*2/referenceHeight;
 		return new double[]{xFactor, yFactor};
 	}
 

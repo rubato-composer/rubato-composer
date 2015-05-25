@@ -1,14 +1,11 @@
 package org.rubato.rubettes.bigbang.view.subview;
 
-import java.awt.Point;
-
 import org.rubato.rubettes.bigbang.view.model.DisplayObject;
 import org.rubato.rubettes.bigbang.view.model.ViewParameter;
 import org.rubato.rubettes.bigbang.view.model.ViewParameters;
-import org.rubato.rubettes.bigbang.view.model.ZoomChange;
 import org.rubato.rubettes.bigbang.view.model.tools.DisplayTool;
 import org.rubato.rubettes.bigbang.view.player.BigBangPlayer;
-import org.rubato.rubettes.util.PointND;
+import org.rubato.rubettes.util.Point;
 
 public class DisplayContents {
 	
@@ -22,6 +19,9 @@ public class DisplayContents {
 	protected double xZoomFactor, yZoomFactor;
 	protected Point position;
 	private boolean satellitesConnected;
+	
+	public DisplayContents() {
+	}
 	
 	public DisplayContents(BigBangPlayer player) {
 		this.playbackLine = new DisplayPlaybackLine(this, player);
@@ -47,22 +47,6 @@ public class DisplayContents {
 	
 	public void setViewParameters(ViewParameters viewParameters) {
 		this.viewParameters = viewParameters;
-	}
-	
-	public void changeZoomFactors(ZoomChange zoomChange) {
-		double oldXZoomFactor = this.xZoomFactor;
-		double oldYZoomFactor = this.yZoomFactor;
-		double xZoomFactor = this.xZoomFactor * zoomChange.getXChangeFactor();
-		double yZoomFactor = this.yZoomFactor * zoomChange.getYChangeFactor();
-		this.setZoomFactors(new double[]{xZoomFactor, yZoomFactor});
-		//zusammenfassen????
-		int x = zoomChange.getX();
-		int xPos = this.position.x;
-		int xPosition = (int)Math.round(xPos + (x-xPos)*(1-(this.xZoomFactor/oldXZoomFactor)));
-		int y = zoomChange.getY();
-		int yPos = this.position.y;
-		int yPosition = (int)Math.round(yPos + (y-yPos)*(1-(this.yZoomFactor/oldYZoomFactor)));
-		this.setPosition(new Point(xPosition, yPosition));
 	}
 	
 	public void setZoomFactors(double[] factors) {
@@ -105,7 +89,7 @@ public class DisplayContents {
 	
 	public void updateNoteBounds() {
 		if (this.displayObjects != null) {
-			this.displayObjects.updateBounds(this.xZoomFactor, this.yZoomFactor, this.position.x, this.position.y);
+			this.displayObjects.updateBounds(this.xZoomFactor, this.yZoomFactor, this.position.getX(), this.position.getY());
 		}
 	}
 	
@@ -135,77 +119,40 @@ public class DisplayContents {
 	}
 	
 	public double getMinVisibleX() {
-		double value = (0-this.position.x)/this.xZoomFactor;
+		double value = (0-this.position.getX())/this.xZoomFactor;
 		//double value = this.xPosition;//this.xZoomFactor;
 		return this.viewParameters.get(0).translateDisplayValue(value);
 	}
 	
 	public double getMaxVisibleX() {
-		double value = (this.currentWidth-this.position.x)/this.xZoomFactor;
+		double value = (this.currentWidth-this.position.getX())/this.xZoomFactor;
 		return this.viewParameters.get(0).translateDisplayValue(value);
 	}
 	
 	public double getMinVisibleY() {
-		double value = (this.currentHeight-this.position.y)/this.yZoomFactor;
+		double value = (this.currentHeight-this.position.getY())/this.yZoomFactor;
 		return this.viewParameters.get(1).translateDisplayValue(value);
 	}
 	
 	public double getMaxVisibleY() {
-		double value = (0-this.position.y)/this.yZoomFactor;
+		double value = (0-this.position.getY())/this.yZoomFactor;
 		return this.viewParameters.get(1).translateDisplayValue(value);
 	}
 	
 	public double translateXDenotatorValue(double value) {
 		value = this.viewParameters.get(0).translateDenotatorValue(value);
-		return value*this.xZoomFactor+this.position.x;
+		return value*this.xZoomFactor+this.position.getX();
 	}
 	
 	public double translateYDenotatorValue(double value) {
 		value = this.viewParameters.get(1).translateDenotatorValue(value);
-		return value*this.yZoomFactor+this.position.y;
+		return value*this.yZoomFactor+this.position.getY();
 	}
 	
 	public double[] getXYDisplayValues(double[] denotatorValues) {
 		return new double[] {this.translateXDenotatorValue(denotatorValues[0]),
 				this.translateYDenotatorValue(denotatorValues[1])};
 	}
-	
-	public double[] getXYZDenotatorValues(PointND location) {
-		double xValue = this.translateXDisplayValue(location.getCoord(0));
-		double yValue = this.translateYDisplayValue(location.getCoord(1));
-		if (location.getDimension() > 2) {
-			return new double[]{xValue, yValue, this.translateZDisplayValue(location.getCoord(2))};
-		}
-		return new double[] {xValue, yValue};
-	}
-	
-	public double getDenotatorValue(double displayValue, int parameterIndex) {
-		if (parameterIndex == 0) {
-			return this.translateXDisplayValue(displayValue);
-		} else if (parameterIndex == 1) {
-			return this.translateYDisplayValue(displayValue);
-		}
-		return this.translateZDisplayValue(displayValue);
-	}
-	
-	private double translateXDisplayValue(double displayValue) {
-		double value = (displayValue-this.position.x)/this.xZoomFactor;
-		return this.viewParameters.get(0).translateDisplayValue(value);		
-	}
-	
-	private double translateYDisplayValue(double displayValue) {
-		double value = (displayValue-this.position.y)/this.yZoomFactor;
-		return this.viewParameters.get(1).translateDisplayValue(value);		
-	}
-	
-	private double translateZDisplayValue(double displayValue) {
-		double avgZoom = (this.xZoomFactor + this.yZoomFactor) / 2; //avgZoom was 2 before...
-		double value = displayValue/avgZoom;
-		ViewParameter param = this.viewParameters.get(2); 
-		param.setDenotatorLimitsIfNotManual(param.getMinGoalValue(), param.getMaxGoalValue()); 
-		return this.viewParameters.get(2).translateDisplayValue(value);		
-	}
-	
 	
 	
 	/*public double getMaxY() {
@@ -273,7 +220,9 @@ public class DisplayContents {
 	}
 	
 	public void paintPlaybackLine(AbstractPainter painter) {
-		this.playbackLine.paint(painter);
+		if (this.playbackLine != null) {
+			this.playbackLine.paint(painter);
+		}
 	}
 	
 	public int getTimeAxisIndex() {

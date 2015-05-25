@@ -1,6 +1,5 @@
 package org.rubato.rubettes.bigbang.view.controller.display;
 
-import java.awt.Dimension;
 import java.awt.Point;
 import java.awt.event.MouseEvent;
 
@@ -8,6 +7,8 @@ import javax.swing.event.MouseInputAdapter;
 
 import org.rubato.rubettes.bigbang.view.controller.ViewController;
 import org.rubato.rubettes.bigbang.view.subview.JBigBangDisplay;
+import org.rubato.rubettes.util.Dimension;
+import org.rubato.rubettes.util.Point2D;
 
 public class DisplayPositionAdapter extends MouseInputAdapter {
 	
@@ -21,7 +22,7 @@ public class DisplayPositionAdapter extends MouseInputAdapter {
 	
 	public void mousePressed(MouseEvent event) {
 		if (event.getButton() == MouseEvent.BUTTON1) {
-			Point startingPoint = event.getPoint();
+			Point2D startingPoint = new Point2D(event.getPoint().x, event.getPoint().y);
 			JBigBangDisplay source = ((JBigBangDisplay)event.getSource());
 			this.movingDisplay = !source.getContents().getDisplayObjects().hasSelectedObjectAt(startingPoint);
 			if (this.movingDisplay) {

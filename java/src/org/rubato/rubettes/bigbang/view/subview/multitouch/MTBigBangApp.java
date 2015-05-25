@@ -1,6 +1,5 @@
 package org.rubato.rubettes.bigbang.view.subview.multitouch;
 
-import java.awt.Point;
 import java.beans.PropertyChangeEvent;
 
 import org.mt4j.MTApplication;
@@ -13,6 +12,7 @@ import org.rubato.rubettes.bigbang.view.model.tools.DisplayTool;
 import org.rubato.rubettes.bigbang.view.player.BigBangPlayer;
 import org.rubato.rubettes.bigbang.view.subview.DisplayContents;
 import org.rubato.rubettes.bigbang.view.subview.DisplayObjects;
+import org.rubato.rubettes.util.Point;
 
 public class MTBigBangApp extends MTApplication implements View {
 	
@@ -90,9 +90,6 @@ public class MTBigBangApp extends MTApplication implements View {
 		} else if (propertyName.equals(ViewController.ZOOM_FACTORS)) {
 			this.contents.setZoomFactors((double[])event.getNewValue());
 			this.repaint();
-		} else if (propertyName.equals(ViewController.ZOOM_CHANGE)) {
-			this.contents.changeZoomFactors((ZoomChange)event.getNewValue());
-			this.repaint(false);
 		} else if (propertyName.equals(ViewController.DISPLAY_POSITION)) {
 			this.contents.setPosition((Point)event.getNewValue());
 			this.repaint(false);

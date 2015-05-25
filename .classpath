@@ -1,14 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
 	<classpathentry kind="src" path="java/src"/>
-	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.launching.macosx.MacOSXType/JVM 1.6"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/4"/>
 	<classpathentry kind="lib" path="java/jar/core.jar"/>
 	<classpathentry kind="lib" path="java/jar/GlulogicMT.jar"/>
 	<classpathentry kind="lib" path="java/jar/junit.jar"/>
 	<classpathentry kind="lib" path="java/jar/mt4j.jar"/>
 	<classpathentry kind="lib" path="java/jar/xercesImpl.jar"/>
-	<classpathentry kind="lib" path="java/jar/jsyn-beta-16.5.14.jar"/>
 	<classpathentry kind="lib" path="java/jar/jung-api-2.0.1.jar"/>
 	<classpathentry kind="lib" path="java/jar/jung-graph-impl-2.0.1.jar"/>
 	<classpathentry kind="lib" path="java/jar/collections-generic-4.01.jar"/>
@@ -25,5 +24,6 @@
 			<attribute name="org.eclipse.jdt.launching.CLASSPATH_ATTR_LIBRARY_PATH_ENTRY" value="rubatocomposer2/java/lib"/>
 		</attributes>
 	</classpathentry>
+	<classpathentry kind="lib" path="java/jar/jsyn_16_7_1.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

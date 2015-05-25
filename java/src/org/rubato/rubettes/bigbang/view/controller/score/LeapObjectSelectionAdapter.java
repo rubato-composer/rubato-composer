@@ -1,11 +1,11 @@
 package org.rubato.rubettes.bigbang.view.controller.score;
 
-import java.awt.geom.Point2D;
 import java.util.List;
 
 import org.rubato.rubettes.bigbang.view.controller.ViewController;
 import org.rubato.rubettes.bigbang.view.model.tools.SelectionTool;
 import org.rubato.rubettes.util.LeapUtil;
+import org.rubato.rubettes.util.Point2D;
 import org.rubato.rubettes.util.PointND;
 import org.rubato.rubettes.util.LeapUtil.Axis;
 import org.rubato.rubettes.util.LeapUtil.Operation;
@@ -36,9 +36,9 @@ public class LeapObjectSelectionAdapter extends Listener {
 		}
 		
 		PointND p1 = LeapUtil.fingerToScreenPoint(fingers.get(0));
-		selectionTool.setStartingPoint(new Point2D.Double(p1.getCoord(0),p1.getCoord(1)));
+		selectionTool.setStartingPoint(new Point2D(p1.getCoord(0),p1.getCoord(1)));
 		PointND p2 = LeapUtil.fingerToScreenPoint(fingers.get(1));
-		selectionTool.setEndingPoint(new Point2D.Double(p2.getCoord(0),p2.getCoord(1)));
+		selectionTool.setEndingPoint(new Point2D(p2.getCoord(0),p2.getCoord(1)));
 		stillSelecting = true;
 		this.viewController.selectObjects(this.selectionTool, stillSelecting);
 		

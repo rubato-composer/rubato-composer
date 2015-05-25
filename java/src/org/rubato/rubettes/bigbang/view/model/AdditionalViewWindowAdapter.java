@@ -5,9 +5,9 @@ import java.awt.event.WindowEvent;
 
 public class AdditionalViewWindowAdapter extends WindowAdapter {
 	
-	private BigBangView view;
+	private BigBangSwingView view;
 	
-	public AdditionalViewWindowAdapter(BigBangView view) {
+	public AdditionalViewWindowAdapter(BigBangSwingView view) {
 		this.view = view;
 	}
 	

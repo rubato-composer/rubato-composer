@@ -2,7 +2,6 @@ package org.rubato.rubettes.bigbang.view.subview;
 
 import java.awt.Dimension;
 import java.awt.Graphics;
-import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.beans.PropertyChangeEvent;
@@ -19,6 +18,7 @@ import org.rubato.rubettes.bigbang.view.model.ZoomChange;
 import org.rubato.rubettes.bigbang.view.model.tools.DisplayTool;
 import org.rubato.rubettes.bigbang.view.player.BigBangPlayer;
 import org.rubato.rubettes.util.PerformanceCheck;
+import org.rubato.rubettes.util.Point;
 
 public class JBigBangDisplay extends JPanel implements View {
 	
@@ -28,15 +28,11 @@ public class JBigBangDisplay extends JPanel implements View {
 	private DisplayModeAdapter modeAdapter;
 	private Timer timer;
 	
-	public JBigBangDisplay(BigBangController bbController, ViewController controller, BigBangPlayer player) {
+	public JBigBangDisplay(BigBangController bbController, ViewController controller) {
 		controller.addView(this);
-		this.contents = new DisplayContents(player);
+		this.contents = new DisplayContents();
 		JBigBangPopupMenu popup = new JBigBangPopupMenu(bbController, controller);
 		this.setComponentPopupMenu(popup);
-	}
-	
-	public DisplayContents getContents() {
-		return this.contents;
 	}
 	
 	private void setModeAdapter(DisplayModeAdapter adapter) {
@@ -45,6 +41,10 @@ public class JBigBangDisplay extends JPanel implements View {
 		}
 		this.modeAdapter = adapter;
 		this.modeAdapter.addTo(this);
+	}
+	
+	public DisplayContents getContents() {
+		return this.contents;
 	}
 	
 	public void toggleTimedRepaint() {
@@ -83,11 +83,19 @@ public class JBigBangDisplay extends JPanel implements View {
 		if (propertyName.equals(ViewController.DISPLAY_MODE)) {
 			this.setModeAdapter((DisplayModeAdapter)event.getNewValue());
 			this.repaint();
-		} else if (propertyName.equals(ViewController.VIEW_PARAMETERS)) {
+		} else if (propertyName.equals(ViewController.FACTS_VIEW_CONTENTS)) {
+			this.contents = (DisplayContents)event.getNewValue();
+			this.repaint();
+		} 
+		
+		
+		
+		else if (propertyName.equals(ViewController.VIEW_PARAMETERS)) {
 			this.contents.setViewParameters((ViewParameters)event.getNewValue());
 			this.repaint();
 		} else if (propertyName.equals(ViewController.DISPLAY_OBJECTS)) {
 			this.contents.setObjects((DisplayObjects)event.getNewValue());
+			//System.out.println(((DisplayObjects)event.getNewValue()).size());
 			this.repaint();
 			PerformanceCheck.startTask("done");
 			//PerformanceCheck.print();
@@ -101,9 +109,6 @@ public class JBigBangDisplay extends JPanel implements View {
 			this.repaint();
 		} else if (propertyName.equals(ViewController.ZOOM_FACTORS)) {
 			this.contents.setZoomFactors((double[])event.getNewValue());
-			this.repaint();
-		} else if (propertyName.equals(ViewController.ZOOM_CHANGE)) {
-			this.contents.changeZoomFactors((ZoomChange)event.getNewValue());
 			this.repaint();
 		} else if (propertyName.equals(ViewController.DISPLAY_POSITION)) {
 			this.contents.setPosition((Point)event.getNewValue());

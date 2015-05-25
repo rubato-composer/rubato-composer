@@ -2,15 +2,15 @@ package org.rubato.rubettes.bigbang.view.controller.score;
 
 import java.awt.Point;
 import java.awt.event.MouseEvent;
-import java.awt.geom.Point2D;
 
 import org.rubato.rubettes.bigbang.view.controller.ViewController;
 import org.rubato.rubettes.bigbang.view.model.tools.RotationTool;
 import org.rubato.rubettes.util.GeometryTools;
+import org.rubato.rubettes.util.Point2D;
 
 public class ObjectRotationAdapter extends ObjectTransformationAdapter {
 	
-	private Point2D.Double center;
+	private Point2D center;
 	private double startingAngle;
 	
 	public ObjectRotationAdapter(ViewController controller) {
@@ -20,7 +20,7 @@ public class ObjectRotationAdapter extends ObjectTransformationAdapter {
 	public ObjectRotationAdapter(ViewController controller, double[] center, double[] startingPoint, double[] endingPoint, double angle) {
 		super(controller, center, endingPoint);
 		this.setCenter(center[0], center[1]);
-		Point2D.Double startingPoint2D = new Point2D.Double(startingPoint[0], startingPoint[1]);
+		Point2D startingPoint2D = new Point2D(startingPoint[0], startingPoint[1]);
 		this.updateStartAngle(startingPoint2D);
 		this.updateArcAngle(angle);
 		this.updateEndingPoint(GeometryTools.calculatePoint(this.center, startingPoint2D, angle));
@@ -44,7 +44,7 @@ public class ObjectRotationAdapter extends ObjectTransformationAdapter {
 	@Override
 	public void mouseDragged(MouseEvent event) {
 		if (this.center != null) {
-			Point2D.Double currentEndingPoint = new Point2D.Double(event.getPoint().x, event.getPoint().y);
+			Point2D currentEndingPoint = new Point2D(event.getPoint().x, event.getPoint().y);
 			double arcAngle = this.calculateArcAngle(currentEndingPoint);
 			this.updateArcAngle(arcAngle);
 			super.mouseDragged(event);
@@ -53,23 +53,23 @@ public class ObjectRotationAdapter extends ObjectTransformationAdapter {
 	
 	@Override
 	protected void transformSelectedObjects(MouseEvent event, boolean startNewTransformation) {
-		Point2D.Double currentEndingPoint = new Point2D.Double(event.getPoint().x, event.getPoint().y);
+		Point2D currentEndingPoint = new Point2D(event.getPoint().x, event.getPoint().y);
 		double arcAngle = this.calculateArcAngle(currentEndingPoint);
 		this.controller.rotateSelectedObjects(this.center, this.startingPoint, currentEndingPoint, arcAngle, event.isAltDown(), startNewTransformation);
 	}
 	
 	@Override
 	protected void modifySelectedTransformation(MouseEvent event) {
-		Point2D.Double currentEndingPoint = new Point2D.Double(event.getPoint().x, event.getPoint().y);
+		Point2D currentEndingPoint = new Point2D(event.getPoint().x, event.getPoint().y);
 		double arcAngle = this.calculateArcAngle(currentEndingPoint);
 		this.controller.modifyRotationAngle(arcAngle);
 	}
 	
-	private double calculateStartingAngle(Point2D.Double startingPoint) {
+	private double calculateStartingAngle(Point2D startingPoint) {
 		return GeometryTools.calculateAngle(this.center, startingPoint);
 	}
 	
-	private double calculateArcAngle(Point2D.Double endingPoint) {
+	private double calculateArcAngle(Point2D endingPoint) {
 		return GeometryTools.calculateArcAngle(this.center, this.startingAngle, endingPoint);
 	}
 
@@ -87,7 +87,7 @@ public class ObjectRotationAdapter extends ObjectTransformationAdapter {
 	}
 	
 	private void setCenter(double x, double y) {
-		this.center = new Point2D.Double(x, y);
+		this.center = new Point2D(x, y);
 		if (this.displayTool != null) {
 			((RotationTool)this.displayTool).setCenter(this.center);
 		} else {
@@ -95,7 +95,7 @@ public class ObjectRotationAdapter extends ObjectTransformationAdapter {
 		}
 	}
 	
-	private void updateStartAngle(Point2D.Double startingPoint) {
+	private void updateStartAngle(Point2D startingPoint) {
 		this.startingAngle = this.calculateStartingAngle(startingPoint);
 		((RotationTool)this.displayTool).setStartingAngle(Math.toDegrees(this.startingAngle));
 	}
