@@ -1,24 +1,24 @@
 # Rubato Composer
 
-## Download
+## Install
 
-download the latest release [here](https://github.com/rubato-composer/rubato-composer/releases).
+Download the latest release [here](https://github.com/rubato-composer/rubato-composer/releases).
 
-the *bin* contains a Java archive `rubato.jar` which can be run with a double click or by running
+The `rubato-bin-YYYYMMDD.tar.gz` contains a Java archive `rubato.jar` which can be run by double-clicking it or by running
 ```bash
 $ java -jar rubato.jar
 ```
-in the console.
+in the console in the corresponding folder.
 
-alternatively, clone and build the src as subsequently described.
+Alternatively, clone and build the src as subsequently described.
 
-## Building
+## Build
 
-clone the project, move to the folder, then run
+Clone the project, move to the folder, then run
 ```bash
 $ ant
 ```
-which generates tar.gz files with latest *src*, *bin*, and *api* annotated with the current date.
+which generates tar.gz files with latest `src`, `bin`, and `api` annotated with the current date.
 
 ## Notes
 
