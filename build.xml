@@ -44,15 +44,12 @@
 
   <target name="dist-src" depends="init"
           description="Create source distribution">
-    <delete dir="export"/>
-    <!--svn cvsRoot=":ext:thalmann@math.ifi.unizh.ch:/opt/cvs"
-         command="export -D now rubato"
-         dest="export"/-->
-    <!--tar destfile="rubato-src-${DSTAMP}.tar">         
-      <tarfileset dir="export/rubato"
-                  prefix="rubato-src-${DSTAMP}"/>
-    </tar-->
-    <delete dir="export"/>
+    <exec dir="." executable="git">
+      <arg value="archive"/>
+      <arg value="-o"/>
+      <arg value="rubato-src-${DSTAMP}.tar"/>
+      <arg value="HEAD"/>
+    </exec>
     <gzip zipfile="rubato-src-${DSTAMP}.tar.gz"
           src="rubato-src-${DSTAMP}.tar"/>
     <delete file="rubato-src-${DSTAMP}.tar"/>
