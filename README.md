@@ -1,5 +1,13 @@
 # Rubato Composer
 
+## Info
+
+Rubato Composer is a music software based on the concepts and models of mathematical music theory.
+
+Visit http://rubato.org and http://www.encyclospace.org for more information.
+
+Former repository: https://sourceforge.net/projects/rubatocomposer/
+
 ## Install
 
 Download the latest release [here](https://github.com/rubato-composer/rubato-composer/releases).
