@@ -28,6 +28,7 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
 import org.rubato.base.Rubette;
+import org.rubato.composer.RubetteListModel;
 import org.rubato.composer.network.NetworkModel;
 import org.rubato.composer.rubette.JRubette;
 import org.rubato.rubettes.builtin.MacroRubette;
