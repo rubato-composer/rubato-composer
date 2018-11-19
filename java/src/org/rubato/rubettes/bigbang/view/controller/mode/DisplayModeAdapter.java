@@ -17,18 +17,19 @@ import javax.swing.event.MouseInputListener;
 import org.rubato.rubettes.bigbang.view.controller.ViewController;
 import org.rubato.rubettes.bigbang.view.controller.display.ZoomListener;
 
-import com.leapmotion.leap.Controller;
-import com.leapmotion.leap.Listener;
+//import com.leapmotion.leap.Controller;	
+//import com.leapmotion.leap.Listener;
 
-public class DisplayModeAdapter extends Listener implements MouseInputListener, MouseWheelListener, KeyEventDispatcher {
+//public class DisplayModeAdapter extends Listener implements MouseInputListener, MouseWheelListener, KeyEventDispatcher {
+public class DisplayModeAdapter implements MouseInputListener, MouseWheelListener, KeyEventDispatcher {
 	
 	private ViewController controller;
 	protected List<MouseListener> mouseListeners;
 	protected List<MouseInputListener> mouseInputListeners;
 	protected List<MouseWheelListener> mouseWheelListeners;
-	protected List<Listener> leapListeners;
+	//protected List<Listener> leapListeners;
 	
-	private Controller leapController;
+	//private Controller leapController;
 	private int addCount = 0;
 	
 	public DisplayModeAdapter(ViewController controller) {
@@ -36,8 +37,8 @@ public class DisplayModeAdapter extends Listener implements MouseInputListener, 
 		this.mouseListeners = new ArrayList<MouseListener>();
 		this.mouseInputListeners = new ArrayList<MouseInputListener>();
 		this.mouseWheelListeners = new ArrayList<MouseWheelListener>();
-		this.leapListeners = new ArrayList<Listener>();
-		this.leapController = new Controller();
+		//this.leapListeners = new ArrayList<Listener>();
+		//this.leapController = new Controller();
 		this.activateMouseWheel();
 	}
 	
@@ -48,7 +49,7 @@ public class DisplayModeAdapter extends Listener implements MouseInputListener, 
 		if (addCount == 0) {
 			KeyboardFocusManager focusManager = KeyboardFocusManager.getCurrentKeyboardFocusManager();
 			focusManager.addKeyEventDispatcher(this);
-			leapController.addListener(this);
+			//leapController.addListener(this);
 		}
 		addCount++;
 	}
@@ -60,7 +61,7 @@ public class DisplayModeAdapter extends Listener implements MouseInputListener, 
 		if (addCount <= 1) {
 			KeyboardFocusManager focusManager = KeyboardFocusManager.getCurrentKeyboardFocusManager();
 			focusManager.removeKeyEventDispatcher(this);
-			leapController.removeListener(this);
+			//leapController.removeListener(this);
 		}
 		addCount--;
 	}
@@ -131,12 +132,12 @@ public class DisplayModeAdapter extends Listener implements MouseInputListener, 
 		}
 	}
 	
-	@Override
+	/*@Override
 	public void onFrame(Controller controller) {
 		for (Listener leapListener : this.leapListeners) {
 			leapListener.onFrame(controller);
 		}
-	}
+	}*/
 	
 	protected void activateMouseWheel() {
 		this.mouseWheelListeners.add(new ZoomListener(this.controller));
